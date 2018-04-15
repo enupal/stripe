@@ -30,13 +30,14 @@
 
         {% namespace 'settings' %}
             {{ forms.field({
-                label: "General settings"|t('enupal-stripe')|upper
+                label: "General settings"|t('enupal-stripe')|upper,
+                instructions : 'Retrieve your Stripe <a href="https://dashboard.stripe.com/account/apikeys">API test and live keys.</a>'
             }, null) }}
             <hr>
 
             {{ forms.lightswitchField({
                 label: 'Test Mode'|t('enupal-stripe'),
-                instructions: 'Check this option if you want to enable PayPal sandbox for testing',
+                instructions: 'Make sure test mode is enabled in your Stripe dashboard to view your test transactions.',
                 id: 'testMode',
                 name: 'testMode',
                 on: settings.testMode,
@@ -48,23 +49,44 @@
             <hr>
 
             {{ forms.textField({
-                label: "Live Account"|t('enupal-stripe'),
-                instructions: "PayPal ID or an email address associated with your PayPal account. You can find your Merchant account ID in your PayPal account under Profile -> My business info -> Merchant account ID"|t('enupal-stripe'),
-                id: 'liveAccount',
-                name: 'liveAccount',
-                value: settings.liveAccount,
+                label: "Test Publishable Key"|t('enupal-stripe'),
+                instructions: "This key starts with <strong>pk_test</strong>"|t('enupal-stripe'),
+                id: 'testPublishableKey',
+                name: 'testPublishableKey',
+                value: settings.testPublishableKey,
                 autofocus: true,
-                errors: settings.getErrors('liveAccount')
+                errors: settings.getErrors('testPublishableKey')
             }) }}
 
-            {{ forms.textField({
-                label: "Sandbox Account"|t('enupal-stripe'),
-                instructions: "The PayPal Sandbox is a self-contained, virtual testing environment that mimics the live PayPal production environment. Use your existing PayPal account to log in to the Developer website at <a href='developer.paypal.com'>developer.paypal.com</a>, or create a new PayPal account by clicking the Sign Up button on this site."|t('enupal-stripe'),
-                id: 'sandboxAccount',
-                name: 'sandboxAccount',
-                value: settings.sandboxAccount,
+            {{ forms.passwordField({
+                label: "Test Secret Key"|t('enupal-stripe'),
+                instructions: "This key starts with <strong>sk_test</strong>"|t('enupal-stripe'),
+                id: 'testSecretKey',
+                name: 'testSecretKey',
+                value: settings.testSecretKey,
                 autofocus: true,
-                errors: settings.getErrors('sandboxAccount')
+                errors: settings.getErrors('testSecretKey')
+            }) }}
+            <hr>
+
+            {{ forms.textField({
+                label: "Live Publishable Key"|t('enupal-stripe'),
+                instructions: "This key starts with <strong>pk_live</strong>"|t('enupal-stripe'),
+                id: 'livePublishableKey',
+                name: 'livePublishableKey',
+                value: settings.livePublishableKey,
+                autofocus: true,
+                errors: settings.getErrors('livePublishableKey')
+            }) }}
+
+            {{ forms.passwordField({
+                label: "Live Secret Key"|t('enupal-stripe'),
+                instructions: "This key starts with <strong>sk_live</strong>"|t('enupal-stripe'),
+                id: 'liveSecretKey',
+                name: 'liveSecretKey',
+                value: settings.liveSecretKey,
+                autofocus: true,
+                errors: settings.getErrors('liveSecretKey')
             }) }}
 
         {% endnamespace %}

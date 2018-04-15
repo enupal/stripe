@@ -49,7 +49,7 @@ class Settings extends Model
     {
         return [
             [
-                ['liveAccount'],
+                ['livePublishableKey', 'liveSecretKey'],
                 'required', 'on' => 'general'
             ],
             [
