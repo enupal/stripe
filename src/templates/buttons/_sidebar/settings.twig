@@ -1,0 +1,190 @@
+{#
+/**
+ * EnupalStripe plugin for Craft CMS 3.x
+ *
+ * @link      https://enupal.com/
+ * @copyright Copyright (c) 2018 Enupal
+ */
+#}
+
+{% import "_includes/forms" as forms %}
+
+{% set currencyOptions = craft.paypalButton.getCurrencyIsoOptions() %}
+{% set languageOptions = craft.paypalButton.getLanguageOptions() %}
+{% set discountOptions = craft.paypalButton.getDiscountOptions() %}
+{% set shippingOptions = craft.paypalButton.getShippingOptions() %}
+{% set openInOptions = craft.paypalButton.getOpenInOptions() %}
+
+<div class="meta">
+    <h6>{{ 'General'|t('sprout-forms') }}</h6>
+
+    {{ forms.textField({
+        first: true,
+        label: "SKU <span class='info'>How you’ll refer to this Paypal Button in the templates.</span>"|t('enupal-stripe'),
+        id: 'sku',
+        name: 'sku',
+        value: paypalButton.sku,
+        errors: paypalButton.getErrors('sku'),
+        autofocus: true,
+        required: true
+    }) }}
+
+    {{ forms.lightswitchField({
+        label: "Enabled"|t('enupal-stripe'),
+        id: 'enabled',
+        name: 'enabled',
+        on: paypalButton.enabled
+    }) }}
+</div>
+<hr>
+<div class="meta">
+    <h6>{{ 'Paypal Button'|t('sprout-forms') }}</h6>
+    {% set amountInput %}
+    <div class="flex">
+        <div class="textwrapper">
+            {{ forms.text({
+                label: "Amount <span class='info'>You can leave it in blank if is a donation</span>"|t('enupal-stripe'),
+                id: 'amount',
+                name: 'amount',
+                placeholder: 'Enter amount'|t('enupal-stripe'),
+                value: (paypalButton.amount == '0' ? '0'|number : (paypalButton.amount ? paypalButton.amount|number ?: ''))
+            }) }}
+        </div>
+        <div class="textwrapper">
+            {{ forms.selectField({
+                id: 'currency',
+                name: 'currency',
+                options: currencyOptions,
+                value: paypalButton.currency
+            }) }}
+        </div>
+    </div>
+    {% endset %}
+
+    {{ forms.field({
+        id: 'amount',
+        label: 'Price <span class="info">The price or amount of the product, service, or contribution, not including shipping, handling, or tax. If empty, buyers enter their own amount at the time of payment</span>'|t('enupal-stripe'),
+        errors: paypalButton.getErrors('amount')|merge(paypalButton.getErrors('currency')),
+    }, amountInput) }}
+
+    {{ forms.selectField({
+        label: "Language <span class='info'>PayPal currently supports 18 languages</span>"|t('enupal-stripe'),
+        id: 'language',
+        name: 'language',
+        options: languageOptions,
+        value: paypalButton.language
+    }) }}
+
+    {% set stockInput %}
+        <div class="flex">
+            <div class="textwrapper">
+                {{ forms.text({
+                    id: 'quantity',
+                    name: 'quantity',
+                    value: (paypalButton.hasUnlimitedStock ? '' : (paypalButton.quantity == '0' ? '0': (paypalButton.quantity ? paypalButton.quantity : ''))),
+                    placeholder: 'Enter stock'|t('enupal-stripe'),
+                    disabled: paypalButton.hasUnlimitedStock
+                }) }}
+            </div>
+            <div class="nowrap">
+                {{ forms.checkbox({
+                    id: 'unlimited-stock',
+                    class: 'unlimited-stock',
+                    label: 'Unlimited'|t('enupal-stripe'),
+                    name: 'hasUnlimitedStock',
+                    checked: paypalButton.hasUnlimitedStock,
+                }) }}
+            </div>
+        </div>
+    {% endset %}
+
+    {{ forms.field({
+        id: 'stock',
+        label: 'Stock'|t('enupal-stripe'),
+        errors: paypalButton.getErrors('hasUnlimitedStock')|merge(paypalButton.getErrors('quantity')),
+    }, stockInput) }}
+
+    {{ forms.lightswitchField({
+        label: "Customer Quantity <span class='info'>Enables buyers to specify the quantity.</span>"|t('enupal-stripe'),
+        id: 'customerQuantity',
+        name: 'customerQuantity',
+        on: paypalButton.customerQuantity
+    }) }}
+
+    {{ forms.selectField({
+        label: "Open In"|t('enupal-stripe'),
+        id: 'openIn',
+        name: 'openIn',
+        options: openInOptions,
+        value: paypalButton.openIn
+    }) }}
+</div>
+<hr>
+<div class="meta">
+    <h6>{{ 'Discount'|t('sprout-forms') }}</h6>
+    {{ forms.selectField({
+        label: "Discount Type <span class='info'>Reduce the price by a percentage or amount, of the original price.</span>"|t('enupal-stripe'),
+        id: 'discountType',
+        name: 'discountType',
+        options: discountOptions,
+        value: paypalButton.discountType
+    }) }}
+    {{ forms.textField({
+        first: true,
+        label: "Discount <span class='info'>Apply discount to amount</span>"|t('enupal-stripe'),
+        id: 'discount',
+        name: 'discount',
+        placeholder: 'Enter discount',
+        value: (paypalButton.discount == '0' ? '0'|number : (paypalButton.discount ? paypalButton.discount|number ?: '')),
+        errors: paypalButton.getErrors('discount'),
+        autofocus: true,
+    }) }}
+</div>
+<hr>
+<div class="meta">
+    <h6>{{ 'Shipping'|t('sprout-forms') }}</h6>
+
+    {{ forms.selectField({
+        label: "Shipping Address"|t('enupal-stripe'),
+        id: 'shippingOption',
+        name: 'shippingOption',
+        options: shippingOptions,
+        value: paypalButton.shippingOption
+    }) }}
+
+    {{ forms.textField({
+        first: true,
+        label: "Shipping <span class='info'>Shipping amount, leave empty if is free shipping</span>"|t('enupal-stripe'),
+        id: 'shippingAmount',
+        name: 'shippingAmount',
+        placeholder: 'Enter amount',
+        unit: paypalButton.currency,
+        value: (paypalButton.shippingAmount == '0' ? '0'|number : (paypalButton.shippingAmount ? paypalButton.shippingAmount|number ?: '')),
+        errors: paypalButton.getErrors('shippingAmount'),
+        autofocus: true,
+    }) }}
+</div>
+<hr>
+<div class="meta">
+    <h6>{{ 'Advanced'|t('sprout-forms') }}</h6>
+
+    {{ forms.textField({
+        label: "Return URL <span class='info'>Redirect buyers' to this URL after they complete their payments</span>"|t('enupal-stripe'),
+        id: 'returnUrl',
+        name: 'returnUrl',
+        value: paypalButton.returnUrl,
+        placeholder: '/thank-you',
+        autofocus: true,
+        errors: paypalButton.getErrors('returnUrl')
+    }) }}
+
+    {{ forms.textField({
+        label: "Cancel URL <span class='info'>Redirect buyers' to this URL if they cancel checkout before completing their payments.</span>"|t('enupal-stripe'),
+        id: 'cancelUrl',
+        name: 'cancelUrl',
+        placeholder: '/something-went-wrong',
+        value: paypalButton.cancelUrl,
+        autofocus: true,
+        errors: paypalButton.getErrors('cancelUrl')
+    }) }}
+</div>

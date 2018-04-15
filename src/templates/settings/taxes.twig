@@ -1,0 +1,62 @@
+{#
+/**
+ * EnupalStripe plugin for Craft CMS 3.x
+ *
+ * @link      https://enupal.com/
+ * @copyright Copyright (c) 2018 Enupal
+ */
+#}
+
+{% extends "enupal-stripe/_layouts/settings" %}
+{% import "_includes/forms" as forms %}
+
+{% set settings = craft.paypalButton.getSettings() %}
+{% set fullPageForm = true %}
+{% set saveShortcutRedirect = 'enupal-stripe/settings/taxes' %}
+{% set discountOptions = craft.paypalButton.getDiscountOptions() %}
+
+{% set saveButton %}
+    <div class="buttons">
+        <input class="btn submit" type="submit" value="{{ 'Save'|t }}">
+    </div>
+{% endset %}
+
+{% set content %}
+
+    <input type="hidden" name="action"
+           value="enupal-stripe/settings/save-settings">
+    <input type="hidden" name="paypalScenario" value="taxes">
+    <div id="settings-cp">
+
+        {% namespace 'settings' %}
+            {{ forms.field({
+                label: "Taxes"|t('enupal-stripe')|upper,
+                instructions: "Transaction-based tax"|t('enupal-stripe'),
+            }, null) }}
+            <hr>
+
+            {{ forms.selectField({
+                label: "Discount Type"|t('enupal-stripe'),
+                instructions: 'Percentage or amount.',
+                id: 'taxType',
+                name: 'taxType',
+                options: discountOptions,
+                value: settings.taxType
+            }) }}
+
+            {{ forms.textField({
+                label: "Tax"|t('enupal-stripe'),
+                instructions: "Tax amount to apply to the payment"|t('enupal-stripe'),
+                id: 'tax',
+                name: 'tax',
+                value: settings.tax,
+                autofocus: true,
+                first: true,
+                errors: settings.getErrors('tax')
+            }) }}
+
+        {% endnamespace %}
+
+    </div>
+
+{% endset %}

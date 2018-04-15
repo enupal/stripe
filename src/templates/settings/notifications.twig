@@ -1,0 +1,78 @@
+{#
+/**
+ * EnupalBackup plugin for Craft CMS 3.x
+ *
+ * @link      https://enupal.com/
+ * @copyright Copyright (c) 2017 Enupal
+ */
+#}
+
+{% extends "enupal-stripe/_layouts/settings" %}
+{% import "_includes/forms" as forms %}
+
+{% set settings = craft.paypalButton.getSettings() %}
+{% set fullPageForm = true %}
+{% set saveShortcutRedirect = 'enupal-stripe/settings/notifications' %}
+
+{% set saveButton %}
+    <div class="buttons">
+        <input class="btn submit" type="submit"
+               value="{{ 'Save'|t('enupal-stripe') }}">
+    </div>
+{% endset %}
+
+{% set content %}
+    <input type="hidden" name="action"
+           value="enupal-stripe/settings/save-settings">
+    <input type="hidden" name="paypalScenario" value="customerNotification">
+    <div id="settings-cp">
+        {% namespace 'settings' %}
+
+            {{ forms.lightswitchField({
+                first: true,
+                label: "Enable Customer Email Notification"|t('enupal-stripe'),
+                id: 'enableCustomerNotification',
+                name: 'enableCustomerNotification',
+                on: settings.enableCustomerNotification,
+                onLabel: "Enable",
+                offLabel: "Disable",
+                errors: settings.getErrors('enableCustomerNotification')
+            }) }}
+
+            {{ forms.textField({
+                label: "Subject"|t('enupal-stripe'),
+                instructions: "The email Subject"|t('enupal-stripe'),
+                name: 'customerNotificationSubject',
+                placeholder: 'Order Recieved: {{ order.number }}, {{ order.getButton().name }}',
+                value: settings.customerNotificationSubject,
+                errors: (settings is defined ? settings.getErrors('customerNotificationSubject') : null)
+            }) }}
+
+            {{ forms.textField({
+                label: "Sender Name"|t('enupal-stripe'),
+                instructions: "The name of the sender of your notification email"|t('enupal-stripe'),
+                name: 'customerNotificationSenderName',
+                value: settings.customerNotificationSenderName,
+                errors: (settings is defined ? settings.getErrors('customerNotificationSenderName') : null)
+            }) }}
+
+            {{ forms.textField({
+                label: "Sender Email Address"|t('enupal-stripe'),
+                instructions: "The 'From' email address of your notification email"|t('enupal-stripe'),
+                name: 'customerNotificationSenderEmail',
+                value: settings.customerNotificationSenderEmail,
+                errors: (settings is defined ? settings.getErrors('customerNotificationSenderEmail') : null)
+            }) }}
+
+            {{ forms.textField({
+                label: "Reply To Email Address"|t('enupal-stripe'),
+                instructions: "The 'Reply To' email address of your notification email"|t('enupal-stripe'),
+                name: 'customerNotificationReplyToEmail',
+                value: settings.customerNotificationReplyToEmail,
+                errors: (settings is defined ? settings.getErrors('customerNotificationReplyToEmail') : null)
+            }) }}
+
+        {% endnamespace %}
+    </div>
+
+{% endset %}

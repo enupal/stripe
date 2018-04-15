@@ -1,0 +1,78 @@
+{% import "_includes/forms" as forms %}
+<div class="order-info">
+
+    <div class="order-info-box">
+        <table class="fullwidth data borderless">
+            <tr>
+                <td><strong>{{ "Reference"|t('enupal-stripe') }}</strong>
+                </td>
+                <td>
+                    <span id="order-number-short">{{ order.number }}</span>
+                </td>
+            </tr>
+            <tr>
+                <h4>{{ 'Information'|t('enupal-test') }}</h4>
+            </tr>
+            <tr>
+                <td><strong>{{ "First Name"|t('enupal-stripe') }}</strong>
+                </td>
+                <td>
+                    {{ order.firstName }}
+                </td>
+            </tr>
+            <tr>
+                <td><strong>{{ "Last Name"|t('enupal-stripe') }}</strong>
+                </td>
+                <td>
+                    {{ order.lastName }}
+                </td>
+            </tr>
+            <tr>
+                <td><strong>{{ "Email"|t('enupal-stripe') }}</strong>
+                </td>
+                <td>
+                    <a href="mailto:{{ order.email }}">{{ order.email }}</a>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <strong>{{ "Order Date"|t('enupal-stripe') }}</strong>
+                </td>
+                <td>
+                    <div id="order-completion">
+                        <span title="{{ order.dateOrdered|date('r') }}">{{ order.dateOrdered|date('D jS M Y') }}</span>
+                    </div>
+                </td>
+            </tr>
+
+            <tr>
+                <td><strong>{{ "Total Price"|t('enupal-stripe') }}</strong>
+                </td>
+                <td>{{ order.totalPrice|currency(order.currency) }}</td>
+            </tr>
+            <tr>
+                <td>
+                    <strong>{{ "Paypal ID"|t('enupal-stripe') }} </strong>
+                </td>
+                <td>{{ order.stripeTransactionId }}</td>
+            </tr>
+            <tr>
+                <td>
+                    <strong>{{ "Order Currency"|t('enupal-stripe') }} </strong>
+                </td>
+                <td>{{ order.currency }}</td>
+            </tr>
+        </table>
+    </div>
+    <div class="meta">
+        {% set orderStatusOptions = craft.paypalButton.getOrderStatuses() %}
+        {{ forms.selectField({
+            label: "Order Status"|t('enupal-stripe'),
+            id: 'orderStatusId',
+            name: 'orderStatusId',
+            options: orderStatusOptions,
+            value: order.orderStatusId,
+            errors: order.getErrors('orderStatusId')
+        }) }}
+    </div>
+</div>

@@ -1,0 +1,130 @@
+{% set button = order.getButton() %}
+<div class="order-details pane">
+    <table id="" class="data fullwidth collapsible">
+        <thead>
+        <tr>
+            <th scope="col">{{ 'Button'|t('enupal-stripe') }}</th>
+            <th scope="col">{{ 'Quantity'|t('enupal-stripe') }}</th>
+            <th scope="col"></th>
+            <th scope="col"></th>
+            <th scope="col"></th>
+            <th scope="col"></th>
+        </tr>
+        </thead>
+        <tbody>
+
+        <tr class="infoRow">
+            <td>
+                <a href="{{ button.cpEditUrl }}">{{ button.name }}</a>
+            </td>
+            <td>
+                {{ order.quantity }}
+            </td>
+            <td>
+            </td>
+            <td></td>
+            <td></td>
+            <td>
+            </td>
+            <td>
+            </td>
+        </tr>
+                {# SHIPPING AND TAX #}
+                <tr>
+                    <td></td>
+                    <td>
+                        <strong>{{ "Shipping "|t('enupal-stripe')}}</strong><br>
+                    </td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td>
+                        <span class="right">{{ order.shipping|currency(order.currency) }}</span>
+                    </td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td>
+                        <strong>{{ "Tax "|t('enupal-stripe')}}</strong><br>
+                    </td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td>
+                        <span class="right">{{ order.tax|currency(order.currency) }}</span>
+                    </td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td>
+                        <strong>{{ "Discount "|t('enupal-stripe')}}</strong><br>
+                    </td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td>
+                        <span class="right">-{{ order.discount|currency(order.currency) }}</span>
+                    </td>
+                    <td></td>
+                </tr>
+
+        <tr>
+            <td></td>
+            <td>
+                <div class="isPaid">
+                    <span>{{ 'PAID'|t('enupal-stripe') }}</div>
+            </td>
+            <td></td>
+            <td></td>
+            <td><h2>{{ "Total Amount"|t('enupal-stripe') }}</h2></td>
+            <td>
+                <h2 class="right">{{ order.totalPrice|currency(order.currency) }}</h2>
+            </td>
+            <td></td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+{% for key, variant in order.getVariants() %}
+    {% if loop.first %}
+        <br>
+        <h3>Variants</h3>
+        <div class="order-details pane">
+            <table id="" class="data fullwidth collapsible">
+            <thead>
+            <tr>
+                <th scope="col">{{ 'Label'|t('enupal-stripe') }}</th>
+                <th scope="col"></th>
+                <th scope="col">{{ 'Value'|t('enupal-stripe') }}</th>
+                <th scope="col"></th>
+            </tr>
+            </thead>
+        <tbody>
+    {% endif %}
+        <tr class="infoRow">
+            <td>
+                {{ key }}
+            </td>
+            <td>
+            </td>
+            <td>
+                {{ variant }}
+            </td>
+            <td>
+            </td>
+        </tr>
+    {% if loop.last %}
+          </tbody>
+        </table>
+    </div>
+    {% endif %}
+{% endfor %}
+
+{% if order.addressCity %}
+    <br>
+    <h3>{{ 'Shipping Address'|t('enupal-stripe') }}</h3>
+    {{ order.getShippingAddress()|raw }}
+{% endif %}
+

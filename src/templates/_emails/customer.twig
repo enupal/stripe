@@ -1,0 +1,246 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <meta name="format-detection" content="telephone=no"/>
+    <title>{{ 'Order: '|t }} {{ order.number }}</title>
+    <style type="text/css">
+        body {
+            width: 100% !important;
+            -webkit-text-size-adjust: 100%;
+            -ms-text-size-adjust: 100%;
+            margin: 0;
+            padding: 0;
+        }
+
+        .ExternalClass {
+            width: 100%;
+        }
+
+        .ExternalClass, .ExternalClass span, .ExternalClass font, .ExternalClass td, .ExternalClass div {
+            line-height: 100%;
+        }
+
+        .ExternalClass p {
+            line-height: inherit;
+        }
+
+        #body-layout {
+            margin: 0;
+            padding: 0;
+            width: 100% !important;
+            line-height: 100% !important;
+        }
+
+        img {
+            display: block;
+            outline: none;
+            text-decoration: none;
+            -ms-interpolation-mode: bicubic;
+        }
+
+        a img {
+            border: none;
+        }
+
+        table td {
+            border-collapse: collapse;
+        }
+
+        table {
+            border-collapse: collapse;
+            mso-table-lspace: 0pt;
+            mso-table-rspace: 0pt;
+        }
+
+        a {
+            color: inherit;
+            outline: none;
+            text-decoration: none;
+        }
+    </style>
+    <style type="text/css">
+        [style*="Lato"] {
+            font-family: 'Lato', 'Trebuchet MS', Helvetica, sans-serif !important;
+        }
+
+        @media only screen and (max-width: 414px) {
+
+            div[class="block"] {
+                width: 100% !important;
+                max-width: 375px !important;
+            }
+
+            div[class="full-block"] {
+                width: 100% !important;
+                max-width: none !important;
+            }
+
+            table[class="full-width"] {
+                width: 100% !important;
+            }
+        }
+    </style>
+    <link href='//fonts.googleapis.com/css?family=Lato:400,700,700italic' rel='stylesheet' type='text/css'/>
+
+</head>
+<body id="body-layout">
+<table width="100%" align="center" cellpadding="0" cellspacing="0" border="0">
+    <tr>
+        <td align="center" valign="top" style="background: #ffffff;" >
+            <table align="center" cellpadding="0" cellspacing="0" border="0">
+                <tr>
+                    <td width="800" align="center" valign="top" style="background: #ffffff;">
+
+                        <!--Brand
+                        <table width="100%" align="center" cellpadding="0" cellspacing="0" border="0">
+                            <tr>
+                                <td align="center" valign="top" style="padding: 0 20px;">
+                                    <table align="center" cellpadding="0" cellspacing="0" border="0">
+                                        <tr>
+                                            <td width="139" align="center" valign="top">
+                                                <table width="100%" align="center" cellpadding="0" cellspacing="0" border="0">
+                                                    <tr>
+                                                        <td height="31" style="height: 30px; line-height:30px;"></td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td align="center" valign="top" style="line-height: 0px !important;"><a
+                                                                    style="text-decoration: none; display: block;" href="index.html"><img
+                                                                        src="images/logo.png" alt="logo" width="100%"
+                                                                        style="width: 100%; max-width: 100%;"/></a>
+                                                        </td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td height="30" style="height: 30px; line-height: 30px;"></td>
+                                                    </tr>
+                                                </table>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </td>
+                            </tr>
+                        </table>
+                        -->
+
+                        <!--section About Us-->
+                        <table width="100%" align="center" cellpadding="0" cellspacing="0" border="0">
+                            <tr>
+                                <td align="center" valign="top"  style="padding: 0 20px;">
+                                    <table align="center" cellpadding="0" cellspacing="0" border="0">
+                                        <tr>
+                                            <td width="620" align="center" valign="top">
+                                                <table width="100%" align="center" cellpadding="0" cellspacing="0" border="0">
+                                                    <tr>
+                                                        <td height="45" style="height: 45px; line-height:45px;"></td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td align="center" valign="top" mc:edit="body4"
+                                                            style="color: #434345; font-family: 'Trebuchet MS', Helvetica, sans-serif, 'Lato', sans-serif; font-size: 30px; mso-line-height-rule: exactly; line-height: 36px; font-weight: 700;">
+                                                            Thank You!
+                                                        </td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td height="16" style="height: 16px; line-height:16px;"></td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td align="center" valign="top" style="line-height: 0px !important;">
+                                                            <hr>
+                                                        </td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td height="40" style="height: 40px; line-height:40px;"></td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td align="center" valign="top" mc:edit="body5"
+                                                            style="color: #434345; font-family: 'Trebuchet MS', Helvetica, sans-serif, 'Lato', sans-serif; font-size: 16px; mso-line-height-rule: exactly; line-height: 24px; font-weight: 400;">
+                                                            {{ "Order Number:"|t }} {{ order.number }}
+                                                        </td>
+                                                    </tr>
+                                                    <tr>
+
+                                                        <td align="center" valign="top" mc:edit="body5"
+                                                            style="color: #434345; font-family: 'Trebuchet MS', Helvetica, sans-serif, 'Lato', sans-serif; font-size: 16px; mso-line-height-rule: exactly; line-height: 24px; font-weight: 400;">
+                                                            {{ "Quantity:" }} {{ order.quantity }}
+                                                        </td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td align="center" valign="top" mc:edit="body5"
+                                                            style="color: #434345; font-weight: bolder; font-family: 'Trebuchet MS', Helvetica, sans-serif, 'Lato', sans-serif; font-size: 16px; mso-line-height-rule: exactly; line-height: 24px; font-weight: 400;">
+                                                            {{ "Total: " }} {{ order.totalPrice|currency(order.currency) }}
+                                                        </td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td align="center" valign="top" mc:edit="body5"
+                                                            style="color: #434345; font-weight: bolder; font-family: 'Trebuchet MS', Helvetica, sans-serif, 'Lato', sans-serif; font-size: 16px; mso-line-height-rule: exactly; line-height: 24px; font-weight: 400;">
+                                                            {{ "Product:" }} {{ order.getButton().name }}
+                                                        </td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td align="center" valign="top" mc:edit="body5"
+                                                            style="color: #434345; font-weight: bolder; font-family: 'Trebuchet MS', Helvetica, sans-serif, 'Lato', sans-serif; font-size: 16px; mso-line-height-rule: exactly; line-height: 24px; font-weight: 400;">
+                                                            {{ "Details: " }}
+                                                            {% for key, variant in order.getVariants() %}
+                                                                {{ key }} : {{ variant }}{% if not loop.last %},{% endif %}
+                                                            {% endfor %}
+                                                        </td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td height="30" style="height: 30px; line-height:30px;"></td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td align="center" valign="top">
+                                                            <table width="148" align="center" cellpadding="0" cellspacing="0" border="0">
+                                                                <tr>
+                                                                    <td align="center" valign="top" style="background: #8668ad; border-radius: 5px;">
+                                                                        <table width="100%" align="center" cellpadding="0" cellspacing="0" border="0">
+                                                                            <tr>
+                                                                                <td height="13" style="height: 13px; line-height:13px;"></td>
+                                                                            </tr>
+                                                                            <tr>
+                                                                                <td align="center" valign="top" mc:edit="body6"
+                                                                                    style="color: #ffffff; font-family: 'Trebuchet MS', Helvetica, sans-serif, 'Lato', sans-serif;  padding: 0 25px; font-size: 14px; mso-line-height-rule: exactly; line-height: 24px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.06em">
+                                                                                      <span style="color: #ffffff;">
+                                                                                        <a style="text-decoration: none; color: #ffffff;"
+                                                                                           href="{{ order.getButton().returnUrl }}">read more</a>
+                                                                                      </span>
+                                                                                </td>
+                                                                            </tr>
+                                                                            <tr>
+                                                                                <td height="13" style="height: 13px; line-height:13px;"></td>
+                                                                            </tr>
+                                                                        </table>
+                                                                    </td>
+                                                                </tr>
+                                                            </table>
+                                                        </td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td height="63" style="height: 63px; line-height:63px;"></td>
+                                                    </tr>
+                                                </table>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </td>
+                            </tr>
+                        </table>
+
+
+                        <table width="100%" align="center" cellpadding="0" cellspacing="0" border="0">
+                            <tr>
+                                <td height="12" style="height: 12px; line-height:12px;"></td>
+                            </tr>
+                            <tr>
+                                <td height="12" style="height: 12px; line-height:12px;"></td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+            </table>
+        </td>
+    </tr>
+</table>
+</body>
+</html>

@@ -1,0 +1,7 @@
+src/resources/css/font/* linguist-vendored
+src/resources/css/bootstrap-iso.css linguist-vendored
+src/resources/css/highlight.min.css linguist-vendored
+src/resources/js/highlight.min.js linguist-vendored
+src/resources/js/bootstrap.min.js linguist-vendored
+src/resources/phpbu.phar linguist-vendored
+src/templates/_notification/* linguist-vendored

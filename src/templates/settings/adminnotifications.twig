@@ -1,0 +1,87 @@
+{#
+/**
+ * EnupalBackup plugin for Craft CMS 3.x
+ *
+ * @link      https://enupal.com/
+ * @copyright Copyright (c) 2017 Enupal
+ */
+#}
+
+{% extends "enupal-stripe/_layouts/settings" %}
+{% import "_includes/forms" as forms %}
+
+{% set settings = craft.paypalButton.getSettings() %}
+{% set fullPageForm = true %}
+{% set saveShortcutRedirect = 'enupal-stripe/settings/adminnotifications' %}
+
+{% set saveButton %}
+    <div class="buttons">
+        <input class="btn submit" type="submit"
+               value="{{ 'Save'|t('enupal-stripe') }}">
+    </div>
+{% endset %}
+
+{% set content %}
+    <input type="hidden" name="action"
+           value="enupal-stripe/settings/save-settings">
+    <input type="hidden" name="paypalScenario" value="adminNotification">
+    <div id="settings-cp">
+        {% namespace 'settings' %}
+
+            {{ forms.lightswitchField({
+                first: true,
+                label: "Enable Admin Email Notification"|t('enupal-stripe'),
+                id: 'enableAdminNotification',
+                name: 'enableAdminNotification',
+                on: settings.enableAdminNotification,
+                onLabel: "Enable",
+                offLabel: "Disable",
+                errors: settings.getErrors('enableAdminNotification')
+            }) }}
+
+            {{ forms.textField({
+                label: "Subject"|t('enupal-stripe'),
+                instructions: "The email Subject"|t('enupal-stripe'),
+                placeholder: 'Payment Recieved: {{ order.number }} - {{ order.getButton().name }}',
+                name: 'adminNotificationSubject',
+                value: settings.adminNotificationSubject,
+                errors: (settings is defined ? settings.getErrors('adminNotificationSubject') : null)
+            }) }}
+
+            {{ forms.textField({
+                label: 'Email Recipients'|t('enupal-stripe'),
+                instructions: "A comma-delimited list of email addresses to notify when a payment is recieved"|t('enupal-stripe'),
+                name: 'adminNotificationRecipients',
+                value: settings.adminNotificationRecipients,
+                errors: (settings is defined ? settings.getErrors('adminNotificationRecipients') : null),
+                first: true
+            }) }}
+
+            {{ forms.textField({
+                label: "Sender Name"|t('enupal-stripe'),
+                instructions: "The name of the sender of your notification email"|t('enupal-stripe'),
+                name: 'adminNotificationSenderName',
+                value: settings.adminNotificationSenderName,
+                errors: (settings is defined ? settings.getErrors('adminNotificationSenderName') : null)
+            }) }}
+
+            {{ forms.textField({
+                label: "Sender Email Address"|t('enupal-stripe'),
+                instructions: "The 'From' email address of your notification email"|t('enupal-stripe'),
+                name: 'adminNotificationSenderEmail',
+                value: settings.adminNotificationSenderEmail,
+                errors: (settings is defined ? settings.getErrors('adminNotificationSenderEmail') : null)
+            }) }}
+
+            {{ forms.textField({
+                label: "Reply To Email Address"|t('enupal-stripe'),
+                instructions: "The 'Reply To' email address of your notification email"|t('enupal-stripe'),
+                name: 'adminNotificationReplyToEmail',
+                value: settings.adminNotificationReplyToEmail,
+                errors: (settings is defined ? settings.getErrors('adminNotificationReplyToEmail') : null)
+            }) }}
+
+        {% endnamespace %}
+    </div>
+
+{% endset %}

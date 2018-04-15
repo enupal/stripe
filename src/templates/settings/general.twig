@@ -1,0 +1,74 @@
+{#
+/**
+ * EnupalStripe plugin for Craft CMS 3.x
+ *
+ * @link      https://enupal.com/
+ * @copyright Copyright (c) 2018 Enupal
+ */
+#}
+
+{% extends "enupal-stripe/_layouts/settings" %}
+{% import "_includes/forms" as forms %}
+
+{% set settings = craft.paypalButton.getSettings() %}
+{% set fullPageForm = true %}
+{% set saveShortcutRedirect = 'enupal-stripe/settings/general' %}
+
+{% set saveButton %}
+    <div class="buttons">
+        <input class="btn submit" type="submit" value="{{ 'Save'|t }}">
+    </div>
+{% endset %}
+
+{% set content %}
+
+    <input type="hidden" name="action"
+           value="enupal-stripe/settings/save-settings">
+    <input type="hidden" name="paypalScenario" value="general">
+
+    <div id="settings-cp">
+
+        {% namespace 'settings' %}
+            {{ forms.field({
+                label: "General settings"|t('enupal-stripe')|upper
+            }, null) }}
+            <hr>
+
+            {{ forms.lightswitchField({
+                label: 'Test Mode'|t('enupal-stripe'),
+                instructions: 'Check this option if you want to enable PayPal sandbox for testing',
+                id: 'testMode',
+                name: 'testMode',
+                on: settings.testMode,
+                onLabel: "On"|t('enupal-stripe'),
+                offLabel: "Off"|t('enupal-stripe'),
+                errors: settings.getErrors('testMode'),
+            }) }}
+
+            <hr>
+
+            {{ forms.textField({
+                label: "Live Account"|t('enupal-stripe'),
+                instructions: "PayPal ID or an email address associated with your PayPal account. You can find your Merchant account ID in your PayPal account under Profile -> My business info -> Merchant account ID"|t('enupal-stripe'),
+                id: 'liveAccount',
+                name: 'liveAccount',
+                value: settings.liveAccount,
+                autofocus: true,
+                errors: settings.getErrors('liveAccount')
+            }) }}
+
+            {{ forms.textField({
+                label: "Sandbox Account"|t('enupal-stripe'),
+                instructions: "The PayPal Sandbox is a self-contained, virtual testing environment that mimics the live PayPal production environment. Use your existing PayPal account to log in to the Developer website at <a href='developer.paypal.com'>developer.paypal.com</a>, or create a new PayPal account by clicking the Sign Up button on this site."|t('enupal-stripe'),
+                id: 'sandboxAccount',
+                name: 'sandboxAccount',
+                value: settings.sandboxAccount,
+                autofocus: true,
+                errors: settings.getErrors('sandboxAccount')
+            }) }}
+
+        {% endnamespace %}
+
+    </div>
+
+{% endset %}

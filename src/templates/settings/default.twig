@@ -1,0 +1,74 @@
+{#
+/**
+ * EnupalStripe plugin for Craft CMS 3.x
+ *
+ * @link      https://enupal.com/
+ * @copyright Copyright (c) 2018 Enupal
+ */
+#}
+
+{% extends "enupal-stripe/_layouts/settings" %}
+{% import "_includes/forms" as forms %}
+
+{% set settings = craft.paypalButton.getSettings() %}
+{% set fullPageForm = true %}
+{% set saveShortcutRedirect = 'enupal-stripe/settings/default' %}
+{% set currencyOptions = craft.paypalButton.getCurrencyOptions() %}
+
+{% set saveButton %}
+    <div class="buttons">
+        <input class="btn submit" type="submit" value="{{ 'Save'|t }}">
+    </div>
+{% endset %}
+
+{% set content %}
+
+    <input type="hidden" name="action"
+           value="enupal-stripe/settings/save-settings">
+
+    <div id="settings-cp">
+
+        {% namespace 'settings' %}
+            {{ forms.field({
+                label: "Default values"|t('enupal-stripe'),
+                instructions: "These are the default settings when create a new Paypal Button and you can override it as per-button basis."|t('enupal-stripe'),
+            }, null) }}
+            <hr>
+            {{ forms.textField({
+                label: "Global Return URL"|t('enupal-stripe'),
+                instructions: "Redirect buyers' to this URL after they complete their payments"|t('enupal-stripe'),
+                id: 'returnUrl',
+                name: 'returnUrl',
+                placeholder: '/thank-you',
+                value: settings.returnUrl,
+                autofocus: true,
+                errors: settings.getErrors('returnUrl')
+            }) }}
+
+            {{ forms.textField({
+                label: "Global Cancel URL"|t('enupal-stripe'),
+                instructions: "Redirect buyers' to this URL if they cancel checkout before completing their payments."|t('enupal-stripe'),
+                id: 'cancelUrl',
+                name: 'cancelUrl',
+                placeholder: '/something-went-wrong',
+                value: settings.cancelUrl,
+                autofocus: true,
+                errors: settings.getErrors('cancelUrl')
+            }) }}
+            <hr>
+
+            {{ forms.selectField({
+                id: 'defaultCurrency',
+                label: "Global Currency"|t('enupal-stripe'),
+                instructions: 'The currency of the payment'|t('enupal-stripe'),
+                name: 'defaultCurrency',
+                options: currencyOptions,
+                value: settings.defaultCurrency
+            }) }}
+
+
+        {% endnamespace %}
+
+    </div>
+
+{% endset %}

@@ -1,0 +1,13 @@
+*.idea/*
+*.log
+*.bak
+*.DS_Store
+*.orig
+*Thumbs.db
+Build/*
+*.sass-cache
+node_modules/
+/composer.lock
+/vendor
+haters
+.DS_Store
