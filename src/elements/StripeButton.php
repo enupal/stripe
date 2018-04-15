@@ -89,6 +89,8 @@ class StripeButton extends Element
     public $verifyZip;
     public $enableBillingAddress;
     public $enableShippingAddress;
+    public $logoImage;
+    public $enableRememberMe;
 
     protected $env;
     protected $paypalUrl;

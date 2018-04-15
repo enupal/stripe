@@ -1,11 +1,11 @@
-if (typeof Craft.PaypalButton === typeof undefined) {
-    Craft.PaypalButton = {};
+if (typeof Craft.StripeButton === typeof undefined) {
+    Craft.StripeButton = {};
 }
 
 /**
  * Class Craft.StripeButton.OrderTableView
  */
-Craft.PaypalButton.OrderTableView = Craft.TableElementIndexView.extend({
+Craft.StripeButton.OrderTableView = Craft.TableElementIndexView.extend({
 
         startDate: null,
         endDate: null,
@@ -31,11 +31,11 @@ Craft.PaypalButton.OrderTableView = Craft.TableElementIndexView.extend({
         },
 
         getStorage: function(key) {
-            return Craft.PaypalButton.OrderTableView.getStorage(this.elementIndex._namespace, key);
+            return Craft.StripeButton.OrderTableView.getStorage(this.elementIndex._namespace, key);
         },
 
         setStorage: function(key, value) {
-            Craft.PaypalButton.OrderTableView.setStorage(this.elementIndex._namespace, key, value);
+            Craft.StripeButton.OrderTableView.setStorage(this.elementIndex._namespace, key, value);
         },
 
         createChartExplorer: function() {
@@ -87,13 +87,13 @@ Craft.PaypalButton.OrderTableView = Craft.TableElementIndexView.extend({
         },
 
         handleStartDateChange: function() {
-            if (this.setStartDate(Craft.PaypalButton.OrderTableView.getDateFromDatepickerInstance(this.startDatepicker))) {
+            if (this.setStartDate(Craft.StripeButton.OrderTableView.getDateFromDatepickerInstance(this.startDatepicker))) {
                 this.loadReport();
             }
         },
 
         handleEndDateChange: function() {
-            if (this.setEndDate(Craft.PaypalButton.OrderTableView.getDateFromDatepickerInstance(this.endDatepicker))) {
+            if (this.setEndDate(Craft.StripeButton.OrderTableView.getDateFromDatepickerInstance(this.endDatepicker))) {
                 this.loadReport();
             }
         },
@@ -137,8 +137,8 @@ Craft.PaypalButton.OrderTableView = Craft.TableElementIndexView.extend({
         loadReport: function() {
             var requestData = this.settings.params;
 
-            requestData.startDate = Craft.PaypalButton.OrderTableView.getDateValue(this.startDate);
-            requestData.endDate = Craft.PaypalButton.OrderTableView.getDateValue(this.endDate);
+            requestData.startDate = Craft.StripeButton.OrderTableView.getDateValue(this.startDate);
+            requestData.endDate = Craft.StripeButton.OrderTableView.getDateValue(this.endDate);
 
             this.$spinner.removeClass('hidden');
             this.$error.addClass('hidden');
@@ -182,19 +182,19 @@ Craft.PaypalButton.OrderTableView = Craft.TableElementIndexView.extend({
         storage: {},
 
         getStorage: function(namespace, key) {
-            if (Craft.PaypalButton.OrderTableView.storage[namespace] && Craft.PaypalButton.OrderTableView.storage[namespace][key]) {
-                return Craft.PaypalButton.OrderTableView.storage[namespace][key];
+            if (Craft.StripeButton.OrderTableView.storage[namespace] && Craft.StripeButton.OrderTableView.storage[namespace][key]) {
+                return Craft.StripeButton.OrderTableView.storage[namespace][key];
             }
 
             return null;
         },
 
         setStorage: function(namespace, key, value) {
-            if (typeof Craft.PaypalButton.OrderTableView.storage[namespace] === typeof undefined) {
-                Craft.PaypalButton.OrderTableView.storage[namespace] = {};
+            if (typeof Craft.StripeButton.OrderTableView.storage[namespace] === typeof undefined) {
+                Craft.StripeButton.OrderTableView.storage[namespace] = {};
             }
 
-            Craft.PaypalButton.OrderTableView.storage[namespace][key] = value;
+            Craft.StripeButton.OrderTableView.storage[namespace][key] = value;
         },
 
         getDateFromDatepickerInstance: function(inst) {

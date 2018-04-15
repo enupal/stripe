@@ -315,34 +315,14 @@ class Buttons extends Component
      */
     public function getIsoCurrencies()
     {
-        $currencies = [];
-        $currencies['USD'] = 'USD';
-        $currencies['AUD'] = 'AUD';
-        $currencies['BRL'] = 'BRL';
-        $currencies['CAD'] = 'CAD';
-        $currencies['CZK'] = 'CZK';
-        $currencies['DKK'] = 'DKK';
-        $currencies['EUR'] = 'EUR';
-        $currencies['HKD'] = 'HKD';
-        $currencies['HUF'] = 'HUF';
-        $currencies['ILS'] = 'ILS';
-        $currencies['JPY'] = 'JPY';
-        $currencies['MYR'] = 'MYR';
-        $currencies['MXN'] = 'MXN';
-        $currencies['NOK'] = 'NOK';
-        $currencies['NZD'] = 'NZD';
-        $currencies['PHP'] = 'PHP';
-        $currencies['PLN'] = 'PLN';
-        $currencies['GBP'] = 'GBP';
-        $currencies['RUB'] = 'RUB';
-        $currencies['SGD'] = 'SGD';
-        $currencies['SEK'] = 'SEK';
-        $currencies['CHF'] = 'CHF';
-        $currencies['TWD'] = 'TWD';
-        $currencies['THB'] = 'THB';
-        $currencies['TRY'] = 'TRY';
+        $currencies = $this->getCurrencies();
+        $isoCurrencies = [];
 
-        return $currencies;
+        foreach ($currencies as $key => $currency) {
+            $isoCurrencies[$key] = $key;
+        }
+
+        return $isoCurrencies;
     }
 
     /**
@@ -388,12 +368,12 @@ class Buttons extends Component
         $button->name = $this->getFieldAsNew('name', $name);
         $button->sku = $this->getFieldAsNew('sku', $handle);
         $button->hasUnlimitedStock = 1;
-        $button->shippingOption = 0;
+        $button->enableBillingAddress = 0;
+        $button->enableShippingAddress = 0;
         $button->customerQuantity = 0;
         $button->currency = $settings->defaultCurrency ? $settings->defaultCurrency : 'USD';
         $button->enabled = 1;
-        $button->language = 'en_US';
-        $button->openIn = OpenWindow::NEWWINDOW;
+        $button->language = 'en';
 
         // Set default variant
         $button = $this->addDefaultVariant($button);

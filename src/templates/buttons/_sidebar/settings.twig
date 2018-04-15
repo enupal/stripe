@@ -13,7 +13,6 @@
 {% set languageOptions = craft.stripeButton.getLanguageOptions() %}
 {% set discountOptions = craft.stripeButton.getDiscountOptions() %}
 {% set shippingOptions = craft.stripeButton.getShippingOptions() %}
-{% set openInOptions = craft.stripeButton.getOpenInOptions() %}
 
 <div class="meta">
     <h6>{{ 'General'|t('sprout-forms') }}</h6>
@@ -110,14 +109,6 @@
         name: 'customerQuantity',
         on: paypalButton.customerQuantity
     }) }}
-
-    {{ forms.selectField({
-        label: "Open In"|t('enupal-stripe'),
-        id: 'openIn',
-        name: 'openIn',
-        options: openInOptions,
-        value: paypalButton.openIn
-    }) }}
 </div>
 <hr>
 <div class="meta">
@@ -144,12 +135,18 @@
 <div class="meta">
     <h6>{{ 'Shipping'|t('sprout-forms') }}</h6>
 
-    {{ forms.selectField({
-        label: "Shipping Address"|t('enupal-stripe'),
-        id: 'shippingOption',
-        name: 'shippingOption',
-        options: shippingOptions,
-        value: paypalButton.shippingOption
+    {{ forms.lightswitchField({
+        label: "Shipping Address <span class='info'>Enables buyers to specify the Shipping Address</span>"|t('enupal-stripe'),
+        id: 'enableShippingAddress',
+        name: 'enableShippingAddress',
+        on: paypalButton.enableShippingAddress
+    }) }}
+
+    {{ forms.lightswitchField({
+        label: "Billing Address <span class='info'>Enables buyers to specify the Billing Address</span>"|t('enupal-stripe'),
+        id: 'enableBillingAddress',
+        name: 'enableBillingAddress',
+        on: paypalButton.enableBillingAddress
     }) }}
 
     {{ forms.textField({

@@ -81,14 +81,6 @@ class PaypalVariable
     /**
      * @return array
      */
-    public function getSizeOptions()
-    {
-        return Stripe::$app->buttons->getSizeOptions();
-    }
-
-    /**
-     * @return array
-     */
     public function getLanguageOptions()
     {
         return Stripe::$app->buttons->getLanguageOptions();
@@ -120,14 +112,6 @@ class PaypalVariable
         $options[OrderStatus::SHIPPED] = Stripe::t('Shipped');
 
         return $options;
-    }
-
-    /**
-     * @return array
-     */
-    public function getOpenInOptions()
-    {
-        return Stripe::$app->buttons->getOpenOptions();
     }
 }
 

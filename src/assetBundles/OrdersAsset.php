@@ -30,8 +30,8 @@ class OrdersAsset extends AssetBundle
         ];
 
         $this->js = [
-            'js/PaypalButtonOrderIndex.js',
-            'js/PaypalButtonOrderTableView.js'
+            'js/StripeButtonOrderIndex.js',
+            'js/StripeButtonOrderTableView.js'
         ];
 
         parent::init();

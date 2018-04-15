@@ -52,7 +52,7 @@
         {{ forms.textField({
             first: true,
             label: "Item Name"|t('enupal-stripe'),
-            instructions: 'What this Paypal Button will be called in the CP. This value will be used to set the <strong>Item Name</strong> in PayPal',
+            instructions: 'What this Paypal Button will be called in the CP. This value will be used to set the <strong>Item Description</strong> in Stripe',
             id: 'name',
             name: 'name',
             value: paypalButton.name,
@@ -61,32 +61,29 @@
             required: true
         }) }}
         <hr>
-        {% set sizeOptions = craft.stripeButton.getSizeOptions() %}
-        {% set sizeInput %}
-            <div class="flex">
-                <div class="textwrapper">
-                    {{ forms.selectField({
-                        id: 'size',
-                        name: 'size',
-                        options: sizeOptions,
-                        value: paypalButton.size
-                    }) }}
-                </div>
-            </div>
-            <div class="header" style="text-align: center;">
-                <span class="paypal-instructions"><p>{{ "Preview:"|t('enupal-stripe') }}</p> </span>
-                <p>
-                <img id="button-preview" src="" alt="">
-                </p>
-            </div>
-        {% endset %}
 
-        {{ forms.field({
-            id: 'size',
-            instructions: 'Customize text or appearance',
-            label: 'Button Size'|t('enupal-stripe'),
-            errors: paypalButton.getErrors('size'),
-        }, sizeInput) }}
+
+        {{ forms.textField({
+            first: true,
+            label: "Payment Button Text"|t('enupal-stripe'),
+            instructions: 'Text used on displayButton tag. "Pay with card" is the default',
+            placeholder: 'Pay {{ button.amount }}',
+            id: 'buttonText',
+            name: 'buttonText',
+            value: paypalButton.buttonText,
+            errors: paypalButton.getErrors('buttonText')
+        }) }}
+
+        {{ forms.textField({
+            first: true,
+            label: "Payment Button Processing Text"|t('enupal-stripe'),
+            instructions: 'Text used when the payment is processing',
+            placeholder: 'Please wait...',
+            id: 'paymentButtonProcessingText',
+            name: 'paymentButtonProcessingText',
+            value: paypalButton.paymentButtonProcessingText,
+            errors: paypalButton.getErrors('paymentButtonProcessingText')
+        }) }}
 
         <hr>
         {% for tab in paypalButton.getFieldLayout().getTabs() %}
@@ -123,7 +120,7 @@
     </div>
 {% endblock %}
 
-{% do view.registerAssetBundle("enupal\\stripe\\assetbundles\\PaypalButtonAsset") %}
+{% do view.registerAssetBundle("enupal\\stripe\\assetbundles\\StripeButtonAsset") %}
 {% do view.registerAssetBundle("enupal\\stripe\\assetbundles\\FontAwesomeAsset") %}
 {% js %}
     $(document).ready(function() {
