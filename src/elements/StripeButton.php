@@ -20,7 +20,6 @@ use craft\elements\actions\Delete;
 
 use enupal\stripe\elements\db\StripeButtonsQuery;
 use enupal\stripe\records\StripeButton as StripeButtonRecord;
-use enupal\stripe\enums\PaypalSize;
 use enupal\stripe\Stripe as PaypalPlugin;
 use craft\validators\UniqueValidator;
 
@@ -43,11 +42,6 @@ class StripeButton extends Element
      * @var string Sku
      */
     public $sku;
-
-    /**
-     * @var string size
-     */
-    public $size;
 
     /**
      * @var string Currency
@@ -75,7 +69,6 @@ class StripeButton extends Element
     public $soldOutMessage;
     public $discountType;
     public $discount;
-    public $shippingOption;
     public $shippingAmount;
     public $itemWeight;
     public $itemWeightUnit;
@@ -89,7 +82,13 @@ class StripeButton extends Element
     public $buttonText;
     public $paymentButtonProcessingText;
     public $returnUrl;
-    public $openIn;
+
+    public $amountType;
+    public $minimumAmount;
+    public $customAmountLabel;
+    public $verifyZip;
+    public $enableBillingAddress;
+    public $enableShippingAddress;
 
     protected $env;
     protected $paypalUrl;
@@ -478,22 +477,27 @@ class StripeButton extends Element
 
         $record->name = $this->name;
         $record->sku = $this->sku;
-        $record->size = $this->size;
         $record->currency = $this->currency;
         $record->language = $this->language;
+        $record->amountType = $this->amountType;
         $record->amount = $this->amount;
+        $record->minimumAmount = $this->minimumAmount;
+        $record->customAmountLabel = $this->customAmountLabel;
+        $record->logoImage = $this->logoImage;
+        $record->enableRememberMe = $this->enableRememberMe;
         $record->quantity = $this->quantity;
         $record->hasUnlimitedStock = $this->hasUnlimitedStock;
         $record->discountType = $this->discountType;
         $record->discount = $this->discount;
-        $record->shippingAmount = $this->shippingAmount;
-        $record->shippingOption = $this->shippingOption;
+
+        $record->verifyZip = $this->verifyZip;
+        $record->enableBillingAddress = $this->enableBillingAddress;
+        $record->enableShippingAddress = $this->enableShippingAddress;
         $record->customerQuantity = $this->customerQuantity ? $this->customerQuantity : 0;
-        $record->openIn = $this->openIn;
 
         $record->returnUrl = $this->returnUrl;
-        $record->cancelUrl = $this->cancelUrl;
-        $record->buttonName = $this->buttonName;
+        $record->buttonText = $this->buttonText;
+        $record->paymentButtonProcessingText = $this->paymentButtonProcessingText;
 
         $record->save(false);
 
@@ -514,35 +518,6 @@ class StripeButton extends Element
                 DiscountValidator::class
             ],
         ];
-    }
-
-    /**
-     * @return string
-     */
-    public function getTypeName()
-    {
-        $statuses = PaypalSize::getConstants();
-
-        $statuses = array_flip($statuses);
-
-        return ucwords(strtolower($statuses[$this->type]));
-    }
-
-    /**
-     * @param null   $size
-     * @param string $language
-     *
-     * @return string
-     * @throws \yii\base\Exception
-     */
-    public function getButtonUrl($size = null, $language = null)
-    {
-        $buttonSize = $size ?? $this->size;
-        $lang = $language ?? $this->language;
-        // Small By default
-        $buttonUrl = PaypalPlugin::$app->buttons->getButtonSizeUrl($buttonSize, $lang);
-
-        return $buttonUrl;
     }
 
     /**

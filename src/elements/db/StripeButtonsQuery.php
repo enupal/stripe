@@ -88,7 +88,6 @@ class StripeButtonsQuery extends ElementQuery
         $this->query->select([
             'enupalstripe_buttons.id',
             'enupalstripe_buttons.name',
-            'enupalstripe_buttons.size',
             'enupalstripe_buttons.currency',
             'enupalstripe_buttons.language',
             'enupalstripe_buttons.amountType',
@@ -112,8 +111,6 @@ class StripeButtonsQuery extends ElementQuery
 
             'enupalstripe_buttons.itemWeight',
             'enupalstripe_buttons.itemWeightUnit',
-            'enupalstripe_buttons.priceMenuName',
-            'enupalstripe_buttons.priceMenuOptions',
             'enupalstripe_buttons.showItemName',
             'enupalstripe_buttons.showItemPrice',
             'enupalstripe_buttons.showItemCurrency',

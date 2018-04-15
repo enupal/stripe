@@ -54,7 +54,7 @@ class Install extends Migration
             'currency' => $this->string()->defaultValue('USD'),
             'language' => $this->string()->defaultValue('en'),
             'amountType' => $this->integer(),
-            'minimunAmount' => $this->decimal(14, 4)->defaultValue(0),
+            'minimumAmount' => $this->decimal(14, 4)->defaultValue(0),
             'customAmountLabel' => $this->string(),
             'amount' => $this->decimal(14, 4)->defaultValue(0),
             'logoImage' => $this->string(),
