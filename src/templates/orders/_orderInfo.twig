@@ -65,7 +65,7 @@
         </table>
     </div>
     <div class="meta">
-        {% set orderStatusOptions = craft.paypalButton.getOrderStatuses() %}
+        {% set orderStatusOptions = craft.stripeButton.getOrderStatuses() %}
         {{ forms.selectField({
             label: "Order Status"|t('enupal-stripe'),
             id: 'orderStatusId',

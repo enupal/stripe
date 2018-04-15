@@ -89,7 +89,6 @@ class StripeButton extends Element
     public $buttonText;
     public $paymentButtonProcessingText;
     public $returnUrl;
-    public $cancelUrl;
     public $openIn;
 
     protected $env;
@@ -122,10 +121,7 @@ class StripeButton extends Element
         $this->env =  $this->settings->testMode ? 'www.sandbox' : 'www';
 
         $this->returnUrl = $this->returnUrl ? $this->returnUrl : $this->settings->returnUrl;
-        $this->cancelUrl = $this->cancelUrl ? $this->cancelUrl : $this->settings->cancelUrl;
         $this->currency = $this->currency ? $this->currency : $this->settings->defaultCurrency;
-
-        $this->business = $this->settings->testMode ? $this->settings->sandboxAccount : $this->settings->liveAccount;
     }
 
     /**

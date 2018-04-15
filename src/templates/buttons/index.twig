@@ -9,8 +9,8 @@
 
 {% extends "enupal-stripe/_layouts/elementindex" %}
 {% set title = "Paypal Buttons"|t %}
-{% set elementType = 'enupal\\paypal\\elements\\StripeButton' %}
-{% do view.registerAssetBundle("enupal\\paypal\\assetBundles\\FontAwesomeAsset") %}
+{% set elementType = 'enupal\\stripe\\elements\\StripeButton' %}
+{% do view.registerAssetBundle("enupal\\stripe\\assetBundles\\FontAwesomeAsset") %}
 {% block actionButton %}
     <div class="buttons">
         <a class="btn submit add icon" href="{{ url('enupal-stripe/buttons/new') }}">{{ "New Paypal Button"|t('enupal-stripe') }}</a>

@@ -61,7 +61,7 @@
             required: true
         }) }}
         <hr>
-        {% set sizeOptions = craft.paypalButton.getSizeOptions() %}
+        {% set sizeOptions = craft.stripeButton.getSizeOptions() %}
         {% set sizeInput %}
             <div class="flex">
                 <div class="textwrapper">
@@ -123,8 +123,8 @@
     </div>
 {% endblock %}
 
-{% do view.registerAssetBundle("enupal\\paypal\\assetbundles\\PaypalButtonAsset") %}
-{% do view.registerAssetBundle("enupal\\paypal\\assetbundles\\FontAwesomeAsset") %}
+{% do view.registerAssetBundle("enupal\\stripe\\assetbundles\\PaypalButtonAsset") %}
+{% do view.registerAssetBundle("enupal\\stripe\\assetbundles\\FontAwesomeAsset") %}
 {% js %}
     $(document).ready(function() {
         new EnupalStripe();

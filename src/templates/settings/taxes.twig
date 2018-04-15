@@ -10,10 +10,10 @@
 {% extends "enupal-stripe/_layouts/settings" %}
 {% import "_includes/forms" as forms %}
 
-{% set settings = craft.paypalButton.getSettings() %}
+{% set settings = craft.stripeButton.getSettings() %}
 {% set fullPageForm = true %}
 {% set saveShortcutRedirect = 'enupal-stripe/settings/taxes' %}
-{% set discountOptions = craft.paypalButton.getDiscountOptions() %}
+{% set discountOptions = craft.stripeButton.getDiscountOptions() %}
 
 {% set saveButton %}
     <div class="buttons">

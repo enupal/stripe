@@ -9,11 +9,11 @@
 
 {% import "_includes/forms" as forms %}
 
-{% set currencyOptions = craft.paypalButton.getCurrencyIsoOptions() %}
-{% set languageOptions = craft.paypalButton.getLanguageOptions() %}
-{% set discountOptions = craft.paypalButton.getDiscountOptions() %}
-{% set shippingOptions = craft.paypalButton.getShippingOptions() %}
-{% set openInOptions = craft.paypalButton.getOpenInOptions() %}
+{% set currencyOptions = craft.stripeButton.getCurrencyIsoOptions() %}
+{% set languageOptions = craft.stripeButton.getLanguageOptions() %}
+{% set discountOptions = craft.stripeButton.getDiscountOptions() %}
+{% set shippingOptions = craft.stripeButton.getShippingOptions() %}
+{% set openInOptions = craft.stripeButton.getOpenInOptions() %}
 
 <div class="meta">
     <h6>{{ 'General'|t('sprout-forms') }}</h6>

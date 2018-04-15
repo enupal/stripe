@@ -9,6 +9,6 @@
 
 {% extends "enupal-stripe/_layouts/elementindex" %}
 {% set title = "Orders"|t %}
-{% set elementType = 'enupal\\paypal\\elements\\Order' %}
-{% do view.registerAssetBundle("enupal\\paypal\\assetBundles\\FontAwesomeAsset") %}
-{% do view.registerAssetBundle("enupal\\paypal\\assetBundles\\OrdersAsset") %}
+{% set elementType = 'enupal\\stripe\\elements\\Order' %}
+{% do view.registerAssetBundle("enupal\\stripe\\assetBundles\\FontAwesomeAsset") %}
+{% do view.registerAssetBundle("enupal\\stripe\\assetBundles\\OrdersAsset") %}

@@ -17,4 +17,4 @@ Craft.PaypalButton.OrderIndex = Craft.BaseElementIndex.extend({
 });
 
 // Register the Paypal order index class
-Craft.registerElementIndexClass('enupal\\paypal\\elements\\Order', Craft.PaypalButton.OrderIndex);
+Craft.registerElementIndexClass('enupal\\stripe\\elements\\Order', Craft.PaypalButton.OrderIndex);
