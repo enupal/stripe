@@ -401,12 +401,11 @@ class Buttons extends Component
         $currentFieldContext = Craft::$app->getContent()->fieldContext;
         Craft::$app->getContent()->fieldContext = 'enupalStripe:';
 
-        $matrixBasicFields = Craft::$app->fields->getFieldByHandle(self::VARIANTS_PRICED_HANDLE);
-        $matrixAdvanvedFields = Craft::$app->fields->getFieldByHandle(self::VARIANTS_BASIC_HANDLE);
+        $matrixBasicField = Craft::$app->fields->getFieldByHandle(self::VARIANTS_PRICED_HANDLE);
         // Give back the current field context
         Craft::$app->getContent()->fieldContext = $currentFieldContext;
 
-        if (is_null($matrixBasicFields) || is_null($matrixAdvanvedFields)) {
+        if (is_null($matrixBasicField)) {
             // Can't add variants to this button (Someone delete the fields)
             // Let's not throw an exception and just return the Button element with not variants
             Craft::error("Can't add variants to PayPal Button", __METHOD__);
@@ -419,12 +418,8 @@ class Buttons extends Component
         $postedFieldLayout = [];
 
         // Add our variant fields
-        if ($matrixBasicFields !== null && $matrixBasicFields->id != null) {
-            $postedFieldLayout[$tabName][] = $matrixBasicFields->id;
-        }
-
-        if ($matrixAdvanvedFields !== null && $matrixAdvanvedFields->id != null) {
-            $postedFieldLayout[$tabName][] = $matrixAdvanvedFields->id;
+        if ($matrixBasicField !== null && $matrixBasicField->id != null) {
+            $postedFieldLayout[$tabName][] = $matrixBasicField->id;
         }
 
         // Set the field layout
@@ -616,7 +611,7 @@ class Buttons extends Component
         ];
 
         // Our basic fields is a matrix field
-        $matrixPriceField = $fieldsService->createField([
+        $matrixBasicField = $fieldsService->createField([
             'type' => Matrix::class,
             'name' => 'Basic Form Fields',
             'context' => 'enupalStripe:',
@@ -626,26 +621,10 @@ class Buttons extends Component
             'translationMethod' => Field::TRANSLATION_METHOD_SITE,
         ]);
 
-        // Basic variant (no price)
-        $matrixSettingsBasic = $matrixSettings;
-        $matrixSettingsBasic['blockTypes']['new1']['fields']['new2']['typesettings'] = '{"addRowLabel":"Add new option","maxRows":"10","minRows":"1","columns":{"col1":{"heading":"Option Label","handle":"optionLabel","width":"40%","type":"singleline"},"col2":{"heading":"Handle (Unique)","handle":"handle","width":"40%","type":"singleline"}},"defaults":{"row1":{"col1":"","col2":""}},"columnType":"text"}';
-        $matrixSettingsBasic['maxBlocks'] = 6;
-        $matrixSettingsBasic['blockTypes']['new1']['name'] = 'Basic Variants';
-        $matrixAdvanvedFields = $fieldsService->createField([
-            'type' => Matrix::class,
-            'name' => 'Variants',
-            'handle' => self::VARIANTS_BASIC_HANDLE,
-            'context' => 'enupalStripe:',
-            'settings' => json_encode($matrixSettingsBasic),
-            'instructions' => '',
-            'translationMethod' => Field::TRANSLATION_METHOD_NONE,
-        ]);
-
         // Save our fields
         $currentFieldContext = Craft::$app->getContent()->fieldContext;
         Craft::$app->getContent()->fieldContext = 'enupalStripe:';
-        Craft::$app->fields->saveField($matrixPriceField);
-        Craft::$app->fields->saveField($matrixAdvanvedFields);
+        Craft::$app->fields->saveField($matrixBasicField);
         // Give back the current field context
         Craft::$app->getContent()->fieldContext = $currentFieldContext;
     }
@@ -656,15 +635,10 @@ class Buttons extends Component
         $currentFieldContext = Craft::$app->getContent()->fieldContext;
         Craft::$app->getContent()->fieldContext = 'enupalStripe:';
 
-        $matrixBasicFields = Craft::$app->fields->getFieldByHandle(self::VARIANTS_PRICED_HANDLE);
-        $matrixAdvanvedFields = Craft::$app->fields->getFieldByHandle(self::VARIANTS_BASIC_HANDLE);
+        $matrixBasicField = Craft::$app->fields->getFieldByHandle(self::BASIC_FORM_FIELDS_HANDLE);
 
-        if ($matrixBasicFields) {
-            Craft::$app->fields->deleteFieldById($matrixBasicFields->id);
-        }
-
-        if ($matrixAdvanvedFields) {
-            Craft::$app->fields->deleteFieldById($matrixAdvanvedFields->id);
+        if ($matrixBasicField) {
+            Craft::$app->fields->deleteFieldById($matrixBasicField->id);
         }
         // Give back the current field context
         Craft::$app->getContent()->fieldContext = $currentFieldContext;
