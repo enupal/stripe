@@ -14,6 +14,7 @@ use craft\fields\Matrix;
 use craft\fields\Number;
 use craft\fields\PlainText;
 use craft\fields\Table;
+use enupal\stripe\assetbundles\StripeAsset;
 use enupal\stripe\elements\StripeButton;
 use enupal\stripe\enums\DiscountType;
 use enupal\stripe\enums\OpenWindow;
@@ -401,7 +402,7 @@ class Buttons extends Component
         $currentFieldContext = Craft::$app->getContent()->fieldContext;
         Craft::$app->getContent()->fieldContext = 'enupalStripe:';
 
-        $matrixBasicField = Craft::$app->fields->getFieldByHandle(self::VARIANTS_PRICED_HANDLE);
+        $matrixBasicField = Craft::$app->fields->getFieldByHandle(self::BASIC_FORM_FIELDS_HANDLE);
         // Give back the current field context
         Craft::$app->getContent()->fieldContext = $currentFieldContext;
 
@@ -464,7 +465,7 @@ class Buttons extends Component
                             'handle' => 'placeholder',
                             'instructions' => '',
                             'required' => 0,
-                            'typesettings' => '{"placeholder":"Size, Color, Version, etc..","code":"","multiline":"","initialRows":"4","charLimit":"","columnType":"text"}',
+                            'typesettings' => '{"placeholder":"","code":"","multiline":"","initialRows":"4","charLimit":"","columnType":"text"}',
                             'translationMethod' => Field::TRANSLATION_METHOD_SITE,
                         ]
                     ]
@@ -488,7 +489,7 @@ class Buttons extends Component
                             'handle' => 'placeholder',
                             'instructions' => '',
                             'required' => 0,
-                            'typesettings' => '{"placeholder":"Size, Color, Version, etc..","code":"","multiline":"","initialRows":"4","charLimit":"","columnType":"text"}',
+                            'typesettings' => '{"placeholder":"","code":"","multiline":"","initialRows":"4","charLimit":"","columnType":"text"}',
                             'translationMethod' => Field::TRANSLATION_METHOD_SITE,
                         ],
                         'new3' => [
@@ -794,8 +795,8 @@ class Buttons extends Component
         $buttonHtml = null;
         $settings = Stripe::$app->settings->getSettings();
 
-        if (!$settings->liveAccount || !$settings->sandboxAccount) {
-            return Stripe::t("Please add a valid PayPal account on the plugin settings");
+        if (!$settings->testPublishableKey || !$settings->livePublishableKey) {
+            return Stripe::t("Please add a valid Stripe account in the plugin settings");
         }
 
         if ($button) {
@@ -809,6 +810,7 @@ class Buttons extends Component
 
             $view->setTemplatesPath($templatePath);
             $view->registerJsFile("https://checkout.stripe.com/checkout.js");
+            $view->registerAssetBundle(StripeAsset::class);
 
             $buttonHtml = $view->renderTemplate(
                 'button', [
@@ -820,7 +822,7 @@ class Buttons extends Component
 
             $view->setTemplatesPath(Craft::$app->path->getSiteTemplatesPath());
         } else {
-            $buttonHtml = Stripe::t("PayPal Button not found or disabled");
+            $buttonHtml = Stripe::t("Stripe Button not found or disabled");
         }
 
         return TemplateHelper::raw($buttonHtml);

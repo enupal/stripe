@@ -142,21 +142,6 @@ class StripeButton extends Element
 
     /**
      * @return string
-     * @throws \yii\base\Exception
-     */
-    public function getCancelUrl()
-    {
-        $cancelUrl = null;
-
-        if ($this->returnUrl){
-            $cancelUrl = $this->getSiteUrl($this->cancelUrl);
-        }
-
-        return $cancelUrl;
-    }
-
-    /**
-     * @return string
      * @throws \craft\errors\SiteNotFoundException
      */
     public function getIpnUrl()

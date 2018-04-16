@@ -174,14 +174,4 @@
         autofocus: true,
         errors: paypalButton.getErrors('returnUrl')
     }) }}
-
-    {{ forms.textField({
-        label: "Cancel URL <span class='info'>Redirect buyers' to this URL if they cancel checkout before completing their payments.</span>"|t('enupal-stripe'),
-        id: 'cancelUrl',
-        name: 'cancelUrl',
-        placeholder: '/something-went-wrong',
-        value: paypalButton.cancelUrl,
-        autofocus: true,
-        errors: paypalButton.getErrors('cancelUrl')
-    }) }}
 </div>

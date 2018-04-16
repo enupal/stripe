@@ -17,7 +17,7 @@ use Craft;
  * EnupalStripe provides an API for accessing information about paypal buttons. It is accessible from templates via `craft.enupalPaypal`.
  *
  */
-class PaypalVariable
+class StripeVariable
 {
     /**
      * @return string

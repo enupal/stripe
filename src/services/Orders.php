@@ -322,7 +322,7 @@ class Orders extends Component
      */
     public function getEmailsPath()
     {
-        $defaultTemplate = Craft::getAlias('@enupal/paypal/templates/_emails/');
+        $defaultTemplate = Craft::getAlias('@enupal/stripe/templates/_emails/');
 
         return $defaultTemplate;
     }

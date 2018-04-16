@@ -20,7 +20,7 @@ use yii\base\Event;
 use craft\web\twig\variables\CraftVariable;
 use enupal\stripe\fields\Buttons as BuyNowButtonField;
 
-use enupal\stripe\variables\PaypalVariable;
+use enupal\stripe\variables\StripeVariable;
 use enupal\stripe\models\Settings;
 use craft\base\Plugin;
 
@@ -58,7 +58,7 @@ class Stripe extends Plugin
             function(Event $event) {
                 /** @var CraftVariable $variable */
                 $variable = $event->sender;
-                $variable->set('stripeButton', PaypalVariable::class);
+                $variable->set('stripeButton', StripeVariable::class);
             }
         );
 
