@@ -13,6 +13,7 @@ use craft\base\Element;
 use craft\behaviors\FieldLayoutBehavior;
 use craft\elements\db\ElementQueryInterface;
 use enupal\stripe\enums\DiscountType;
+use enupal\stripe\Stripe;
 use enupal\stripe\validators\DiscountValidator;
 use yii\base\ErrorHandler;
 use craft\helpers\UrlHelper;
@@ -154,7 +155,7 @@ class StripeButton extends Element
     /**
      * @return string
      */
-    public function getBusiness()
+    public function getPublishableKey()
     {
         $this->publishableKey = $this->settings->testMode ? $this->settings->testPublishableKey : $this->settings->livePublishableKey;
 
@@ -550,5 +551,36 @@ class StripeButton extends Element
     public function displayButton(array $options = null)
     {
         return PaypalPlugin::$app->buttons->getButtonHtml($this->sku, $options);
+    }
+
+    /**
+     * @return string
+     */
+    public function getPublicData()
+    {
+        $publicData = [
+            'sku' => $this->sku,
+            'name' => $this->name,
+            'currency' => $this->currency,
+            'language' => $this->language,
+            'amountType' => $this->amountType,
+            'amount' => $this->amount,
+            'customAmountLabel' => Craft::$app->view->renderString($this->customAmountLabel, ['button' => $this]),
+            'logoImage' => $this->logoImage,
+            'enableRememberMe' => $this->enableRememberMe,
+
+            'verifyZip' => $this->verifyZip,
+            'enableBillingAddress' => $this->enableBillingAddress,
+            'enableShippingAddress' => $this->enableShippingAddress,
+            'customerQuantity' => $this->customerQuantity ? $this->customerQuantity : 0,
+
+            'buttonText' => $this->buttonText,
+            'paymentButtonProcessingText' => $this->paymentButtonProcessingText,
+            'stripe' => [
+                'pbk' => $this->getPublishableKey()
+            ]
+        ];
+
+        return json_encode($publicData);
     }
 }

@@ -1,6 +1,6 @@
 {% spaceless %}
-    <form action="{{ button.getReturnUrl }}" class="enupal-stripe-form" method="POST">
+    <form action="{{ button.getReturnUrl }}" class="enupal-stripe-form" id="enupal-stripe-{{ button.sku }}" method="POST">
         <button id="customButton" class="enupal-stripe-button"><span>Purchase</span></button>
-        <input type="hidden"  name='publishableKey' value="{{ settings.testPublishableKey }}">
+        <input type="hidden" name='enupalStripeData' value="{{ settings.getPublicData() }}">
     </form>
 {% endspaceless %}
