@@ -11,6 +11,7 @@ namespace enupal\stripe\services;
 use Craft;
 use craft\base\Field;
 use craft\fields\Matrix;
+use craft\fields\Number;
 use craft\fields\PlainText;
 use craft\fields\Table;
 use enupal\stripe\elements\StripeButton;
@@ -30,8 +31,8 @@ class Buttons extends Component
 {
     protected $buttonRecord;
 
-    const VARIANTS_PRICED_HANDLE = 'enupalPaypalPricedVariants';
-    const VARIANTS_BASIC_HANDLE = 'enupalPaypalBasicVariants';
+    const BASIC_FORM_FIELDS_HANDLE = 'enupalStripeBasicFields';
+    const ADVANCED_FIELDS = 'enupalStripeAdvancedFields';
 
     public function init()
     {
@@ -398,14 +399,14 @@ class Buttons extends Component
         }
 
         $currentFieldContext = Craft::$app->getContent()->fieldContext;
-        Craft::$app->getContent()->fieldContext = 'enupalPaypal:';
+        Craft::$app->getContent()->fieldContext = 'enupalStripe:';
 
-        $matrixPricedField = Craft::$app->fields->getFieldByHandle(self::VARIANTS_PRICED_HANDLE);
-        $matrixBasicField = Craft::$app->fields->getFieldByHandle(self::VARIANTS_BASIC_HANDLE);
+        $matrixBasicFields = Craft::$app->fields->getFieldByHandle(self::VARIANTS_PRICED_HANDLE);
+        $matrixAdvanvedFields = Craft::$app->fields->getFieldByHandle(self::VARIANTS_BASIC_HANDLE);
         // Give back the current field context
         Craft::$app->getContent()->fieldContext = $currentFieldContext;
 
-        if (is_null($matrixPricedField) || is_null($matrixBasicField)) {
+        if (is_null($matrixBasicFields) || is_null($matrixAdvanvedFields)) {
             // Can't add variants to this button (Someone delete the fields)
             // Let's not throw an exception and just return the Button element with not variants
             Craft::error("Can't add variants to PayPal Button", __METHOD__);
@@ -418,12 +419,12 @@ class Buttons extends Component
         $postedFieldLayout = [];
 
         // Add our variant fields
-        if ($matrixPricedField !== null && $matrixPricedField->id != null) {
-            $postedFieldLayout[$tabName][] = $matrixPricedField->id;
+        if ($matrixBasicFields !== null && $matrixBasicFields->id != null) {
+            $postedFieldLayout[$tabName][] = $matrixBasicFields->id;
         }
 
-        if ($matrixBasicField !== null && $matrixBasicField->id != null) {
-            $postedFieldLayout[$tabName][] = $matrixBasicField->id;
+        if ($matrixAdvanvedFields !== null && $matrixAdvanvedFields->id != null) {
+            $postedFieldLayout[$tabName][] = $matrixAdvanvedFields->id;
         }
 
         // Set the field layout
@@ -447,44 +448,182 @@ class Buttons extends Component
 
         $matrixSettings = [
             'minBlocks' => "",
-            'maxBlocks' => 1,
+            'maxBlocks' => "",
             'blockTypes' => [
                 'new1' => [
-                    'name' => 'Priced Variants',
-                    'handle' => 'variants',
+                    'name' => 'Single Line',
+                    'handle' => 'singleLine',
                     'fields' => [
                         'new1' => [
                             'type' => PlainText::class,
-                            'name' => 'Name',
-                            'handle' => 'variantName',
+                            'name' => 'Label',
+                            'handle' => 'label',
                             'instructions' => '',
                             'required' => 1,
+                            'typesettings' => '{"placeholder":"","code":"","multiline":"","initialRows":"4","charLimit":"","columnType":"text"}',
+                            'translationMethod' => Field::TRANSLATION_METHOD_SITE,
+                        ],
+                        'new2' => [
+                            'type' => PlainText::class,
+                            'name' => 'Placeholder',
+                            'handle' => 'placeholder',
+                            'instructions' => '',
+                            'required' => 0,
                             'typesettings' => '{"placeholder":"Size, Color, Version, etc..","code":"","multiline":"","initialRows":"4","charLimit":"","columnType":"text"}',
-                            'translationMethod' => Field::TRANSLATION_METHOD_NONE,
+                            'translationMethod' => Field::TRANSLATION_METHOD_SITE,
+                        ]
+                    ]
+                ],
+                'new2' => [
+                    'name' => 'Paragraph',
+                    'handle' => 'paragraph',
+                    'fields' => [
+                        'new1' => [
+                            'type' => PlainText::class,
+                            'name' => 'Label',
+                            'handle' => 'label',
+                            'instructions' => '',
+                            'required' => 1,
+                            'typesettings' => '{"placeholder":"","code":"","multiline":"","initialRows":"4","charLimit":"","columnType":"text"}',
+                            'translationMethod' => Field::TRANSLATION_METHOD_SITE,
+                        ],
+                        'new2' => [
+                            'type' => PlainText::class,
+                            'name' => 'Placeholder',
+                            'handle' => 'placeholder',
+                            'instructions' => '',
+                            'required' => 0,
+                            'typesettings' => '{"placeholder":"Size, Color, Version, etc..","code":"","multiline":"","initialRows":"4","charLimit":"","columnType":"text"}',
+                            'translationMethod' => Field::TRANSLATION_METHOD_SITE,
+                        ],
+                        'new3' => [
+                            'type' => Number::class,
+                            'name' => 'Initial Rows',
+                            'handle' => 'initialRows',
+                            'instructions' => '',
+                            'required' => 1,
+                            'typesettings' => '{"min":"2","max":null,"decimals":"0","size":null}',
+                            'translationMethod' => Field::TRANSLATION_METHOD_SITE,
+                        ]
+                    ]
+                ],
+                'new3' => [
+                    'name' => 'Dropdown',
+                    'handle' => 'dropdown',
+                    'fields' => [
+                        'new1' => [
+                            'type' => PlainText::class,
+                            'name' => 'Label',
+                            'handle' => 'label',
+                            'instructions' => '',
+                            'required' => 1,
+                            'typesettings' => '{"placeholder":"","code":"","multiline":"","initialRows":"4","charLimit":"","columnType":"text"}',
+                            'translationMethod' => Field::TRANSLATION_METHOD_SITE,
                         ],
                         'new2' => [
                             'type' => Table::class,
                             'name' => 'Options',
                             'handle' => 'options',
                             'required' => '1',
-                            'instructions' => 'If Name is Size you can fill this table with: Small          small           10',
-                            'typesettings' => '{"addRowLabel":"Add new option","maxRows":"10","minRows":"1","columns":{"col1":{"heading":"Option Label","handle":"optionLabel","width":"40%","type":"singleline"},"col2":{"heading":"Handle (Unique)","handle":"handle","width":"40%","type":"singleline"},"col3":{"heading":"Price","handle":"price","width":"20%","type":"number"}},"defaults":{"row1":{"col1":"","col2":"","col3":""}},"columnType":"text"}',
-                            'translationMethod' => Field::TRANSLATION_METHOD_NONE,
+                            'instructions' => '',
+                            'typesettings' => '{"addRowLabel":"Add an option","maxRows":"","minRows":"1","columns":{"col1":{"heading":"Option Label","handle":"optionLabel","width":"","type":"singleline"},"col2":{"heading":"Value","handle":"value","width":"","type":"singleline"}},"defaults":{"row1":{"col1":"","col2":""}},"columnType":"text"}',
+                            'translationMethod' => Field::TRANSLATION_METHOD_SITE,
                         ],
                     ]
-                ]
+                ],
+                'new4' => [
+                    'name' => 'Radio Buttons',
+                    'handle' => 'radioButtons',
+                    'fields' => [
+                        'new1' => [
+                            'type' => PlainText::class,
+                            'name' => 'Label',
+                            'handle' => 'label',
+                            'instructions' => '',
+                            'required' => 1,
+                            'typesettings' => '{"placeholder":"","code":"","multiline":"","initialRows":"4","charLimit":"","columnType":"text"}',
+                            'translationMethod' => Field::TRANSLATION_METHOD_SITE,
+                        ],
+                        'new2' => [
+                            'type' => Table::class,
+                            'name' => 'Options',
+                            'handle' => 'options',
+                            'required' => '1',
+                            'instructions' => '',
+                            'typesettings' => '{"addRowLabel":"Add an option","maxRows":"","minRows":"1","columns":{"col1":{"heading":"Option Label","handle":"optionLabel","width":"","type":"singleline"},"col2":{"heading":"Value","handle":"value","width":"","type":"singleline"}},"defaults":{"row1":{"col1":"","col2":""}},"columnType":"text"}',
+                            'translationMethod' => Field::TRANSLATION_METHOD_SITE,
+                        ],
+                    ]
+                ],
+                'new5' => [
+                    'name' => 'Number',
+                    'handle' => 'number',
+                    'fields' => [
+                        'new1' => [
+                            'type' => PlainText::class,
+                            'name' => 'Label',
+                            'handle' => 'label',
+                            'instructions' => '',
+                            'required' => 1,
+                            'typesettings' => '{"placeholder":"","code":"","multiline":"","initialRows":"4","charLimit":"","columnType":"text"}',
+                            'translationMethod' => Field::TRANSLATION_METHOD_SITE,
+                        ],
+                        'new2' => [
+                            'type' => Number::class,
+                            'name' => 'Min Value',
+                            'handle' => 'minValue',
+                            'required' => 0,
+                            'instructions' => '',
+                            'typesettings' => '{"min":null,"max":null,"decimals":"0","size":null}',
+                            'translationMethod' => Field::TRANSLATION_METHOD_SITE,
+                        ],
+                        'new3' => [
+                            'type' => Number::class,
+                            'name' => 'Max Value',
+                            'handle' => 'maxValue',
+                            'required' => 0,
+                            'instructions' => '',
+                            'typesettings' => '{"min":null,"max":null,"decimals":"0","size":null}',
+                            'translationMethod' => Field::TRANSLATION_METHOD_SITE,
+                        ],
+                    ]
+                ],
+                'new6' => [
+                    'name' => 'CheckBoxes',
+                    'handle' => 'checkboxes',
+                    'fields' => [
+                        'new1' => [
+                            'type' => PlainText::class,
+                            'name' => 'Label',
+                            'handle' => 'label',
+                            'instructions' => '',
+                            'required' => 1,
+                            'typesettings' => '{"placeholder":"","code":"","multiline":"","initialRows":"4","charLimit":"","columnType":"text"}',
+                            'translationMethod' => Field::TRANSLATION_METHOD_SITE,
+                        ],
+                        'new2' => [
+                            'type' => Table::class,
+                            'name' => 'Options',
+                            'handle' => 'options',
+                            'required' => '1',
+                            'instructions' => '',
+                            'typesettings' => '{"addRowLabel":"Add an option","maxRows":"","minRows":"1","columns":{"col1":{"heading":"Option Label","handle":"optionLabel","width":"","type":"singleline"},"col2":{"heading":"Value","handle":"value","width":"","type":"singleline"}},"defaults":{"row1":{"col1":"","col2":""}},"columnType":"text"}',
+                            'translationMethod' => Field::TRANSLATION_METHOD_SITE,
+                        ],
+                    ]
+                ],
             ]
         ];
 
-        // Our variant is a matrix field
+        // Our basic fields is a matrix field
         $matrixPriceField = $fieldsService->createField([
             'type' => Matrix::class,
-            'name' => 'Variants with priced options',
-            'context' => 'enupalPaypal:',
-            'handle' => self::VARIANTS_PRICED_HANDLE,
+            'name' => 'Basic Form Fields',
+            'context' => 'enupalStripe:',
+            'handle' => self::BASIC_FORM_FIELDS_HANDLE,
             'settings' => json_encode($matrixSettings),
             'instructions' => '',
-            'translationMethod' => Field::TRANSLATION_METHOD_NONE,
+            'translationMethod' => Field::TRANSLATION_METHOD_SITE,
         ]);
 
         // Basic variant (no price)
@@ -492,11 +631,11 @@ class Buttons extends Component
         $matrixSettingsBasic['blockTypes']['new1']['fields']['new2']['typesettings'] = '{"addRowLabel":"Add new option","maxRows":"10","minRows":"1","columns":{"col1":{"heading":"Option Label","handle":"optionLabel","width":"40%","type":"singleline"},"col2":{"heading":"Handle (Unique)","handle":"handle","width":"40%","type":"singleline"}},"defaults":{"row1":{"col1":"","col2":""}},"columnType":"text"}';
         $matrixSettingsBasic['maxBlocks'] = 6;
         $matrixSettingsBasic['blockTypes']['new1']['name'] = 'Basic Variants';
-        $matrixBasicField = $fieldsService->createField([
+        $matrixAdvanvedFields = $fieldsService->createField([
             'type' => Matrix::class,
             'name' => 'Variants',
             'handle' => self::VARIANTS_BASIC_HANDLE,
-            'context' => 'enupalPaypal:',
+            'context' => 'enupalStripe:',
             'settings' => json_encode($matrixSettingsBasic),
             'instructions' => '',
             'translationMethod' => Field::TRANSLATION_METHOD_NONE,
@@ -504,9 +643,9 @@ class Buttons extends Component
 
         // Save our fields
         $currentFieldContext = Craft::$app->getContent()->fieldContext;
-        Craft::$app->getContent()->fieldContext = 'enupalPaypal:';
+        Craft::$app->getContent()->fieldContext = 'enupalStripe:';
         Craft::$app->fields->saveField($matrixPriceField);
-        Craft::$app->fields->saveField($matrixBasicField);
+        Craft::$app->fields->saveField($matrixAdvanvedFields);
         // Give back the current field context
         Craft::$app->getContent()->fieldContext = $currentFieldContext;
     }
@@ -515,17 +654,17 @@ class Buttons extends Component
     {
         // Save our fields
         $currentFieldContext = Craft::$app->getContent()->fieldContext;
-        Craft::$app->getContent()->fieldContext = 'enupalPaypal:';
+        Craft::$app->getContent()->fieldContext = 'enupalStripe:';
 
-        $matrixPricedField = Craft::$app->fields->getFieldByHandle(self::VARIANTS_PRICED_HANDLE);
-        $matrixBasicField = Craft::$app->fields->getFieldByHandle(self::VARIANTS_BASIC_HANDLE);
+        $matrixBasicFields = Craft::$app->fields->getFieldByHandle(self::VARIANTS_PRICED_HANDLE);
+        $matrixAdvanvedFields = Craft::$app->fields->getFieldByHandle(self::VARIANTS_BASIC_HANDLE);
 
-        if ($matrixPricedField) {
-            Craft::$app->fields->deleteFieldById($matrixPricedField->id);
+        if ($matrixBasicFields) {
+            Craft::$app->fields->deleteFieldById($matrixBasicFields->id);
         }
 
-        if ($matrixBasicField) {
-            Craft::$app->fields->deleteFieldById($matrixBasicField->id);
+        if ($matrixAdvanvedFields) {
+            Craft::$app->fields->deleteFieldById($matrixAdvanvedFields->id);
         }
         // Give back the current field context
         Craft::$app->getContent()->fieldContext = $currentFieldContext;
