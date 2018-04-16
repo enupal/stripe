@@ -39,6 +39,8 @@ class StripeButton extends Element
      */
     public $name;
 
+    public $companyName;
+
     /**
      * @var string Sku
      */
@@ -464,6 +466,8 @@ class StripeButton extends Element
         }
 
         $record->name = $this->name;
+        $record->companyName = $this->companyName;
+
         $record->sku = $this->sku;
         $record->currency = $this->currency;
         $record->language = $this->language;
@@ -553,19 +557,24 @@ class StripeButton extends Element
         return PaypalPlugin::$app->buttons->getButtonHtml($this->sku, $options);
     }
 
+
     /**
      * @return string
+     * @throws \yii\web\ServerErrorHttpException
      */
     public function getPublicData()
     {
+        $info = Craft::$app->getInfo();
+
         $publicData = [
             'sku' => $this->sku,
             'name' => $this->name,
+            'companyName' => $this->companyName ?? $info->name,
             'currency' => $this->currency,
             'language' => $this->language,
             'amountType' => $this->amountType,
             'amount' => $this->amount,
-            'customAmountLabel' => Craft::$app->view->renderString($this->customAmountLabel, ['button' => $this]),
+            'customAmountLabel' => Craft::$app->view->renderString($this->customAmountLabel ?? '' , ['button' => $this]),
             'logoImage' => $this->logoImage,
             'enableRememberMe' => $this->enableRememberMe,
 

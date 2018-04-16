@@ -88,6 +88,7 @@ class StripeButtonsQuery extends ElementQuery
         $this->query->select([
             'enupalstripe_buttons.id',
             'enupalstripe_buttons.name',
+            'enupalstripe_buttons.companyName',
             'enupalstripe_buttons.currency',
             'enupalstripe_buttons.language',
             'enupalstripe_buttons.amountType',
