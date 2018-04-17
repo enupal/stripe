@@ -1,15 +1,13 @@
 var enupalStripe = {};
 
 (function($) {
+    'use strict';
     enupalStripe = {
         // All Enupal Stripe buttons
         buttonsList: {},
         finalData: {},
 
         init: function() {
-            // Set main vars on init.
-            body = $( document.body );
-
             this.buttonsList = $('.enupal-stripe-form');
 
             this.buttonsList.each( function() {
@@ -20,8 +18,6 @@ var enupalStripe = {};
 
         initializeForm: function( enupalButtonElement ) {
             // get the form ID
-            var formId = enupalButtonElement.attr('id');
-
             var enupalStripeData = $.parseJSON($(enupalButtonElement).find('[name="enupalStripeData"]').val());
 
             this.finalData.finalAmount = enupalStripeData.amount;
@@ -32,7 +28,7 @@ var enupalStripe = {};
             // Stripe Checkout handler configuration.
             // Docs: https://stripe.com/docs/checkout#integration-custom
             stripeHandler = StripeCheckout.configure( {
-                key: enupalStripeData.stripe.pbk,
+                key: enupalStripeData.pbk,
                 token: processStripeToken,
                 opened: function() {
                 },
@@ -71,39 +67,14 @@ var enupalStripe = {};
         },
 
         submitPayment: function( enupalButtonElement, enupalStripeData, stripeHandler ) {
-
-            enupalStripe.setFinalAmount( enupalButtonElement, enupalStripeData );
-
-            // Add in the final amount to Stripe params
-            enupalStripeData.amount = parseInt( enupalStripeData.finalAmount );
-
+            var stripeConfig =  enupalStripeData.stripe;
+            stripeConfig.amount = this.convertToCents(stripeConfig.amount);
             // If everything checks out then let's open the form
-            stripeHandler.open({
-                name: enupalStripeData.companyName,
-                image: enupalStripeData.logoImage,
-                description: enupalStripeData.name,
-                locale: enupalStripeData.language,
-                currency: enupalStripeData.currency,
-                shippingAddress: enupalStripeData.enableShippingAddress,
-                billingAddress: enupalStripeData.enableBillingAddress,
-                zipCode :true,
-                allowRememberMe: true,
-                amount: this.convertToCents(this.finalData.finalAmount)
-            });
+            stripeHandler.open(stripeConfig);
         },
 
         convertToCents: function( amount ) {
             return ( amount * 100 );
-        },
-
-        // Run this to process and get the final amount when the payment button is clicked
-        setFinalAmount: function( enupalButtonElement, enupalStripeData ) {
-
-            this.finalData.finalAmount = enupalStripeData.amount;
-
-            // Update hidden amount field for processing
-            enupalButtonElement.find( '.enupal-stripe-field-amount' ).val( this.finalData.finalAmount );
-
         }
     };
 

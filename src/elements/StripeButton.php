@@ -558,27 +558,33 @@ class StripeButton extends Element
 
         $publicData = [
             'sku' => $this->sku,
-            'name' => $this->name,
-            'companyName' => $this->companyName ?? $info->name,
-            'currency' => $this->currency ?? 'USD',
-            'language' => $this->language,
             'amountType' => $this->amountType,
-            'amount' => $this->amount,
-            'customAmountLabel' => Craft::$app->view->renderString($this->customAmountLabel ?? '' , ['button' => $this]),
-            'logoImage' => $logoUrl,
-            'enableRememberMe' => $this->enableRememberMe,
-            // Booleans
-            'verifyZip' => (boolean)$this->verifyZip,
-            'enableBillingAddress' => $this->enableShippingAddress ? true : (boolean)$this->enableBillingAddress,
-            'enableShippingAddress' => (boolean)$this->enableShippingAddress,
             'customerQuantity' => $this->customerQuantity ? (boolean)$this->customerQuantity : false,
-
             'buttonText' => $this->buttonText,
             'paymentButtonProcessingText' => $this->paymentButtonProcessingText,
+            'pbk' => $this->getPublishableKey(),
+            'customAmountLabel' => Craft::$app->view->renderString($this->customAmountLabel ?? '' , ['button' => $this]),
             'stripe' => [
-                'pbk' => $this->getPublishableKey()
+                'description' => $this->name,
+                'name' => $this->companyName ?? $info->name,
+                'currency' => $this->currency ?? 'USD',
+                'locale' => $this->language,
+                'amount' => $this->amount,
+                'image' => $logoUrl,
+                'allowRememberMe' => (boolean)$this->enableRememberMe,
+                'zipCode' => (boolean)$this->verifyZip,
             ]
         ];
+
+        // Booleans
+        if ($this->enableShippingAddress){
+            $publicData['stripe']['shippingAddress'] = true;
+            $publicData['stripe']['billingAddress'] = true;
+        }
+
+        if ($this->enableBillingAddress){
+            $publicData['stripe']['billingAddress'] = true;
+        }
 
         return json_encode($publicData);
     }
