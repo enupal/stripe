@@ -1,6 +1,6 @@
 {% spaceless %}
     <form action="{{ button.getReturnUrl }}" class="enupal-stripe-form" id="enupal-stripe-{{ button.sku }}" method="POST">
-        <button class="enupal-stripe-button"><span>Purchase</span></button>
+        <button class="enupal-stripe-button"><span>{{  button.buttonText ? button.getButtonText() : "Purchase"|t }}</span></button>
         <input type="hidden" name="enupal-stripe-field-token" value />
         <input type="hidden" name="enupal-stripe-field-email" value />
         <input type="hidden" name="enupal-stripe-field-button-sku" value />

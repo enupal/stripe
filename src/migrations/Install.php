@@ -48,7 +48,7 @@ class Install extends Migration
     {
         $this->createTable('{{%enupalstripe_buttons}}', [
             'id' => $this->primaryKey(),
-            'companyName' => $this->string()->notNull(),
+            'companyName' => $this->string(),
             'name' => $this->string()->notNull(),
             'sku' => $this->string()->notNull(),
             'currency' => $this->string()->defaultValue('USD'),

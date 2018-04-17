@@ -60,13 +60,42 @@
             autofocus: true,
             required: true
         }) }}
+
+        {{ forms.textField({
+            first: true,
+            label: "Company Name"|t('enupal-stripe'),
+            instructions: 'The name of your company or website',
+            id: 'name',
+            name: 'name',
+            value: paypalButton.name,
+            errors: paypalButton.getErrors('name'),
+            autofocus: true,
+            required: true
+        }) }}
+
+        {{ forms.field({
+            label: '<i class="fa fa-picture-o" aria-hidden="true"></i> '~'Logo'|t('enupal-stripe'),
+            instructions: 'An Image of your brand or product. The recommended minimum size is 128x128px. The supported image types are: .gif, .jpeg, and .png.'|t('enupal-slider'),
+            id: 'logoImage'
+        }, forms.elementSelect({
+            elements: logoElement,
+            elementType: elementType,
+            id: 'logoImage',
+            name: 'logoImage',
+            class: 'logoImage-field',
+            jsClass: 'Craft.AssetSelectInput',
+            selectionLabel: 'Add an image'|t('enupal-stripe'),
+            limit: 1,
+            viewMode: 'large',
+            criteria: {kind: ['image'], siteId : null}
+        })) }}
         <hr>
 
         {{ forms.textField({
             first: true,
             label: "Payment Button Text"|t('enupal-stripe'),
             instructions: 'Text used on displayButton tag. "Pay with card" is the default',
-            placeholder: 'Pay {{ button.amount }}',
+            placeholder: 'Pay {{ button.getAmountAsCurrency() }}',
             id: 'buttonText',
             name: 'buttonText',
             value: paypalButton.buttonText,

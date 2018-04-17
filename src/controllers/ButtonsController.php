@@ -9,6 +9,7 @@
 namespace enupal\stripe\controllers;
 
 use Craft;
+use craft\elements\Asset;
 use craft\helpers\UrlHelper;
 use craft\web\Controller as BaseController;
 use enupal\stripe\Stripe;
@@ -95,6 +96,9 @@ class ButtonsController extends BaseController
                 }
             }
         }
+
+        $variables['logoElement'] = [$button->getLogoAsset()];
+        $variables['elementType'] = Asset::class;
 
         $variables['buttonId'] = $buttonId;
         $variables['paypalButton'] = $button;

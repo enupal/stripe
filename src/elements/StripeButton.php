@@ -422,8 +422,8 @@ class StripeButton extends Element
         switch ($attribute) {
             case 'amount':
                 {
-                    if ($this->getBasePrice()) {
-                        return Craft::$app->getFormatter()->asCurrency($this->getBasePrice(), $this->currency);
+                    if ($this->amount) {
+                        return $this->getAmountAsCurrency();
                     }
 
                     return Craft::$app->getFormatter()->asCurrency($this->$attribute * -1, $this->currency);
@@ -528,22 +528,6 @@ class StripeButton extends Element
     }
 
     /**
-     * @return number|null
-     */
-    public function getBasePrice()
-    {
-        if ($this->amount){
-            return $this->amount;
-        }
-        if (isset($this->enupalPaypalPricedVariants[0]->options[0])){
-            $row = $this->enupalPaypalPricedVariants[0]->options[0];
-            return $row['price'] ?? null;
-        }
-
-        return null;
-    }
-
-    /**
      * Returns a complete PayPal Button for display in template
      *
      * @param array|null $options
@@ -565,23 +549,29 @@ class StripeButton extends Element
     public function getPublicData()
     {
         $info = Craft::$app->getInfo();
+        $logoUrl = null;
+        $logoAsset = $this->getLogoAsset();
+
+        if ($logoAsset){
+            $logoUrl = $logoAsset->getUrl();
+        }
 
         $publicData = [
             'sku' => $this->sku,
             'name' => $this->name,
             'companyName' => $this->companyName ?? $info->name,
-            'currency' => $this->currency,
+            'currency' => $this->currency ?? 'USD',
             'language' => $this->language,
             'amountType' => $this->amountType,
             'amount' => $this->amount,
             'customAmountLabel' => Craft::$app->view->renderString($this->customAmountLabel ?? '' , ['button' => $this]),
-            'logoImage' => $this->logoImage,
+            'logoImage' => $logoUrl,
             'enableRememberMe' => $this->enableRememberMe,
-
-            'verifyZip' => $this->verifyZip,
-            'enableBillingAddress' => $this->enableBillingAddress,
-            'enableShippingAddress' => $this->enableShippingAddress,
-            'customerQuantity' => $this->customerQuantity ? $this->customerQuantity : 0,
+            // Booleans
+            'verifyZip' => (boolean)$this->verifyZip,
+            'enableBillingAddress' => $this->enableShippingAddress ? true : (boolean)$this->enableBillingAddress,
+            'enableShippingAddress' => (boolean)$this->enableShippingAddress,
+            'customerQuantity' => $this->customerQuantity ? (boolean)$this->customerQuantity : false,
 
             'buttonText' => $this->buttonText,
             'paymentButtonProcessingText' => $this->paymentButtonProcessingText,
@@ -591,5 +581,43 @@ class StripeButton extends Element
         ];
 
         return json_encode($publicData);
+    }
+
+    /**
+     * @return \craft\base\ElementInterface|null
+     */
+    public function getLogoAsset()
+    {
+        $logoElement = null;
+
+        if ($this->logoImage) {
+            $logo = $this->logoImage;
+            if (is_string($logo)) {
+                $logo = json_decode($this->logoImage);
+            }
+
+            if (count($logo)) {
+                $logoElement = Craft::$app->elements->getElementById($logo[0]);
+            }
+        }
+
+        return $logoElement;
+    }
+
+    /**
+     * @return string
+     */
+    public function getButtonText()
+    {
+        return Craft::$app->view->renderString($this->buttonText, ['button' => $this]);
+    }
+
+    /**
+     * @return string
+     * @throws \yii\base\InvalidConfigException
+     */
+    public function getAmountAsCurrency()
+    {
+        return Craft::$app->getFormatter()->asCurrency($this->amount, $this->currency);
     }
 }

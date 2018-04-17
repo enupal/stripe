@@ -80,8 +80,14 @@ var enupalStripe = {};
             // If everything checks out then let's open the form
             stripeHandler.open({
                 name: enupalStripeData.companyName,
+                image: enupalStripeData.logoImage,
                 description: enupalStripeData.name,
-                zipCode: enupalStripeData.enableShippingAddress,
+                locale: enupalStripeData.language,
+                currency: enupalStripeData.currency,
+                shippingAddress: enupalStripeData.enableShippingAddress,
+                billingAddress: enupalStripeData.enableBillingAddress,
+                zipCode :true,
+                allowRememberMe: true,
                 amount: this.convertToCents(this.finalData.finalAmount)
             });
         },
