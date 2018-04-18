@@ -12,6 +12,7 @@ use Craft;
 use craft\base\Element;
 use craft\behaviors\FieldLayoutBehavior;
 use craft\elements\db\ElementQueryInterface;
+use enupal\backup\models\Settings;
 use enupal\stripe\enums\DiscountType;
 use enupal\stripe\validators\DiscountValidator;
 use yii\base\ErrorHandler;
@@ -98,6 +99,10 @@ class StripeButton extends Element
     protected $paypalUrl;
     protected $ipnUrl;
     protected $publishableKey;
+
+    /**
+     * @var Settings
+    */
     protected $settings;
 
     /**
@@ -563,6 +568,7 @@ class StripeButton extends Element
             'buttonText' => $this->buttonText,
             'paymentButtonProcessingText' => $this->paymentButtonProcessingText,
             'pbk' => $this->getPublishableKey(),
+            'testMode' => (boolean)$this->settings->testMode,
             'customAmountLabel' => Craft::$app->view->renderString($this->customAmountLabel ?? '' , ['button' => $this]),
             'stripe' => [
                 'description' => $this->name,

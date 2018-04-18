@@ -100,6 +100,7 @@ var enupalStripe = {};
             var stripeConfig = enupalStripeData.stripe;
             stripeConfig.amount = this.convertToCents(stripeConfig.amount);
             enupalButtonElement.find('[name="enupalStripe[amount]"]').val(stripeConfig.amount);
+            enupalButtonElement.find('[name="enupalStripe[testMode]"]').val(enupalStripeData.testMode);
             // If everything checks out then let's open the form
             stripeHandler.open(stripeConfig);
         },

@@ -7,6 +7,7 @@
             <input type="hidden" name="buttonId" value="{{ button.id }}" />
             <input type="hidden" name="amount" value />
             <input type="hidden" name='stripeData' value="{{ button.getPublicData() }}">
+            <input type="hidden" name='testMode' value=>
             {% if button.enableShippingAddress %}
                     <input type="hidden" name="address[name]" value />
                     <input type="hidden" name="address[country]" value />
