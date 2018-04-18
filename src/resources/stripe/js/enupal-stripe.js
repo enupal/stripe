@@ -19,6 +19,8 @@ var enupalStripe = {};
         initializeForm: function(enupalButtonElement) {
             // get the form ID
             var enupalStripeData = $.parseJSON($(enupalButtonElement).find('[name="enupalStripeData"]').val());
+            // reset our values
+            $(enupalButtonElement).find('[name="enupalStripeData"]').val('');
 
             this.finalData.finalAmount = enupalStripeData.amount;
 
@@ -40,11 +42,11 @@ var enupalStripe = {};
             function processStripeToken(token, args) {
                 // At this point the Stripe Checkout overlay is validated and submitted.
                 // Set values to hidden elements to pass via POST when submitting the form for payment.
-                enupalButtonElement.find('.enupal-stripe-field-token').val(token.id);
-                enupalButtonElement.find('.enupal-stripe-field-email').val(token.email);
+                enupalButtonElement.find('[name="enupal-stripe-field-token"]').val(token.id);
+                enupalButtonElement.find('[name="enupal-stripe-field-email"]').val(token.email);
 
-                // Handle args
-                enupalStripe.addValuesToForm(enupalButtonElement, args);
+                // Add others values to form
+                enupalStripe.addValuesToForm(enupalButtonElement, args, enupalStripeData);
 
                 // Disable pay button and show a nice UI message
                 enupalButtonElement.find('.enupal-stripe-button')
@@ -66,30 +68,31 @@ var enupalStripe = {};
             });
         },
 
-        addValuesToForm: function(enupalButtonElement, args) {
+        addValuesToForm: function(enupalButtonElement, args, enupalStripeData) {
+            if (enupalStripeData.stripe.shippingAddress){
+                if (args.shipping_name) {
+                    enupalButtonElement.find('[name="enupal-stripe-field-shipping-name"]').val(args.shipping_name);
+                }
 
-            if (args.shipping_name) {
-                spFormElem.find('.enupal-stripe-field-name').val(args.shipping_name);
-            }
+                if (args.shipping_address_country) {
+                    enupalButtonElement.find('[name="enupal-stripe-field-shipping-country"]').val(args.shipping_address_country);
+                }
 
-            if (args.shipping_address_country) {
-                spFormElem.find('.enupal-stripe-field-country').val(args.shipping_address_country);
-            }
+                if (args.shipping_address_zip) {
+                    enupalButtonElement.find('[name="enupal-stripe-field-shipping-zip"]').val(args.shipping_address_zip);
+                }
 
-            if (args.shipping_address_zip) {
-                spFormElem.find('.enupal-stripe-field-zip').val(args.shipping_address_zip);
-            }
+                if (args.shipping_address_state) {
+                    enupalButtonElement.find('[name="enupal-stripe-field-shipping-state"]').val(args.shipping_address_state);
+                }
 
-            if (args.shipping_address_state) {
-                spFormElem.find('.enupal-stripe-field-state').val(args.shipping_address_state);
-            }
+                if (args.shipping_address_line1) {
+                    enupalButtonElement.find('[name="enupal-stripe-field-shipping-address-line1"]').val(args.shipping_address_line1);
+                }
 
-            if (args.shipping_address_line1) {
-                spFormElem.find('.enupal-stripe-field-address-line1').val(args.shipping_address_line1);
-            }
-
-            if (args.shipping_address_city) {
-                spFormElem.find('.enupal-stripe-field-city').val(args.shipping_address_city);
+                if (args.shipping_address_city) {
+                    enupalButtonElement.find('[name="enupal-stripe-field-shipping-city"]').val(args.shipping_address_city);
+                }
             }
         },
 

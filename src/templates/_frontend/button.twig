@@ -1,18 +1,19 @@
 {% spaceless %}
-    <form action="{{ button.getReturnUrl }}" class="enupal-stripe-form" id="enupal-stripe-{{ button.sku }}" method="POST">
-        <button class="enupal-stripe-button"><span>{{  button.buttonText ? button.getButtonText() : "Purchase"|t }}</span></button>
+    <form action="{{ button.getReturnUrl() }}" class="enupal-stripe-form" id="enupal-stripe-{{ button.sku }}" method="POST">
+        {{ csrfInput() }}
         <input type="hidden" name="enupal-stripe-field-token" value />
         <input type="hidden" name="enupal-stripe-field-email" value />
         <input type="hidden" name="enupal-stripe-field-button-sku" value />
         <input type="hidden" name="enupal-stripe-field-amount" value />
         <input type="hidden" name='enupalStripeData' value="{{ button.getPublicData() }}">
         {% if button.enableShippingAddress %}
-        <input type="hidden" name="enupal-stripe-field-shipping-name" value />
-        <input type="hidden" name="enupal-stripe-field-shipping-country" value />
-        <input type="hidden" name="enupal-stripe-field-shipping-zip" value />
-        <input type="hidden" name="enupal-stripe-field-shipping-state" value />
-        <input type="hidden" name="enupal-stripe-field-shipping-address-line1" value />
-        <input type="hidden" name="enupal-stripe-field-shipping-city" value />
+            <input type="hidden" name="enupal-stripe-field-shipping-name" value />
+            <input type="hidden" name="enupal-stripe-field-shipping-country" value />
+            <input type="hidden" name="enupal-stripe-field-shipping-zip" value />
+            <input type="hidden" name="enupal-stripe-field-shipping-state" value />
+            <input type="hidden" name="enupal-stripe-field-shipping-address-line1" value />
+            <input type="hidden" name="enupal-stripe-field-shipping-city" value />
         {% endif %}
+        <button class="enupal-stripe-button"><span>{{  button.buttonText ? button.getButtonText() : "Purchase"|t }}</span></button>
     </form>
 {% endspaceless %}

@@ -2,7 +2,7 @@
   "name": "enupal/stripe",
   "description": "The easiest payment flow on web and mobile",
   "type": "craft-plugin",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "keywords": [
     "craft",
     "cms",
@@ -34,7 +34,8 @@
     "docs": "https://enupal.com/en/craft-plugins/enupal-stripe/docs"
   },
   "require": {
-    "craftcms/cms": "^3.0.0"
+    "craftcms/cms": "^3.0.0",
+    "stripe/stripe-php": "^6.6.0"
   },
   "extra": {
     "name": "Stripe",

@@ -13,7 +13,6 @@ use craft\base\Element;
 use craft\behaviors\FieldLayoutBehavior;
 use craft\elements\db\ElementQueryInterface;
 use enupal\stripe\enums\DiscountType;
-use enupal\stripe\Stripe;
 use enupal\stripe\validators\DiscountValidator;
 use yii\base\ErrorHandler;
 use craft\helpers\UrlHelper;
@@ -21,7 +20,7 @@ use craft\elements\actions\Delete;
 
 use enupal\stripe\elements\db\StripeButtonsQuery;
 use enupal\stripe\records\StripeButton as StripeButtonRecord;
-use enupal\stripe\Stripe as PaypalPlugin;
+use enupal\stripe\Stripe as StripePlugin;
 use craft\validators\UniqueValidator;
 
 /**
@@ -119,7 +118,7 @@ class StripeButton extends Element
         parent::init();
 
         if (!$this->settings){
-            $this->settings = PaypalPlugin::$app->settings->getSettings();
+            $this->settings = StripePlugin::$app->settings->getSettings();
         }
 
         $this->env =  $this->settings->testMode ? 'www.sandbox' : 'www';
@@ -134,7 +133,8 @@ class StripeButton extends Element
      */
     public function getReturnUrl()
     {
-        $returnUrl = null;
+        // by default return to the same page
+        $returnUrl = '';
 
         if ($this->returnUrl){
             $returnUrl = $this->getSiteUrl($this->returnUrl);
@@ -248,7 +248,7 @@ class StripeButton extends Element
      */
     public static function displayName(): string
     {
-        return PaypalPlugin::t('Stripe Buttons');
+        return StripePlugin::t('Stripe Buttons');
     }
 
     /**
@@ -346,7 +346,7 @@ class StripeButton extends Element
         $sources = [
             [
                 'key' => '*',
-                'label' => PaypalPlugin::t('All Buttons'),
+                'label' => StripePlugin::t('All Buttons'),
             ]
         ];
 
@@ -365,8 +365,8 @@ class StripeButton extends Element
         // Delete
         $actions[] = Craft::$app->getElements()->createAction([
             'type' => Delete::class,
-            'confirmationMessage' => PaypalPlugin::t("Are you sure you want to delete this Stripe Button, and all of it's orders?"),
-            'successMessage' => PaypalPlugin::t('Payapal Buttons deleted.'),
+            'confirmationMessage' => StripePlugin::t("Are you sure you want to delete this Stripe Button, and all of it's orders?"),
+            'successMessage' => StripePlugin::t('Payapal Buttons deleted.'),
         ]);
 
         return $actions;
@@ -386,9 +386,9 @@ class StripeButton extends Element
     protected static function defineSortOptions(): array
     {
         $attributes = [
-            'elements.dateCreated' => PaypalPlugin::t('Date Created'),
-            'name' => PaypalPlugin::t('Name'),
-            'sku' => PaypalPlugin::t('SKU')
+            'elements.dateCreated' => StripePlugin::t('Date Created'),
+            'name' => StripePlugin::t('Name'),
+            'sku' => StripePlugin::t('SKU')
         ];
 
         return $attributes;
@@ -399,10 +399,10 @@ class StripeButton extends Element
      */
     protected static function defineTableAttributes(): array
     {
-        $attributes['name'] = ['label' => PaypalPlugin::t('Name')];
-        $attributes['sku'] = ['label' => PaypalPlugin::t('SKU')];
-        $attributes['amount'] = ['label' => PaypalPlugin::t('Amount')];
-        $attributes['dateCreated'] = ['label' => PaypalPlugin::t('Date Created')];
+        $attributes['name'] = ['label' => StripePlugin::t('Name')];
+        $attributes['sku'] = ['label' => StripePlugin::t('SKU')];
+        $attributes['amount'] = ['label' => StripePlugin::t('Amount')];
+        $attributes['dateCreated'] = ['label' => StripePlugin::t('Date Created')];
 
         return $attributes;
     }
@@ -538,7 +538,7 @@ class StripeButton extends Element
      */
     public function displayButton(array $options = null)
     {
-        return PaypalPlugin::$app->buttons->getButtonHtml($this->sku, $options);
+        return StripePlugin::$app->buttons->getButtonHtml($this->sku, $options);
     }
 
 

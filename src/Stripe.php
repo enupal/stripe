@@ -70,6 +70,10 @@ class Stripe extends Plugin
         Event::on(Fields::class, Fields::EVENT_REGISTER_FIELD_TYPES, function(RegisterComponentTypesEvent $event) {
             $event->types[] = BuyNowButtonField::class;
         });
+
+        if (isset($_POST['enupal-stripe-field-token'])){
+            Craft::dd($_POST);
+        }
     }
 
     /**
