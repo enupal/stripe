@@ -49,7 +49,7 @@ class Buttons extends Component
      * @param int $id
      * @param int $siteId
      *
-     * @return null|\craft\base\ElementInterface
+     * @return null|StripeButton|\craft\base\ElementInterface
      */
     public function getButtonById(int $id, int $siteId = null)
     {

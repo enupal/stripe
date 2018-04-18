@@ -149,6 +149,13 @@
         on: paypalButton.enableBillingAddress
     }) }}
 
+    {{ forms.lightswitchField({
+        label: "Verify Zip <span class='info'>Specify whether Checkout should validate the billing ZIP code</span>"|t('enupal-stripe'),
+        id: 'verifyZip',
+        name: 'verifyZip',
+        on: paypalButton.verifyZip
+    }) }}
+
     {{ forms.textField({
         first: true,
         label: "Shipping <span class='info'>Shipping amount, leave empty if is free shipping</span>"|t('enupal-stripe'),

@@ -159,7 +159,7 @@ class StripeButton extends Element
      */
     public function getPublishableKey()
     {
-        $this->publishableKey = $this->settings->testMode ? $this->settings->testPublishableKey : $this->settings->livePublishableKey;
+        $this->publishableKey = StripePlugin::$app->settings->getPublishableKey();
 
         return $this->publishableKey;
     }

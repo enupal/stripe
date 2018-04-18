@@ -71,9 +71,7 @@ class Stripe extends Plugin
             $event->types[] = BuyNowButtonField::class;
         });
 
-        if (isset($_POST['enupal-stripe-field-token'])){
-            Craft::dd($_POST);
-        }
+        self::$app->orders->processPayment();
     }
 
     /**

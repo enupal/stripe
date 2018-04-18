@@ -67,7 +67,6 @@ class ButtonsController extends BaseController
      * @param StripeElement|null $button   The button send back by setRouteParams if any errors on saveButton
      *
      * @return \yii\web\Response
-     * @throws Exception
      * @throws NotFoundHttpException
      * @throws \Exception
      * @throws \Throwable
@@ -82,7 +81,7 @@ class ButtonsController extends BaseController
                 $url = UrlHelper::cpUrl('enupal-stripe/buttons/edit/'.$button->id);
                 return $this->redirect($url);
             } else {
-                throw new Exception(Stripe::t('Error creating Button'));
+                throw new \Exception(Stripe::t('Error creating Button'));
             }
         } else {
             if ($buttonId !== null) {

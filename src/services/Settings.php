@@ -60,4 +60,26 @@ class Settings extends Component
     {
         return Craft::$app->getPlugins()->getPlugin('enupal-stripe');
     }
+
+    /**
+     * @return string
+     */
+    public function getPublishableKey()
+    {
+        $settings = $this->getSettings();
+        $publishableKey = $settings->testMode ? $settings->testPublishableKey : $settings->livePublishableKey;
+
+        return $publishableKey;
+    }
+
+    /**
+     * @return string
+     */
+    public function getPrivateKey()
+    {
+        $settings = $this->getSettings();
+        $secretKey = $settings->testMode ? $settings->testSecretKey : $settings->liveSecretKey;
+
+        return $secretKey;
+    }
 }

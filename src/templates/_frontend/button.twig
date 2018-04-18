@@ -1,19 +1,21 @@
 {% spaceless %}
-    <form action="{{ button.getReturnUrl() }}" class="enupal-stripe-form" id="enupal-stripe-{{ button.sku }}" method="POST">
+    <form action="{{ button.getReturnUrl() }}" class="enupal-stripe-form" id="enupal-stripe-{{ button.id }}" method="POST">
         {{ csrfInput() }}
-        <input type="hidden" name="enupal-stripe-field-token" value />
-        <input type="hidden" name="enupal-stripe-field-email" value />
-        <input type="hidden" name="enupal-stripe-field-button-sku" value />
-        <input type="hidden" name="enupal-stripe-field-amount" value />
-        <input type="hidden" name='enupalStripeData' value="{{ button.getPublicData() }}">
-        {% if button.enableShippingAddress %}
-            <input type="hidden" name="enupal-stripe-field-shipping-name" value />
-            <input type="hidden" name="enupal-stripe-field-shipping-country" value />
-            <input type="hidden" name="enupal-stripe-field-shipping-zip" value />
-            <input type="hidden" name="enupal-stripe-field-shipping-state" value />
-            <input type="hidden" name="enupal-stripe-field-shipping-address-line1" value />
-            <input type="hidden" name="enupal-stripe-field-shipping-city" value />
-        {% endif %}
+        {% namespace 'enupalStripe' %}
+            <input type="hidden" name="token" value />
+            <input type="hidden" name="email" value />
+            <input type="hidden" name="buttonId" value="{{ button.id }}" />
+            <input type="hidden" name="amount" value />
+            <input type="hidden" name='stripeData' value="{{ button.getPublicData() }}">
+            {% if button.enableShippingAddress %}
+                    <input type="hidden" name="address[name]" value />
+                    <input type="hidden" name="address[country]" value />
+                    <input type="hidden" name="address[zip]" value />
+                    <input type="hidden" name="address[state]" value />
+                    <input type="hidden" name="address[line1]" value />
+                    <input type="hidden" name="address[city]" value />
+            {% endif %}
+        {% endnamespace %}
         <button class="enupal-stripe-button"><span>{{  button.buttonText ? button.getButtonText() : "Purchase"|t }}</span></button>
     </form>
 {% endspaceless %}
