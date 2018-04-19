@@ -13,7 +13,6 @@ use craft\mail\Message;
 use enupal\stripe\elements\Order;
 use enupal\stripe\enums\OrderStatus;
 use enupal\stripe\events\OrderCompleteEvent;
-use phpbu\App\Util\Str;
 use Stripe\Charge;
 use Stripe\Customer;
 use Stripe\Error\Card;
@@ -95,7 +94,6 @@ class Orders extends Component
      */
     public function saveOrder(Order $order)
     {
-        $test = "as";
         if ($order->id) {
             $orderRecord = OrderRecord::findOne($order->id);
 
@@ -422,12 +420,14 @@ class Orders extends Component
         $order->buttonId = $button->id;
 
         $privateKey = StripePlugin::$app->settings->getPrivateKey();
+        Stripe::setAppInfo(StripePlugin::getInstance()->name, StripePlugin::getInstance()->version, StripePlugin::getInstance()->documentationUrl);
         Stripe::setApiKey($privateKey);
-        // Create new customer
-        $newCustomer = Customer::create([
+
+        // @todo research if we need create a customer or leave this integration for just orders
+        /*$newCustomer = Customer::create([
             'email' => $data['email'],
             'card' => $token
-        ]);
+        ]);*/
 
         $description = Craft::t('enupal-stripe', 'Order from {email}', ['email' => $data['email']]);
 
@@ -435,9 +435,10 @@ class Orders extends Component
             $charge = Charge::create([
                 'amount' => $data['amount'], // amount in cents
                 'currency' => $button->currency,
-                'customer' => $newCustomer['id'] ?? null,
+                //'customer' => $newCustomer['id'] ?? null,
+                'source' => $token,
                 'description' => $description,
-                'metadata' => [],
+                'metadata' => $data['metadata'] ?? [],
                 'shipping' => $addressData ? $this->getShipping($addressData) : []
             ]);
 

@@ -14,6 +14,7 @@ use craft\fields\Matrix;
 use craft\fields\Number;
 use craft\fields\PlainText;
 use craft\fields\Table;
+use craft\helpers\FileHelper;
 use enupal\stripe\assetbundles\StripeAsset;
 use enupal\stripe\elements\StripeButton;
 use enupal\stripe\enums\DiscountType;
@@ -871,5 +872,23 @@ class Buttons extends Component
         $options[OpenWindow::SAMEWINDOW] = Stripe::t('Same Window');
 
         return $options;
+    }
+
+    /**
+     * @param $label
+     *
+     * @return string
+     */
+    public function labelToHandle($label)
+    {
+        $handle = FileHelper::sanitizeFilename(
+            $label,
+            [
+                'asciiOnly' => true,
+                'separator' => '-'
+            ]
+        );
+
+        return $handle;
     }
 }

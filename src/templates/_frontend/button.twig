@@ -16,6 +16,23 @@
                     <input type="hidden" name="address[line1]" value />
                     <input type="hidden" name="address[city]" value />
             {% endif %}
+
+        {% for block in button.enupalStripeBasicFields %}
+            <div class="fields">
+                <section class="tab">
+                    <div class="heading">
+                        <label for="{{ block.label }}">
+                            {{- block.label|raw|t('enupal-stripe') -}}
+                        </label>
+                    </div>
+                    <div class="input">
+                        {%- set input = craft.stripeButton.displayField(block)  %}
+                        {{ input|raw }}
+                    </div>
+                </section>
+            </div>
+        {% endfor %}
+
         {% endnamespace %}
         <button class="enupal-stripe-button"><span>{{  button.buttonText ? button.getButtonText() : "Purchase"|t }}</span></button>
     </form>

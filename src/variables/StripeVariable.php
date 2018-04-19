@@ -11,6 +11,7 @@ namespace enupal\stripe\variables;
 use enupal\stripe\enums\OrderStatus;
 use enupal\stripe\Stripe;
 use enupal\stripe\PaypalButtons;
+use craft\helpers\Template as TemplateHelper;
 use Craft;
 
 /**
@@ -112,6 +113,43 @@ class StripeVariable
         $options[OrderStatus::SHIPPED] = Stripe::t('Shipped');
 
         return $options;
+    }
+
+    /**
+     * @param $label
+     *
+     * @return string
+     */
+    public function labelToHandle($label)
+    {
+        $handle = Stripe::$app->buttons->labelToHandle($label);
+
+        return strtolower($handle);
+    }
+
+
+    /**
+     * @param $block
+     *
+     * @return \Twig_Markup
+     * @throws \Twig_Error_Loader
+     * @throws \yii\base\Exception
+     */
+    public function displayField($block)
+    {
+        $templatePath = Stripe::$app->buttons->getEnupalStripePath();
+        $view = Craft::$app->getView();
+        $view->setTemplatesPath($templatePath);
+
+        $htmlField = $view->renderTemplate(
+            '_layouts/'.$block->type, [
+                'block' => $block
+            ]
+        );
+
+        $view->setTemplatesPath(Craft::$app->path->getSiteTemplatesPath());
+
+        return TemplateHelper::raw($htmlField);
     }
 }
 

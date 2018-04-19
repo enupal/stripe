@@ -1,0 +1,13 @@
+{%- set handle = craft.stripeButton.labelToHandle(block.label) %}
+{%- set required = false  %}
+
+
+<input type="text"
+        name="metadata[{{ handle }}]"
+        id="{{ handle }}"
+        class="{{ handle }}"
+        {%- if required %} required aria-required="true"{% endif %}
+        value=""
+        {%- if block.placeholder %} placeholder="{{ block.placeholder }}"{% endif %}
+        maxlength="255"
+/>
