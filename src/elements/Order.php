@@ -323,7 +323,6 @@ class Order extends Element
 
     /**
      * @inheritdoc
-     * @throws Exception if reasons
      */
     public function afterSave(bool $isNew)
     {
@@ -332,7 +331,7 @@ class Order extends Element
             $record = OrderRecord::findOne($this->id);
 
             if (!$record) {
-                throw new Exception('Invalid Order ID: '.$this->id);
+                throw new \Exception('Invalid Order ID: '.$this->id);
             }
         } else {
             $record = new OrderRecord();

@@ -95,6 +95,7 @@ class Orders extends Component
      */
     public function saveOrder(Order $order)
     {
+        $test = "as";
         if ($order->id) {
             $orderRecord = OrderRecord::findOne($order->id);
 
@@ -343,21 +344,21 @@ class Orders extends Component
         $order = new Order();
         $order->orderStatusId = OrderStatus::NEW;
         $order->number = $this->getRandomStr();
-        $order->email = $data['data'];
-        $order->totalPrice = $data['amount']*100;// revert cents
+        $order->email = $data['email'];
+        $order->totalPrice = $data['amount']/100;// revert cents
         $order->quantity = $data['quantity'] ?? 1;
         $order->shipping = $data['shippingAmount'] ?? 0;
         $order->tax = $data['taxAmount'] ?? 0;
         $order->discount = $data['discountAmount'] ?? 0;
         // Shipping
-        if ($data['address']){
-            $order->addressCity = $data['address']['city'];
-            $order->addressCountry = $data['address']['country'];
-            $order->addressState = $data['address']['state'];
-            $order->addressCountryCode = $data['address']['code'];
-            $order->addressName = $data['address']['name'];
-            $order->addressStreet = $data['address']['line1'];
-            $order->addressZip = $data['address']['zip'];
+        if (isset($data['address'])){
+            $order->addressCity = $data['address']['city'] ?? '';
+            $order->addressCountry = $data['address']['country'] ?? '';
+            $order->addressState = $data['address']['state'] ?? '';
+            $order->addressCountryCode = $data['address']['zip'] ?? '';
+            $order->addressName = $data['address']['name'] ?? '';
+            $order->addressStreet = $data['address']['line1'] ?? '';
+            $order->addressZip = $data['address']['zip'] ?? '';
         }
 
         $order->testMode = $data['testMode'];
@@ -397,6 +398,11 @@ class Orders extends Component
         $request = Craft::$app->getRequest();
         $data = $request->getBodyParam('enupalStripe');
         $token = $data['token'] ?? null;
+
+        if (is_null($token)){
+            return false;
+        }
+
         $buttonId = $data['buttonId'] ?? null;
 
         if (is_null($token) || is_null($buttonId)) {
@@ -413,26 +419,26 @@ class Orders extends Component
 
         $order = $this->populateOrder($data);
         $order->currency = $button->currency;
+        $order->buttonId = $button->id;
 
         $privateKey = StripePlugin::$app->settings->getPrivateKey();
         Stripe::setApiKey($privateKey);
         // Create new customer
         $newCustomer = Customer::create([
-            'email' => $request->getBodyParam($data['email']),
+            'email' => $data['email'],
             'card' => $token
         ]);
 
-        $description = Craft::t('enupal-stripe', 'Order from {email}', ['email' => $_POST['email']]);
+        $description = Craft::t('enupal-stripe', 'Order from {email}', ['email' => $data['email']]);
 
         try {
             $charge = Charge::create([
-                "amount" => $data['amount'], // amount in cents
-                "currency" => $button->currency,
-                "source" => $token,
+                'amount' => $data['amount'], // amount in cents
+                'currency' => $button->currency,
                 'customer' => $newCustomer['id'] ?? null,
-                "description" => $description,
-                "metadata" => [],
-                "shipping" => $addressData ? $this->getShipping($addressData) : []
+                'description' => $description,
+                'metadata' => [],
+                'shipping' => $addressData ? $this->getShipping($addressData) : []
             ]);
 
             if (isset($charge['id'])){
@@ -482,6 +488,8 @@ class Orders extends Component
             Craft::error('Stripe - something went wrong: '.$e->getMessage());
         }
 
+        Craft::info('Stripe - Order Created: '.$order->number);
+
         return true;
     }
 
@@ -502,19 +510,5 @@ class Orders extends Component
         ];
 
         return $shipping;
-    }
-
-    /**
-     * @param $key
-     *
-     * @return string|null
-     */
-    private function getPostValue($key)
-    {
-        if (!isset($_POST[$key])) {
-            return null;
-        }
-
-        return $_POST[$key];
     }
 }

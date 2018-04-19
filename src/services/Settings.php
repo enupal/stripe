@@ -9,6 +9,7 @@
 namespace enupal\stripe\services;
 
 use Craft;
+use craft\db\Query;
 use yii\base\Component;
 use enupal\stripe\models\Settings as SettingsModel;
 
@@ -48,9 +49,17 @@ class Settings extends Component
      */
     public function getSettings()
     {
-        $plugin = $this->getPlugin();
+        $pluginSettings =  (new Query())
+            ->select(['settings'])
+            ->from(['{{%plugins}}'])
+            ->where(['handle' => 'enupal-stripe'])
+            ->one();
 
-        return $plugin->getSettings();
+        $settings = new SettingsModel();
+
+        $settings->setAttributes(json_decode($pluginSettings['settings'], true), false);
+
+        return $settings;
     }
 
     /**
