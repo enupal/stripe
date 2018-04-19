@@ -22,8 +22,8 @@
         label: "SKU <span class='info'>How you’ll refer to this Paypal Button in the templates.</span>"|t('enupal-stripe'),
         id: 'sku',
         name: 'sku',
-        value: paypalButton.sku,
-        errors: paypalButton.getErrors('sku'),
+        value: stripeButton.sku,
+        errors: stripeButton.getErrors('sku'),
         autofocus: true,
         required: true
     }) }}
@@ -32,7 +32,7 @@
         label: "Enabled"|t('enupal-stripe'),
         id: 'enabled',
         name: 'enabled',
-        on: paypalButton.enabled
+        on: stripeButton.enabled
     }) }}
 </div>
 <hr>
@@ -46,7 +46,7 @@
                 id: 'amount',
                 name: 'amount',
                 placeholder: 'Enter amount'|t('enupal-stripe'),
-                value: (paypalButton.amount == '0' ? '0'|number : (paypalButton.amount ? paypalButton.amount|number ?: ''))
+                value: (stripeButton.amount == '0' ? '0'|number : (stripeButton.amount ? stripeButton.amount|number ?: ''))
             }) }}
         </div>
         <div class="textwrapper">
@@ -54,7 +54,7 @@
                 id: 'currency',
                 name: 'currency',
                 options: currencyOptions,
-                value: paypalButton.currency
+                value: stripeButton.currency
             }) }}
         </div>
     </div>
@@ -63,7 +63,7 @@
     {{ forms.field({
         id: 'amount',
         label: 'Price <span class="info">The price or amount of the product, service, or contribution, not including shipping, handling, or tax. If empty, buyers enter their own amount at the time of payment</span>'|t('enupal-stripe'),
-        errors: paypalButton.getErrors('amount')|merge(paypalButton.getErrors('currency')),
+        errors: stripeButton.getErrors('amount')|merge(stripeButton.getErrors('currency')),
     }, amountInput) }}
 
     {{ forms.selectField({
@@ -71,7 +71,7 @@
         id: 'language',
         name: 'language',
         options: languageOptions,
-        value: paypalButton.language
+        value: stripeButton.language
     }) }}
 
     {% set stockInput %}
@@ -80,9 +80,9 @@
                 {{ forms.text({
                     id: 'quantity',
                     name: 'quantity',
-                    value: (paypalButton.hasUnlimitedStock ? '' : (paypalButton.quantity == '0' ? '0': (paypalButton.quantity ? paypalButton.quantity : ''))),
+                    value: (stripeButton.hasUnlimitedStock ? '' : (stripeButton.quantity == '0' ? '0': (stripeButton.quantity ? stripeButton.quantity : ''))),
                     placeholder: 'Enter stock'|t('enupal-stripe'),
-                    disabled: paypalButton.hasUnlimitedStock
+                    disabled: stripeButton.hasUnlimitedStock
                 }) }}
             </div>
             <div class="nowrap">
@@ -91,7 +91,7 @@
                     class: 'unlimited-stock',
                     label: 'Unlimited'|t('enupal-stripe'),
                     name: 'hasUnlimitedStock',
-                    checked: paypalButton.hasUnlimitedStock,
+                    checked: stripeButton.hasUnlimitedStock,
                 }) }}
             </div>
         </div>
@@ -100,14 +100,14 @@
     {{ forms.field({
         id: 'stock',
         label: 'Stock'|t('enupal-stripe'),
-        errors: paypalButton.getErrors('hasUnlimitedStock')|merge(paypalButton.getErrors('quantity')),
+        errors: stripeButton.getErrors('hasUnlimitedStock')|merge(stripeButton.getErrors('quantity')),
     }, stockInput) }}
 
     {{ forms.lightswitchField({
         label: "Customer Quantity <span class='info'>Enables buyers to specify the quantity.</span>"|t('enupal-stripe'),
         id: 'customerQuantity',
         name: 'customerQuantity',
-        on: paypalButton.customerQuantity
+        on: stripeButton.customerQuantity
     }) }}
 </div>
 <hr>
@@ -118,7 +118,7 @@
         id: 'discountType',
         name: 'discountType',
         options: discountOptions,
-        value: paypalButton.discountType
+        value: stripeButton.discountType
     }) }}
     {{ forms.textField({
         first: true,
@@ -126,8 +126,8 @@
         id: 'discount',
         name: 'discount',
         placeholder: 'Enter discount',
-        value: (paypalButton.discount == '0' ? '0'|number : (paypalButton.discount ? paypalButton.discount|number ?: '')),
-        errors: paypalButton.getErrors('discount'),
+        value: (stripeButton.discount == '0' ? '0'|number : (stripeButton.discount ? stripeButton.discount|number ?: '')),
+        errors: stripeButton.getErrors('discount'),
         autofocus: true,
     }) }}
 </div>
@@ -139,21 +139,21 @@
         label: "Shipping Address <span class='info'>Enables buyers to specify the Shipping Address</span>"|t('enupal-stripe'),
         id: 'enableShippingAddress',
         name: 'enableShippingAddress',
-        on: paypalButton.enableShippingAddress
+        on: stripeButton.enableShippingAddress
     }) }}
 
     {{ forms.lightswitchField({
         label: "Billing Address <span class='info'>Enables buyers to specify the Billing Address</span>"|t('enupal-stripe'),
         id: 'enableBillingAddress',
         name: 'enableBillingAddress',
-        on: paypalButton.enableBillingAddress
+        on: stripeButton.enableBillingAddress
     }) }}
 
     {{ forms.lightswitchField({
         label: "Verify Zip <span class='info'>Specify whether Checkout should validate the billing ZIP code</span>"|t('enupal-stripe'),
         id: 'verifyZip',
         name: 'verifyZip',
-        on: paypalButton.verifyZip
+        on: stripeButton.verifyZip
     }) }}
 
     {{ forms.textField({
@@ -162,9 +162,9 @@
         id: 'shippingAmount',
         name: 'shippingAmount',
         placeholder: 'Enter amount',
-        unit: paypalButton.currency,
-        value: (paypalButton.shippingAmount == '0' ? '0'|number : (paypalButton.shippingAmount ? paypalButton.shippingAmount|number ?: '')),
-        errors: paypalButton.getErrors('shippingAmount'),
+        unit: stripeButton.currency,
+        value: (stripeButton.shippingAmount == '0' ? '0'|number : (stripeButton.shippingAmount ? stripeButton.shippingAmount|number ?: '')),
+        errors: stripeButton.getErrors('shippingAmount'),
         autofocus: true,
     }) }}
 </div>
@@ -176,9 +176,9 @@
         label: "Return URL <span class='info'>Redirect buyers' to this URL after they complete their payments</span>"|t('enupal-stripe'),
         id: 'returnUrl',
         name: 'returnUrl',
-        value: paypalButton.returnUrl,
+        value: stripeButton.returnUrl,
         placeholder: '/thank-you',
         autofocus: true,
-        errors: paypalButton.getErrors('returnUrl')
+        errors: stripeButton.getErrors('returnUrl')
     }) }}
 </div>

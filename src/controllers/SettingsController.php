@@ -25,7 +25,7 @@ class SettingsController extends BaseController
         $this->requirePostRequest();
         $request = Craft::$app->getRequest();
         $settings = $request->getBodyParam('settings');
-        $scenario = $request->getBodyParam('paypalScenario');
+        $scenario = $request->getBodyParam('stripeScenario');
 
         if (!Stripe::$app->settings->saveSettings($settings, $scenario)) {
             Craft::$app->getSession()->setError(Stripe::t('Couldn’t save settings.'));

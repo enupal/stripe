@@ -14,7 +14,7 @@ use enupal\stripe\PaypalButtons;
 use Craft;
 
 /**
- * EnupalStripe provides an API for accessing information about paypal buttons. It is accessible from templates via `craft.enupalPaypal`.
+ * EnupalStripe provides an API for accessing information about stripe buttons. It is accessible from templates via `craft.enupalStripe`.
  *
  */
 class StripeVariable

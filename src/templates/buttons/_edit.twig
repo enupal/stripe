@@ -20,15 +20,15 @@
 {% block actionButton %}
     <input type="hidden" name="action" value="enupal-stripe/buttons/save-button">
     {{ redirectInput('enupal-stripe/buttons') }}
-    <input type="hidden" id="buttonId" name="buttonId" value="{{ paypalButton.id is defined ? paypalButton.id : '' }}">
+    <input type="hidden" id="buttonId" name="buttonId" value="{{ stripeButton.id is defined ? stripeButton.id : '' }}">
 
     <div class="btngroup submit first">
         <input type="submit" class="btn submit" value="{{ 'Save'|t('enupal-stripe') }}">
-        {% if paypalButton.id != null %}
+        {% if stripeButton.id != null %}
             <div class="btn submit menubtn"></div>
             <div class="menu">
                 <ul>
-                    <li><a class="formsubmit" data-redirect="{{('enupal-stripe/buttons/edit/'~paypalButton.id)|hash}}">{{ "Save and continue editing"|t('enupal-stripe') }} <span class="shortcut">⌘S</span></a></li>
+                    <li><a class="formsubmit" data-redirect="{{('enupal-stripe/buttons/edit/'~stripeButton.id)|hash}}">{{ "Save and continue editing"|t('enupal-stripe') }} <span class="shortcut">⌘S</span></a></li>
                 </ul>
                 <hr>
                 <ul>
@@ -45,7 +45,7 @@
 
 {% block content %}
     <input type="hidden" name="action" value="enupal-stripe/buttons/save-button">
-    <input type="hidden" name="sku" value="{{ paypalButton.sku }}">
+    <input type="hidden" name="sku" value="{{ stripeButton.sku }}">
     <input type="hidden" name="buttonId" value="{{ buttonId }}">
 
     {% namespace 'fields' %}
@@ -55,8 +55,8 @@
             instructions: 'What this Paypal Button will be called in the CP. This value will be used to set the <strong>Item Description</strong> in Stripe',
             id: 'name',
             name: 'name',
-            value: paypalButton.name,
-            errors: paypalButton.getErrors('name'),
+            value: stripeButton.name,
+            errors: stripeButton.getErrors('name'),
             autofocus: true,
             required: true
         }) }}
@@ -67,8 +67,8 @@
             instructions: 'The name of your company or website',
             id: 'name',
             name: 'name',
-            value: paypalButton.name,
-            errors: paypalButton.getErrors('name'),
+            value: stripeButton.name,
+            errors: stripeButton.getErrors('name'),
             autofocus: true,
             required: true
         }) }}
@@ -98,8 +98,8 @@
             placeholder: 'Pay {{ button.getAmountAsCurrency() }}',
             id: 'buttonText',
             name: 'buttonText',
-            value: paypalButton.buttonText,
-            errors: paypalButton.getErrors('buttonText')
+            value: stripeButton.buttonText,
+            errors: stripeButton.getErrors('buttonText')
         }) }}
 
         {{ forms.textField({
@@ -109,12 +109,12 @@
             placeholder: 'Please wait...',
             id: 'paymentButtonProcessingText',
             name: 'paymentButtonProcessingText',
-            value: paypalButton.paymentButtonProcessingText,
-            errors: paypalButton.getErrors('paymentButtonProcessingText')
+            value: stripeButton.paymentButtonProcessingText,
+            errors: stripeButton.getErrors('paymentButtonProcessingText')
         }) }}
 
         <hr>
-        {% for tab in paypalButton.getFieldLayout().getTabs() %}
+        {% for tab in stripeButton.getFieldLayout().getTabs() %}
 
             {% set fields = tab.getFields() %}
 
@@ -122,7 +122,7 @@
                 {% include "_includes/field" with {
                     field:    field,
                     required: field.required,
-                    element:  paypalButton,
+                    element:  stripeButton,
                     static: null
                 } only %}
             {% endfor %}
@@ -139,11 +139,11 @@
     <div class="meta read-only">
         <div class="data">
             <h5 class="heading">{{ "Date Created"|t('commerce') }}</h5>
-            <div class="value">{{ paypalButton.dateCreated|date('short') }} {{ paypalButton.dateCreated|time('short') }}</div>
+            <div class="value">{{ stripeButton.dateCreated|date('short') }} {{ stripeButton.dateCreated|time('short') }}</div>
         </div>
         <div class="data">
             <h5 class="heading">{{ "Date Updated"|t('commerce') }}</h5>
-            <div class="value">{{ paypalButton.dateUpdated|date('short') }} {{ paypalButton.dateUpdated|time('short') }}</div>
+            <div class="value">{{ stripeButton.dateUpdated|date('short') }} {{ stripeButton.dateUpdated|time('short') }}</div>
         </div>
     </div>
 {% endblock %}
@@ -157,7 +157,7 @@
 {% endjs %}
 
 {% css %}
-    .paypal-instructions {
+    .stripe-instructions {
     margin-top: 2px;
     color: #8f98a3;
     }

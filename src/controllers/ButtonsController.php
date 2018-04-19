@@ -100,7 +100,7 @@ class ButtonsController extends BaseController
         $variables['elementType'] = Asset::class;
 
         $variables['buttonId'] = $buttonId;
-        $variables['paypalButton'] = $button;
+        $variables['stripeButton'] = $button;
 
         // Set the "Continue Editing" URL
         $variables['continueEditingUrl'] = 'enupal-stripe/buttons/edit/{id}';
