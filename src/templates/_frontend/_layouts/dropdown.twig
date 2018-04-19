@@ -1,0 +1,19 @@
+{%- set handle = craft.stripeButton.labelToHandle(block.label) %}
+{%- set required = false  %}
+{%- set options = block.options ? block.options : [] %}
+
+<select
+        name="metadata[{{ handle }}]"
+        id="{{ handle }}"
+        class="{{ handle }}"
+        {%- if required %} required aria-required="true"{% endif %}
+>
+    {%- for key, option in options -%}
+
+        {%- set optionLabel = (option.optionLabel is defined ? option.optionLabel : null) -%}
+        {%- set optionValue = (option.value is defined ? option.value : key) -%}
+
+        <option value="{{ optionValue }}"
+                >{{ optionLabel }}</option>
+    {% endfor %}
+</select>

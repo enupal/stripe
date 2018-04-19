@@ -20,6 +20,7 @@ use Stripe\Stripe;
 use yii\base\Component;
 use enupal\stripe\Stripe as StripePlugin;
 use enupal\stripe\records\Order as OrderRecord;
+use yii\helpers\Json;
 
 class Orders extends Component
 {
@@ -361,19 +362,10 @@ class Orders extends Component
 
         $order->testMode = $data['testMode'];
         // Variants
-       /* $variants = [];
-        $search = "option_selection";
-        $search_length = strlen($search);
-        $pos = 1;
-        foreach ($_POST as $key => $value) {
-            if (substr($key, 0, $search_length) == $search) {
-                $name = $_POST['option_name'.$pos] ?? $pos;
-                $variants[$name] = $value;
-                $pos++;
-            }
+        $variants = $data['metadata'] ?? [];
+        if ($variants){
+            $order->variants = json_encode($variants);
         }
-        $order->variants = json_encode($variants);
-       */
 
         return $order;
     }
@@ -438,7 +430,7 @@ class Orders extends Component
                 //'customer' => $newCustomer['id'] ?? null,
                 'source' => $token,
                 'description' => $description,
-                'metadata' => $data['metadata'] ?? [],
+                'metadata' => $this->getStripeMetadata($data),
                 'shipping' => $addressData ? $this->getShipping($addressData) : []
             ]);
 
@@ -494,6 +486,38 @@ class Orders extends Component
         return true;
     }
 
+    private function getStripeMetadata($data)
+    {
+        $metadata = [];
+        if (isset($data['metadata'])){
+            foreach ($data['metadata']as $key => $item) {
+                if (is_array($item)){
+                    $value = '';
+                    // Checkboxes and if we add multi-select. lets concatenate the selected values
+                    $pos = 0;
+                    foreach ($item as $val) {
+                        if ($pos == 0){
+                            $value = $val;
+                        }else{
+                            $value .= ' - '.$val;
+                        }
+                        $pos++;
+                    }
+
+                    $metadata[$key] = $value;
+                }else{
+                    $metadata[$key] = $item;
+                }
+            }
+        }
+        return $metadata;
+    }
+
+    /**
+     * @param $postData
+     *
+     * @return array
+     */
     private function getShipping($postData)
     {
         // Add shipping information if enable

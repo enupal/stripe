@@ -110,7 +110,13 @@
             <td>
             </td>
             <td>
-                {{ variant }}
+                {% if variant is iterable %}
+                    {% for val in variant %}
+                        {{ val }}
+                    {% endfor %}
+                {% else %}
+                    {{ variant }}
+                {% endif %}
             </td>
             <td>
             </td>
