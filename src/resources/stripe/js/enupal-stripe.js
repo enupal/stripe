@@ -19,6 +19,7 @@ var enupalStripe = {};
         initializeForm: function(enupalButtonElement) {
             // get the form ID
             var enupalStripeData = $.parseJSON($(enupalButtonElement).find('[name="enupalStripe[stripeData]"]').val());
+
             // reset our values
             $(enupalButtonElement).find('[name="enupalStripe[stripeData]"]').val('');
 

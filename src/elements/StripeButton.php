@@ -566,7 +566,7 @@ class StripeButton extends Element
             'amountType' => $this->amountType,
             'customerQuantity' => $this->customerQuantity ? (boolean)$this->customerQuantity : false,
             'buttonText' => $this->buttonText,
-            'paymentButtonProcessingText' => $this->paymentButtonProcessingText,
+            'paymentButtonProcessingText' => $this->paymentButtonProcessingText ? $this->getButtonText($this->paymentButtonProcessingText) : $this->getButtonText(),
             'pbk' => $this->getPublishableKey(),
             'testMode' => (boolean)$this->settings->testMode,
             'customAmountLabel' => Craft::$app->view->renderString($this->customAmountLabel ?? '' , ['button' => $this]),
@@ -616,12 +616,21 @@ class StripeButton extends Element
         return $logoElement;
     }
 
+
     /**
+     * @param string $default
+     *
      * @return string
      */
-    public function getButtonText()
+    public function getButtonText($default = "Pay with card")
     {
-        return Craft::$app->view->renderString($this->buttonText, ['button' => $this]);
+        $buttonText = Craft::t('site', $default);
+
+        if ($this->buttonText){
+            $buttonText =  Craft::$app->view->renderString($this->buttonText, ['button' => $this]);
+        }
+
+        return $buttonText;
     }
 
     /**
