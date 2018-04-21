@@ -60,17 +60,17 @@ class Buttons extends Component
     }
 
     /**
-     * Returns a StripeButton model if one is found in the database by sku
+     * Returns a StripeButton model if one is found in the database by handle
      *
-     * @param string $sku
+     * @param string $handle
      * @param int    $siteId
      *
      * @return null|\craft\base\ElementInterface|array
      */
-    public function getButtonBySku($sku, int $siteId = null)
+    public function getButtonBySku($handle, int $siteId = null)
     {
         $query = StripeElement::find();
-        $query->sku($sku);
+        $query->handle($handle);
         $query->siteId($siteId);
 
         return $query->one();
@@ -369,7 +369,7 @@ class Buttons extends Component
         $settings = Stripe::$app->settings->getSettings();
 
         $button->name = $this->getFieldAsNew('name', $name);
-        $button->sku = $this->getFieldAsNew('sku', $handle);
+        $button->handle = $this->getFieldAsNew('handle', $handle);
         $button->hasUnlimitedStock = 1;
         $button->enableBillingAddress = 0;
         $button->enableShippingAddress = 0;
@@ -659,7 +659,7 @@ class Buttons extends Component
         $i = 1;
         $band = true;
         do {
-            $newField = $field == "sku" ? $value.$i : $value." ".$i;
+            $newField = $field == "handle" ? $value.$i : $value." ".$i;
             $button = $this->getFieldValue($field, $newField);
             if (is_null($button)) {
                 $band = false;
@@ -782,16 +782,16 @@ class Buttons extends Component
     /**
      * Returns a complete Stripe Button for display in template
      *
-     * @param string     $sku
+     * @param string     $handle
      * @param array|null $options
      *
      * @return string
      * @throws \Twig_Error_Loader
      * @throws \yii\base\Exception
      */
-    public function getButtonHtml($sku, array $options = null)
+    public function getButtonHtml($handle, array $options = null)
     {
-        $button = Stripe::$app->buttons->getButtonBySku($sku);
+        $button = Stripe::$app->buttons->getButtonBySku($handle);
         $templatePath = Stripe::$app->buttons->getEnupalStripePath();
         $buttonHtml = null;
         $settings = Stripe::$app->settings->getSettings();

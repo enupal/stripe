@@ -261,7 +261,7 @@ class Order extends Element
         $attributes['address'] = ['label' => PaypalPlugin::t('Shipping Address')];
         $attributes['email'] = ['label' => PaypalPlugin::t('Customer Email')];
         $attributes['itemName'] = ['label' => PaypalPlugin::t('Item Name')];
-        $attributes['itemSku'] = ['label' => PaypalPlugin::t('Item SKU')];
+        $attributes['itemSku'] = ['label' => PaypalPlugin::t('Item Handle')];
         $attributes['stripeTransactionId'] = ['label' => PaypalPlugin::t('PayPal Transaction Id')];
         $attributes['dateOrdered'] = ['label' => PaypalPlugin::t('Date Ordered')];
 
@@ -313,7 +313,7 @@ class Order extends Element
                 }
             case 'itemSku':
                 {
-                    return '<a href="'.$this->getButton()->getCpEditUrl().'">'.$this->getButton()->sku.'</a>';
+                    return '<a href="'.$this->getButton()->getCpEditUrl().'">'.$this->getButton()->handle.'</a>';
                 }
 
         }

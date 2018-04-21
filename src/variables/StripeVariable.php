@@ -51,16 +51,16 @@ class StripeVariable
     /**
      * Returns a complete PayPal Button for display in template
      *
-     * @param string     $sku
+     * @param string     $handle
      * @param array|null $options
      *
      * @return string
      * @throws \Twig_Error_Loader
      * @throws \yii\base\Exception
      */
-    public function displayButton($sku, array $options = null)
+    public function displayButton($handle, array $options = null)
     {
-        return Stripe::$app->buttons->getButtonHtml($sku, $options);
+        return Stripe::$app->buttons->getButtonHtml($handle, $options);
     }
 
     /**

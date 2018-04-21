@@ -50,7 +50,7 @@ class Install extends Migration
             'id' => $this->primaryKey(),
             'companyName' => $this->string(),
             'name' => $this->string()->notNull(),
-            'sku' => $this->string()->notNull(),
+            'handle' => $this->string()->notNull(),
             'currency' => $this->string()->defaultValue('USD'),
             'language' => $this->string()->defaultValue('en'),
             'amountType' => $this->integer(),

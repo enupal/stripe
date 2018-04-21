@@ -68,7 +68,7 @@ class Orders extends Component
     public function getOrderByNumber($number, int $siteId = null)
     {
         $query = Order::find();
-        $query->sku($number);
+        $query->handle($number);
         $query->siteId($siteId);
 
         return $query->one();

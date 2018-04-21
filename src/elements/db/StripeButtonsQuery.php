@@ -19,7 +19,7 @@ class StripeButtonsQuery extends ElementQuery
     public $id;
     public $dateCreated;
     public $name;
-    public $sku;
+    public $handle;
 
     /**
      * @inheritdoc
@@ -32,9 +32,9 @@ class StripeButtonsQuery extends ElementQuery
     /**
      * @inheritdoc
      */
-    public function sku($value)
+    public function handle($value)
     {
-        $this->sku = $value;
+        $this->handle = $value;
     }
 
     /**
@@ -42,7 +42,7 @@ class StripeButtonsQuery extends ElementQuery
      */
     public function getSku()
     {
-        return $this->sku;
+        return $this->handle;
     }
 
     /**
@@ -97,7 +97,7 @@ class StripeButtonsQuery extends ElementQuery
             'enupalstripe_buttons.logoImage',
             'enupalstripe_buttons.enableRememberMe',
 
-            'enupalstripe_buttons.sku',
+            'enupalstripe_buttons.handle',
             'enupalstripe_buttons.quantity',
             'enupalstripe_buttons.hasUnlimitedStock',
             'enupalstripe_buttons.customerQuantity',
@@ -126,9 +126,9 @@ class StripeButtonsQuery extends ElementQuery
             );
         }
 
-        if ($this->sku) {
+        if ($this->handle) {
             $this->subQuery->andWhere(Db::parseParam(
-                'enupalstripe_buttons.sku', $this->sku)
+                'enupalstripe_buttons.handle', $this->handle)
             );
         }
 

@@ -19,11 +19,11 @@
 
     {{ forms.textField({
         first: true,
-        label: "SKU <span class='info'>How you’ll refer to this Paypal Button in the templates.</span>"|t('enupal-stripe'),
-        id: 'sku',
-        name: 'sku',
-        value: stripeButton.sku,
-        errors: stripeButton.getErrors('sku'),
+        label: "Handle <span class='info'>How you’ll refer to this Stripe Button in the templates.</span>"|t('enupal-stripe'),
+        id: 'handle',
+        name: 'handle',
+        value: stripeButton.handle,
+        errors: stripeButton.getErrors('handle'),
         autofocus: true,
         required: true
     }) }}

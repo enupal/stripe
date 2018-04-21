@@ -45,7 +45,7 @@
 
 {% block content %}
     <input type="hidden" name="action" value="enupal-stripe/buttons/save-button">
-    <input type="hidden" name="sku" value="{{ stripeButton.sku }}">
+    <input type="hidden" name="handle" value="{{ stripeButton.handle }}">
     <input type="hidden" name="buttonId" value="{{ buttonId }}">
 
     {% namespace 'fields' %}

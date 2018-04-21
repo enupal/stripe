@@ -44,7 +44,7 @@ class StripeButton extends Element
     /**
      * @var string Sku
      */
-    public $sku;
+    public $handle;
 
     /**
      * @var string Currency
@@ -382,7 +382,7 @@ class StripeButton extends Element
      */
     protected static function defineSearchableAttributes(): array
     {
-        return ['name', 'sku'];
+        return ['name', 'handle'];
     }
 
     /**
@@ -393,7 +393,7 @@ class StripeButton extends Element
         $attributes = [
             'elements.dateCreated' => StripePlugin::t('Date Created'),
             'name' => StripePlugin::t('Name'),
-            'sku' => StripePlugin::t('SKU')
+            'handle' => StripePlugin::t('Handle')
         ];
 
         return $attributes;
@@ -405,7 +405,7 @@ class StripeButton extends Element
     protected static function defineTableAttributes(): array
     {
         $attributes['name'] = ['label' => StripePlugin::t('Name')];
-        $attributes['sku'] = ['label' => StripePlugin::t('SKU')];
+        $attributes['handle'] = ['label' => StripePlugin::t('Handle')];
         $attributes['amount'] = ['label' => StripePlugin::t('Amount')];
         $attributes['dateCreated'] = ['label' => StripePlugin::t('Date Created')];
 
@@ -414,7 +414,7 @@ class StripeButton extends Element
 
     protected static function defineDefaultTableAttributes(string $source): array
     {
-        $attributes = ['name', 'amount', 'sku', 'dateCreated'];
+        $attributes = ['name', 'amount', 'handle', 'dateCreated'];
 
         return $attributes;
     }
@@ -473,7 +473,7 @@ class StripeButton extends Element
         $record->name = $this->name;
         $record->companyName = $this->companyName;
 
-        $record->sku = $this->sku;
+        $record->handle = $this->handle;
         $record->currency = $this->currency;
         $record->language = $this->language;
         $record->amountType = $this->amountType;
@@ -507,9 +507,9 @@ class StripeButton extends Element
     public function rules()
     {
         return [
-            [['name', 'sku'], 'required'],
-            [['name', 'sku'], 'string', 'max' => 255],
-            [['name', 'sku'], UniqueValidator::class, 'targetClass' => StripeButtonRecord::class],
+            [['name', 'handle'], 'required'],
+            [['name', 'handle'], 'string', 'max' => 255],
+            [['name', 'handle'], UniqueValidator::class, 'targetClass' => StripeButtonRecord::class],
             [
                 ['discount'],
                 DiscountValidator::class
@@ -543,7 +543,7 @@ class StripeButton extends Element
      */
     public function displayButton(array $options = null)
     {
-        return StripePlugin::$app->buttons->getButtonHtml($this->sku, $options);
+        return StripePlugin::$app->buttons->getButtonHtml($this->handle, $options);
     }
 
 
@@ -562,7 +562,7 @@ class StripeButton extends Element
         }
 
         $publicData = [
-            'sku' => $this->sku,
+            'handle' => $this->handle,
             'amountType' => $this->amountType,
             'customerQuantity' => $this->customerQuantity ? (boolean)$this->customerQuantity : false,
             'buttonText' => $this->buttonText,
