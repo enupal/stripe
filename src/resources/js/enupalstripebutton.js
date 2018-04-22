@@ -9,7 +9,7 @@
         $currencySelect: null,
         $amountTypeSelect: null,
         $amountLabel: null,
-        $minimunAmountField: null,
+        $minimumAmountField: null,
 
         /**
          * The constructor.
@@ -20,7 +20,7 @@
             this.$currencySelect = $("#fields-currency");
             this.$amountTypeSelect = $("#fields-amountType");
             this.$amountLabel = $("#fields-amount-label");
-            this.$minimunAmountField = $("#fields-minimumAmount-field");
+            this.$minimumAmountField = $("#fields-minimumAmount-field");
 
 
             this.addListener(this.$unlimitedStock, 'change', 'handleUnlimitedStock');
@@ -46,10 +46,10 @@
         handleCurrencySelect: function() {
             var value = this.$currencySelect.val();
             var $shippingDiv = $("#fields-shippingAmount-field").find(".label, .light");
-            var $minimunDiv = this.$minimunAmountField.find(".label, .light");
+            var $minimumDiv = this.$minimumAmountField.find(".label, .light");
 
             $shippingDiv.text(value);
-            $minimunDiv.text(value);
+            $minimumDiv.text(value);
         },
 
         handleAmountTypeSelect: function()
@@ -60,11 +60,11 @@
 
             if (value == '0'){
                 $fieldWrapper.addClass('hidden');
-                this.$minimunAmountField.addClass('hidden');
+                this.$minimumAmountField.addClass('hidden');
             }
             else{
                 $fieldWrapper.removeClass('hidden');
-                this.$minimunAmountField.removeClass('hidden');
+                this.$minimumAmountField.removeClass('hidden');
             }
         },
 
