@@ -10,7 +10,7 @@
 {% extends "enupal-stripe/_layouts/settings" %}
 {% import "_includes/forms" as forms %}
 
-{% set settings = craft.stripeButton.getSettings() %}
+{% set settings = settings is defined ? settings : craft.stripeButton.getSettings()  %}
 {% set fullPageForm = true %}
 {% set saveShortcutRedirect = 'enupal-stripe/settings/default' %}
 {% set currencyOptions = craft.stripeButton.getCurrencyOptions() %}
@@ -43,17 +43,6 @@
                 value: settings.returnUrl,
                 autofocus: true,
                 errors: settings.getErrors('returnUrl')
-            }) }}
-
-            {{ forms.textField({
-                label: "Global Cancel URL"|t('enupal-stripe'),
-                instructions: "Redirect buyers' to this URL if they cancel checkout before completing their payments."|t('enupal-stripe'),
-                id: 'cancelUrl',
-                name: 'cancelUrl',
-                placeholder: '/something-went-wrong',
-                value: settings.cancelUrl,
-                autofocus: true,
-                errors: settings.getErrors('cancelUrl')
             }) }}
             <hr>
 

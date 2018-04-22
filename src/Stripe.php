@@ -40,6 +40,7 @@ class Stripe extends Plugin
     public function init()
     {
         parent::init();
+
         self::$app = $this->get('app');
 
         Event::on(UrlManager::class, UrlManager::EVENT_REGISTER_CP_URL_RULES, function(RegisterUrlRulesEvent $event) {

@@ -10,7 +10,7 @@ namespace enupal\stripe\fields;
 
 use craft\fields\BaseRelationField;
 use enupal\stripe\elements\StripeButton;
-use enupal\stripe\Stripe as PaypalPlugin;
+use enupal\stripe\Stripe as StripePlugin;
 
 /**
  * Class Buttons
@@ -28,7 +28,7 @@ class Buttons extends BaseRelationField
      */
     public static function displayName(): string
     {
-        return PaypalPlugin::t('PayPal Buy Now Buttons');
+        return StripePlugin::t('Stripe Pay Buttons');
     }
 
     /**
@@ -44,6 +44,6 @@ class Buttons extends BaseRelationField
      */
     public static function defaultSelectionLabel(): string
     {
-        return PaypalPlugin::t('Add a PayPal Buy Now Button');
+        return StripePlugin::t('Add a Stripe Pay Button');
     }
 }

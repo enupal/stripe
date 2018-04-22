@@ -27,12 +27,18 @@ class SettingsController extends BaseController
         $settings = $request->getBodyParam('settings');
         $scenario = $request->getBodyParam('stripeScenario');
 
-        if (!Stripe::$app->settings->saveSettings($settings, $scenario)) {
+        $plugin = Stripe::$app->settings->getPlugin();
+        $settingsModel = $plugin->getSettings();
+
+        $settingsModel->setAttributes($settings, false);
+
+        if (!Stripe::$app->settings->saveSettings($settingsModel, $scenario)) {
+
             Craft::$app->getSession()->setError(Stripe::t('Couldn’t save settings.'));
 
             // Send the settings back to the template
             Craft::$app->getUrlManager()->setRouteParams([
-                'settings' => $settings
+                'settings' => $settingsModel
             ]);
 
             return null;

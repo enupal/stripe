@@ -19,18 +19,15 @@ class Settings extends Component
      * Saves Settings
      *
      * @param string $scenario
-     * @param array  $postSettings
+     * @param SettingsModel  $settings
      *
      * @return bool
      */
-    public function saveSettings(array $postSettings, string $scenario = null): bool
+    public function saveSettings(SettingsModel $settings, string $scenario = null): bool
     {
         $plugin = $this->getPlugin();
-        $settings = $plugin->getSettings();
 
-        $settings->setAttributes($postSettings, false);
-
-        if ($scenario) {
+        if (!is_null($scenario)) {
             $settings->setScenario($scenario);
         }
 
@@ -39,7 +36,7 @@ class Settings extends Component
             return false;
         }
 
-        $success = Craft::$app->getPlugins()->savePluginSettings($plugin, $postSettings);
+        $success = Craft::$app->getPlugins()->savePluginSettings($plugin, $settings->getAttributes());
 
         return $success;
     }

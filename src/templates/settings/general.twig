@@ -10,7 +10,7 @@
 {% extends "enupal-stripe/_layouts/settings" %}
 {% import "_includes/forms" as forms %}
 
-{% set settings = craft.stripeButton.getSettings() %}
+{% set settings = settings is defined ? settings : craft.stripeButton.getSettings()  %}
 {% set fullPageForm = true %}
 {% set saveShortcutRedirect = 'enupal-stripe/settings/general' %}
 
@@ -21,7 +21,6 @@
 {% endset %}
 
 {% set content %}
-
     <input type="hidden" name="action"
            value="enupal-stripe/settings/save-settings">
     <input type="hidden" name="stripeScenario" value="general">
