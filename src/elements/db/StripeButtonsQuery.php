@@ -94,6 +94,7 @@ class StripeButtonsQuery extends ElementQuery
             'enupalstripe_buttons.amountType',
             'enupalstripe_buttons.amount',
             'enupalstripe_buttons.customAmountLabel',
+            'enupalstripe_buttons.minimumAmount',
             'enupalstripe_buttons.logoImage',
             'enupalstripe_buttons.enableRememberMe',
 

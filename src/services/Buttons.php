@@ -17,6 +17,7 @@ use craft\fields\Table;
 use craft\helpers\FileHelper;
 use enupal\stripe\assetbundles\StripeAsset;
 use enupal\stripe\elements\StripeButton;
+use enupal\stripe\enums\AmountType;
 use enupal\stripe\enums\DiscountType;
 use enupal\stripe\enums\OpenWindow;
 use enupal\stripe\enums\ShippingOptions;
@@ -687,74 +688,6 @@ class Buttons extends Component
     }
 
     /**
-     * @param int    $buttonSize
-     *
-     * @param string $language
-     *
-     * @return string
-     * @throws Exception
-     */
-    public function getButtonSizeUrl($buttonSize = 0, $language = 'en_ES')
-    {
-        $buttonUrl = '';
-        $basseUrl = 'https://www.paypalobjects.com/{language}{extra}/i/btn/';
-        $extra = '';
-
-        if ($language == 'nl_NL') {
-            $extra = '/NL/';
-        }
-        if ($language == 'ja_JP') {
-            $extra = '/JP/';
-        }
-
-        switch ($buttonSize) {
-            case PaypalSize::BUYSMALL:
-                {
-                    $buttonUrl = $basseUrl.'btn_buynow_SM.gif';
-                    break;
-                }
-            case PaypalSize::BUYBIG:
-                {
-                    $buttonUrl = $basseUrl.'btn_buynow_LG.gif';
-                    break;
-                }
-            case PaypalSize::BUYBIGCC:
-                {
-                    $buttonUrl = $basseUrl.'btn_buynowCC_LG.gif';
-                    break;
-                }
-            case PaypalSize::BUYGOLD:
-                {
-                    // just english
-                    $buttonUrl = 'https://www.paypalobjects.com/webstatic/en_US/i/buttons/buy-logo-medium.png';
-                    break;
-                }
-            case PaypalSize::PAYSMALL:
-                {
-                    $buttonUrl = $basseUrl.'btn_paynow_SM.gif';
-                    break;
-                }
-            case PaypalSize::PAYBIG:
-                {
-                    $buttonUrl = $basseUrl.'btn_paynow_LG.gif';
-                    break;
-                }
-            case PaypalSize::PAYBIGCC:
-                {
-                    $buttonUrl = $basseUrl.'btn_paynowCC_LG.gif';
-                    break;
-                }
-        }
-
-        $buttonUrl = Craft::$app->view->renderObjectTemplate($buttonUrl, [
-            'language' => $language,
-            'extra' => $extra
-        ]);
-
-        return $buttonUrl;
-    }
-
-    /**
      * @return array
      */
     public function getDiscountOptions()
@@ -769,14 +702,13 @@ class Buttons extends Component
     /**
      * @return array
      */
-    public function getShippingOptions()
+    public function getAmountTypeOptions()
     {
-        $options = [];
-        $options[ShippingOptions::PROMPT] = Stripe::t('Prompt for an address, but do not require one.');
-        $options[ShippingOptions::DONOTPROMPT] = Stripe::t('Do not prompt for an address.');
-        $options[ShippingOptions::PROMPTANDREQUIRE] = Stripe::t('Prompt for an address and require one.');
+        $types = [];
+        $types[AmountType::ONE_TIME_SET_AMOUNT] = Stripe::t('One-Time set amount');
+        $types[AmountType::ONE_TIME_CUSTOM_AMOUNT] = Stripe::t('One-Time custom amount');
 
-        return $options;
+        return $types;
     }
 
     /**

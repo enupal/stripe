@@ -12,7 +12,7 @@
 {% set currencyOptions = craft.stripeButton.getCurrencyIsoOptions() %}
 {% set languageOptions = craft.stripeButton.getLanguageOptions() %}
 {% set discountOptions = craft.stripeButton.getDiscountOptions() %}
-{% set shippingOptions = craft.stripeButton.getShippingOptions() %}
+{% set amountTypeOptions = craft.stripeButton.getAmountTypeOptions() %}
 
 <div class="meta">
     <h6>{{ 'General'|t('sprout-forms') }}</h6>
@@ -42,7 +42,7 @@
     <div class="flex">
         <div class="textwrapper">
             {{ forms.text({
-                label: "Amount <span class='info'>You can leave it in blank if is a donation</span>"|t('enupal-stripe'),
+                label: "Amount"|t('enupal-stripe'),
                 id: 'amount',
                 name: 'amount',
                 placeholder: 'Enter amount'|t('enupal-stripe'),
@@ -60,9 +60,39 @@
     </div>
     {% endset %}
 
+    {{ forms.selectField({
+        label: "Amount Type"|t('enupal-stripe'),
+        id: 'amountType',
+        name: 'amountType',
+        options: amountTypeOptions,
+        value: stripeButton.amountType
+    }) }}
+
+    {{ forms.textField({
+        first: true,
+        label: "Amount Label <span class='info'>Custom amount label</span>"|t('enupal-stripe'),
+        id: 'customAmountLabel',
+        name: 'customAmountLabel',
+        placeholder: 'Pay what you want:',
+        value: stripeButton.customAmountLabel,
+        errors: stripeButton.getErrors('customAmountLabel')
+    }) }}
+
+    {{ forms.textField({
+        first: true,
+        label: "Minimun Amount <span class='info'>Minimun custom amount</span>"|t('enupal-stripe'),
+        id: 'minimumAmount',
+        name: 'minimumAmount',
+        placeholder: 'Enter amount',
+        unit: stripeButton.currency,
+        value: (stripeButton.minimumAmount == '0' ? '0'|number : (stripeButton.minimumAmount ? stripeButton.minimumAmount|number ?: '')),
+        errors: stripeButton.getErrors('minimumAmount'),
+        autofocus: true,
+    }) }}
+
     {{ forms.field({
         id: 'amount',
-        label: 'Price <span class="info">The price or amount of the product, service, or contribution, not including shipping, handling, or tax. If empty, buyers enter their own amount at the time of payment</span>'|t('enupal-stripe'),
+        label: 'Amount <span class="info">- The amount of the product, service, or contribution, not including shipping, handling, or tax.<br>- Default amount if using custom amount.</span>'|t('enupal-stripe'),
         errors: stripeButton.getErrors('amount')|merge(stripeButton.getErrors('currency')),
     }, amountInput) }}
 

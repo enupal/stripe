@@ -1,3 +1,10 @@
+/**
+ * EnupalStripe plugin for Craft CMS 3.x
+ *
+ * @link      https://enupal.com/
+ * @copyright Copyright (c) 2018 Enupal
+ */
+
 var enupalStripe = {};
 
 (function($) {
@@ -108,6 +115,10 @@ var enupalStripe = {};
 
         convertToCents: function(amount) {
             return (amount * 100);
+        },
+
+        convertFromCents: function(amount) {
+            return (amount / 100);
         }
     };
 

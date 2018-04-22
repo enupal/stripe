@@ -98,9 +98,9 @@ class StripeVariable
     /**
      * @return array
      */
-    public function getShippingOptions()
+    public function getAmountTypeOptions()
     {
-        return Stripe::$app->buttons->getShippingOptions();
+        return Stripe::$app->buttons->getAmountTypeOptions();
     }
 
     /**
