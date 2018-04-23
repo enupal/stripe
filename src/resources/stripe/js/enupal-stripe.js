@@ -106,11 +106,25 @@ var enupalStripe = {};
 
         submitPayment: function(enupalButtonElement, enupalStripeData, stripeHandler) {
             var stripeConfig = enupalStripeData.stripe;
-            stripeConfig.amount = this.convertToCents(stripeConfig.amount);
+            stripeConfig.amount = this.convertToCents(this.getFinalAmount(enupalButtonElement, enupalStripeData));
             enupalButtonElement.find('[name="enupalStripe[amount]"]').val(stripeConfig.amount);
             enupalButtonElement.find('[name="enupalStripe[testMode]"]').val(enupalStripeData.testMode);
             // If everything checks out then let's open the form
             stripeHandler.open(stripeConfig);
+        },
+
+        getFinalAmount: function(enupalButtonElement, enupalStripeData){
+            var finalAmount = enupalStripeData.stripe.amount;
+            // Check if custom amount
+            if ( enupalStripeData.amountType == 1) {
+                var customAmount = enupalButtonElement.find( '[name="enupalStripe[customAmount]"]' ).val();
+
+                if ( ( 'undefined' !== customAmount ) && ( customAmount > 0 ) ) {
+                    finalAmount = customAmount;
+                }
+            }
+
+            return finalAmount;
         },
 
         convertToCents: function(amount) {

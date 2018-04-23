@@ -5,7 +5,7 @@
     {% set recurringId = 'recurringToggle-'~button.id %}
     {% set interval = button.recurringPaymentType == 'month' ? 'monthly' : 'yearly'  %}
     {% set recurringLabel = 'Make this a '~interval~' payment' %}
-
+    {% set minimunAmount = button.amount ? button.amount|number_format : button.minimumAmount ? button.minimumAmount|number_format : '' %}
     <div class="form-group">
         <div class="heading">
             <label for="{{ customId }}">
@@ -14,10 +14,9 @@
         </div>
         <div class="enupal-input-icon">
             <i>{{ currencySymbol }}</i>
-            <input type="number" class="form-control" id="{{ customId }}" name="customAmount" min="{{ button.minimumAmount|number_format }}" placeholder="1.00" value="{{ button.amount|number_format }}">
+            <input type="number" class="form-control" id="{{ customId }}" name="customAmount" min="{{ button.minimumAmount|number_format }}" placeholder="1" value="{{ minimunAmount }}">
         </div>
     </div>
-    {# Custom amount #}
 {% endif %}
 {% if button.enableRecurringPayment %}
     <div class="form-group">
@@ -25,9 +24,8 @@
             <input type="checkbox" class="form-control" id="{{ recurringId }}" name="recurringToggle">
 
             <label for="{{ recurringId }}">
-                {{- interval|t -}}
+                {{- recurringLabel|t -}}
             </label>
         </div>
     </div>
 {% endif %}
-<button class="enupal-stripe-button"><span>{{  button.getButtonText() }}</span></button>
