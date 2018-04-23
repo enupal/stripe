@@ -10,6 +10,9 @@
         $amountTypeSelect: null,
         $amountLabel: null,
         $minimumAmountField: null,
+        $recurringToggleField: null,
+        $recurringTypeField: null,
+        $recurringToggle: null,
 
         /**
          * The constructor.
@@ -18,15 +21,19 @@
             // init method
             this.$unlimitedStock = $("#fields-unlimited-stock");
             this.$currencySelect = $("#fields-currency");
+            this.$recurringToggle = $("input[name='fields[enableRecurringPayment]']");
             this.$amountTypeSelect = $("#fields-amountType");
             this.$amountLabel = $("#fields-amount-label");
             this.$minimumAmountField = $("#fields-minimumAmount-field");
-
+            this.$recurringToggleField = $("#fields-enableRecurringPayment-field");
+            this.$recurringTypeField = $("#fields-recurringPaymentType-field");
 
             this.addListener(this.$unlimitedStock, 'change', 'handleUnlimitedStock');
             this.addListener(this.$currencySelect, 'change', 'handleCurrencySelect');
             this.addListener(this.$amountTypeSelect, 'change', 'handleAmountTypeSelect');
+            this.addListener(this.$recurringToggleField, 'change', 'handleRecurringToggle');
 
+            this.handleRecurringToggle();
             this.handleAmountTypeSelect();
         },
 
@@ -52,6 +59,18 @@
             $minimumDiv.text(value);
         },
 
+        handleRecurringToggle: function()
+        {
+            var value = this.$recurringToggle.val();
+
+            if (value == 1){
+                this.$recurringTypeField.removeClass('hidden');
+            }
+            else{
+                this.$recurringTypeField.addClass('hidden');
+            }
+        },
+
         handleAmountTypeSelect: function()
         {
             var value = this.$amountTypeSelect.val();
@@ -61,10 +80,14 @@
             if (value == '0'){
                 $fieldWrapper.addClass('hidden');
                 this.$minimumAmountField.addClass('hidden');
+                this.$recurringToggleField.addClass('hidden');
+                this.$recurringTypeField.addClass('hidden');
             }
             else{
                 $fieldWrapper.removeClass('hidden');
                 this.$minimumAmountField.removeClass('hidden');
+                this.$recurringToggleField.removeClass('hidden');
+                this.$recurringTypeField.removeClass('hidden');
             }
         },
 
