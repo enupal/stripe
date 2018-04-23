@@ -575,7 +575,7 @@ class StripeButton extends Element
             'buttonText' => $this->buttonText,
             'paymentButtonProcessingText' => $this->paymentButtonProcessingText ? $this->getButtonText($this->paymentButtonProcessingText) : $this->getButtonText(),
             'pbk' => $this->getPublishableKey(),
-            'testMode' => (boolean)$this->settings->testMode,
+            'testMode' => $this->settings->testMode,
             'enableRecurringPayment' => (boolean)$this->enableRecurringPayment,
             'recurringPaymentType' => $this->recurringPaymentType,
             'customAmountLabel' => Craft::$app->view->renderString($this->customAmountLabel ?? '' , ['button' => $this]),

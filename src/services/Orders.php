@@ -16,6 +16,7 @@ use enupal\stripe\events\OrderCompleteEvent;
 use Stripe\Charge;
 use Stripe\Customer;
 use Stripe\Error\Card;
+use Stripe\Plan;
 use Stripe\Stripe;
 use yii\base\Component;
 use enupal\stripe\Stripe as StripePlugin;
@@ -416,19 +417,32 @@ class Orders extends Component
         Stripe::setAppInfo(StripePlugin::getInstance()->name, StripePlugin::getInstance()->version, StripePlugin::getInstance()->documentationUrl);
         Stripe::setApiKey($privateKey);
 
-        $customer = $this->getCustomer($data, $token);
+        $isNew = false;
+        $customer = $this->getCustomer($data, $token, $isNew);
+
+        if (isset($data['recurringToggle']) && $data['recurringToggle'] == 'on'){
+            if (isset($data['customAmount']) && $data['customAmount'] > 0){
+                $this->addRecurringPayment($customer, $data, $button);
+            }
+        }
 
         $description = Craft::t('enupal-stripe', 'Order from {email}', ['email' => $data['email']]);
 
         try {
-            $charge = Charge::create([
+            $chargeSettings = [
                 'amount' => $data['amount'], // amount in cents
                 'currency' => $button->currency,
                 'customer' => $customer->id,
                 'description' => $description,
                 'metadata' => $this->getStripeMetadata($data),
                 'shipping' => $addressData ? $this->getShipping($addressData) : []
-            ]);
+            ];
+
+            if (!$isNew){
+                $chargeSettings['source'] = $token;
+            }
+
+            $charge = Charge::create($chargeSettings);
 
             if (isset($charge['id'])){
                 // Stock
@@ -483,17 +497,43 @@ class Orders extends Component
     }
 
     /**
+     * @param $customer
+     * @param $data
+     * @param $button
+     */
+    private function addRecurringPayment($customer, $data, $button)
+    {
+        $currentTime = time();
+        $planName = strval($currentTime);
+
+        //Create new plan for this customer:
+        Plan::create([
+            "amount" => ($data['customAmount'] * 100),
+            "interval" => $button->recurringPaymentType,
+            "product" => [
+                "name" => "Plan for recurring payment from: " . $data['email'],
+            ],
+            "currency" => $button->currency,
+            "id" => $planName
+        ]);
+
+        // Add the plan to the customer
+        $customer->subscriptions->create(array("plan" => $planName));
+    }
+
+    /**
      * @param $data
      * @param $token
      * @return \Stripe\ApiResource|\Stripe\StripeObject
      */
-    public function getCustomer($data, $token)
+    private function getCustomer($data, $token, &$isNew)
     {
         $email = $data['email'] ?? null;
+        $stripeCustomer = null;
         // Check if customer exists
         $customerRecord = CustomerRecord::findOne([
             'email' => $email,
-            'testMode' => $this->settings->testMode
+            'testMode' => $data['testMode']
         ]);
 
         if ($customerRecord){
@@ -501,7 +541,7 @@ class Orders extends Component
             $stripeCustomer = Customer::retrieve($customerId);
         }
 
-        if (!$stripeCustomer->id){
+        if (!isset($stripeCustomer->id)){
             $stripeCustomer = Customer::create([
                 'email' => $data['email'],
                 'card' => $token
@@ -510,7 +550,9 @@ class Orders extends Component
             $customerRecord = new CustomerRecord();
             $customerRecord->email = $data['email'];
             $customerRecord->stripeId = $stripeCustomer->id;
-            $customerRecord->testMode = $this->settings->testMode;
+            $customerRecord->testMode = $data['testMode'];
+            $customerRecord->save(false);
+            $isNew = true;
         }
 
         return $stripeCustomer;
