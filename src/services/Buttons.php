@@ -375,6 +375,7 @@ class Buttons extends Component
         $button->enableBillingAddress = 0;
         $button->enableShippingAddress = 0;
         $button->customerQuantity = 0;
+        $button->amountType = AmountType::ONE_TIME_SET_AMOUNT;
         $button->currency = $settings->defaultCurrency ? $settings->defaultCurrency : 'USD';
         $button->enabled = 1;
         $button->language = 'en';

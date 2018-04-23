@@ -34,6 +34,6 @@
         {% endfor %}
 
         {% endnamespace %}
-        <button class="enupal-stripe-button"><span>{{  button.getButtonText() }}</span></button>
+        {% include "_payButton" %}
     </form>
 {% endspaceless %}

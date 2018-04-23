@@ -1,0 +1,19 @@
+
+{% if button.amountType == 1 %}
+    {% set customLabel = button.getCustomLabel() %}
+    {% set currencySymbol = button.getCurrencySymbol() %}
+
+    <div class="form-group">
+        <div class="heading">
+            <label for="{{ customLabel }}">
+                {{- customLabel|raw|t -}}
+            </label>
+        </div>
+        <div class="enupal-input-icon">
+            <i>{{ currencySymbol }}</i>
+            <input type="number" class="form-control" name="customAmount" min="{{ button.minimumAmount|number_format }}" placeholder="1.00" value="{{ button.amount|number_format }}">
+        </div>
+    </div>
+    {# Custom amount #}
+{% endif %}
+<button class="enupal-stripe-button"><span>{{  button.getButtonText() }}</span></button>

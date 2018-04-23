@@ -18,6 +18,7 @@ use enupal\stripe\validators\DiscountValidator;
 use yii\base\ErrorHandler;
 use craft\helpers\UrlHelper;
 use craft\elements\actions\Delete;
+use Yii;
 
 use enupal\stripe\elements\db\StripeButtonsQuery;
 use enupal\stripe\records\StripeButton as StripeButtonRecord;
@@ -616,7 +617,6 @@ class StripeButton extends Element
         return $logoElement;
     }
 
-
     /**
      * @param string $default
      *
@@ -632,6 +632,50 @@ class StripeButton extends Element
 
         return $buttonText;
     }
+
+    /**
+     * @param string $default
+     *
+     * @return string
+     */
+    public function getCustomLabel($default = "Pay what you want:")
+    {
+        $text = Craft::t('site', $default);
+
+        if ($this->customAmountLabel){
+            $text = $this->customAmountLabel;
+        }
+
+        return $text;
+    }
+
+
+    /**
+     * @return array
+     * @throws \yii\base\InvalidConfigException
+     */
+    public function getCurrencySymbol()
+    {
+        $pattern = Craft::$app->formatter->asCurrency(123, $this->currency);
+
+        // the spacings between currency symbol and number are ignored, because
+        // a single space leads to better readability in combination with input
+        // fields
+        // the regex also considers non-break spaces (0xC2 or 0xA0 in UTF-8)
+        preg_match('/^([^\s\xc2\xa0]*)[\s\xc2\xa0]*123([,.]0+)?[\s\xc2\xa0]*([^\s\xc2\xa0]*)$/u', $pattern, $matches);
+
+        $symbol = '';
+
+        if (!empty($matches[1])) {
+            $symbol = $matches[1];
+        } elseif (!empty($matches[3])) {
+            $symbol = $matches[3];
+        }
+
+        return $symbol;
+    }
+
+
 
     /**
      * @return string
