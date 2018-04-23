@@ -9,12 +9,12 @@
 namespace enupal\stripe\enums;
 
 /**
- * Stripe discount types
+ * Stripe recurring payment types
  */
-abstract class DiscountType extends BaseEnum
+abstract class RecurringPaymentType extends BaseEnum
 {
     // Constants
     // =========================================================================
-    const RATE  = 0;
-    const AMOUNT = 1;
+    const MONTHLY  = 'month';
+    const YEARLY = 'year';
 }

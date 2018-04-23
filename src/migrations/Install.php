@@ -35,6 +35,7 @@ class Install extends Migration
     {
         $this->dropTableIfExists('{{%enupalstripe_orders}}');
         $this->dropTableIfExists('{{%enupalstripe_buttons}}');
+        $this->dropTableIfExists('{{%enupalstripe_customers}}');
 
         return true;
     }
@@ -59,6 +60,8 @@ class Install extends Migration
             'amount' => $this->decimal(14, 4)->defaultValue(0),
             'logoImage' => $this->string(),
             'enableRememberMe' => $this->boolean(),
+            'enableRecurringPayment' => $this->boolean(),
+            'recurringPaymentType' => $this->string(),
             // Inventory
             'quantity' => $this->integer(),
             'hasUnlimitedStock' => $this->boolean()->defaultValue(1),
@@ -115,6 +118,17 @@ class Install extends Migration
             'addressStreet' => $this->string(),
             'addressZip' => $this->string(),
             'variants' => $this->text(),
+            //
+            'dateCreated' => $this->dateTime()->notNull(),
+            'dateUpdated' => $this->dateTime()->notNull(),
+            'uid' => $this->uid()
+        ]);
+
+        $this->createTable('{{%enupalstripe_customers}}', [
+            'id' => $this->primaryKey(),
+            'email' => $this->string(),
+            'stripeId' => $this->string(),
+            'testMode' => $this->boolean(),
             //
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),

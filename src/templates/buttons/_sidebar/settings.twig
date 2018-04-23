@@ -13,6 +13,8 @@
 {% set languageOptions = craft.stripeButton.getLanguageOptions() %}
 {% set discountOptions = craft.stripeButton.getDiscountOptions() %}
 {% set amountTypeOptions = craft.stripeButton.getAmountTypeOptions() %}
+{% set recurringOptions = craft.stripeButton.getRecurringOptions() %}
+
 
 <div class="meta">
     <h6>{{ 'General'|t('sprout-forms') }}</h6>
@@ -26,6 +28,14 @@
         errors: stripeButton.getErrors('handle'),
         autofocus: true,
         required: true
+    }) }}
+
+    {{ forms.selectField({
+        label: "Language <span class='info'>PayPal currently supports 18 languages</span>"|t('enupal-stripe'),
+        id: 'language',
+        name: 'language',
+        options: languageOptions,
+        value: stripeButton.language
     }) }}
 
     {{ forms.lightswitchField({
@@ -96,14 +106,24 @@
         errors: stripeButton.getErrors('amount')|merge(stripeButton.getErrors('currency')),
     }, amountInput) }}
 
-    {{ forms.selectField({
-        label: "Language <span class='info'>PayPal currently supports 18 languages</span>"|t('enupal-stripe'),
-        id: 'language',
-        name: 'language',
-        options: languageOptions,
-        value: stripeButton.language
+    {{ forms.lightswitchField({
+        label: "Recurring Payment <span class='info'>Make this payment recurring for the customer.</span>"|t('enupal-stripe'),
+        id: 'enableRecurringPayment',
+        name: 'enableRecurringPayment',
+        on: stripeButton.enableRecurringPayment
     }) }}
 
+    {{ forms.selectField({
+        label: "Interval <span class='info'>One of month or year. The frequency with which a custom amount should be billed</span>"|t('enupal-stripe'),
+        id: 'recurringPaymentType',
+        name: 'recurringPaymentType',
+        options: recurringOptions,
+        value: stripeButton.recurringPaymentType
+    }) }}
+</div>
+<hr>
+<div class="meta">
+    <h6>{{ 'Stock'|t('sprout-forms') }}</h6>
     {% set stockInput %}
         <div class="flex">
             <div class="textwrapper">

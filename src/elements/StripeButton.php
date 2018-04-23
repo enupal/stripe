@@ -96,6 +96,9 @@ class StripeButton extends Element
     public $logoImage;
     public $enableRememberMe;
 
+    public $enableRecurringPayment;
+    public $recurringPaymentType;
+
     protected $env;
     protected $paypalUrl;
     protected $ipnUrl;
@@ -492,6 +495,9 @@ class StripeButton extends Element
         $record->enableBillingAddress = $this->enableBillingAddress;
         $record->enableShippingAddress = $this->enableShippingAddress;
         $record->customerQuantity = $this->customerQuantity ? $this->customerQuantity : 0;
+
+        $record->enableRecurringPayment = $this->enableRecurringPayment;
+        $record->recurringPaymentType = $this->recurringPaymentType;
 
         $record->returnUrl = $this->returnUrl;
         $record->buttonText = $this->buttonText;

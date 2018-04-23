@@ -1,19 +1,33 @@
-
 {% if button.amountType == 1 %}
     {% set customLabel = button.getCustomLabel() %}
     {% set currencySymbol = button.getCurrencySymbol() %}
+    {% set customId = 'customAmount-'~button.id %}
+    {% set recurringId = 'recurringToggle-'~button.id %}
+    {% set interval = button.recurringPaymentType == 'month' ? 'monthly' : 'yearly'  %}
+    {% set recurringLabel = 'Make this a '~interval~' payment' %}
 
     <div class="form-group">
         <div class="heading">
-            <label for="{{ customLabel }}">
+            <label for="{{ customId }}">
                 {{- customLabel|raw|t -}}
             </label>
         </div>
         <div class="enupal-input-icon">
             <i>{{ currencySymbol }}</i>
-            <input type="number" class="form-control" name="customAmount" min="{{ button.minimumAmount|number_format }}" placeholder="1.00" value="{{ button.amount|number_format }}">
+            <input type="number" class="form-control" id="{{ customId }}" name="customAmount" min="{{ button.minimumAmount|number_format }}" placeholder="1.00" value="{{ button.amount|number_format }}">
         </div>
     </div>
     {# Custom amount #}
+{% endif %}
+{% if button.enableRecurringPayment %}
+    <div class="form-group">
+        <div class="enupal-input-icon">
+            <input type="checkbox" class="form-control" id="{{ recurringId }}" name="recurringToggle">
+
+            <label for="{{ recurringId }}">
+                {{- interval|t -}}
+            </label>
+        </div>
+    </div>
 {% endif %}
 <button class="enupal-stripe-button"><span>{{  button.getButtonText() }}</span></button>

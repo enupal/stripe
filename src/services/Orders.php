@@ -20,6 +20,7 @@ use Stripe\Stripe;
 use yii\base\Component;
 use enupal\stripe\Stripe as StripePlugin;
 use enupal\stripe\records\Order as OrderRecord;
+use enupal\stripe\records\Customer as CustomerRecord;
 use yii\helpers\Json;
 
 class Orders extends Component
@@ -415,11 +416,7 @@ class Orders extends Component
         Stripe::setAppInfo(StripePlugin::getInstance()->name, StripePlugin::getInstance()->version, StripePlugin::getInstance()->documentationUrl);
         Stripe::setApiKey($privateKey);
 
-        // @todo research if we need create a customer or leave this integration for just orders
-        /*$newCustomer = Customer::create([
-            'email' => $data['email'],
-            'card' => $token
-        ]);*/
+        $customer = $this->getCustomer($data, $token);
 
         $description = Craft::t('enupal-stripe', 'Order from {email}', ['email' => $data['email']]);
 
@@ -427,8 +424,7 @@ class Orders extends Component
             $charge = Charge::create([
                 'amount' => $data['amount'], // amount in cents
                 'currency' => $button->currency,
-                //'customer' => $newCustomer['id'] ?? null,
-                'source' => $token,
+                'customer' => $customer->id,
                 'description' => $description,
                 'metadata' => $this->getStripeMetadata($data),
                 'shipping' => $addressData ? $this->getShipping($addressData) : []
@@ -484,6 +480,40 @@ class Orders extends Component
         Craft::info('Stripe - Order Created: '.$order->number);
 
         return true;
+    }
+
+    /**
+     * @param $data
+     * @param $token
+     * @return \Stripe\ApiResource|\Stripe\StripeObject
+     */
+    public function getCustomer($data, $token)
+    {
+        $email = $data['email'] ?? null;
+        // Check if customer exists
+        $customerRecord = CustomerRecord::findOne([
+            'email' => $email,
+            'testMode' => $this->settings->testMode
+        ]);
+
+        if ($customerRecord){
+            $customerId = $customerRecord->stripeId;
+            $stripeCustomer = Customer::retrieve($customerId);
+        }
+
+        if (!$stripeCustomer->id){
+            $stripeCustomer = Customer::create([
+                'email' => $data['email'],
+                'card' => $token
+            ]);
+
+            $customerRecord = new CustomerRecord();
+            $customerRecord->email = $data['email'];
+            $customerRecord->stripeId = $stripeCustomer->id;
+            $customerRecord->testMode = $this->settings->testMode;
+        }
+
+        return $stripeCustomer;
     }
 
     private function getStripeMetadata($data)

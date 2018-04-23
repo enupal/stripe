@@ -97,6 +97,8 @@ class StripeButtonsQuery extends ElementQuery
             'enupalstripe_buttons.minimumAmount',
             'enupalstripe_buttons.logoImage',
             'enupalstripe_buttons.enableRememberMe',
+            'enupalstripe_buttons.enableRecurringPayment',
+            'enupalstripe_buttons.recurringPaymentType',
 
             'enupalstripe_buttons.handle',
             'enupalstripe_buttons.quantity',
