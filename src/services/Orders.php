@@ -403,7 +403,6 @@ class Orders extends Component
         }
 
         $button = StripePlugin::$app->buttons->getButtonById((int)$buttonId);
-        $addressData = $data['address'] ?? null;
 
         if (is_null($button)) {
             throw new \Exception(Craft::t('enupal-stripe','Unable to find the Stripe Button associated to the order'));
@@ -419,14 +418,59 @@ class Orders extends Component
 
         $isNew = false;
         $customer = $this->getCustomer($data, $token, $isNew);
+        $charge = null;
+        $stripeId = null;
 
         if (isset($data['recurringToggle']) && $data['recurringToggle'] == 'on'){
             if (isset($data['customAmount']) && $data['customAmount'] > 0){
-                $this->addRecurringPayment($customer, $data, $button);
+                // test what is returning we need a stripe id
+                $subscription = $this->addRecurringPayment($customer, $data, $button, $token, $isNew);
+                $stripeId = $subscription->id ?? null;
             }
         }
 
+        if (is_null($stripeId)){
+            $charge = $this->stripeCharge($data, $button, $customer, $isNew, $token);
+            $stripeId = $charge['id'] ?? null;
+        }
+
+        if (is_null($stripeId)){
+            Craft::error('Something went wrong making the charge Stripe Order:  CHECK PREVIOUS LOGS ', __METHOD__);
+            return false;
+        }
+
+        // Stock
+        $saveButton = false;
+        if (!$button->hasUnlimitedStock && (int)$button->quantity > 0){
+            $button->quantity -= $order->quantity;
+            $saveButton = true;
+        }
+
+        $order->stripeTransactionId = $stripeId;
+        // Finally save the order in Craft CMS
+        if (!StripePlugin::$app->orders->saveOrder($order)){
+            Craft::error('Something went wrong saving the Stripe Order: '.json_encode($order->getErrors()), __METHOD__);
+            return false;
+        }
+
+        // Let's update the stock
+        if ($saveButton){
+            if (!StripePlugin::$app->buttons->saveButton($button)){
+                Craft::error('Something went wrong updating the stripe button stock: '.json_encode($button->getErrors()), __METHOD__);
+                return false;
+            }
+        }
+
+        Craft::info('Stripe - Order Created: '.$order->number);
+
+        return true;
+    }
+
+    private function stripeCharge($data, $button, $customer, $isNew, $token)
+    {
         $description = Craft::t('enupal-stripe', 'Order from {email}', ['email' => $data['email']]);
+        $charge = null;
+        $addressData = $data['address'] ?? null;
 
         try {
             $chargeSettings = [
@@ -444,29 +488,6 @@ class Orders extends Component
 
             $charge = Charge::create($chargeSettings);
 
-            if (isset($charge['id'])){
-                // Stock
-                $saveButton = false;
-                if (!$button->hasUnlimitedStock && (int)$button->quantity > 0){
-                    $button->quantity -= $order->quantity;
-                    $saveButton = true;
-                }
-
-                $order->stripeTransactionId = $charge['id'];
-                // Finally save the order in Craft CMS
-                if (!StripePlugin::$app->orders->saveOrder($order)){
-                    Craft::error('Something went wrong saving the Stripe Order: '.json_encode($order->getErrors()), __METHOD__);
-                    return false;
-                }
-
-                // Let's update the stock
-                if ($saveButton){
-                    if (!StripePlugin::$app->buttons->saveButton($button)){
-                        Craft::error('Something went wrong updating the stripe button stock: '.json_encode($button->getErrors()), __METHOD__);
-                        return false;
-                    }
-                }
-            }
         } catch (Card $e) {
             // Since it's a decline, \Stripe\Error\Card will be caught
             $body = $e->getJsonBody();
@@ -491,24 +512,26 @@ class Orders extends Component
             Craft::error('Stripe - something went wrong: '.$e->getMessage());
         }
 
-        Craft::info('Stripe - Order Created: '.$order->number);
-
-        return true;
+        return $charge;
     }
+
 
     /**
      * @param $customer
      * @param $data
      * @param $button
+     * @param $token
+     * @param $isNew
+     * @return mixed
      */
-    private function addRecurringPayment($customer, $data, $button)
+    private function addRecurringPayment($customer, $data, $button, $token, $isNew)
     {
         $currentTime = time();
         $planName = strval($currentTime);
 
         //Create new plan for this customer:
         Plan::create([
-            "amount" => ($data['customAmount'] * 100),
+            "amount" => $data['amount'],
             "interval" => $button->recurringPaymentType,
             "product" => [
                 "name" => "Plan for recurring payment from: " . $data['email'],
@@ -518,7 +541,17 @@ class Orders extends Component
         ]);
 
         // Add the plan to the customer
-        $customer->subscriptions->create(array("plan" => $planName));
+        $subscriptionSettings = [
+            "plan" => $planName
+        ];
+
+        if (!$isNew){
+            $subscriptionSettings["source"] = $token;
+        }
+
+        $subscription = $customer->subscriptions->create($subscriptionSettings);
+
+        return $subscription;
     }
 
     /**
