@@ -6,12 +6,12 @@
  * @copyright Copyright (c) 2018 Enupal
  */
 
-namespace enupal\stripe\assetbundles;
+namespace enupal\stripe\web\assets;
 
 use craft\web\AssetBundle;
 use craft\web\assets\cp\CpAsset;
 
-class OrdersAsset extends AssetBundle
+class StripeButtonAsset extends AssetBundle
 {
     public function init()
     {
@@ -20,18 +20,14 @@ class OrdersAsset extends AssetBundle
 
         // define the dependencies
         $this->depends = [
-            CpAsset::class
+            CpAsset::class,
         ];
 
+        // define the dependencies
         // define the relative path to CSS/JS files that should be registered with the page
         // when this asset bundle is registered
-        $this->css = [
-            'css/charts/charts-explorer.css'
-        ];
-
         $this->js = [
-            'js/StripeButtonOrderIndex.js',
-            'js/StripeButtonOrderTableView.js'
+            'js/enupalstripebutton.js'
         ];
 
         parent::init();

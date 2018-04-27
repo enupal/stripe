@@ -148,8 +148,8 @@
     </div>
 {% endblock %}
 
-{% do view.registerAssetBundle("enupal\\stripe\\assetbundles\\StripeButtonAsset") %}
-{% do view.registerAssetBundle("enupal\\stripe\\assetbundles\\FontAwesomeAsset") %}
+{% do view.registerAssetBundle("enupal\\stripe\\web\\assets\\StripeButtonAsset") %}
+{% do view.registerAssetBundle("enupal\\stripe\\web\\assets\\FontAwesomeAsset") %}
 {% js %}
     $(document).ready(function() {
         new EnupalStripe();

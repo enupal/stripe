@@ -15,17 +15,14 @@ use craft\fields\Number;
 use craft\fields\PlainText;
 use craft\fields\Table;
 use craft\helpers\FileHelper;
-use enupal\stripe\assetbundles\StripeAsset;
+use enupal\stripe\web\assets\StripeAsset;
 use enupal\stripe\elements\StripeButton;
 use enupal\stripe\enums\AmountType;
 use enupal\stripe\enums\DiscountType;
-use enupal\stripe\enums\OpenWindow;
-use enupal\stripe\enums\ShippingOptions;
 use yii\base\Component;
 use enupal\stripe\Stripe;
 use enupal\stripe\elements\StripeButton as StripeElement;
 use enupal\stripe\records\StripeButton as StripeButtonRecord;
-use enupal\stripe\enums\PaypalSize;
 use craft\helpers\Template as TemplateHelper;
 
 use yii\base\Exception;

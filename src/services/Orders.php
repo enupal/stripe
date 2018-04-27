@@ -483,7 +483,10 @@ class Orders extends Component
             ];
 
             if (!$isNew){
-                $chargeSettings['source'] = $token;
+                // @todo we have duplicate card issues
+                //$chargeSettings['source'] = $token;
+                // Add card or payment method to user
+                $customer->sources->create(["source" => $token]);
             }
 
             $charge = Charge::create($chargeSettings);
