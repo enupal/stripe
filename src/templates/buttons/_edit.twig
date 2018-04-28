@@ -13,9 +13,25 @@
     { label: "Buttons"|t('enupal-stripe'), url: cpUrl('enupal-stripe/buttons') }
 ] %}
 
-{% set title = 'Edit Paypal Button'|t('enupal-stripe') %}
+{% set title = 'Edit Stripe Button'|t('enupal-stripe') %}
 {% set fullPageForm = true %}
 {% set saveShortcutRedirect = continueEditingUrl %}
+{% set tabs = {
+    general:  {
+        label: "General"|t,
+        url: '#fields-tab1',
+    },
+    subscriptions:  {
+        label: "Subscriptions"|t,
+        url: '#fields-tab2',
+        class: (notificationErrors is defined ? notificationErrors : null)
+    },
+    formFields:  {
+        label: "Form Fields"|t,
+        url: '#fields-tab3',
+        class: (notificationErrors is defined ? notificationErrors : null)
+    }
+} %}
 
 {% block actionButton %}
     <input type="hidden" name="action" value="enupal-stripe/buttons/save-button">
@@ -49,71 +65,75 @@
     <input type="hidden" name="buttonId" value="{{ buttonId }}">
 
     {% namespace 'fields' %}
-        {{ forms.textField({
-            first: true,
-            label: "Item Name"|t('enupal-stripe'),
-            instructions: 'What this Paypal Button will be called in the CP. This value will be used to set the <strong>Item Description</strong> in Stripe',
-            id: 'name',
-            name: 'name',
-            value: stripeButton.name,
-            errors: stripeButton.getErrors('name'),
-            autofocus: true,
-            required: true
-        }) }}
+    <div id="tab1">
+            {{ forms.textField({
+                first: true,
+                label: "Item Name"|t('enupal-stripe'),
+                instructions: 'What this Paypal Button will be called in the CP. This value will be used to set the <strong>Item Description</strong> in Stripe',
+                id: 'name',
+                name: 'name',
+                value: stripeButton.name,
+                errors: stripeButton.getErrors('name'),
+                autofocus: true,
+                required: true
+            }) }}
 
-        {{ forms.textField({
-            first: true,
-            label: "Company Name"|t('enupal-stripe'),
-            instructions: 'The name of your company or website',
-            id: 'name',
-            name: 'name',
-            value: stripeButton.name,
-            errors: stripeButton.getErrors('name'),
-            autofocus: true,
-            required: true
-        }) }}
+            {{ forms.textField({
+                first: true,
+                label: "Company Name"|t('enupal-stripe'),
+                instructions: 'The name of your company or website',
+                id: 'name',
+                name: 'name',
+                value: stripeButton.name,
+                errors: stripeButton.getErrors('name'),
+                autofocus: true,
+                required: true
+            }) }}
 
-        {{ forms.field({
-            label: '<i class="fa fa-picture-o" aria-hidden="true"></i> '~'Logo'|t('enupal-stripe'),
-            instructions: 'An Image of your brand or product. The recommended minimum size is 128x128px. The supported image types are: .gif, .jpeg, and .png.'|t('enupal-slider'),
-            id: 'logoImage'
-        }, forms.elementSelect({
-            elements: logoElement,
-            elementType: elementType,
-            id: 'logoImage',
-            name: 'logoImage',
-            class: 'logoImage-field',
-            jsClass: 'Craft.AssetSelectInput',
-            selectionLabel: 'Add an image'|t('enupal-stripe'),
-            limit: 1,
-            viewMode: 'large',
-            criteria: {kind: ['image'], siteId : null}
-        })) }}
-        <hr>
+            {{ forms.field({
+                label: '<i class="fa fa-picture-o" aria-hidden="true"></i> '~'Logo'|t('enupal-stripe'),
+                instructions: 'An Image of your brand or product. The recommended minimum size is 128x128px. The supported image types are: .gif, .jpeg, and .png.'|t('enupal-slider'),
+                id: 'logoImage'
+            }, forms.elementSelect({
+                elements: logoElement,
+                elementType: elementType,
+                id: 'logoImage',
+                name: 'logoImage',
+                class: 'logoImage-field',
+                jsClass: 'Craft.AssetSelectInput',
+                selectionLabel: 'Add an image'|t('enupal-stripe'),
+                limit: 1,
+                viewMode: 'large',
+                criteria: {kind: ['image'], siteId : null}
+            })) }}
+            <hr>
 
-        {{ forms.textField({
-            first: true,
-            label: "Payment Button Text"|t('enupal-stripe'),
-            instructions: 'Text used on displayButton tag. "Pay with card" is the default',
-            placeholder: 'Pay {{ button.getAmountAsCurrency() }}',
-            id: 'buttonText',
-            name: 'buttonText',
-            value: stripeButton.buttonText,
-            errors: stripeButton.getErrors('buttonText')
-        }) }}
+            {{ forms.textField({
+                first: true,
+                label: "Payment Button Text"|t('enupal-stripe'),
+                instructions: 'Text used on displayButton tag. "Pay with card" is the default',
+                placeholder: 'Pay {{ button.getAmountAsCurrency() }}',
+                id: 'buttonText',
+                name: 'buttonText',
+                value: stripeButton.buttonText,
+                errors: stripeButton.getErrors('buttonText')
+            }) }}
 
-        {{ forms.textField({
-            first: true,
-            label: "Payment Button Processing Text"|t('enupal-stripe'),
-            instructions: 'Text used when the payment is processing',
-            placeholder: 'Please wait...',
-            id: 'paymentButtonProcessingText',
-            name: 'paymentButtonProcessingText',
-            value: stripeButton.paymentButtonProcessingText,
-            errors: stripeButton.getErrors('paymentButtonProcessingText')
-        }) }}
-
-        <hr>
+            {{ forms.textField({
+                first: true,
+                label: "Payment Button Processing Text"|t('enupal-stripe'),
+                instructions: 'Text used when the payment is processing',
+                placeholder: 'Please wait...',
+                id: 'paymentButtonProcessingText',
+                name: 'paymentButtonProcessingText',
+                value: stripeButton.paymentButtonProcessingText,
+                errors: stripeButton.getErrors('paymentButtonProcessingText')
+            }) }}
+    </div>
+    <div id="tab2" class="hidden">
+        Recurring Fields
+    </div>
+    <div id="tab3" class="hidden">
         {% for tab in stripeButton.getFieldLayout().getTabs() %}
 
             {% set fields = tab.getFields() %}
@@ -128,6 +148,7 @@
             {% endfor %}
 
         {% endfor %}
+    </div>
     {% endnamespace %}
 {% endblock %}
 
@@ -160,5 +181,8 @@
     .stripe-instructions {
     margin-top: 2px;
     color: #8f98a3;
+    }
+    .meta h6{
+    color: #333f4d;
     }
 {% endcss %}
