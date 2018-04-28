@@ -86,6 +86,8 @@ class StripeButton extends Element
     public $buttonText;
     public $paymentButtonProcessingText;
     public $returnUrl;
+    // Subscriptions
+    public $enableSubscriptions;
 
     public $amountType;
     public $minimumAmount;

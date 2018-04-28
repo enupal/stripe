@@ -108,6 +108,8 @@ class StripeButtonsQuery extends ElementQuery
             'enupalstripe_buttons.discountType',
             'enupalstripe_buttons.discount',
 
+            'enupalstripe_buttons.enableSubscriptions',
+
             'enupalstripe_buttons.verifyZip',
             'enupalstripe_buttons.enableBillingAddress',
             'enupalstripe_buttons.enableShippingAddress',

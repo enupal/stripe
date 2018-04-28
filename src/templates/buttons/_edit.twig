@@ -33,6 +33,12 @@
     }
 } %}
 
+{% set currencyOptions = craft.stripeButton.getCurrencyIsoOptions() %}
+{% set languageOptions = craft.stripeButton.getLanguageOptions() %}
+{% set discountOptions = craft.stripeButton.getDiscountOptions() %}
+{% set amountTypeOptions = craft.stripeButton.getAmountTypeOptions() %}
+{% set recurringOptions = craft.stripeButton.getRecurringOptions() %}
+
 {% block actionButton %}
     <input type="hidden" name="action" value="enupal-stripe/buttons/save-button">
     {{ redirectInput('enupal-stripe/buttons') }}
@@ -50,7 +56,7 @@
                 <ul>
                     <li><a class="formsubmit error"
                            data-action="enupal-stripe/buttons/delete-button"
-                           data-confirm='{{ "Are you sure you want to delete this Paypal Button, and all of it's orders?"|t('enupal-stripe') }}'
+                           data-confirm='{{ "Are you sure you want to delete this Stripe Button, and all of it's orders?"|t('enupal-stripe') }}'
                            data-redirect="{{ 'enupal-stripe/buttons'|hash }}">{{ "Delete"|t('enupal-stripe') }}</a>
                     </li>
                 </ul>
@@ -131,7 +137,17 @@
             }) }}
     </div>
     <div id="tab2" class="hidden">
-        Recurring Fields
+        {{ forms.lightswitchField({
+            label: "Enable Subscription Payment <span class='info'>If enabled will override any <b>One-Time</b> settings previously set up.</span>"|t('enupal-stripe'),
+            instructions: "Connect a payment button to an individual Stripe plan or let your site visitors pick a plan to subscribe to. Add a custom amount option, charge a setup fee or tie into free trials."|t('enupal-stripe'),
+            id: 'enableSubscriptions',
+            name: 'enableSubscriptions',
+            on: stripeButton.enableSubscriptions,
+            toggle: 'subscriptions-wrapper'
+        }) }}
+
+        <h1>display plans here</h1>
+
     </div>
     <div id="tab3" class="hidden">
         {% for tab in stripeButton.getFieldLayout().getTabs() %}

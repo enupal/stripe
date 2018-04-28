@@ -60,8 +60,11 @@ class Install extends Migration
             'amount' => $this->decimal(14, 4)->defaultValue(0),
             'logoImage' => $this->string(),
             'enableRememberMe' => $this->boolean(),
+            // Recurring
             'enableRecurringPayment' => $this->boolean(),
             'recurringPaymentType' => $this->string(),
+            // Subscriptions
+            'enableSubscriptions' => $this->boolean(),
             // Inventory
             'quantity' => $this->integer(),
             'hasUnlimitedStock' => $this->boolean()->defaultValue(1),

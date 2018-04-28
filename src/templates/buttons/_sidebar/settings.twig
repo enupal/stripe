@@ -8,14 +8,6 @@
 #}
 
 {% import "_includes/forms" as forms %}
-
-{% set currencyOptions = craft.stripeButton.getCurrencyIsoOptions() %}
-{% set languageOptions = craft.stripeButton.getLanguageOptions() %}
-{% set discountOptions = craft.stripeButton.getDiscountOptions() %}
-{% set amountTypeOptions = craft.stripeButton.getAmountTypeOptions() %}
-{% set recurringOptions = craft.stripeButton.getRecurringOptions() %}
-
-
 <div class="meta">
     <h6>{{ 'General'|t('sprout-forms') }}</h6>
 
@@ -47,7 +39,7 @@
 </div>
 <hr>
 <div class="meta">
-    <div style="display: inline-block;"><h6>{{ 'One Time Payment '|t('sprout-forms') }}</h6><span class='info'>Custom amount label</span></div>
+    <h6>{{ 'One Time Payment'|t('sprout-forms') }}</h6>
     {% set amountInput %}
     <div class="flex">
         <div class="textwrapper">
