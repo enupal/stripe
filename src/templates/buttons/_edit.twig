@@ -167,10 +167,10 @@
             <div id="multiple-subscriptions-wrapper" {% if stripeButton.subscriptionType != 1 %}  class="hidden" {% endif %}>
                 {{ forms.selectField({
                     label: "Display Plans As"|t('enupal-stripe'),
-                    id: 'recurringPaymentType',
-                    name: 'recurringPaymentType',
+                    id: 'subscriptionStyle',
+                    name: 'subscriptionStyle',
                     options: {'radio':'Radio','dropdown':'Dropdown'},
-                    value: stripeButton.recurringPaymentType
+                    value: stripeButton.subscriptionStyle
                 }) }}
 
                 {% for field in fields %}

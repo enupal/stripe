@@ -470,7 +470,8 @@ class StripeButton extends Element
 
     /**
      * @inheritdoc
-     * @throws Exception if reasons
+     * @param bool $isNew
+     * @throws \Exception
      */
     public function afterSave(bool $isNew)
     {

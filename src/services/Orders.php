@@ -558,6 +558,7 @@ class Orders extends Component
     /**
      * @param $data
      * @param $token
+     * @param $isNew
      * @return \Stripe\ApiResource|\Stripe\StripeObject
      */
     private function getCustomer($data, $token, &$isNew)

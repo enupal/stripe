@@ -72,6 +72,7 @@ abstract class BaseEnum
 
     /**
      * @return null
+     * @throws \ReflectionException
      */
     private static function _getConstants()
     {
