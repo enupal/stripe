@@ -21,12 +21,13 @@ use enupal\stripe\web\assets\StripeAsset;
 use enupal\stripe\elements\StripeButton;
 use enupal\stripe\enums\AmountType;
 use enupal\stripe\enums\DiscountType;
-use Stripe\Plan;
 use yii\base\Component;
-use enupal\stripe\Stripe;
+use enupal\stripe\Stripe as StripePlugin;
 use enupal\stripe\elements\StripeButton as StripeElement;
 use enupal\stripe\records\StripeButton as StripeButtonRecord;
 use craft\helpers\Template as TemplateHelper;
+use Stripe\Plan;
+use Stripe\Stripe;
 
 use yii\base\Exception;
 
@@ -36,14 +37,6 @@ class Buttons extends Component
 
     const BASIC_FORM_FIELDS_HANDLE = 'enupalStripeBasicFields';
     const MULTIPLE_PLANS_HANDLE = 'enupalMultiplePlans';
-
-    public function init()
-    {
-        if (is_null($this->buttonRecord)) {
-            $this->buttonRecord = new StripeButtonRecord();
-        }
-        parent::init();
-    }
 
     /**
      * Returns a StripeButton model if one is found in the database by id
@@ -104,7 +97,7 @@ class Buttons extends Component
             $isNewForm = false;
 
             if (!$buttonRecord) {
-                throw new Exception(Stripe::t('No StripeButton exists with the ID “{id}”', ['id' => $button->id]));
+                throw new Exception(StripePlugin::t('No StripeButton exists with the ID “{id}”', ['id' => $button->id]));
             }
         }
 
@@ -367,7 +360,7 @@ class Buttons extends Component
         $name = empty($name) ? 'Button' : $name;
         $handle = empty($handle) ? 'button' : $handle;
 
-        $settings = Stripe::$app->settings->getSettings();
+        $settings = StripePlugin::$app->settings->getSettings();
 
         $button->name = $this->getFieldAsNew('name', $name);
         $button->handle = $this->getFieldAsNew('handle', $handle);
@@ -527,8 +520,8 @@ class Buttons extends Component
     public function getDiscountOptions()
     {
         $types = [];
-        $types[DiscountType::RATE] = Stripe::t('Rate (%)');
-        $types[DiscountType::AMOUNT] = Stripe::t('Amount');
+        $types[DiscountType::RATE] = StripePlugin::t('Rate (%)');
+        $types[DiscountType::AMOUNT] = StripePlugin::t('Amount');
 
         return $types;
     }
@@ -539,8 +532,8 @@ class Buttons extends Component
     public function getAmountTypeOptions()
     {
         $types = [];
-        $types[AmountType::ONE_TIME_SET_AMOUNT] = Stripe::t('One-Time set amount');
-        $types[AmountType::ONE_TIME_CUSTOM_AMOUNT] = Stripe::t('One-Time custom amount');
+        $types[AmountType::ONE_TIME_SET_AMOUNT] = StripePlugin::t('One-Time set amount');
+        $types[AmountType::ONE_TIME_CUSTOM_AMOUNT] = StripePlugin::t('One-Time custom amount');
 
         return $types;
     }
@@ -557,13 +550,13 @@ class Buttons extends Component
      */
     public function getButtonHtml($handle, array $options = null)
     {
-        $button = Stripe::$app->buttons->getButtonBySku($handle);
-        $templatePath = Stripe::$app->buttons->getEnupalStripePath();
+        $button = StripePlugin::$app->buttons->getButtonBySku($handle);
+        $templatePath = StripePlugin::$app->buttons->getEnupalStripePath();
         $buttonHtml = null;
-        $settings = Stripe::$app->settings->getSettings();
+        $settings = StripePlugin::$app->settings->getSettings();
 
         if (!$settings->testPublishableKey || !$settings->livePublishableKey) {
-            return Stripe::t("Please add a valid Stripe account in the plugin settings");
+            return StripePlugin::t("Please add a valid Stripe account in the plugin settings");
         }
 
         if ($button) {
@@ -589,7 +582,7 @@ class Buttons extends Component
 
             $view->setTemplatesPath(Craft::$app->path->getSiteTemplatesPath());
         } else {
-            $buttonHtml = Stripe::t("Stripe Button not found or disabled");
+            $buttonHtml = StripePlugin::t("Stripe Button not found or disabled");
         }
 
         return TemplateHelper::raw($buttonHtml);
@@ -930,8 +923,47 @@ class Buttons extends Component
 
     public function refreshPlans()
     {
-        $plans = Plan::all();
+        $privateKey = StripePlugin::$app->settings->getPrivateKey();
+        if ($privateKey){
+            Stripe::setAppInfo(StripePlugin::getInstance()->name, StripePlugin::getInstance()->version, StripePlugin::getInstance()->documentationUrl);
+            Stripe::setApiKey($privateKey);
 
-        Craft::dd($plans);
+            $plans = Plan::all();
+            $option['label'] = 'Select Plan...';
+            $option['value'] = '';
+            $option['default'] = '';
+            $options = [];
+            array_push($options,$option);
+            if (isset($plans['data'])){
+                foreach ($plans['data'] as $plan) {
+                    if ($plan['nickname']){
+                        $planId = $plan['id'];
+                        $amount = Craft::$app->getFormatter()->asCurrency($plan['amount']/100, strtoupper($plan['currency']));
+                        $planName = $plan['nickname'].' '.$amount.'/'.$plan['interval'];
+                        $option['label'] = $planName;
+                        $option['value'] = $planId;
+                        $option['default'] = '';
+                        array_push($options, $option);
+                    }
+                }
+            }
+            $currentFieldContext = Craft::$app->getContent()->fieldContext;
+            Craft::$app->getContent()->fieldContext = 'enupalStripe:';
+            $matrixMultiplePlansField = Craft::$app->fields->getFieldByHandle(self::MULTIPLE_PLANS_HANDLE);
+
+            $matrixFields = $matrixMultiplePlansField->getBlockTypeFields();
+            foreach ($matrixFields as $matrixField) {
+                if ($matrixField->handle == 'selectPlan'){
+                    $matrixField->options = $options;
+                    // Update the select plan field with the plans from stripe
+                    Craft::$app->fields->saveField($matrixField);
+                    break;
+                }
+            }
+
+            Craft::$app->getContent()->fieldContext = $currentFieldContext;
+        }else{
+            Craft::$app->getSession()->setError(StripePlugin::t('Please add your stripe keys in the Settings Tab'));
+        }
     }
 }

@@ -517,7 +517,6 @@ class Orders extends Component
         return $charge;
     }
 
-
     /**
      * @param $customer
      * @param $data
