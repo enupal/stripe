@@ -17,6 +17,7 @@ use craft\fields\Number;
 use craft\fields\PlainText;
 use craft\fields\Table;
 use craft\helpers\FileHelper;
+use enupal\stripe\enums\SubscriptionType;
 use enupal\stripe\web\assets\StripeAsset;
 use enupal\stripe\elements\StripeButton;
 use enupal\stripe\enums\AmountType;
@@ -344,6 +345,19 @@ class Buttons extends Component
         ];
 
         return $languages;
+    }
+
+    /**
+     * @return array
+     */
+    public function getSubscriptionsTypes()
+    {
+        $options = [
+            SubscriptionType::SINGLE_PLAN => Craft::t('enupal-stripe', 'Set single plan'),
+            SubscriptionType::MULTIPLE_PLANS =>  Craft::t('enupal-stripe', 'Customer chooses the plan')
+        ];
+
+        return $options;
     }
 
     /**

@@ -73,6 +73,8 @@ class Install extends Migration
             'planCustomDefaultAmount' => $this->decimal(14, 4)->defaultValue(0),
             'planCustomInterval' => $this->integer(),
             'planCustomFrequency' => $this->integer(),
+
+            'subscriptionStyle' => $this->integer(),
             // Inventory
             'quantity' => $this->integer(),
             'hasUnlimitedStock' => $this->boolean()->defaultValue(1),

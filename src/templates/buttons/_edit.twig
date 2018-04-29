@@ -41,6 +41,7 @@
 {% set discountOptions = craft.stripeButton.getDiscountOptions() %}
 {% set amountTypeOptions = craft.stripeButton.getAmountTypeOptions() %}
 {% set recurringOptions = craft.stripeButton.getRecurringOptions() %}
+{% set subscriptionTypes = craft.stripeButton.getSubscriptionsTypes() %}
 
 {% block actionButton %}
     <input type="hidden" name="action" value="enupal-stripe/buttons/save-button">
@@ -149,16 +150,41 @@
             toggle: 'subscriptions-wrapper'
         }) }}
 
-        {% for field in fields %}
-            {% if field.handle == stripeButton.getMultiplePlansHandle() %}
-                {% include "_includes/field" with {
-                    field:    field,
-                    required: field.required,
-                    element:  stripeButton,
-                    static: null
-                } only %}
-            {% endif %}
-        {% endfor %}
+        <div id="subscriptions-wrapper" {% if not stripeButton.enableSubscriptions %} class="hidden" {% endif %}>
+
+            {{ forms.selectField({
+                label: "Subscription Type"|t('enupal-stripe'),
+                id: 'subscriptionType',
+                name: 'subscriptionType',
+                options: subscriptionTypes,
+                value: stripeButton.subscriptionType
+            }) }}
+
+            <div class="#single-subscription-wrapper" {% if stripeButton.subscriptionType != 0 %}  class="hidden" {% endif %}>
+                <h1>Single Subscription</h1>
+            </div>
+
+            <div id="multiple-subscriptions-wrapper" {% if stripeButton.subscriptionType != 1 %}  class="hidden" {% endif %}>
+                {{ forms.selectField({
+                    label: "Display Plans As"|t('enupal-stripe'),
+                    id: 'recurringPaymentType',
+                    name: 'recurringPaymentType',
+                    options: {'radio':'Radio','dropdown':'Dropdown'},
+                    value: stripeButton.recurringPaymentType
+                }) }}
+
+                {% for field in fields %}
+                    {% if field.handle == stripeButton.getMultiplePlansHandle() %}
+                        {% include "_includes/field" with {
+                            field:    field,
+                            required: field.required,
+                            element:  stripeButton,
+                            static: null
+                        } only %}
+                    {% endif %}
+                {% endfor %}
+            </div>
+        </div>
 
     </div>
     <div id="tab3" class="hidden">

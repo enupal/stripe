@@ -129,6 +129,16 @@ class StripeVariable
     }
 
     /**
+     * @return array
+     */
+    public function getSubscriptionsTypes()
+    {
+        $options = Stripe::$app->buttons->getSubscriptionsTypes();
+
+        return $options;
+    }
+
+    /**
      * @param $label
      *
      * @return string

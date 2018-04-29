@@ -97,6 +97,7 @@ class StripeButton extends Element
     public $planCustomDefaultAmount;
     public $planCustomInterval;
     public $planCustomFrequency;
+    public $subscriptionStyle;
 
     public $amountType;
     public $minimumAmount;
@@ -506,6 +507,17 @@ class StripeButton extends Element
         $record->enableBillingAddress = $this->enableBillingAddress;
         $record->enableShippingAddress = $this->enableShippingAddress;
         $record->customerQuantity = $this->customerQuantity ? $this->customerQuantity : 0;
+
+        $record->enableSubscriptions = $this->enableSubscriptions;
+        $record->subscriptionType = $this->subscriptionType;
+        $record->planSetupFee = $this->planSetupFee;
+        $record->planSingleId = $this->planSingleId;
+        $record->enablePlanCustomAmount = $this->enablePlanCustomAmount;
+        $record->planCustomMinimumAmount = $this->planCustomMinimumAmount;
+        $record->planCustomDefaultAmount = $this->planCustomDefaultAmount;
+        $record->planCustomInterval = $this->planCustomInterval;
+        $record->planCustomFrequency = $this->planCustomFrequency;
+        $record->subscriptionStyle = $this->subscriptionStyle;
 
         $record->enableRecurringPayment = $this->enableRecurringPayment;
         $record->recurringPaymentType = $this->recurringPaymentType;
