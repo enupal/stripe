@@ -65,6 +65,14 @@ class Install extends Migration
             'recurringPaymentType' => $this->string(),
             // Subscriptions
             'enableSubscriptions' => $this->boolean(),
+            'subscriptionType' => $this->integer(),
+            'planSetupFee' => $this->decimal(14, 4)->defaultValue(0),
+            'planSingleId' => $this->string(),
+            'enablePlanCustomAmount' => $this->boolean(),
+            'planCustomMinimumAmount' => $this->decimal(14, 4)->defaultValue(0),
+            'planCustomDefaultAmount' => $this->decimal(14, 4)->defaultValue(0),
+            'planCustomInterval' => $this->integer(),
+            'planCustomFrequency' => $this->integer(),
             // Inventory
             'quantity' => $this->integer(),
             'hasUnlimitedStock' => $this->boolean()->defaultValue(1),

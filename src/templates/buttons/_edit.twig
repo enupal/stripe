@@ -16,6 +16,9 @@
 {% set title = 'Edit Stripe Button'|t('enupal-stripe') %}
 {% set fullPageForm = true %}
 {% set saveShortcutRedirect = continueEditingUrl %}
+{% set tab = stripeButton.getFieldLayout().getTabs()[0] %}
+{% set fields = tab.getFields() %}
+
 {% set tabs = {
     general:  {
         label: "General"|t,
@@ -146,23 +149,28 @@
             toggle: 'subscriptions-wrapper'
         }) }}
 
-        <h1>display plans here</h1>
-
-    </div>
-    <div id="tab3" class="hidden">
-        {% for tab in stripeButton.getFieldLayout().getTabs() %}
-
-            {% set fields = tab.getFields() %}
-
-            {% for field in fields %}
+        {% for field in fields %}
+            {% if field.handle == stripeButton.getMultiplePlansHandle() %}
                 {% include "_includes/field" with {
                     field:    field,
                     required: field.required,
                     element:  stripeButton,
                     static: null
                 } only %}
-            {% endfor %}
+            {% endif %}
+        {% endfor %}
 
+    </div>
+    <div id="tab3" class="hidden">
+        {% for field in fields %}
+            {% if field.handle == stripeButton.getFormFieldHandle() %}
+                {% include "_includes/field" with {
+                    field:    field,
+                    required: field.required,
+                    element:  stripeButton,
+                    static: null
+                } only %}
+            {% endif %}
         {% endfor %}
     </div>
     {% endnamespace %}

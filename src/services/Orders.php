@@ -22,7 +22,6 @@ use yii\base\Component;
 use enupal\stripe\Stripe as StripePlugin;
 use enupal\stripe\records\Order as OrderRecord;
 use enupal\stripe\records\Customer as CustomerRecord;
-use yii\helpers\Json;
 
 class Orders extends Component
 {

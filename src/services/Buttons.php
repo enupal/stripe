@@ -10,6 +10,8 @@ namespace enupal\stripe\services;
 
 use Craft;
 use craft\base\Field;
+use craft\fields\Dropdown;
+use craft\fields\Lightswitch;
 use craft\fields\Matrix;
 use craft\fields\Number;
 use craft\fields\PlainText;
@@ -19,6 +21,7 @@ use enupal\stripe\web\assets\StripeAsset;
 use enupal\stripe\elements\StripeButton;
 use enupal\stripe\enums\AmountType;
 use enupal\stripe\enums\DiscountType;
+use Stripe\Plan;
 use yii\base\Component;
 use enupal\stripe\Stripe;
 use enupal\stripe\elements\StripeButton as StripeElement;
@@ -32,7 +35,7 @@ class Buttons extends Component
     protected $buttonRecord;
 
     const BASIC_FORM_FIELDS_HANDLE = 'enupalStripeBasicFields';
-    const ADVANCED_FIELDS = 'enupalStripeAdvancedFields';
+    const MULTIPLE_PLANS_HANDLE = 'enupalMultiplePlans';
 
     public function init()
     {
@@ -403,13 +406,14 @@ class Buttons extends Component
         Craft::$app->getContent()->fieldContext = 'enupalStripe:';
 
         $matrixBasicField = Craft::$app->fields->getFieldByHandle(self::BASIC_FORM_FIELDS_HANDLE);
+        $matrixMultiplePlans = Craft::$app->fields->getFieldByHandle(self::MULTIPLE_PLANS_HANDLE);
         // Give back the current field context
         Craft::$app->getContent()->fieldContext = $currentFieldContext;
 
-        if (is_null($matrixBasicField)) {
+        if (is_null($matrixBasicField) || is_null($matrixMultiplePlans)) {
             // Can't add variants to this button (Someone delete the fields)
             // Let's not throw an exception and just return the Button element with not variants
-            Craft::error("Can't add variants to PayPal Button", __METHOD__);
+            Craft::error("Can't add variants to Stripe Button", __METHOD__);
             return $button;
         }
 
@@ -419,8 +423,12 @@ class Buttons extends Component
         $postedFieldLayout = [];
 
         // Add our variant fields
-        if ($matrixBasicField !== null && $matrixBasicField->id != null) {
+        if ($matrixBasicField->id != null) {
             $postedFieldLayout[$tabName][] = $matrixBasicField->id;
+        }
+
+        if ($matrixMultiplePlans->id != null) {
+            $postedFieldLayout[$tabName][] = $matrixMultiplePlans->id;
         }
 
         // Set the field layout
@@ -439,6 +447,209 @@ class Buttons extends Component
      * @throws \Throwable
      */
     public function createDefaultVariantFields()
+    {
+        $matrixBasicField = $this->createFormFieldsMatrixField();
+        $multiplePlansMatrixField = $this->createMultiplePlansMatrixField();
+        // Save our fields
+        $currentFieldContext = Craft::$app->getContent()->fieldContext;
+        Craft::$app->getContent()->fieldContext = 'enupalStripe:';
+        Craft::$app->fields->saveField($matrixBasicField);
+        Craft::$app->fields->saveField($multiplePlansMatrixField);
+        // Give back the current field context
+        Craft::$app->getContent()->fieldContext = $currentFieldContext;
+    }
+
+    /**
+     * Delete all fields created when installing
+     */
+    public function deleteVariantFields()
+    {
+        $currentFieldContext = Craft::$app->getContent()->fieldContext;
+        Craft::$app->getContent()->fieldContext = 'enupalStripe:';
+
+        $matrixBasicField = Craft::$app->fields->getFieldByHandle(self::BASIC_FORM_FIELDS_HANDLE);
+        $matrixMultiplePlans = Craft::$app->fields->getFieldByHandle(self::MULTIPLE_PLANS_HANDLE);
+
+        if ($matrixBasicField) {
+            Craft::$app->fields->deleteFieldById($matrixBasicField->id);
+        }
+
+        if ($matrixMultiplePlans) {
+            Craft::$app->fields->deleteFieldById($matrixMultiplePlans->id);
+        }
+        // Give back the current field context
+        Craft::$app->getContent()->fieldContext = $currentFieldContext;
+    }
+
+    /**
+     * Create a secuencial string for the "name" and "handle" fields if they are already taken
+     *
+     * @param string
+     * @param string
+     *
+     * @return null|string
+     */
+    public function getFieldAsNew($field, $value)
+    {
+        $i = 1;
+        $band = true;
+        do {
+            $newField = $field == "handle" ? $value.$i : $value." ".$i;
+            $button = $this->getFieldValue($field, $newField);
+            if (is_null($button)) {
+                $band = false;
+            }
+
+            $i++;
+        } while ($band);
+
+        return $newField;
+    }
+
+    /**
+     * Returns the value of a given field
+     *
+     * @param string $field
+     * @param string $value
+     *
+     * @return StripeButtonRecord
+     */
+    public function getFieldValue($field, $value)
+    {
+        $result = StripeButtonRecord::findOne([$field => $value]);
+
+        return $result;
+    }
+
+    /**
+     * @return array
+     */
+    public function getDiscountOptions()
+    {
+        $types = [];
+        $types[DiscountType::RATE] = Stripe::t('Rate (%)');
+        $types[DiscountType::AMOUNT] = Stripe::t('Amount');
+
+        return $types;
+    }
+
+    /**
+     * @return array
+     */
+    public function getAmountTypeOptions()
+    {
+        $types = [];
+        $types[AmountType::ONE_TIME_SET_AMOUNT] = Stripe::t('One-Time set amount');
+        $types[AmountType::ONE_TIME_CUSTOM_AMOUNT] = Stripe::t('One-Time custom amount');
+
+        return $types;
+    }
+
+    /**
+     * Returns a complete Stripe Button for display in template
+     *
+     * @param string     $handle
+     * @param array|null $options
+     *
+     * @return string
+     * @throws \Twig_Error_Loader
+     * @throws \yii\base\Exception
+     */
+    public function getButtonHtml($handle, array $options = null)
+    {
+        $button = Stripe::$app->buttons->getButtonBySku($handle);
+        $templatePath = Stripe::$app->buttons->getEnupalStripePath();
+        $buttonHtml = null;
+        $settings = Stripe::$app->settings->getSettings();
+
+        if (!$settings->testPublishableKey || !$settings->livePublishableKey) {
+            return Stripe::t("Please add a valid Stripe account in the plugin settings");
+        }
+
+        if ($button) {
+            if (!$button->hasUnlimitedStock && (int)$button->quantity < 0) {
+                $buttonHtml = '<span class="error">Out of Stock</span>';
+
+                return TemplateHelper::raw($buttonHtml);
+            }
+
+            $view = Craft::$app->getView();
+
+            $view->setTemplatesPath($templatePath);
+            $view->registerJsFile("https://checkout.stripe.com/checkout.js");
+            $view->registerAssetBundle(StripeAsset::class);
+
+            $buttonHtml = $view->renderTemplate(
+                'button', [
+                    'button' => $button,
+                    'settings' => $settings,
+                    'options' => $options
+                ]
+            );
+
+            $view->setTemplatesPath(Craft::$app->path->getSiteTemplatesPath());
+        } else {
+            $buttonHtml = Stripe::t("Stripe Button not found or disabled");
+        }
+
+        return TemplateHelper::raw($buttonHtml);
+    }
+
+    /**
+     * @param StripeElement $button
+     *
+     * @return bool
+     * @throws \Exception
+     * @throws \Throwable
+     * @throws \yii\db\Exception
+     */
+    public function deleteButton(StripeElement $button)
+    {
+        $transaction = Craft::$app->db->beginTransaction();
+
+        try {
+            // Delete the Button Element
+            $success = Craft::$app->elements->deleteElementById($button->id);
+
+            if (!$success) {
+                $transaction->rollback();
+                Craft::error("Couldn’t delete Stripe Button", __METHOD__);
+
+                return false;
+            }
+
+            $transaction->commit();
+        } catch (\Exception $e) {
+            $transaction->rollback();
+
+            throw $e;
+        }
+
+        return true;
+    }
+
+    /**
+     * @param $label
+     *
+     * @return string
+     */
+    public function labelToHandle($label)
+    {
+        $handle = FileHelper::sanitizeFilename(
+            $label,
+            [
+                'asciiOnly' => true,
+                'separator' => '-'
+            ]
+        );
+
+        return $handle;
+    }
+
+    /**
+     * @return \craft\base\FieldInterface
+     */
+    private function createFormFieldsMatrixField()
     {
         $fieldsService = Craft::$app->getFields();
 
@@ -611,6 +822,16 @@ class Buttons extends Component
             ]
         ];
 
+        $currentFieldContext = Craft::$app->getContent()->fieldContext;
+        Craft::$app->getContent()->fieldContext = 'enupalStripe:';
+        $matrixBasicField = Craft::$app->fields->getFieldByHandle(self::BASIC_FORM_FIELDS_HANDLE);
+        Craft::$app->getContent()->fieldContext = $currentFieldContext;
+
+        if (!is_null($matrixBasicField)){
+            // For some reason the field already exits
+            return $matrixBasicField;
+        }
+
         // Our basic fields is a matrix field
         $matrixBasicField = $fieldsService->createField([
             'type' => Matrix::class,
@@ -618,207 +839,99 @@ class Buttons extends Component
             'context' => 'enupalStripe:',
             'handle' => self::BASIC_FORM_FIELDS_HANDLE,
             'settings' => json_encode($matrixSettings),
-            'instructions' => '',
+            'instructions' => 'All data saved are stored as “metadata” with each Stripe payment record within your Stripe dashboard.',
             'translationMethod' => Field::TRANSLATION_METHOD_SITE,
         ]);
 
-        // Save our fields
-        $currentFieldContext = Craft::$app->getContent()->fieldContext;
-        Craft::$app->getContent()->fieldContext = 'enupalStripe:';
-        Craft::$app->fields->saveField($matrixBasicField);
-        // Give back the current field context
-        Craft::$app->getContent()->fieldContext = $currentFieldContext;
-    }
-
-    public function deleteVariantFields()
-    {
-        // Save our fields
-        $currentFieldContext = Craft::$app->getContent()->fieldContext;
-        Craft::$app->getContent()->fieldContext = 'enupalStripe:';
-
-        $matrixBasicField = Craft::$app->fields->getFieldByHandle(self::BASIC_FORM_FIELDS_HANDLE);
-
-        if ($matrixBasicField) {
-            Craft::$app->fields->deleteFieldById($matrixBasicField->id);
-        }
-        // Give back the current field context
-        Craft::$app->getContent()->fieldContext = $currentFieldContext;
+        return $matrixBasicField;
     }
 
     /**
-     * Create a secuencial string for the "name" and "handle" fields if they are already taken
-     *
-     * @param string
-     * @param string
-     *
-     * @return null|string
+     * @return \craft\base\FieldInterface
      */
-    public function getFieldAsNew($field, $value)
+    private function createMultiplePlansMatrixField()
     {
-        $i = 1;
-        $band = true;
-        do {
-            $newField = $field == "handle" ? $value.$i : $value." ".$i;
-            $button = $this->getFieldValue($field, $newField);
-            if (is_null($button)) {
-                $band = false;
-            }
+        $fieldsService = Craft::$app->getFields();
 
-            $i++;
-        } while ($band);
+        $matrixSettings = [
+            'minBlocks' => "",
+            'maxBlocks' => "",
+            'blockTypes' => [
+                'new1' => [
+                    'name' => 'Subscription Plan',
+                    'handle' => 'subscriptionPlan',
+                    'fields' => [
+                        'new1' => [
+                            'type' => Dropdown::class,
+                            'name' => 'Select Plan',
+                            'handle' => 'selectPlan',
+                            'instructions' => "Can't see your plans? Go to Settings -> Subscriptions and click on Refresh Plans",
+                            'required' => 1,
+                            'typesettings' => '{"options":[{"label":"Select Plan...","value":"","default":""}]}',
+                            'translationMethod' => Field::TRANSLATION_METHOD_SITE,
+                        ],
+                        'new2' => [
+                            'type' => PlainText::class,
+                            'name' => 'Custom Label',
+                            'handle' => 'customLabel',
+                            'instructions' => 'Override the default text displayed for each plan (i.e. “Nickname amount/interval”)',
+                            'required' => 0,
+                            'typesettings' => '{"placeholder":"Awesome Plan $35.00/month","code":"","multiline":"","initialRows":"4","charLimit":"","columnType":"text"}',
+                            'translationMethod' => Field::TRANSLATION_METHOD_SITE,
+                        ],
+                        'new3' => [
+                            'type' => Number::class,
+                            'name' => 'Setup Fee',
+                            'handle' => 'setupFee',
+                            'instructions' => 'Setup Fee for the first payment',
+                            'required' => 0,
+                            'typesettings' => '{"min":null,"max":null,"decimals":"2","size":null}',
+                            'translationMethod' => Field::TRANSLATION_METHOD_SITE,
+                        ],
+                        'new4' => [
+                            'type' => Lightswitch::class,
+                            'name' => 'Default',
+                            'handle' => 'default',
+                            'instructions' => 'Please make sure that just one default is enabled',
+                            'required' => 0,
+                            'typesettings' => '{"default":""}',
+                            'translationMethod' => Field::TRANSLATION_METHOD_SITE,
+                        ]
 
-        return $newField;
-    }
-
-    /**
-     * Returns the value of a given field
-     *
-     * @param string $field
-     * @param string $value
-     *
-     * @return StripeButtonRecord
-     */
-    public function getFieldValue($field, $value)
-    {
-        $result = StripeButtonRecord::findOne([$field => $value]);
-
-        return $result;
-    }
-
-    /**
-     * @return array
-     */
-    public function getDiscountOptions()
-    {
-        $types = [];
-        $types[DiscountType::RATE] = Stripe::t('Rate (%)');
-        $types[DiscountType::AMOUNT] = Stripe::t('Amount');
-
-        return $types;
-    }
-
-    /**
-     * @return array
-     */
-    public function getAmountTypeOptions()
-    {
-        $types = [];
-        $types[AmountType::ONE_TIME_SET_AMOUNT] = Stripe::t('One-Time set amount');
-        $types[AmountType::ONE_TIME_CUSTOM_AMOUNT] = Stripe::t('One-Time custom amount');
-
-        return $types;
-    }
-
-    /**
-     * Returns a complete Stripe Button for display in template
-     *
-     * @param string     $handle
-     * @param array|null $options
-     *
-     * @return string
-     * @throws \Twig_Error_Loader
-     * @throws \yii\base\Exception
-     */
-    public function getButtonHtml($handle, array $options = null)
-    {
-        $button = Stripe::$app->buttons->getButtonBySku($handle);
-        $templatePath = Stripe::$app->buttons->getEnupalStripePath();
-        $buttonHtml = null;
-        $settings = Stripe::$app->settings->getSettings();
-
-        if (!$settings->testPublishableKey || !$settings->livePublishableKey) {
-            return Stripe::t("Please add a valid Stripe account in the plugin settings");
-        }
-
-        if ($button) {
-            if (!$button->hasUnlimitedStock && (int)$button->quantity < 0) {
-                $buttonHtml = '<span class="error">Out of Stock</span>';
-
-                return TemplateHelper::raw($buttonHtml);
-            }
-
-            $view = Craft::$app->getView();
-
-            $view->setTemplatesPath($templatePath);
-            $view->registerJsFile("https://checkout.stripe.com/checkout.js");
-            $view->registerAssetBundle(StripeAsset::class);
-
-            $buttonHtml = $view->renderTemplate(
-                'button', [
-                    'button' => $button,
-                    'settings' => $settings,
-                    'options' => $options
+                    ]
                 ]
-            );
-
-            $view->setTemplatesPath(Craft::$app->path->getSiteTemplatesPath());
-        } else {
-            $buttonHtml = Stripe::t("Stripe Button not found or disabled");
-        }
-
-        return TemplateHelper::raw($buttonHtml);
-    }
-
-    /**
-     * @param StripeElement $button
-     *
-     * @return bool
-     * @throws \Exception
-     * @throws \Throwable
-     * @throws \yii\db\Exception
-     */
-    public function deleteButton(StripeElement $button)
-    {
-        $transaction = Craft::$app->db->beginTransaction();
-
-        try {
-            // Delete the Button Element
-            $success = Craft::$app->elements->deleteElementById($button->id);
-
-            if (!$success) {
-                $transaction->rollback();
-                Craft::error("Couldn’t delete Stripe Button", __METHOD__);
-
-                return false;
-            }
-
-            $transaction->commit();
-        } catch (\Exception $e) {
-            $transaction->rollback();
-
-            throw $e;
-        }
-
-        return true;
-    }
-
-    /**
-     * @return array
-     */
-    public function getOpenOptions()
-    {
-        $options = [];
-        $options[OpenWindow::NEWWINDOW] = Stripe::t('New Window');
-        $options[OpenWindow::SAMEWINDOW] = Stripe::t('Same Window');
-
-        return $options;
-    }
-
-    /**
-     * @param $label
-     *
-     * @return string
-     */
-    public function labelToHandle($label)
-    {
-        $handle = FileHelper::sanitizeFilename(
-            $label,
-            [
-                'asciiOnly' => true,
-                'separator' => '-'
             ]
-        );
+        ];
 
-        return $handle;
+        $currentFieldContext = Craft::$app->getContent()->fieldContext;
+        Craft::$app->getContent()->fieldContext = 'enupalStripe:';
+        $matrixMultiplePlansField = Craft::$app->fields->getFieldByHandle(self::MULTIPLE_PLANS_HANDLE);
+        Craft::$app->getContent()->fieldContext = $currentFieldContext;
+
+        if (!is_null($matrixMultiplePlansField)){
+            // For some reason the field already exits
+            return $matrixMultiplePlansField;
+        }
+
+        // Our multiple plans matrix field
+        // Let the customer can sign up for one of several available plans (and optionally set a custom amount).
+        $matrixMultiplePlansField = $fieldsService->createField([
+            'type' => Matrix::class,
+            'name' => 'Add Plan',
+            'context' => 'enupalStripe:',
+            'handle' => self::MULTIPLE_PLANS_HANDLE,
+            'settings' => json_encode($matrixSettings),
+            'instructions' => 'Customize the plans that the customer should select',
+            'translationMethod' => Field::TRANSLATION_METHOD_SITE,
+        ]);
+
+        return $matrixMultiplePlansField;
+    }
+
+    public function refreshPlans()
+    {
+        $plans = Plan::all();
+
+        Craft::dd($plans);
     }
 }

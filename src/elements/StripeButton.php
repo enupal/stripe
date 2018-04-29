@@ -14,6 +14,7 @@ use craft\behaviors\FieldLayoutBehavior;
 use craft\elements\db\ElementQueryInterface;
 use enupal\backup\models\Settings;
 use enupal\stripe\enums\DiscountType;
+use enupal\stripe\Stripe;
 use enupal\stripe\validators\DiscountValidator;
 use yii\base\ErrorHandler;
 use craft\helpers\UrlHelper;
@@ -88,6 +89,14 @@ class StripeButton extends Element
     public $returnUrl;
     // Subscriptions
     public $enableSubscriptions;
+    public $subscriptionType;
+    public $planSetupFee;
+    public $planSingleId;
+    public $enablePlanCustomAmount;
+    public $planCustomMinimumAmount;
+    public $planCustomDefaultAmount;
+    public $planCustomInterval;
+    public $planCustomFrequency;
 
     public $amountType;
     public $minimumAmount;
@@ -685,8 +694,6 @@ class StripeButton extends Element
         return $symbol;
     }
 
-
-
     /**
      * @return string
      * @throws \yii\base\InvalidConfigException
@@ -694,5 +701,21 @@ class StripeButton extends Element
     public function getAmountAsCurrency()
     {
         return Craft::$app->getFormatter()->asCurrency($this->amount, $this->currency);
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getFormFieldHandle()
+    {
+        return Stripe::$app->buttons::BASIC_FORM_FIELDS_HANDLE;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getMultiplePlansHandle()
+    {
+        return Stripe::$app->buttons::MULTIPLE_PLANS_HANDLE;
     }
 }
