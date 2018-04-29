@@ -929,6 +929,7 @@ class Buttons extends Component
             Stripe::setApiKey($privateKey);
 
             $plans = Plan::all();
+            #Craft::dd($plans);
             $option['label'] = 'Select Plan...';
             $option['value'] = '';
             $option['default'] = '';
@@ -937,9 +938,12 @@ class Buttons extends Component
             if (isset($plans['data'])){
                 foreach ($plans['data'] as $plan) {
                     if ($plan['nickname']){
+                        $intervalCount = $plan['interval_count'];
+                        $interval = $intervalCount > 1 ? $intervalCount.' '. $plan['interval'].'s' : $plan['interval'] ;
                         $planId = $plan['id'];
-                        $amount = Craft::$app->getFormatter()->asCurrency($plan['amount']/100, strtoupper($plan['currency']));
-                        $planName = $plan['nickname'].' '.$amount.'/'.$plan['interval'];
+                        $amount = $plan['amount'] ?? $plan['tiers'][0]['amount'] ?? 0;
+                        $amount = Craft::$app->getFormatter()->asCurrency($amount/100, strtoupper($plan['currency']));
+                        $planName = $plan['nickname'].' '.$amount.'/'.$interval;
                         $option['label'] = $planName;
                         $option['value'] = $planId;
                         $option['default'] = '';
