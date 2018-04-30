@@ -40,7 +40,7 @@
 {% set languageOptions = craft.stripeButton.getLanguageOptions() %}
 {% set discountOptions = craft.stripeButton.getDiscountOptions() %}
 {% set amountTypeOptions = craft.stripeButton.getAmountTypeOptions() %}
-{% set recurringOptions = craft.stripeButton.getRecurringOptions() %}
+{% set frequencyOptions = craft.stripeButton.getFrequencyOptions() %}
 {% set subscriptionTypes = craft.stripeButton.getSubscriptionsTypes() %}
 
 {% block actionButton %}
@@ -191,12 +191,77 @@
                 }, planInput) }}
 
                 {{ forms.lightswitchField({
-                    label: "Enable Custom Amount <span class='info'>This will create a custom plan</span>"|t('enupal-stripe'),
-                    instructions: "Connect a payment button to an individual Stripe plan or let your site visitors pick a plan to subscribe to. Add a custom amount option, charge a setup fee or tie into free trials."|t('enupal-stripe'),
-                    id: 'enableSubscriptions',
-                    name: 'enableSubscriptions',
-                    on: stripeButton.enableSubscriptions,
-                    toggle: 'subscriptions-wrapper'
+                    label: "Enable Custom Amount"|t('enupal-stripe'),
+                    instructions: "This option allows the user enter a custom amount will create a new subscription plan for this customer."|t('enupal-stripe'),
+                    id: 'enableCustomPlanAmount',
+                    name: 'enableCustomPlanAmount',
+                    on: stripeButton.enableCustomPlanAmount,
+                    toggle: 'custom-single-plan-wrapper'
+                }) }}
+                <div id="custom-single-plan-wrapper" {% if not stripeButton.enableCustomPlanAmount %}  class="hidden" {% endif %}>
+                    {{ forms.textField({
+                        first: true,
+                        label: "Minimum Amount"|t('enupal-stripe'),
+                        id: 'customPlanMinimumAmount',
+                        name: 'customPlanMinimumAmount',
+                        placeholder: 'Enter amount',
+                        unit: stripeButton.currency,
+                        value: (stripeButton.customPlanMinimumAmount == '0' ? '0'|number : (stripeButton.customPlanMinimumAmount ? stripeButton.customPlanMinimumAmount|number ?: '')),
+                        errors: stripeButton.getErrors('customPlanMinimumAmount'),
+                        autofocus: true,
+                    }) }}
+
+                    {{ forms.textField({
+                        first: true,
+                        label: "Default Amount"|t('enupal-stripe'),
+                        id: 'customPlanDefaultAmount',
+                        name: 'customPlanDefaultAmount',
+                        placeholder: 'Enter amount',
+                        unit: stripeButton.currency,
+                        value: (stripeButton.customPlanDefaultAmount == '0' ? '0'|number : (stripeButton.customPlanDefaultAmount ? stripeButton.customPlanDefaultAmount|number ?: '')),
+                        errors: stripeButton.getErrors('customPlanDefaultAmount'),
+                        autofocus: true,
+                    }) }}
+
+                    {% set frequencyInput %}
+                    <div class="flex">
+                        <div class="textwrapper">
+                            {{ forms.text({
+                                label: "Interval"|t('enupal-stripe'),
+                                id: 'customPlanInterval',
+                                name: 'customPlanInterval',
+                                placeholder: 'Enter interval'|t('enupal-stripe'),
+                                value: stripeButton.customPlanInterval ?? 1
+                            }) }}
+                        </div>
+                        <div class="textwrapper">
+                            {{ forms.selectField({
+                                id: 'customPlanInterval',
+                                name: 'customPlanFrequency',
+                                options: frequencyOptions,
+                                value: stripeButton.customPlanInterval
+                            }) }}
+                        </div>
+                    </div>
+                    {% endset %}
+
+                    {{ forms.field({
+                        id: 'interval-frequency',
+                        label: 'Interval/Frequency'|t('enupal-stripe'),
+                        errors: stripeButton.getErrors('customPlanInterval')|merge(stripeButton.getErrors('customPlanInterval')),
+                    }, frequencyInput) }}
+                </div>
+
+                {{ forms.textField({
+                    first: true,
+                    label: "Plan Setup Fee"|t('enupal-stripe'),
+                    id: 'singlePlanSetupFee',
+                    name: 'singlePlanSetupFee',
+                    placeholder: 'Enter amount',
+                    unit: stripeButton.currency,
+                    value: (stripeButton.singlePlanSetupFee == '0' ? '0'|number : (stripeButton.singlePlanSetupFee ? stripeButton.singlePlanSetupFee|number ?: '')),
+                    errors: stripeButton.getErrors('singlePlanSetupFee'),
+                    autofocus: true,
                 }) }}
             </div>
 

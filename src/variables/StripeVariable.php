@@ -9,7 +9,7 @@
 namespace enupal\stripe\variables;
 
 use enupal\stripe\enums\OrderStatus;
-use enupal\stripe\enums\RecurringPaymentType;
+use enupal\stripe\enums\FrequencyType;
 use enupal\stripe\Stripe;
 use enupal\stripe\PaypalButtons;
 use craft\helpers\Template as TemplateHelper;
@@ -119,11 +119,13 @@ class StripeVariable
     /**
      * @return array
      */
-    public function getRecurringOptions()
+    public function getFrequencyOptions()
     {
         $options = [];
-        $options[RecurringPaymentType::MONTHLY] = Stripe::t('Monthly');
-        $options[RecurringPaymentType::YEARLY] = Stripe::t('Yearly');
+        $options[FrequencyType::YEAR] = Stripe::t('Year');
+        $options[FrequencyType::MONTH] = Stripe::t('Month');
+        $options[FrequencyType::WEEK] = Stripe::t('Week');
+        $options[FrequencyType::DAY] = Stripe::t('Day');
 
         return $options;
     }

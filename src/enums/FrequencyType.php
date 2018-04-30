@@ -11,10 +11,12 @@ namespace enupal\stripe\enums;
 /**
  * Stripe recurring payment types
  */
-abstract class RecurringPaymentType extends BaseEnum
+abstract class FrequencyType extends BaseEnum
 {
     // Constants
     // =========================================================================
-    const MONTHLY  = 'month';
-    const YEARLY = 'year';
+    const YEAR = 'year';
+    const MONTH  = 'month';
+    const WEEK = 'week';
+    const DAY  = 'day';
 }

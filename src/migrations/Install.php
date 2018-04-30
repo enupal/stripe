@@ -66,11 +66,11 @@ class Install extends Migration
             // Subscriptions
             'enableSubscriptions' => $this->boolean(),
             'subscriptionType' => $this->integer(),
-            'singlePlanSetupFee' => $this->decimal(14, 4)->defaultValue(0),
+            'singlePlanSetupFee' => $this->decimal(14, 4),
             'singlePlanInfo' => $this->text(),
             'enableCustomPlanAmount' => $this->boolean(),
             'customPlanMinimumAmount' => $this->decimal(14, 4)->defaultValue(0),
-            'customPlanDefaultAmount' => $this->decimal(14, 4)->defaultValue(0),
+            'customPlanDefaultAmount' => $this->decimal(14, 4),
             'customPlanInterval' => $this->integer(),
             'customPlanFrequency' => $this->integer(),
 
