@@ -354,7 +354,7 @@ class Buttons extends Component
     {
         $options = [
             SubscriptionType::SINGLE_PLAN => Craft::t('enupal-stripe', 'Set single plan'),
-            SubscriptionType::MULTIPLE_PLANS =>  Craft::t('enupal-stripe', 'Customer chooses the plan')
+            SubscriptionType::MULTIPLE_PLANS =>  Craft::t('enupal-stripe', 'Customer chooses plan')
         ];
 
         return $options;

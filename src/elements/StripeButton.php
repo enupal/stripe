@@ -90,13 +90,13 @@ class StripeButton extends Element
     // Subscriptions
     public $enableSubscriptions;
     public $subscriptionType;
-    public $planSetupFee;
-    public $planSingleId;
-    public $enablePlanCustomAmount;
-    public $planCustomMinimumAmount;
-    public $planCustomDefaultAmount;
-    public $planCustomInterval;
-    public $planCustomFrequency;
+    public $singlePlanSetupFee;
+    public $singlePlanInfo;
+    public $enableCustomPlanAmount;
+    public $customPlanMinimumAmount;
+    public $customPlanDefaultAmount;
+    public $customPlanInterval;
+    public $customPlanFrequency;
     public $subscriptionStyle;
 
     public $amountType;
@@ -511,13 +511,13 @@ class StripeButton extends Element
 
         $record->enableSubscriptions = $this->enableSubscriptions;
         $record->subscriptionType = $this->subscriptionType;
-        $record->planSetupFee = $this->planSetupFee;
-        $record->planSingleId = $this->planSingleId;
-        $record->enablePlanCustomAmount = $this->enablePlanCustomAmount;
-        $record->planCustomMinimumAmount = $this->planCustomMinimumAmount;
-        $record->planCustomDefaultAmount = $this->planCustomDefaultAmount;
-        $record->planCustomInterval = $this->planCustomInterval;
-        $record->planCustomFrequency = $this->planCustomFrequency;
+        $record->singlePlanSetupFee = $this->singlePlanSetupFee;
+        $record->singlePlanInfo = $this->singlePlanInfo;
+        $record->enableCustomPlanAmount = $this->enableCustomPlanAmount;
+        $record->customPlanMinimumAmount = $this->customPlanMinimumAmount;
+        $record->customPlanDefaultAmount = $this->customPlanDefaultAmount;
+        $record->customPlanInterval = $this->customPlanInterval;
+        $record->customPlanFrequency = $this->customPlanFrequency;
         $record->subscriptionStyle = $this->subscriptionStyle;
 
         $record->enableRecurringPayment = $this->enableRecurringPayment;
@@ -730,5 +730,16 @@ class StripeButton extends Element
     public function getMultiplePlansHandle()
     {
         return Stripe::$app->buttons::MULTIPLE_PLANS_HANDLE;
+    }
+
+    public function getSinglePlan()
+    {
+        $singlePlan = [];
+
+        if ($this->singlePlanInfo){
+            $singlePlan = json_decode($this->singlePlanInfo, true);
+        }
+
+        return $singlePlan;
     }
 }

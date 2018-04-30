@@ -160,8 +160,35 @@
                 value: stripeButton.subscriptionType
             }) }}
 
-            <div class="#single-subscription-wrapper" {% if stripeButton.subscriptionType != 0 %}  class="hidden" {% endif %}>
+            <div id="single-subscription-wrapper" {% if stripeButton.subscriptionType != 0 %}  class="hidden" {% endif %}>
                 <h1>Single Subscription</h1>
+
+                {% set planList = [] %}
+                {% set singlePlan = stripeButton.getSinglePlan() %}
+                {% set planInput %}
+                    {% if singlePlan.id is defined and singlePlan.nickName is defined %}
+                        {% set planList = planList|merge([{'label': singlePlan.nickName, 'value': singlePlan.id}]) %}
+                    {% endif %}
+                    <div class="flex">
+                        {{ forms.select({
+                            name: 'singlePlanInfo',
+                            options: planList,
+                            value: singlePlan.id ?? null,
+                            readonly: true,
+                            class: 'singlePlanInfo'
+                        }) }}
+
+                        <div class="btn stripe-refresh-plans">{{ "Refresh"|t('enupal-stripe') }}</div>
+                        <div class="spinner hidden"></div>
+                    </div>
+                {% endset %}
+
+                {{ forms.field({
+                    label: "Select Plan"|t('enupal-stripe'),
+                    instructions: "Select any plan created on stripe. Remember check the plan when you go live"|t('enupal-stripe'),
+                    id: 'plan',
+                    errors: stripeButton.getErrors('singlePlanInfo'),
+                }, planInput) }}
             </div>
 
             <div id="multiple-subscriptions-wrapper" {% if stripeButton.subscriptionType != 1 %}  class="hidden" {% endif %}>

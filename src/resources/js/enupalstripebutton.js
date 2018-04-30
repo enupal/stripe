@@ -13,6 +13,7 @@
         $recurringToggleField: null,
         $recurringTypeField: null,
         $recurringToggle: null,
+        $subscriptionTypeSelect: null,
 
         /**
          * The constructor.
@@ -21,6 +22,7 @@
             // init method
             this.$unlimitedStock = $("#fields-unlimited-stock");
             this.$currencySelect = $("#fields-currency");
+            this.$subscriptionTypeSelect = $("#fields-subscriptionType");
             this.$recurringToggle = $("input[name='fields[enableRecurringPayment]']");
             this.$amountTypeSelect = $("#fields-amountType");
             this.$amountLabel = $("#fields-amount-label");
@@ -29,12 +31,14 @@
             this.$recurringTypeField = $("#fields-recurringPaymentType-field");
 
             this.addListener(this.$unlimitedStock, 'change', 'handleUnlimitedStock');
+            this.addListener(this.$subscriptionTypeSelect, 'change', 'handleSubscriptionTypeSelect');
             this.addListener(this.$currencySelect, 'change', 'handleCurrencySelect');
             this.addListener(this.$amountTypeSelect, 'change', 'handleAmountTypeSelect');
             this.addListener(this.$recurringToggleField, 'change', 'handleRecurringToggle');
 
             this.handleRecurringToggle();
             this.handleAmountTypeSelect();
+            this.handleSubscriptionTypeSelect();
         },
 
         handleUnlimitedStock: function(option) {
@@ -57,6 +61,20 @@
 
             $shippingDiv.text(value);
             $minimumDiv.text(value);
+        },
+
+        handleSubscriptionTypeSelect: function() {
+            var value = this.$subscriptionTypeSelect.val();
+            var $singleSubscriptionWrapper = $("#fields-single-subscription-wrapper");
+            var $multipleSubscriptionWrapper = $("#fields-multiple-subscriptions-wrapper");
+
+            if (value == 0) {
+                $singleSubscriptionWrapper.removeClass('hidden');
+                $multipleSubscriptionWrapper.addClass('hidden');
+            }else{
+                $singleSubscriptionWrapper.addClass('hidden');
+                $multipleSubscriptionWrapper.removeClass('hidden');
+            }
         },
 
         handleRecurringToggle: function()
