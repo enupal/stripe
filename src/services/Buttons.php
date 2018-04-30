@@ -935,36 +935,16 @@ class Buttons extends Component
         return $matrixMultiplePlansField;
     }
 
-    public function refreshPlans()
+    /**
+     * Refresh plans under Select Plan dropdown within matrix field
+     * @throws \Throwable
+     * @throws \yii\base\InvalidConfigException
+     */
+    public function getRefreshPlans()
     {
-        $privateKey = StripePlugin::$app->settings->getPrivateKey();
-        if ($privateKey){
-            Stripe::setAppInfo(StripePlugin::getInstance()->name, StripePlugin::getInstance()->version, StripePlugin::getInstance()->documentationUrl);
-            Stripe::setApiKey($privateKey);
+        $options = $this->getStripePlans();
 
-            $plans = Plan::all();
-            #Craft::dd($plans);
-            $option['label'] = 'Select Plan...';
-            $option['value'] = '';
-            $option['default'] = '';
-            $options = [];
-            array_push($options,$option);
-            if (isset($plans['data'])){
-                foreach ($plans['data'] as $plan) {
-                    if ($plan['nickname']){
-                        $intervalCount = $plan['interval_count'];
-                        $interval = $intervalCount > 1 ? $intervalCount.' '. $plan['interval'].'s' : $plan['interval'] ;
-                        $planId = $plan['id'];
-                        $amount = $plan['amount'] ?? $plan['tiers'][0]['amount'] ?? 0;
-                        $amount = Craft::$app->getFormatter()->asCurrency($amount/100, strtoupper($plan['currency']));
-                        $planName = $plan['nickname'].' '.$amount.'/'.$interval;
-                        $option['label'] = $planName;
-                        $option['value'] = $planId;
-                        $option['default'] = '';
-                        array_push($options, $option);
-                    }
-                }
-            }
+        if ($options){
             $currentFieldContext = Craft::$app->getContent()->fieldContext;
             Craft::$app->getContent()->fieldContext = 'enupalStripe:';
             $matrixMultiplePlansField = Craft::$app->fields->getFieldByHandle(self::MULTIPLE_PLANS_HANDLE);
@@ -980,8 +960,49 @@ class Buttons extends Component
             }
 
             Craft::$app->getContent()->fieldContext = $currentFieldContext;
-        }else{
+        }
+    }
+
+
+    /**
+     * @return array
+     * @throws \yii\base\InvalidConfigException
+     */
+    public function getStripePlans()
+    {
+        $options = [];
+        $privateKey = StripePlugin::$app->settings->getPrivateKey();
+        if ($privateKey) {
+            Stripe::setAppInfo(StripePlugin::getInstance()->name, StripePlugin::getInstance()->version, StripePlugin::getInstance()->documentationUrl);
+            Stripe::setApiKey($privateKey);
+
+            $plans = Plan::all();
+            #Craft::dd($plans);
+            $option['label'] = 'Select Plan...';
+            $option['value'] = '';
+            $option['default'] = '';
+            array_push($options, $option);
+            if (isset($plans['data'])) {
+                foreach ($plans['data'] as $plan) {
+                    if ($plan['nickname']) {
+                        $intervalCount = $plan['interval_count'];
+                        $interval = $intervalCount > 1 ? $intervalCount.' '.$plan['interval'].'s' : $plan['interval'];
+                        $planId = $plan['id'];
+                        $amount = $plan['amount'] ?? $plan['tiers'][0]['amount'] ?? 0;
+                        $amount = Craft::$app->getFormatter()->asCurrency($amount / 100, strtoupper($plan['currency']));
+                        $planName = $plan['nickname'].' '.$amount.'/'.$interval;
+                        $option['label'] = $planName;
+                        $option['value'] = $planId;
+                        $option['default'] = '';
+                        array_push($options, $option);
+                    }
+                }
+            }
+        }
+        else{
             Craft::$app->getSession()->setError(StripePlugin::t('Please add your stripe keys in the Settings Tab'));
         }
+
+        return $options;
     }
 }

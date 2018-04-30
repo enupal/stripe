@@ -14,12 +14,14 @@
         $recurringTypeField: null,
         $recurringToggle: null,
         $subscriptionTypeSelect: null,
+        $refreshPlansButton: null,
 
         /**
          * The constructor.
          */
         init: function() {
             // init method
+            this.$refreshPlansButton = $('#fields-refresh-plans-btn');
             this.$unlimitedStock = $("#fields-unlimited-stock");
             this.$currencySelect = $("#fields-currency");
             this.$subscriptionTypeSelect = $("#fields-subscriptionType");
@@ -35,10 +37,50 @@
             this.addListener(this.$currencySelect, 'change', 'handleCurrencySelect');
             this.addListener(this.$amountTypeSelect, 'change', 'handleAmountTypeSelect');
             this.addListener(this.$recurringToggleField, 'change', 'handleRecurringToggle');
+            this.addListener(this.$refreshPlansButton, 'click', 'handleRefreshPlans');
 
             this.handleRecurringToggle();
             this.handleAmountTypeSelect();
             this.handleSubscriptionTypeSelect();
+        },
+
+        handleRefreshPlans: function(option) {
+            if (this.$refreshPlansButton.hasClass('disabled')) {
+                return;
+            }
+
+            var that = this;
+
+            this.$refreshPlansButton.addClass('disabled').siblings('.spinner').removeClass('hidden');
+
+            var $planSelect = $("#fields-singlePlanInfo");
+
+            Craft.postActionRequest('enupal-stripe/buttons/refresh-plans', {}, function(response, textStatus) {
+                that.$refreshPlansButton.removeClass('disabled').siblings('.spinner').addClass('hidden');
+
+                if (textStatus === 'success') {
+                    if (response.plans.length > 0) {
+                        var currentPlan = $planSelect.val(),
+                            currentPlanStillExists = false;
+
+                        $planSelect.empty();
+
+                        for (var i = 0; i < response.plans.length; i++) {
+                            if (response.plans[i].value === currentPlan) {
+                                currentPlanStillExists = true;
+                            }
+
+                            $planSelect.append('<option value="' + response.plans[i].value + '">' + response.plans[i].label + '</option>');
+                        }
+
+                        if (currentPlanStillExists) {
+                            $planSelect.val(currentPlan);
+                        }
+                    }else{
+                        Craft.cp.displayError(Craft.t('enupal-stripe', 'Unable to found plans in your Stripe account'));
+                    }
+                }
+            });
         },
 
         handleUnlimitedStock: function(option) {

@@ -73,7 +73,6 @@ class ButtonsController extends BaseController
      */
     public function actionEditButton(int $buttonId = null, StripeElement $button = null)
     {
-        Stripe::$app->buttons->refreshPlans();
         // Immediately create a new Slider
         if ($buttonId === null) {
             $button = Stripe::$app->buttons->createNewButton();
@@ -111,7 +110,6 @@ class ButtonsController extends BaseController
         return $this->renderTemplate('enupal-stripe/buttons/_edit', $variables);
     }
 
-
     /**
      * Delete a Stripe Button.
      *
@@ -134,5 +132,26 @@ class ButtonsController extends BaseController
         Stripe::$app->buttons->deleteButton($button);
 
         return $this->redirectToPostedUrl($button);
+    }
+
+
+    /**
+     * Retrieve all stripe plans as options for dropdown select field
+     *
+     * @return \yii\web\Response
+     * @throws \yii\base\InvalidConfigException
+     */
+    public function actionRefreshPlans()
+    {
+        try {
+            $this->requirePostRequest();
+            $this->requireAcceptsJson();
+
+            $plans = Stripe::$app->buttons->getStripePlans();
+        } catch (\Throwable $e) {
+            return $this->asErrorJson($e->getMessage());
+        }
+
+        return $this->asJson(['success'=> true, 'plans' => $plans]);
     }
 }

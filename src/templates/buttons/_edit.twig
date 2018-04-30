@@ -173,12 +173,13 @@
                         {{ forms.select({
                             name: 'singlePlanInfo',
                             options: planList,
+                            id: 'singlePlanInfo',
                             value: singlePlan.id ?? null,
                             readonly: true,
                             class: 'singlePlanInfo'
                         }) }}
 
-                        <div class="btn stripe-refresh-plans">{{ "Refresh"|t('enupal-stripe') }}</div>
+                        <div id="refresh-plans-btn" class="btn">{{ "Refresh"|t('enupal-stripe') }}</div>
                         <div class="spinner hidden"></div>
                     </div>
                 {% endset %}
