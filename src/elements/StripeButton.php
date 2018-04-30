@@ -99,6 +99,7 @@ class StripeButton extends Element
     public $customPlanInterval;
     public $customPlanFrequency;
     public $subscriptionStyle;
+    public $singlePlanTrialPeriod;
 
     public $amountType;
     public $minimumAmount;
@@ -520,6 +521,7 @@ class StripeButton extends Element
         $record->customPlanInterval = $this->customPlanInterval;
         $record->customPlanFrequency = $this->customPlanFrequency;
         $record->subscriptionStyle = $this->subscriptionStyle;
+        $record->singlePlanTrialPeriod = $this->singlePlanTrialPeriod;
 
         $record->enableRecurringPayment = $this->enableRecurringPayment;
         $record->recurringPaymentType = $this->recurringPaymentType;

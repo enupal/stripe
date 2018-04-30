@@ -67,6 +67,7 @@ class Install extends Migration
             'enableSubscriptions' => $this->boolean(),
             'subscriptionType' => $this->integer(),
             'singlePlanSetupFee' => $this->decimal(14, 4),
+            'singlePlanTrialPeriod' => $this->integer(),
             'singlePlanInfo' => $this->text(),
             'enableCustomPlanAmount' => $this->boolean(),
             'customPlanMinimumAmount' => $this->decimal(14, 4)->defaultValue(0),

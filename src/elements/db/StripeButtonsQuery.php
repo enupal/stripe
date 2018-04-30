@@ -118,6 +118,7 @@ class StripeButtonsQuery extends ElementQuery
             'enupalstripe_buttons.customPlanInterval',
             'enupalstripe_buttons.customPlanFrequency',
             'enupalstripe_buttons.subscriptionStyle',
+            'enupalstripe_buttons.singlePlanTrialPeriod',
 
             'enupalstripe_buttons.verifyZip',
             'enupalstripe_buttons.enableBillingAddress',
