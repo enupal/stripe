@@ -17,6 +17,7 @@ use craft\fields\Number;
 use craft\fields\PlainText;
 use craft\fields\Table;
 use craft\helpers\FileHelper;
+use craft\helpers\Json;
 use enupal\stripe\enums\SubscriptionType;
 use enupal\stripe\web\assets\StripeAsset;
 use enupal\stripe\elements\StripeButton;
@@ -99,6 +100,13 @@ class Buttons extends Component
 
             if (!$buttonRecord) {
                 throw new Exception(StripePlugin::t('No StripeButton exists with the ID “{id}”', ['id' => $button->id]));
+            }
+        }
+
+        if ($button->enableSubscriptions){
+            if ($button->subscriptionType == SubscriptionType::SINGLE_PLAN && $button->singlePlanInfo){
+                $plan = $this->getStripePlan($button->singlePlanInfo);
+                $button->singlePlanInfo = Json::encode($plan);
             }
         }
 
@@ -963,7 +971,6 @@ class Buttons extends Component
         }
     }
 
-
     /**
      * @return array
      * @throws \yii\base\InvalidConfigException
@@ -1004,5 +1011,26 @@ class Buttons extends Component
         }
 
         return $options;
+    }
+
+    /**
+     * @param $id
+     * @return null|\Stripe\StripeObject
+     */
+    public function getStripePlan($id)
+    {
+        $plan = null;
+        $privateKey = StripePlugin::$app->settings->getPrivateKey();
+        if ($privateKey) {
+            Stripe::setAppInfo(StripePlugin::getInstance()->name, StripePlugin::getInstance()->version, StripePlugin::getInstance()->documentationUrl);
+            Stripe::setApiKey($privateKey);
+
+            $plan = Plan::retrieve($id);
+        }
+        else{
+            Craft::$app->getSession()->setError(StripePlugin::t('Please add your stripe keys in the Settings Tab'));
+        }
+
+        return $plan;
     }
 }

@@ -161,13 +161,12 @@
             }) }}
 
             <div id="single-subscription-wrapper" {% if stripeButton.subscriptionType != 0 %}  class="hidden" {% endif %}>
-                <h1>Single Subscription</h1>
 
                 {% set planList = [] %}
                 {% set singlePlan = stripeButton.getSinglePlan() %}
                 {% set planInput %}
-                    {% if singlePlan.id is defined and singlePlan.nickName is defined %}
-                        {% set planList = planList|merge([{'label': singlePlan.nickName, 'value': singlePlan.id}]) %}
+                    {% if singlePlan.id is defined and singlePlan.nickname is defined %}
+                        {% set planList = planList|merge([{'label': singlePlan.nickname, 'value': singlePlan.id}]) %}
                     {% endif %}
                     <div class="flex">
                         {{ forms.select({
@@ -190,6 +189,15 @@
                     id: 'plan',
                     errors: stripeButton.getErrors('singlePlanInfo'),
                 }, planInput) }}
+
+                {{ forms.lightswitchField({
+                    label: "Enable Custom Amount <span class='info'>This will create a custom plan</span>"|t('enupal-stripe'),
+                    instructions: "Connect a payment button to an individual Stripe plan or let your site visitors pick a plan to subscribe to. Add a custom amount option, charge a setup fee or tie into free trials."|t('enupal-stripe'),
+                    id: 'enableSubscriptions',
+                    name: 'enableSubscriptions',
+                    on: stripeButton.enableSubscriptions,
+                    toggle: 'subscriptions-wrapper'
+                }) }}
             </div>
 
             <div id="multiple-subscriptions-wrapper" {% if stripeButton.subscriptionType != 1 %}  class="hidden" {% endif %}>

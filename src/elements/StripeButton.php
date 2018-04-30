@@ -12,6 +12,7 @@ use Craft;
 use craft\base\Element;
 use craft\behaviors\FieldLayoutBehavior;
 use craft\elements\db\ElementQueryInterface;
+use craft\helpers\Json;
 use enupal\backup\models\Settings;
 use enupal\stripe\enums\DiscountType;
 use enupal\stripe\Stripe;
@@ -732,12 +733,15 @@ class StripeButton extends Element
         return Stripe::$app->buttons::MULTIPLE_PLANS_HANDLE;
     }
 
+    /**
+     * @return array|mixed
+     */
     public function getSinglePlan()
     {
         $singlePlan = [];
 
         if ($this->singlePlanInfo){
-            $singlePlan = json_decode($this->singlePlanInfo, true);
+            $singlePlan = Json::decode($this->singlePlanInfo, true);
         }
 
         return $singlePlan;
