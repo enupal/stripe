@@ -166,7 +166,7 @@
                 {% set singlePlan = stripeButton.getSinglePlan() %}
                 {% set planInput %}
                     {% if singlePlan.id is defined and singlePlan.nickname is defined %}
-                        {% set planList = planList|merge([{'label': singlePlan.nickname, 'value': singlePlan.id}]) %}
+                        {% set planList = planList|merge([{'label': singlePlan.defaultPlanName, 'value': singlePlan.id}]) %}
                     {% endif %}
                     <div class="flex">
                         {{ forms.select({

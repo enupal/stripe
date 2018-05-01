@@ -992,12 +992,8 @@ class Buttons extends Component
             if (isset($plans['data'])) {
                 foreach ($plans['data'] as $plan) {
                     if ($plan['nickname']) {
-                        $intervalCount = $plan['interval_count'];
-                        $interval = $intervalCount > 1 ? $intervalCount.' '.$plan['interval'].'s' : $plan['interval'];
                         $planId = $plan['id'];
-                        $amount = $plan['amount'] ?? $plan['tiers'][0]['amount'] ?? 0;
-                        $amount = Craft::$app->getFormatter()->asCurrency($amount / 100, strtoupper($plan['currency']));
-                        $planName = $plan['nickname'].' '.$amount.'/'.$interval;
+                        $planName = $this->getDefaultPlanName($plan);
                         $option['label'] = $planName;
                         $option['value'] = $planId;
                         $option['default'] = '';
@@ -1011,6 +1007,24 @@ class Buttons extends Component
         }
 
         return $options;
+    }
+
+    /**
+     * Create a human readable plan name given a plan array.
+     *
+     * @param $plan
+     * @return string
+     * @throws \yii\base\InvalidConfigException
+     */
+    public function getDefaultPlanName($plan)
+    {
+        $intervalCount = $plan['interval_count'];
+        $interval = $intervalCount > 1 ? $intervalCount.' '.$plan['interval'].'s' : $plan['interval'];
+        $amount = $plan['amount'] ?? $plan['tiers'][0]['amount'] ?? 0;
+        $amount = Craft::$app->getFormatter()->asCurrency($amount / 100, strtoupper($plan['currency']));
+        $planName = $plan['nickname'].' '.$amount.'/'.$interval;
+
+        return $planName;
     }
 
     /**

@@ -737,6 +737,7 @@ class StripeButton extends Element
 
     /**
      * @return array|mixed
+     * @throws \yii\base\InvalidConfigException
      */
     public function getSinglePlan()
     {
@@ -744,6 +745,7 @@ class StripeButton extends Element
 
         if ($this->singlePlanInfo){
             $singlePlan = Json::decode($this->singlePlanInfo, true);
+            $singlePlan['defaultPlanName'] = Stripe::$app->buttons->getDefaultPlanName($singlePlan);
         }
 
         return $singlePlan;
