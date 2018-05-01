@@ -162,7 +162,6 @@ class StripeVariable
         return strtolower($handle);
     }
 
-
     /**
      * @param $block
      *
@@ -177,8 +176,35 @@ class StripeVariable
         $view->setTemplatesPath($templatePath);
 
         $htmlField = $view->renderTemplate(
-            '_layouts/'.$block->type, [
+            '_layouts/'.strtolower($block->type), [
                 'block' => $block
+            ]
+        );
+
+        $view->setTemplatesPath(Craft::$app->path->getSiteTemplatesPath());
+
+        return TemplateHelper::raw($htmlField);
+    }
+
+    /**
+     * Display plans as dropdown or radio buttons to the user
+     *
+     * @param $type
+     * @param $matrix
+     *
+     * @return \Twig_Markup
+     * @throws \Twig_Error_Loader
+     * @throws \yii\base\Exception
+     */
+    public function displayMultiSelect($type, $matrix)
+    {
+        $templatePath = Stripe::$app->buttons->getEnupalStripePath();
+        $view = Craft::$app->getView();
+        $view->setTemplatesPath($templatePath);
+
+        $htmlField = $view->renderTemplate(
+            '_multipleplans/'.strtolower($type), [
+                'matrixField' => $matrix
             ]
         );
 

@@ -99,6 +99,7 @@ class StripeButtonsQuery extends ElementQuery
             'enupalstripe_buttons.enableRememberMe',
             'enupalstripe_buttons.enableRecurringPayment',
             'enupalstripe_buttons.recurringPaymentType',
+            'enupalstripe_buttons.selectPlanLabel',
 
             'enupalstripe_buttons.handle',
             'enupalstripe_buttons.quantity',

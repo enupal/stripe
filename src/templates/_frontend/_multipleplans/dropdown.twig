@@ -1,0 +1,19 @@
+{%- set handle = "multi-plan-dropdown" %}
+{%- set required = false  %}
+{%- set options = block.options ? block.options : [] %}
+
+<select
+        name="enupal_multi_plan"
+        id="{{ handle }}"
+        class="{{ handle }}"
+        {%- if required %} required aria-required="true"{% endif %}
+>
+    {% for key,block in matrixField %}
+
+        {%- set optionLabel = (block.customLabel ? block.customLabel : null) -%}
+        {%- set optionValue = (block.selectPlan is defined ? option.selectPlan : key) -%}
+
+        <option value="{{ optionValue }}"
+        >{{ optionLabel }}</option>
+    {% endfor %}
+</select>

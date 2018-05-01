@@ -15,6 +15,7 @@ use craft\elements\db\ElementQueryInterface;
 use craft\helpers\Json;
 use enupal\backup\models\Settings;
 use enupal\stripe\enums\DiscountType;
+use enupal\stripe\enums\SubscriptionType;
 use enupal\stripe\Stripe;
 use enupal\stripe\validators\DiscountValidator;
 use yii\base\ErrorHandler;
@@ -99,6 +100,7 @@ class StripeButton extends Element
     public $customPlanInterval;
     public $customPlanFrequency;
     public $subscriptionStyle;
+    public $selectPlanLabel;
     public $singlePlanTrialPeriod;
 
     public $amountType;
@@ -164,17 +166,6 @@ class StripeButton extends Element
         }
 
         return $returnUrl;
-    }
-
-    /**
-     * @return string
-     * @throws \craft\errors\SiteNotFoundException
-     */
-    public function getIpnUrl()
-    {
-        $this->ipnUrl = Craft::$app->getSites()->getPrimarySite()->baseUrl.'enupal-stripe/ipn';
-
-        return $this->ipnUrl;
     }
 
     /**
@@ -513,13 +504,18 @@ class StripeButton extends Element
 
         $record->enableSubscriptions = $this->enableSubscriptions;
         $record->subscriptionType = $this->subscriptionType;
-        $record->singlePlanSetupFee = $this->singlePlanSetupFee;
-        $record->singlePlanInfo = $this->singlePlanInfo;
-        $record->enableCustomPlanAmount = $this->enableCustomPlanAmount;
-        $record->customPlanMinimumAmount = $this->customPlanMinimumAmount;
-        $record->customPlanDefaultAmount = $this->customPlanDefaultAmount;
-        $record->customPlanInterval = $this->customPlanInterval;
-        $record->customPlanFrequency = $this->customPlanFrequency;
+
+        if ($this->enableSubscriptions){
+            if ($this->subscriptionType == SubscriptionType::SINGLE_PLAN){
+                $record->singlePlanSetupFee = $this->singlePlanSetupFee;
+                $record->singlePlanInfo = $this->singlePlanInfo;
+                $record->enableCustomPlanAmount = $this->enableCustomPlanAmount;
+                $record->customPlanMinimumAmount = $this->customPlanMinimumAmount;
+                $record->customPlanDefaultAmount = $this->customPlanDefaultAmount;
+                $record->customPlanInterval = $this->customPlanInterval;
+                $record->customPlanFrequency = $this->customPlanFrequency;
+            }
+        }
         $record->subscriptionStyle = $this->subscriptionStyle;
         $record->singlePlanTrialPeriod = $this->singlePlanTrialPeriod;
 

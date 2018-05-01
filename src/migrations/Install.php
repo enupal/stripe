@@ -76,6 +76,7 @@ class Install extends Migration
             'customPlanFrequency' => $this->integer(),
 
             'subscriptionStyle' => $this->integer(),
+            'selectPlanLabel' => $this->string(),
             // Inventory
             'quantity' => $this->integer(),
             'hasUnlimitedStock' => $this->boolean()->defaultValue(1),

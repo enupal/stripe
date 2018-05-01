@@ -71,8 +71,6 @@ class Stripe extends Plugin
         Event::on(Fields::class, Fields::EVENT_REGISTER_FIELD_TYPES, function(RegisterComponentTypesEvent $event) {
             $event->types[] = BuyNowButtonField::class;
         });
-
-        self::$app->orders->processPayment();
     }
 
     /**
