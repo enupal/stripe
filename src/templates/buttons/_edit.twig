@@ -288,6 +288,18 @@
                     value: stripeButton.subscriptionStyle
                 }) }}
 
+                {{ forms.textField({
+                    first: true,
+                    label: "Select Label"|t('enupal-stripe'),
+                    instructions: "Add a label for the Dropdown or Radiobutton",
+                    placeholder: "Select a Plan...",
+                    id: 'selectPlanLabel',
+                    name: 'selectPlanLabel',
+                    value: stripeButton.selectPlanLabel,
+                    errors: stripeButton.getErrors('selectPlanLabel'),
+                    autofocus: true,
+                }) }}
+
                 {% for field in fields %}
                     {% if field.handle == stripeButton.getMultiplePlansHandle() %}
                         {% include "_includes/field" with {

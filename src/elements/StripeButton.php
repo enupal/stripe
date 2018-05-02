@@ -517,6 +517,7 @@ class StripeButton extends Element
             }
         }
         $record->subscriptionStyle = $this->subscriptionStyle;
+        $record->selectPlanLabel = $this->selectPlanLabel;
         $record->singlePlanTrialPeriod = $this->singlePlanTrialPeriod;
 
         $record->enableRecurringPayment = $this->enableRecurringPayment;
