@@ -115,13 +115,28 @@ var enupalStripe = {};
         },
 
         getFinalAmount: function(enupalButtonElement, enupalStripeData){
-            var finalAmount = enupalStripeData.stripe.amount;
-            // Check if custom amount
-            if ( enupalStripeData.amountType == 1) {
-                var customAmount = enupalButtonElement.find( '[name="enupalStripe[customAmount]"]' ).val();
+            // We always return a default amount
+            var finalAmount = finalAmount = enupalStripeData.stripe.amount;
 
-                if ( ( 'undefined' !== customAmount ) && ( customAmount > 0 ) ) {
-                    finalAmount = customAmount;
+            if (!enupalStripeData.enableSubscriptions){
+                // Check if custom amount
+                if ( enupalStripeData.amountType == 1) {
+                    var customAmount = enupalButtonElement.find( '[name="enupalStripe[customAmount]"]' ).val();
+
+                    if ( ( 'undefined' !== customAmount ) && ( customAmount > 0 ) ) {
+                        finalAmount = customAmount;
+                    }
+                }
+            }else{
+                // Subscriptions!
+                var subscriptionType = enupalStripeData.subscriptionType;
+
+                if (subscriptionType == 0){
+                    // single plan
+
+
+                }else{
+                    // Multi-select plan
                 }
             }
 

@@ -41,20 +41,20 @@
     {% else %}
      {# User select Plan #}
         {% if button.enupalMultiplePlans|length %}
-        <div class="fields">
-            <section class="tab">
-                <div class="heading">
-                    <label for="{{ button.selectPlanLabel }}">
-                        {{- button.selectPlanLabel|raw|t -}}
-                    </label>
-                </div>
-                <div class="input">
-                    {%- set input = craft.stripeButton.displayMultiSelect('dropdown',button.enupalMultiplePlans)  %}
-                    {{ input|raw }}
-                </div>
-            </section>
-        </div>
-        {% endfor %}
+            <div class="fields">
+                <section class="tab">
+                    <div class="heading">
+                        <label for="{{ button.selectPlanLabel }}">
+                            {{- button.selectPlanLabel|raw|t -}}
+                        </label>
+                    </div>
+                    <div class="input">
+                        {%- set input = craft.stripeButton.displayMultiSelect('dropdown',button.enupalMultiplePlans)  %}
+                        {{ input|raw }}
+                    </div>
+                </section>
+            </div>
+        {% endif %}
 
     {% endif %}
 

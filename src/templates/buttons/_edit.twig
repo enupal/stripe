@@ -78,7 +78,7 @@
     <div id="tab1">
             {{ forms.textField({
                 first: true,
-                label: "Item Name"|t('enupal-stripe'),
+                label: "Item description"|t('enupal-stripe'),
                 instructions: 'What this Paypal Button will be called in the CP. This value will be used to set the <strong>Item Description</strong> in Stripe',
                 id: 'name',
                 name: 'name',
@@ -92,10 +92,10 @@
                 first: true,
                 label: "Company Name"|t('enupal-stripe'),
                 instructions: 'The name of your company or website',
-                id: 'name',
-                name: 'name',
-                value: stripeButton.name,
-                errors: stripeButton.getErrors('name'),
+                id: 'companyName',
+                name: 'companyName',
+                value: stripeButton.companyName,
+                errors: stripeButton.getErrors('companyName'),
                 autofocus: true,
                 required: true
             }) }}

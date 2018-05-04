@@ -212,5 +212,22 @@ class StripeVariable
 
         return TemplateHelper::raw($htmlField);
     }
+
+    /**
+     * @param $planId
+     * @return null|string
+     * @throws \yii\base\InvalidConfigException
+     */
+    public function getDefaultPlanName($planId)
+    {
+        $plan = Stripe::$app->buttons->getStripePlan($planId);
+        $planName = null;
+
+        if ($plan){
+            $planName = Stripe::$app->buttons->getDefaultPlanName($plan);
+        }
+
+        return $planName;
+    }
 }
 

@@ -1,11 +1,12 @@
+{%- set redirectUri = button.returnUrl -%}
 {% spaceless %}
     <form class="enupal-stripe-form" id="enupal-stripe-{{ button.id }}" method="POST">
         {{ csrfInput() }}
         <input type="hidden" aria-hidden="true" name="action"
                value="enupal-stripe/stripe/save-order">
-        {%- if button.returnUrl is not empty %}
-            {% if button.returnUrl|slice(0, 1)|lower == '?' %}
-                {%- set button.returnUrl = craft.request.getUrl()~button.returnUrl %}
+        {%- if redirectUri is not empty %}
+            {% if redirectUri|slice(0, 1)|lower == '?' %}
+                {%- set redirectUri = craft.request.getUrl()~button.returnUrl %}
             {% endif %}
 
             <input type="hidden" aria-hidden="true" name="redirect"

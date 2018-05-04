@@ -592,6 +592,17 @@ class StripeButton extends Element
             $logoUrl = $logoAsset->getUrl();
         }
 
+        $amount = $this->amount;
+        $currency = $this->currency ?? 'USD';
+
+        if ($this->enableSubscriptions){
+            if ($this->subscriptionType == SubscriptionType::SINGLE_PLAN){
+                $plan = Json::decode($this->singlePlanInfo, true);
+                $amount = $plan['amount']/100; // lets send in cents
+                $currency = $plan['currency'];
+            }
+        }
+
         $publicData = [
             'handle' => $this->handle,
             'amountType' => $this->amountType,
@@ -603,12 +614,17 @@ class StripeButton extends Element
             'enableRecurringPayment' => (boolean)$this->enableRecurringPayment,
             'recurringPaymentType' => $this->recurringPaymentType,
             'customAmountLabel' => Craft::$app->view->renderString($this->customAmountLabel ?? '' , ['button' => $this]),
+            // subscriptions
+            'enableSubscriptions' => $this->enableSubscriptions,
+            'subscriptionType' => $this->subscriptionType,
+            'subscriptionStyle' => $this->subscriptionStyle,
+            'singleSetupFee' => $this->singlePlanSetupFee,
             'stripe' => [
                 'description' => $this->name,
                 'name' => $this->companyName ?? $info->name,
-                'currency' => $this->currency ?? 'USD',
+                'currency' => $currency,
                 'locale' => $this->language,
-                'amount' => $this->amount,
+                'amount' => $amount,
                 'image' => $logoUrl,
                 'allowRememberMe' => (boolean)$this->enableRememberMe,
                 'zipCode' => (boolean)$this->verifyZip,
