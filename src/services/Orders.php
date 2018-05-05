@@ -9,6 +9,7 @@
 namespace enupal\stripe\services;
 
 use Craft;
+use craft\helpers\Json;
 use craft\mail\Message;
 use enupal\stripe\elements\Order;
 use enupal\stripe\enums\OrderStatus;
@@ -412,7 +413,8 @@ class Orders extends Component
             $planId = null;
 
             if ($button->subscriptionType == SubscriptionType::SINGLE_PLAN){
-
+                $plan = Json::decode($button->singlePlanInfo, true);
+                $planId = $plan['id'];
             }
             // Either single plan or multiple plans the user should select one plan and plan id should be available in the post request
             $subscription = $this->addPlanToCustomer($customer, $planId, $token, $isNew);
