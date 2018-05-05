@@ -76,26 +76,27 @@
 
     {% namespace 'fields' %}
     <div id="tab1">
+
             {{ forms.textField({
                 first: true,
-                label: "Item description"|t('enupal-stripe'),
-                instructions: 'What this Paypal Button will be called in the CP. This value will be used to set the <strong>Item Description</strong> in Stripe',
-                id: 'name',
-                name: 'name',
-                value: stripeButton.name,
-                errors: stripeButton.getErrors('name'),
+                label: "Item name or Company Name"|t('enupal-stripe'),
+                instructions: 'The name of your product or company',
+                id: 'companyName',
+                name: 'companyName',
+                value: stripeButton.companyName,
+                errors: stripeButton.getErrors('companyName'),
                 autofocus: true,
                 required: true
             }) }}
 
             {{ forms.textField({
                 first: true,
-                label: "Company Name"|t('enupal-stripe'),
-                instructions: 'The name of your company or website',
-                id: 'companyName',
-                name: 'companyName',
-                value: stripeButton.companyName,
-                errors: stripeButton.getErrors('companyName'),
+                label: "Item description"|t('enupal-stripe'),
+                instructions: 'What this Stripe Button will be called in the CP. This value will be used to set the <strong>Item Description</strong> in the Stripe checkout window',
+                id: 'name',
+                name: 'name',
+                value: stripeButton.name,
+                errors: stripeButton.getErrors('name'),
                 autofocus: true,
                 required: true
             }) }}

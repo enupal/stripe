@@ -147,7 +147,7 @@ class ButtonsController extends BaseController
             $this->requirePostRequest();
             $this->requireAcceptsJson();
 
-            $plans = Stripe::$app->buttons->getStripePlans();
+            $plans = Stripe::$app->plans->getStripePlans();
         } catch (\Throwable $e) {
             return $this->asErrorJson($e->getMessage());
         }

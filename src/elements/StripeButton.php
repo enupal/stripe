@@ -758,7 +758,7 @@ class StripeButton extends Element
 
         if ($this->singlePlanInfo){
             $singlePlan = Json::decode($this->singlePlanInfo, true);
-            $singlePlan['defaultPlanName'] = Stripe::$app->buttons->getDefaultPlanName($singlePlan);
+            $singlePlan['defaultPlanName'] = Stripe::$app->plans->getDefaultPlanName($singlePlan);
         }
 
         return $singlePlan;

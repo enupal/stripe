@@ -134,7 +134,6 @@ var enupalStripe = {};
                 if (subscriptionType == 0){
                     // single plan
 
-
                 }else{
                     // Multi-select plan
                 }

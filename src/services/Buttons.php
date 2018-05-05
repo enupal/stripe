@@ -28,8 +28,6 @@ use enupal\stripe\Stripe as StripePlugin;
 use enupal\stripe\elements\StripeButton as StripeElement;
 use enupal\stripe\records\StripeButton as StripeButtonRecord;
 use craft\helpers\Template as TemplateHelper;
-use Stripe\Plan;
-use Stripe\Stripe;
 
 use yii\base\Exception;
 
@@ -105,7 +103,7 @@ class Buttons extends Component
 
         if ($button->enableSubscriptions){
             if ($button->subscriptionType == SubscriptionType::SINGLE_PLAN && $button->singlePlanInfo){
-                $plan = $this->getStripePlan($button->singlePlanInfo);
+                $plan = StripePlugin::$app->plans->getStripePlan($button->singlePlanInfo);
                 $button->singlePlanInfo = Json::encode($plan);
             }
         }
@@ -943,108 +941,5 @@ class Buttons extends Component
         return $matrixMultiplePlansField;
     }
 
-    /**
-     * Refresh plans under Select Plan dropdown within matrix field
-     * @throws \Throwable
-     * @throws \yii\base\InvalidConfigException
-     */
-    public function getRefreshPlans()
-    {
-        $options = $this->getStripePlans();
 
-        if ($options){
-            $currentFieldContext = Craft::$app->getContent()->fieldContext;
-            Craft::$app->getContent()->fieldContext = 'enupalStripe:';
-            $matrixMultiplePlansField = Craft::$app->fields->getFieldByHandle(self::MULTIPLE_PLANS_HANDLE);
-
-            $matrixFields = $matrixMultiplePlansField->getBlockTypeFields();
-            foreach ($matrixFields as $matrixField) {
-                if ($matrixField->handle == 'selectPlan'){
-                    $matrixField->options = $options;
-                    // Update the select plan field with the plans from stripe
-                    Craft::$app->fields->saveField($matrixField);
-                    break;
-                }
-            }
-
-            Craft::$app->getContent()->fieldContext = $currentFieldContext;
-        }
-    }
-
-    /**
-     * @return array
-     * @throws \yii\base\InvalidConfigException
-     */
-    public function getStripePlans()
-    {
-        $options = [];
-        $privateKey = StripePlugin::$app->settings->getPrivateKey();
-        if ($privateKey) {
-            Stripe::setAppInfo(StripePlugin::getInstance()->name, StripePlugin::getInstance()->version, StripePlugin::getInstance()->documentationUrl);
-            Stripe::setApiKey($privateKey);
-
-            $plans = Plan::all();
-            #Craft::dd($plans);
-            $option['label'] = 'Select Plan...';
-            $option['value'] = '';
-            $option['default'] = '';
-            array_push($options, $option);
-            if (isset($plans['data'])) {
-                foreach ($plans['data'] as $plan) {
-                    if ($plan['nickname']) {
-                        $planId = $plan['id'];
-                        $planName = $this->getDefaultPlanName($plan);
-                        $option['label'] = $planName;
-                        $option['value'] = $planId;
-                        $option['default'] = '';
-                        array_push($options, $option);
-                    }
-                }
-            }
-        }
-        else{
-            Craft::$app->getSession()->setError(StripePlugin::t('Please add your stripe keys in the Settings Tab'));
-        }
-
-        return $options;
-    }
-
-    /**
-     * Create a human readable plan name given a plan array.
-     *
-     * @param $plan
-     * @return string
-     * @throws \yii\base\InvalidConfigException
-     */
-    public function getDefaultPlanName($plan)
-    {
-        $intervalCount = $plan['interval_count'];
-        $interval = $intervalCount > 1 ? $intervalCount.' '.$plan['interval'].'s' : $plan['interval'];
-        $amount = $plan['amount'] ?? $plan['tiers'][0]['amount'] ?? 0;
-        $amount = Craft::$app->getFormatter()->asCurrency($amount / 100, strtoupper($plan['currency']));
-        $planName = $plan['nickname'].' '.$amount.'/'.$interval;
-
-        return $planName;
-    }
-
-    /**
-     * @param $id
-     * @return null|\Stripe\StripeObject
-     */
-    public function getStripePlan($id)
-    {
-        $plan = null;
-        $privateKey = StripePlugin::$app->settings->getPrivateKey();
-        if ($privateKey) {
-            Stripe::setAppInfo(StripePlugin::getInstance()->name, StripePlugin::getInstance()->version, StripePlugin::getInstance()->documentationUrl);
-            Stripe::setApiKey($privateKey);
-
-            $plan = Plan::retrieve($id);
-        }
-        else{
-            Craft::$app->getSession()->setError(StripePlugin::t('Please add your stripe keys in the Settings Tab'));
-        }
-
-        return $plan;
-    }
 }

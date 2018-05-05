@@ -10,15 +10,25 @@ namespace enupal\stripe\controllers;
 
 use craft\web\Controller as BaseController;
 use enupal\stripe\Stripe as StripePlugin;
+use yii\web\NotFoundHttpException;
 
 class StripeController extends BaseController
 {
-
+    /**
+     * @return \yii\web\Response
+     * @throws NotFoundHttpException
+     * @throws \Throwable
+     * @throws \yii\web\BadRequestHttpException
+     */
     public function actionSaveOrder()
     {
         $this->requirePostRequest();
 
         $result = StripePlugin::$app->orders->processPayment();
+
+        if (!$result){
+            throw new NotFoundHttpException();
+        }
 
         return $this->redirectToPostedUrl();
     }

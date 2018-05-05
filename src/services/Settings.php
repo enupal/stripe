@@ -12,6 +12,8 @@ use Craft;
 use craft\db\Query;
 use yii\base\Component;
 use enupal\stripe\models\Settings as SettingsModel;
+use enupal\stripe\Stripe as StripePlugin;
+use Stripe\Stripe;
 
 class Settings extends Component
 {
@@ -87,5 +89,21 @@ class Settings extends Component
         $secretKey = $settings->testMode ? $settings->testSecretKey : $settings->liveSecretKey;
 
         return $secretKey;
+    }
+
+    /**
+     * @throws \Exception
+     */
+    public function initializeStripe()
+    {
+        $privateKey = $this->getPrivateKey();
+
+        if ($privateKey) {
+            Stripe::setAppInfo(StripePlugin::getInstance()->name, StripePlugin::getInstance()->version, StripePlugin::getInstance()->documentationUrl);
+            Stripe::setApiKey($privateKey);
+        }
+        else{
+            throw new \Exception(Craft::t('enupal-stripe','Unable to get the stripe keys.'));
+        }
     }
 }

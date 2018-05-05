@@ -220,11 +220,11 @@ class StripeVariable
      */
     public function getDefaultPlanName($planId)
     {
-        $plan = Stripe::$app->buttons->getStripePlan($planId);
+        $plan = Stripe::$app->plans->getStripePlan($planId);
         $planName = null;
 
         if ($plan){
-            $planName = Stripe::$app->buttons->getDefaultPlanName($plan);
+            $planName = Stripe::$app->plans->getDefaultPlanName($plan);
         }
 
         return $planName;

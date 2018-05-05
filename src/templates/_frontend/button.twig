@@ -15,6 +15,9 @@
 
         {% namespace 'enupalStripe' %}
             <input type="hidden" name="token" value />
+            {% if button.enableSubscriptions %}
+                <input type="hidden" name="planId" value>
+            {% endif %}
             <input type="hidden" name="email" value />
             <input type="hidden" name="buttonId" value="{{ button.id }}" />
             <input type="hidden" name="amount" value />
