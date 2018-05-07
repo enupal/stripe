@@ -7,7 +7,7 @@
         {% set recurringId = 'recurringToggle-'~button.id %}
         {% set interval = button.recurringPaymentType == 'month' ? 'monthly' : 'yearly'  %}
         {% set recurringLabel = 'Make this a '~interval~' payment' %}
-        {% set minimunAmount = button.amount ? button.amount|number_format : button.minimumAmount ? button.minimumAmount|number_format : '' %}
+        {% set minimumAmount = button.amount ? button.amount|number_format : button.minimumAmount ? button.minimumAmount|number_format : '' %}
         <div class="form-group">
             <div class="heading">
                 <label for="{{ customId }}">
@@ -16,7 +16,7 @@
             </div>
             <div class="enupal-input-icon">
                 <i>{{ currencySymbol }}</i>
-                <input type="number" class="form-control" id="{{ customId }}" name="customAmount" min="{{ button.minimumAmount|number_format }}" placeholder="1" value="{{ minimunAmount }}">
+                <input type="number" class="form-control" id="{{ customId }}" name="customAmount" min="{{ button.minimumAmount|number_format }}" placeholder="1" value="{{ minimumAmount }}">
             </div>
         </div>
     {% endif %}
@@ -37,7 +37,17 @@
 
     {% if button.subscriptionType == 0 %}
     {# Single Plan #}
-
+        {% if button.enableCustomPlanAmount %}
+            {% set currencySymbol = button.getCurrencySymbol() %}
+            {% set customId = 'customSingleAmount-'~button.id %}
+            {% set minimumAmount = button.customPlanDefaultAmount ? button.customPlanDefaultAmount|number_format : '' %}
+            <div class="form-group">
+                <div class="enupal-input-icon">
+                    <i>{{ currencySymbol }}</i>
+                    <input type="number" class="form-control" id="{{ customId }}" name="customPlanAmount" min="{{ button.customPlanMinimumAmount|number_format }}" placeholder="1" value="{{ minimumAmount }}">
+                </div>
+            </div>
+        {% endif %}
     {% else %}
      {# User select Plan #}
         {% if button.enupalMultiplePlans|length %}
