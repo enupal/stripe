@@ -134,7 +134,6 @@ class ButtonsController extends BaseController
         return $this->redirectToPostedUrl($button);
     }
 
-
     /**
      * Retrieve all stripe plans as options for dropdown select field
      *

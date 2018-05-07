@@ -49,21 +49,30 @@ class SettingsController extends BaseController
         return $this->redirectToPostedUrl();
     }
 
+
     /**
+     * Updates all stripe plans as options for dropdown select field within matrix field
+     *
      * @return \yii\web\Response
-     * @throws \yii\base\Exception
      * @throws \yii\web\BadRequestHttpException
      */
-    public function actionGetSizeUrl()
+    public function actionUpdatePlans()
     {
-        $this->requireAcceptsJson();
-        $request = Craft::$app->getRequest();
+        try {
+            $this->requirePostRequest();
 
-        $size = $request->getBodyParam('size');
-        $language = $request->getBodyParam('language');
+            $result = Stripe::$app->plans->getUpdatePlans();
 
-        $buttonUrl = Stripe::$app->buttons->getButtonSizeUrl($size, $language);
+        } catch (\Throwable $e) {
+            return $this->asErrorJson($e->getMessage());
+        }
+        if (!$result){
+            Craft::$app->getSession()->setError(Stripe::t('No plans were found in stripe'));
+        }
+        else{
+            Craft::$app->getSession()->setNotice(Stripe::t('Stripe plans updated.'));
+        }
 
-        return $this->asJson(['buttonUrl' => $buttonUrl]);
+        return $this->redirectToPostedUrl();
     }
 }

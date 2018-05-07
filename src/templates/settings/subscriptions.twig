@@ -1,0 +1,34 @@
+{#
+/**
+ * EnupalStripe plugin for Craft CMS 3.x
+ *
+ * @link      https://enupal.com/
+ * @copyright Copyright (c) 2018 Enupal
+ */
+#}
+
+{% extends "enupal-stripe/_layouts/settings" %}
+{% import "_includes/forms" as forms %}
+
+{% set settings = settings is defined ? settings : craft.stripeButton.getSettings()  %}
+{% set fullPageForm = false %}
+
+{% set content %}
+    {{ forms.field({
+        label: "Update your Subscription plans from Stripe"|t('enupal-stripe')|upper,
+        instructions : 'Plans are at the heart of subscriptions, establishing the billing cycle, currency, and base cost. Every plan is attached to a <a href="https://dashboard.stripe.com/subscriptions/products">product</a>, which represents the application or service offered to customers. Products can have more than one plan, reflecting variations in price and duration —– such as monthly and annual pricing at different rates.'|t('enupal-stripe')
+    }, null) }}
+    <hr>
+
+    <form method="POST">
+        {{ csrfInput() }}
+        <input type="hidden" name="action"
+               value="enupal-stripe/settings/update-plans">
+        <input type="hidden" aria-hidden="true" name="redirect"
+               value="{{ 'enupal-stripe/settings/subscriptions'|hash }}">
+        <div class="buttons">
+            <input class="btn submit" type="submit" value="{{ 'Refresh Plans'|t('enupal-stripe') }}">
+        </div>
+    </form>
+
+{% endset %}

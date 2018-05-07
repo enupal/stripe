@@ -17,31 +17,35 @@ use Stripe\Plan;
 class Plans extends Component
 {
     /**
-     * Refresh plans under Select Plan dropdown within matrix field
+     * Updates plans under Select Plan dropdown within matrix field
      * @throws \Throwable
      * @throws \yii\base\InvalidConfigException
      */
-    public function getRefreshPlans()
+    public function getUpdatePlans()
     {
         $options = $this->getStripePlans();
 
-        if ($options){
-            $currentFieldContext = Craft::$app->getContent()->fieldContext;
-            Craft::$app->getContent()->fieldContext = 'enupalStripe:';
-            $matrixMultiplePlansField = Craft::$app->fields->getFieldByHandle(StripePlugin::$app->buttons::MULTIPLE_PLANS_HANDLE);
-
-            $matrixFields = $matrixMultiplePlansField->getBlockTypeFields();
-            foreach ($matrixFields as $matrixField) {
-                if ($matrixField->handle == 'selectPlan'){
-                    $matrixField->options = $options;
-                    // Update the select plan field with the plans from stripe
-                    Craft::$app->fields->saveField($matrixField);
-                    break;
-                }
-            }
-
-            Craft::$app->getContent()->fieldContext = $currentFieldContext;
+        if (empty($options)){
+            return false;
         }
+
+        $currentFieldContext = Craft::$app->getContent()->fieldContext;
+        Craft::$app->getContent()->fieldContext = 'enupalStripe:';
+        $matrixMultiplePlansField = Craft::$app->fields->getFieldByHandle(StripePlugin::$app->buttons::MULTIPLE_PLANS_HANDLE);
+
+        $matrixFields = $matrixMultiplePlansField->getBlockTypeFields();
+        foreach ($matrixFields as $matrixField) {
+            if ($matrixField->handle == 'selectPlan'){
+                $matrixField->options = $options;
+                // Update the select plan field with the plans from stripe
+                Craft::$app->fields->saveField($matrixField);
+                break;
+            }
+        }
+
+        Craft::$app->getContent()->fieldContext = $currentFieldContext;
+
+        return true;
     }
 
 

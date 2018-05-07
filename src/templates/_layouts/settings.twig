@@ -26,6 +26,12 @@
                 </a>
             </li>
             <li>
+                <a href="{{ cpUrl('enupal-stripe/settings/subscriptions') }}"
+                   {% if selectedSidebarItem == 'subscriptions' %}class="sel"{% endif %}><i
+                            class="fa fa-calendar fa-fw" aria-hidden="true"></i>&nbsp;{{ "Subscription Plans"|t('enupal-stripe') }}
+                </a>
+            </li>
+            <li>
                 <a href="{{ cpUrl('enupal-stripe/settings/taxes') }}"
                    {% if selectedSidebarItem == 'taxes' %}class="sel"{% endif %}><i
                             class="fa fa-percent fa-fw" aria-hidden="true"></i>&nbsp;{{ "Taxes"|t('enupal-stripe') }}
