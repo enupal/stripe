@@ -15,6 +15,7 @@
         $recurringToggle: null,
         $subscriptionTypeSelect: null,
         $refreshPlansButton: null,
+        $enableSubscription: null,
 
         /**
          * The constructor.
@@ -31,6 +32,7 @@
             this.$minimumAmountField = $("#fields-minimumAmount-field");
             this.$recurringToggleField = $("#fields-enableRecurringPayment-field");
             this.$recurringTypeField = $("#fields-recurringPaymentType-field");
+            this.$enableSubscription = $("#fields-enableSubscriptions");
 
             this.addListener(this.$unlimitedStock, 'change', 'handleUnlimitedStock');
             this.addListener(this.$subscriptionTypeSelect, 'change', 'handleSubscriptionTypeSelect');
@@ -38,10 +40,23 @@
             this.addListener(this.$amountTypeSelect, 'change', 'handleAmountTypeSelect');
             this.addListener(this.$recurringToggleField, 'change', 'handleRecurringToggle');
             this.addListener(this.$refreshPlansButton, 'click', 'handleRefreshPlans');
+            this.addListener(this.$enableSubscription, 'change', 'handleEnableSubscription');
 
             this.handleRecurringToggle();
             this.handleAmountTypeSelect();
             this.handleSubscriptionTypeSelect();
+        },
+
+        handleEnableSubscription: function(option) {
+            var $oneTimeWrapper = $("#fields-one-time-payment-wrapper");
+            var value = $("input[name='fields[enableSubscriptions]']").val();
+
+            if (value == 0){
+                $oneTimeWrapper.removeClass('hidden');
+            }
+            else{
+                $oneTimeWrapper.addClass('hidden');
+            }
         },
 
         handleRefreshPlans: function(option) {

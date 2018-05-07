@@ -38,7 +38,7 @@
     }) }}
 </div>
 <hr>
-<div class="meta">
+<div id="one-time-payment-wrapper" class="meta {% if stripeButton.enableSubscriptions %} hidden {% endif %}">
     <h6>{{ 'One Time Payment'|t('sprout-forms') }}</h6>
     {% set amountInput %}
     <div class="flex">
