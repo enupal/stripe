@@ -16,6 +16,7 @@
         $subscriptionTypeSelect: null,
         $refreshPlansButton: null,
         $enableSubscription: null,
+        $enableSingleCustomAmount: null,
 
         /**
          * The constructor.
@@ -33,6 +34,7 @@
             this.$recurringToggleField = $("#fields-enableRecurringPayment-field");
             this.$recurringTypeField = $("#fields-recurringPaymentType-field");
             this.$enableSubscription = $("#fields-enableSubscriptions");
+            this.$enableSingleCustomAmount = $("#fields-enableCustomPlanAmount");
 
             this.addListener(this.$unlimitedStock, 'change', 'handleUnlimitedStock');
             this.addListener(this.$subscriptionTypeSelect, 'change', 'handleSubscriptionTypeSelect');
@@ -41,10 +43,23 @@
             this.addListener(this.$recurringToggleField, 'change', 'handleRecurringToggle');
             this.addListener(this.$refreshPlansButton, 'click', 'handleRefreshPlans');
             this.addListener(this.$enableSubscription, 'change', 'handleEnableSubscription');
+            this.addListener(this.$enableSingleCustomAmount, 'change', 'handleEnableSingleCustomAmount');
 
             this.handleRecurringToggle();
             this.handleAmountTypeSelect();
             this.handleSubscriptionTypeSelect();
+        },
+
+        handleEnableSingleCustomAmount: function(option) {
+            var $wrapper = $("#fields-single-plan-select-wrapper");
+            var value = $("input[name='fields[enableCustomPlanAmount]']").val();
+
+            if (value == 0){
+                $wrapper.removeClass('hidden');
+            }
+            else{
+                $wrapper.addClass('hidden');
+            }
         },
 
         handleEnableSubscription: function(option) {

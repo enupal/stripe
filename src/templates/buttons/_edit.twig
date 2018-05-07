@@ -184,22 +184,27 @@
                     </div>
                 {% endset %}
 
-                {{ forms.field({
-                    label: "Select Plan"|t('enupal-stripe'),
-                    instructions: "Select any plan created on stripe. Remember check the plan when you go live"|t('enupal-stripe'),
-                    id: 'plan',
-                    errors: stripeButton.getErrors('singlePlanInfo'),
-                }, planInput) }}
+                <div id="single-plan-select-wrapper" {% if stripeButton.enableCustomPlanAmount %}  class="hidden" {% endif %}>
+
+                    {{ forms.field({
+                        label: "Select Plan"|t('enupal-stripe'),
+                        instructions: "Select any plan created on stripe. Remember check the plan when you go live"|t('enupal-stripe'),
+                        id: 'plan',
+                        errors: stripeButton.getErrors('singlePlanInfo'),
+                    }, planInput) }}
+
+                </div>
 
                 {{ forms.lightswitchField({
                     label: "Enable Custom Amount"|t('enupal-stripe'),
-                    instructions: "This option allows the user enter a custom amount will create a new subscription plan for this customer."|t('enupal-stripe'),
+                    instructions: "This option allows the user enter a custom amount. It will create a new subscription plan for this customer."|t('enupal-stripe'),
                     id: 'enableCustomPlanAmount',
                     name: 'enableCustomPlanAmount',
                     on: stripeButton.enableCustomPlanAmount,
                     toggle: 'custom-single-plan-wrapper'
                 }) }}
                 <div id="custom-single-plan-wrapper" {% if not stripeButton.enableCustomPlanAmount %}  class="hidden" {% endif %}>
+                    <hr>
                     {{ forms.textField({
                         first: true,
                         label: "Minimum Amount"|t('enupal-stripe'),
@@ -252,6 +257,7 @@
                         label: 'Interval/Frequency'|t('enupal-stripe'),
                         errors: stripeButton.getErrors('customPlanInterval')|merge(stripeButton.getErrors('customPlanInterval')),
                     }, frequencyInput) }}
+                    <hr>
                 </div>
 
                 {{ forms.textField({
