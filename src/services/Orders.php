@@ -617,6 +617,7 @@ class Orders extends Component
             "product" => [
                 "name" => "Custom Plan from: " . $data['email'],
             ],
+            "trial_period_days" => $button->singlePlanTrialPeriod ?? '',
             "currency" => $button->currency,
             "id" => $planName
         ]);

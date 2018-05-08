@@ -73,6 +73,13 @@ class ButtonsController extends BaseController
      */
     public function actionEditButton(int $buttonId = null, StripeElement $button = null)
     {
+       # $button = Stripe::$app->buttons->getButtonById($buttonId);
+       # foreach ($button->{Stripe::$app->buttons::MULTIPLE_PLANS_HANDLE} as $item) {
+       #     Craft::dd($item->selectPlan);
+
+        #}
+        #Craft::dd($button->{Stripe::$app->buttons::MULTIPLE_PLANS_HANDLE});
+
         // Immediately create a new Slider
         if ($buttonId === null) {
             $button = Stripe::$app->buttons->createNewButton();

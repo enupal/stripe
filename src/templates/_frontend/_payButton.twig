@@ -59,7 +59,7 @@
                         </label>
                     </div>
                     <div class="input">
-                        {%- set input = craft.stripeButton.displayMultiSelect('dropdown',button.enupalMultiplePlans)  %}
+                        {%- set input = craft.stripeButton.displayMultiSelect(button.subscriptionStyle, button.enupalMultiplePlans)  %}
                         {{ input|raw }}
                     </div>
                 </section>

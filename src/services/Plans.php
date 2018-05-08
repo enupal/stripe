@@ -48,6 +48,45 @@ class Plans extends Component
         return true;
     }
 
+    /**
+     * Get all plans
+     * @throws \Throwable
+     * @throws \yii\base\InvalidConfigException
+     */
+    public function getMultiplePlansFromButton($button)
+    {
+        $options = $this->getStripePlans();
+        $finalPlans = [];
+
+        if (empty($options)){
+            return false;
+        }
+
+        $currentFieldContext = Craft::$app->getContent()->fieldContext;
+        Craft::$app->getContent()->fieldContext = 'enupalStripe:';
+        $matrixMultiplePlansField = Craft::$app->fields->getFieldByHandle(StripePlugin::$app->buttons::MULTIPLE_PLANS_HANDLE);
+
+        $matrixFields = $matrixMultiplePlansField->getBlockTypeFields();
+        foreach ($matrixFields as $matrixField) {
+            if ($matrixField->handle == 'selectPlan'){
+                foreach ($matrixField->options as $option) {
+                    if ($option['value']){
+                        $plan = $this->getStripePlan($options['value']);
+                        if ($plan){
+                            if (isset($plans['data'])) {
+                                $finalPlans[$options['value']] = $plan['data'];
+                            }
+                        }
+                    }
+                }
+                break;
+            }
+        }
+
+        Craft::$app->getContent()->fieldContext = $currentFieldContext;
+
+        return $finalPlans;
+    }
 
     /**
      * @return array

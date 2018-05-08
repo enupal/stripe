@@ -143,6 +143,12 @@ var enupalStripe = {};
                     }
                 }else{
                     // Multi-select plan
+                    // Custom plan
+                    var customPlanAmount = enupalButtonElement.find( '[name="enupalStripe[enupalMultiPlan]"]' ).val();
+
+                    if ( ( 'undefined' !== customPlanAmount ) && ( customPlanAmount > 0 ) ) {
+                        finalAmount = customPlanAmount;
+                    }
                 }
             }
 

@@ -1,7 +1,7 @@
 {%- set handle = "multi-plan-dropdown" %}
 {%- set required = false  %}
 <select
-        name="enupal_multi_plan"
+        name="enupalMultiPlan"
         id="{{ handle }}"
         class="{{ handle }}"
         required aria-required="true"
@@ -10,9 +10,8 @@
 
         {%- set optionLabel = (block.customLabel ? block.customLabel : craft.stripeButton.getDefaultPlanName(block.selectPlan)) -%}
         {%- set optionValue = (block.selectPlan is defined ? block.selectPlan : key) -%}
-        {%- set setupFee = (block.setupFee is defined and block.setupFee > 0 ? block.setupFee : '') -%}
 
-        <option data-setup-fee="{{ setupFee }}" value="{{ optionValue }}"
+        <option value="{{ optionValue }}"
         >{{ optionLabel }}</option>
     {% endfor %}
 </select>
