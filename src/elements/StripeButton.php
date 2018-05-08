@@ -21,7 +21,6 @@ use enupal\stripe\validators\DiscountValidator;
 use yii\base\ErrorHandler;
 use craft\helpers\UrlHelper;
 use craft\elements\actions\Delete;
-use Yii;
 
 use enupal\stripe\elements\db\StripeButtonsQuery;
 use enupal\stripe\records\StripeButton as StripeButtonRecord;
@@ -619,6 +618,7 @@ class StripeButton extends Element
             'subscriptionType' => $this->subscriptionType,
             'subscriptionStyle' => $this->subscriptionStyle,
             'singleSetupFee' => $this->singlePlanSetupFee,
+            'enableCustomPlanAmount' => $this->enableCustomPlanAmount,
             'stripe' => [
                 'description' => $this->name,
                 'name' => $this->companyName ?? $info->name,

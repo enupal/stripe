@@ -133,7 +133,14 @@ var enupalStripe = {};
 
                 if (subscriptionType == 0){
                     // single plan
+                    if (enupalStripeData.enableCustomPlanAmount){
+                        // Custom plan
+                        var customPlanAmount = enupalButtonElement.find( '[name="enupalStripe[customPlanAmount]"]' ).val();
 
+                        if ( ( 'undefined' !== customPlanAmount ) && ( customPlanAmount > 0 ) ) {
+                            finalAmount = customPlanAmount;
+                        }
+                    }
                 }else{
                     // Multi-select plan
                 }

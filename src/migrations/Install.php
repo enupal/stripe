@@ -73,7 +73,7 @@ class Install extends Migration
             'customPlanMinimumAmount' => $this->decimal(14, 4)->defaultValue(0),
             'customPlanDefaultAmount' => $this->decimal(14, 4),
             'customPlanInterval' => $this->integer(),
-            'customPlanFrequency' => $this->integer(),
+            'customPlanFrequency' => $this->string(),
 
             'subscriptionStyle' => $this->integer(),
             'selectPlanLabel' => $this->string(),

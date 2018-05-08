@@ -412,13 +412,22 @@ class Orders extends Component
         if ($button->enableSubscriptions){
             $planId = null;
 
-            if ($button->subscriptionType == SubscriptionType::SINGLE_PLAN){
+            if ($button->subscriptionType == SubscriptionType::SINGLE_PLAN && !$button->enableCustomPlanAmount){
                 $plan = Json::decode($button->singlePlanInfo, true);
                 $planId = $plan['id'];
+
+                // Either single plan or multiple plans the user should select one plan and plan id should be available in the post request
+                $subscription = $this->addPlanToCustomer($customer, $planId, $token, $isNew);
+                $stripeId = $subscription->id ?? null;
             }
-            // Either single plan or multiple plans the user should select one plan and plan id should be available in the post request
-            $subscription = $this->addPlanToCustomer($customer, $planId, $token, $isNew);
-            $stripeId = $subscription->id ?? null;
+
+            if ($button->subscriptionType == SubscriptionType::SINGLE_PLAN && $button->enableCustomPlanAmount) {
+                if (isset($data['customPlanAmount']) && $data['customPlanAmount'] > 0){
+                    // test what is returning we need a stripe id
+                    $subscription = $this->addCustomPlan($customer, $data, $button, $token, $isNew);
+                    $stripeId = $subscription->id ?? null;
+                }
+            }
         }else{
             // One time payment could be a subscription
             if (isset($data['recurringToggle']) && $data['recurringToggle'] == 'on'){
@@ -568,6 +577,45 @@ class Orders extends Component
             "interval" => $button->recurringPaymentType,
             "product" => [
                 "name" => "Plan for recurring payment from: " . $data['email'],
+            ],
+            "currency" => $button->currency,
+            "id" => $planName
+        ]);
+
+        // Add the plan to the customer
+        $subscriptionSettings = [
+            "plan" => $planName
+        ];
+
+        if (!$isNew){
+            $subscriptionSettings["source"] = $token;
+        }
+
+        $subscription = $customer->subscriptions->create($subscriptionSettings);
+
+        return $subscription;
+    }
+
+    /**
+     * @param $customer
+     * @param $data
+     * @param $button
+     * @param $token
+     * @param $isNew
+     * @return mixed
+     */
+    private function addCustomPlan($customer, $data, $button, $token, $isNew)
+    {
+        $currentTime = time();
+        $planName = strval($currentTime);
+
+        //Create new plan for this customer:
+        Plan::create([
+            "amount" => $data['amount'],
+            "interval" => $button->customPlanFrequency,
+            "interval_count" => $button->customPlanInterval,
+            "product" => [
+                "name" => "Custom Plan from: " . $data['email'],
             ],
             "currency" => $button->currency,
             "id" => $planName
