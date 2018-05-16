@@ -428,6 +428,17 @@ class Orders extends Component
                     $stripeId = $subscription->id ?? null;
                 }
             }
+
+            if ($button->subscriptionType == SubscriptionType::MULTIPLE_PLANS) {
+                $planId = $data['enupalMultiPlan'] ?? null;
+
+                if (is_null($planId) || empty($planId)){
+                    throw new \Exception(Craft::t('enupal-stripe','Plan Id is required'));
+                }
+
+                $subscription = $this->addPlanToCustomer($customer, $planId, $token, $isNew);
+                $stripeId = $subscription->id ?? null;
+            }
         }else{
             // One time payment could be a subscription
             if (isset($data['recurringToggle']) && $data['recurringToggle'] == 'on'){
@@ -445,7 +456,7 @@ class Orders extends Component
         }
 
         if (is_null($stripeId)){
-            Craft::error('Something went wrong making the charge Stripe Order:  CHECK PREVIOUS LOGS ', __METHOD__);
+            Craft::error('Something went wrong making the charge to Stripe. -CHECK PREVIOUS LOGS-', __METHOD__);
             return false;
         }
 

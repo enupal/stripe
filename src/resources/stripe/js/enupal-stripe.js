@@ -26,8 +26,6 @@ var enupalStripe = {};
         initializeForm: function(enupalButtonElement) {
             // get the form ID
             var enupalStripeData = $.parseJSON($(enupalButtonElement).find('[name="enupalStripe[stripeData]"]').val());
-            console.log(enupalStripeData);
-
             // reset our values
             $(enupalButtonElement).find('[name="enupalStripe[stripeData]"]').val('');
 
@@ -142,10 +140,16 @@ var enupalStripe = {};
                         }
                     }
                 }else{
-                    // Multi-select plan
                     // Custom plan
-                    var customPlanAmount = enupalButtonElement.find( '[name="enupalStripe[enupalMultiPlan]"]' ).val();
+                    var customPlanAmountId = enupalButtonElement.find( '[name="enupalStripe[enupalMultiPlan]"]' ).val();
+                    var customPlanAmount = null;
 
+                    if (customPlanAmountId in enupalStripeData.multiplePlansAmounts){
+                        customPlanAmount = enupalStripeData.multiplePlansAmounts[customPlanAmountId]['amount'];
+                        enupalStripeData.stripe['currency'] =  enupalStripeData.multiplePlansAmounts[customPlanAmountId]['currency'];
+                    }
+
+                    // Multi-select plan
                     if ( ( 'undefined' !== customPlanAmount ) && ( customPlanAmount > 0 ) ) {
                         finalAmount = customPlanAmount;
                     }

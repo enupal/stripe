@@ -593,12 +593,24 @@ class StripeButton extends Element
 
         $amount = $this->amount;
         $currency = $this->currency ?? 'USD';
+        $multiplePlansAmounts = [];
 
         if ($this->enableSubscriptions){
             if ($this->subscriptionType == SubscriptionType::SINGLE_PLAN){
                 $plan = Json::decode($this->singlePlanInfo, true);
                 $amount = $plan['amount']/100; // lets send in cents
                 $currency = $plan['currency'];
+            }else{
+                // Multiple plans
+                foreach ($this->enupalMultiplePlans as $item) {
+                    if ($item->selectPlan->value){
+                        $plan = StripePlugin::$app->plans->getStripePlan($item->selectPlan->value);
+                        if ($plan){
+                            $multiplePlansAmounts[$plan->id]['amount'] = $plan['amount']/100;
+                            $multiplePlansAmounts[$plan->id]['currency'] = $plan['currency'];
+                        }
+                    }
+                }
             }
         }
 
@@ -619,6 +631,7 @@ class StripeButton extends Element
             'subscriptionStyle' => $this->subscriptionStyle,
             'singleSetupFee' => $this->singlePlanSetupFee,
             'enableCustomPlanAmount' => $this->enableCustomPlanAmount,
+            'multiplePlansAmounts' => $multiplePlansAmounts,
             'stripe' => [
                 'description' => $this->name,
                 'name' => $this->companyName ?? $info->name,
@@ -670,8 +683,12 @@ class StripeButton extends Element
      *
      * @return string
      */
-    public function getButtonText($default = "Pay with card")
+    public function getButtonText($default = null)
     {
+        if (is_null($default)){
+            $default = "Pay with card";
+        }
+
         $buttonText = Craft::t('site', $default);
 
         if ($this->buttonText){
