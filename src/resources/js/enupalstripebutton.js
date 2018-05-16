@@ -152,11 +152,14 @@
         handleRecurringToggle: function()
         {
             var value = this.$recurringToggle.val();
+            var recurringTitle = $("#fields-one-time-payment-wrapper h6");
 
             if (value == 1){
+                recurringTitle.text("RECURRING PAYMENT");
                 this.$recurringTypeField.removeClass('hidden');
             }
             else{
+                recurringTitle.text("ONE TIME PAYMENT");
                 this.$recurringTypeField.addClass('hidden');
             }
         },
@@ -166,15 +169,18 @@
             var value = this.$amountTypeSelect.val();
             var $fieldWrapper = $("#fields-customAmountLabel-field");
             var currentAmountLabel = this.$amountLabel.html();
+            var amountLabel = $("#fields-amount-label");
 
             if (value == '0'){
                 $fieldWrapper.addClass('hidden');
+                amountLabel.text("Amount");
                 this.$minimumAmountField.addClass('hidden');
                 this.$recurringToggleField.addClass('hidden');
                 this.$recurringTypeField.addClass('hidden');
             }
             else{
                 $fieldWrapper.removeClass('hidden');
+                amountLabel.text("Default Amount");
                 this.$minimumAmountField.removeClass('hidden');
                 this.$recurringToggleField.removeClass('hidden');
                 this.$recurringTypeField.removeClass('hidden');

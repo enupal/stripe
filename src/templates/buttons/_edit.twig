@@ -122,8 +122,8 @@
             {{ forms.textField({
                 first: true,
                 label: "Payment Button Text"|t('enupal-stripe'),
-                instructions: 'Text used on displayButton tag. "Pay with card" is the default',
-                placeholder: 'Pay {{ button.getAmountAsCurrency() }}',
+                instructions: 'Text used for the pay button. "Pay with card" is the default',
+                placeholder: 'Pay with card',
                 id: 'buttonText',
                 name: 'buttonText',
                 value: stripeButton.buttonText,
