@@ -589,6 +589,7 @@ class Buttons extends Component
             $view = Craft::$app->getView();
 
             $view->setTemplatesPath($templatePath);
+
             $view->registerJsFile("https://checkout.stripe.com/checkout.js");
             $view->registerAssetBundle(StripeAsset::class);
 
