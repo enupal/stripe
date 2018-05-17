@@ -1,0 +1,28 @@
+{%- set handle = "multi-plan-radiobutton" %}
+{%- set required = false  %}
+{%- set selected = false  %}
+{%- set isSelected = false %}
+<div
+    id="{{ handle }}"
+    class="{{ handle }}">
+
+    {% for key,block in matrixField %}
+
+        {%- set label = (block.customLabel ? block.customLabel : craft.stripeButton.getDefaultPlanName(block.selectPlan)) -%}
+        {%- set optionValue = (block.selectPlan is defined ? block.selectPlan : key) -%}
+
+        {% if not selected %}
+            {% set selected = block.default %}
+        {% endif %}
+
+        <label for="{{ handle }}-{{ loop.index }}">
+            <input type="radio"
+                   name="enupalMultiPlan"
+                   id="{{ handle }}-{{ loop.index }}"
+                   required aria-required="true"
+                   {%- if selected and not isSelected %} {% set isSelected = true %} checked aria-checked="true"{% else %} aria-checked="false"{% endif %}
+            >
+            {%- if label %}{{ label|raw }}{% endif -%}
+        </label>
+    {% endfor %}
+</div>

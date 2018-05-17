@@ -306,7 +306,7 @@
                     errors: stripeButton.getErrors('selectPlanLabel'),
                     autofocus: true,
                 }) }}
-
+                <hr>
                 {% for field in fields %}
                     {% if field.handle == stripeButton.getMultiplePlansHandle() %}
                         {% include "_includes/field" with {
