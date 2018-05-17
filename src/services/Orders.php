@@ -417,7 +417,7 @@ class Orders extends Component
                 $planId = $plan['id'];
 
                 // Either single plan or multiple plans the user should select one plan and plan id should be available in the post request
-                $subscription = $this->addPlanToCustomer($customer, $planId, $token, $isNew);
+                $subscription = $this->addPlanToCustomer($customer, $planId, $token, $isNew, $data);
                 $stripeId = $subscription->id ?? null;
             }
 
@@ -436,7 +436,7 @@ class Orders extends Component
                     throw new \Exception(Craft::t('enupal-stripe','Plan Id is required'));
                 }
 
-                $subscription = $this->addPlanToCustomer($customer, $planId, $token, $isNew);
+                $subscription = $this->addPlanToCustomer($customer, $planId, $token, $isNew, $data);
                 $stripeId = $subscription->id ?? null;
             }
         }else{
@@ -546,9 +546,10 @@ class Orders extends Component
      * @param $planId
      * @param $token
      * @param $isNew
+     * @param $data
      * @return mixed
      */
-    private function addPlanToCustomer($customer, $planId, $token, $isNew)
+    private function addPlanToCustomer($customer, $planId, $token, $isNew, $data)
     {
         //Get the plan from stripe it would trow an exception if the plan does not exists
         Plan::retrieve([
@@ -563,6 +564,8 @@ class Orders extends Component
         if (!$isNew){
             $subscriptionSettings["source"] = $token;
         }
+
+        $subscriptionSettings['metadata'] = $this->getStripeMetadata($data);
 
         $subscription = $customer->subscriptions->create($subscriptionSettings);
 
@@ -601,6 +604,8 @@ class Orders extends Component
         if (!$isNew){
             $subscriptionSettings["source"] = $token;
         }
+
+        $subscriptionSettings['metadata'] = $this->getStripeMetadata($data);
 
         $subscription = $customer->subscriptions->create($subscriptionSettings);
 
@@ -641,6 +646,8 @@ class Orders extends Component
         if (!$isNew){
             $subscriptionSettings["source"] = $token;
         }
+
+        $subscriptionSettings['metadata'] = $this->getStripeMetadata($data);
 
         $subscription = $customer->subscriptions->create($subscriptionSettings);
 
@@ -709,6 +716,7 @@ class Orders extends Component
                 }
             }
         }
+        
         return $metadata;
     }
 
