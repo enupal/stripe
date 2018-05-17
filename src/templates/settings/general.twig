@@ -46,7 +46,7 @@
             }) }}
 
             <hr>
-
+            <div id="testKeys" class="{% if not settings.testMode %} hidden {% endif %}">
             {{ forms.textField({
                 label: "Test Publishable Key"|t('enupal-stripe'),
                 instructions: "This key starts with <strong>pk_test</strong>"|t('enupal-stripe'),
@@ -66,8 +66,8 @@
                 autofocus: true,
                 errors: settings.getErrors('testSecretKey')
             }) }}
-            <hr>
-
+            </div>
+            <div id="liveKeys" class="{%  if settings.testMode %} hidden {% endif %}">
             {{ forms.textField({
                 label: "Live Publishable Key"|t('enupal-stripe'),
                 instructions: "This key starts with <strong>pk_live</strong>"|t('enupal-stripe'),
@@ -87,9 +87,18 @@
                 autofocus: true,
                 errors: settings.getErrors('liveSecretKey')
             }) }}
+            </div>
 
         {% endnamespace %}
 
     </div>
 
 {% endset %}
+
+{% do view.registerAssetBundle("enupal\\stripe\\web\\assets\\SettingsAsset") %}
+
+{% js %}
+    $(document).ready(function() {
+        new EnupalStripeSettings();
+    });
+{% endjs %}
