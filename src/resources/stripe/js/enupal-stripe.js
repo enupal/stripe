@@ -141,7 +141,13 @@ var enupalStripe = {};
                     }
                 }else{
                     // Custom plan
-                    var customPlanAmountId = enupalButtonElement.find( '[name="enupalStripe[enupalMultiPlan]"]' ).val();
+                    var customPlanAmountId = null;
+                    if (enupalStripeData.subscriptionStyle == 'radio'){
+                        customPlanAmountId = $('input[name="enupalStripe[enupalMultiPlan]"]:checked').val();
+                        console.log(customPlanAmountId);
+                    }else{
+                        customPlanAmountId = enupalButtonElement.find( '[name="enupalStripe[enupalMultiPlan]"]' ).val();
+                    }
                     var customPlanAmount = null;
 
                     if (customPlanAmountId in enupalStripeData.multiplePlansAmounts){
