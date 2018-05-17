@@ -240,11 +240,24 @@ class Orders extends Component
         $subject = $view->renderString($settings->customerNotificationSubject, $variables);
         $textBody = $view->renderString("Thank you! your order number is: {{order.number}}", $variables);
 
-        // @todo add support to users change the email template
         $originalPath = $view->getTemplatesPath();
-        $view->setTemplatesPath($this->getEmailsPath());
-        $htmlBody = $view->renderTemplate('customer', $variables);
+
+        $template = 'customer';
+
+        if ($settings->customerTemplateOverride){
+            // let's check if the file exists
+            $overridePath = $originalPath.DIRECTORY_SEPARATOR.$settings->customerTemplateOverride;
+            if (file_exists($overridePath)){
+                $template = $settings->customerTemplateOverride;
+            }
+        }else{
+            $view->setTemplatesPath($this->getEmailsPath());
+        }
+
+        $htmlBody = $view->renderTemplate($template, $variables);
+
         $view->setTemplatesPath($originalPath);
+
         $message->setSubject($subject);
         $message->setHtmlBody($htmlBody);
         $message->setTextBody($textBody);
@@ -294,11 +307,23 @@ class Orders extends Component
         $subject = $view->renderString($settings->adminNotificationSubject, $variables);
         $textBody = $view->renderString("Congratulations! you have received a payment, total: {{ order.totalPrice }} order number: {{order.number}}", $variables);
 
-        // @todo add support to users change the email template
         $originalPath = $view->getTemplatesPath();
-        $view->setTemplatesPath($this->getEmailsPath());
-        $htmlBody = $view->renderTemplate('admin', $variables);
+        $template = 'admin';
+
+        if ($settings->adminTemplateOverride){
+            // let's check if the file exists
+            $overridePath = $originalPath.DIRECTORY_SEPARATOR.$settings->adminTemplateOverride;
+            if (file_exists($overridePath)){
+                $template = $settings->adminTemplateOverride;
+            }
+        }else{
+            $view->setTemplatesPath($this->getEmailsPath());
+        }
+
+        $htmlBody = $view->renderTemplate($template, $variables);
+
         $view->setTemplatesPath($originalPath);
+
         $message->setSubject($subject);
         $message->setHtmlBody($htmlBody);
         $message->setTextBody($textBody);
@@ -716,7 +741,7 @@ class Orders extends Component
                 }
             }
         }
-        
+
         return $metadata;
     }
 

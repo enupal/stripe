@@ -33,6 +33,7 @@ class Settings extends Model
     public $customerNotificationSenderEmail;
     public $customerNotificationReplyToEmail;
     public $customerNotificationTemplate;
+    public $customerTemplateOverride;
     // Notification Admin
     public $enableAdminNotification;
     public $adminNotificationRecipients;
@@ -41,6 +42,7 @@ class Settings extends Model
     public $adminNotificationSenderEmail;
     public $adminNotificationReplyToEmail;
     public $adminNotificationTemplate;
+    public $adminTemplateOverride;
 
     /**
      * @inheritdoc
