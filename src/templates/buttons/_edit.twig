@@ -150,7 +150,7 @@
             on: stripeButton.enableSubscriptions,
             toggle: 'subscriptions-wrapper'
         }) }}
-
+        <hr>
         <div id="subscriptions-wrapper" {% if not stripeButton.enableSubscriptions %} class="hidden" {% endif %}>
 
             {{ forms.selectField({
@@ -195,6 +195,31 @@
 
                 </div>
 
+                {{ forms.textField({
+                    first: true,
+                    label: "Plan Setup Fee"|t('enupal-stripe'),
+                    id: 'singlePlanSetupFee',
+                    instructions: 'Setup Fee for the first payment',
+                    name: 'singlePlanSetupFee',
+                    placeholder: 'Enter amount',
+                    unit: stripeButton.currency,
+                    value: (stripeButton.singlePlanSetupFee == '0' ? '0'|number : (stripeButton.singlePlanSetupFee ? stripeButton.singlePlanSetupFee|number ?: '')),
+                    errors: stripeButton.getErrors('singlePlanSetupFee'),
+                    autofocus: true,
+                }) }}
+
+                {{ forms.textField({
+                    first: true,
+                    label: "Free trial Period"|t('enupal-stripe'),
+                    instructions: "Specifies a trial period in (an integer number of) days. If you include a trial period, the customer won’t be billed for the first time until the trial period ends. If the customer cancels before the trial period is over, she’ll never be billed at all.",
+                    id: 'singlePlanTrialPeriod',
+                    name: 'singlePlanTrialPeriod',
+                    unit: 'Days',
+                    value: stripeButton.singlePlanTrialPeriod,
+                    errors: stripeButton.getErrors('singlePlanTrialPeriod'),
+                    autofocus: true,
+                }) }}
+
                 {{ forms.lightswitchField({
                     label: "Enable Custom Amount"|t('enupal-stripe'),
                     instructions: "This option allows the user enter a custom amount. It will create a new subscription plan for this customer."|t('enupal-stripe'),
@@ -230,25 +255,25 @@
                     }) }}
 
                     {% set frequencyInput %}
-                    <div class="flex">
-                        <div class="textwrapper">
-                            {{ forms.text({
-                                label: "Interval"|t('enupal-stripe'),
-                                id: 'customPlanInterval',
-                                name: 'customPlanInterval',
-                                placeholder: 'Enter interval'|t('enupal-stripe'),
-                                value: stripeButton.customPlanInterval ?? 1
-                            }) }}
+                        <div class="flex">
+                            <div class="textwrapper">
+                                {{ forms.text({
+                                    label: "Interval"|t('enupal-stripe'),
+                                    id: 'customPlanInterval',
+                                    name: 'customPlanInterval',
+                                    placeholder: 'Enter interval'|t('enupal-stripe'),
+                                    value: stripeButton.customPlanInterval ?? 1
+                                }) }}
+                            </div>
+                            <div class="textwrapper">
+                                {{ forms.selectField({
+                                    id: 'customPlanInterval',
+                                    name: 'customPlanFrequency',
+                                    options: frequencyOptions,
+                                    value: stripeButton.customPlanInterval
+                                }) }}
+                            </div>
                         </div>
-                        <div class="textwrapper">
-                            {{ forms.selectField({
-                                id: 'customPlanInterval',
-                                name: 'customPlanFrequency',
-                                options: frequencyOptions,
-                                value: stripeButton.customPlanInterval
-                            }) }}
-                        </div>
-                    </div>
                     {% endset %}
 
                     {{ forms.field({
@@ -259,31 +284,6 @@
                     }, frequencyInput) }}
                     <hr>
                 </div>
-
-                {{ forms.textField({
-                    first: true,
-                    label: "Plan Setup Fee"|t('enupal-stripe'),
-                    id: 'singlePlanSetupFee',
-                    instructions: 'Setup Fee for the first payment',
-                    name: 'singlePlanSetupFee',
-                    placeholder: 'Enter amount',
-                    unit: stripeButton.currency,
-                    value: (stripeButton.singlePlanSetupFee == '0' ? '0'|number : (stripeButton.singlePlanSetupFee ? stripeButton.singlePlanSetupFee|number ?: '')),
-                    errors: stripeButton.getErrors('singlePlanSetupFee'),
-                    autofocus: true,
-                }) }}
-
-                {{ forms.textField({
-                    first: true,
-                    label: "Free trial Period"|t('enupal-stripe'),
-                    instructions: "Specifies a trial period in (an integer number of) days. If you include a trial period, the customer won’t be billed for the first time until the trial period ends. If the customer cancels before the trial period is over, she’ll never be billed at all.",
-                    id: 'singlePlanTrialPeriod',
-                    name: 'singlePlanTrialPeriod',
-                    unit: 'Days',
-                    value: stripeButton.singlePlanTrialPeriod,
-                    errors: stripeButton.getErrors('singlePlanTrialPeriod'),
-                    autofocus: true,
-                }) }}
             </div>
 
             <div id="multiple-subscriptions-wrapper" {% if stripeButton.subscriptionType != 1 %}  class="hidden" {% endif %}>

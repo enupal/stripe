@@ -38,7 +38,7 @@
     "stripe/stripe-php": "^6.6.0"
   },
   "extra": {
-    "name": "Stripe",
+    "name": "Craft Pay",
     "handle": "enupal-stripe",
     "schemaVersion": "1.0.0",
     "hasSettings": true,

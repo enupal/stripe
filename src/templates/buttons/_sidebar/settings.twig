@@ -23,7 +23,7 @@
     }) }}
 
     {{ forms.selectField({
-        label: "Language <span class='info'>PayPal currently supports 18 languages</span>"|t('enupal-stripe'),
+        label: "Language <span class='info'>Stripe currently supports 12 languages</span>"|t('enupal-stripe'),
         id: 'language',
         name: 'language',
         options: languageOptions,
@@ -115,7 +115,7 @@
 </div>
 <hr>
 <div class="meta">
-    <h6>{{ 'Stock'|t('sprout-forms') }}</h6>
+    <h6>{{ 'Inventory'|t('sprout-forms') }}</h6>
     {% set stockInput %}
         <div class="flex">
             <div class="textwrapper">
@@ -144,14 +144,8 @@
         label: 'Stock'|t('enupal-stripe'),
         errors: stripeButton.getErrors('hasUnlimitedStock')|merge(stripeButton.getErrors('quantity')),
     }, stockInput) }}
-
-    {{ forms.lightswitchField({
-        label: "Customer Quantity <span class='info'>Enables buyers to specify the quantity.</span>"|t('enupal-stripe'),
-        id: 'customerQuantity',
-        name: 'customerQuantity',
-        on: stripeButton.customerQuantity
-    }) }}
 </div>
+{# Disable discounts for now
 <hr>
 <div class="meta">
     <h6>{{ 'Discount'|t('sprout-forms') }}</h6>
@@ -173,6 +167,7 @@
         autofocus: true,
     }) }}
 </div>
+#}
 <hr>
 <div class="meta">
     <h6>{{ 'Shipping'|t('sprout-forms') }}</h6>
@@ -197,7 +192,7 @@
         name: 'verifyZip',
         on: stripeButton.verifyZip
     }) }}
-
+    {#
     {{ forms.textField({
         first: true,
         label: "Shipping <span class='info'>Shipping amount, leave empty if is free shipping</span>"|t('enupal-stripe'),
@@ -209,6 +204,7 @@
         errors: stripeButton.getErrors('shippingAmount'),
         autofocus: true,
     }) }}
+    #}
 </div>
 <hr>
 <div class="meta">
