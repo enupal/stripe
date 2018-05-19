@@ -243,14 +243,21 @@ class Orders extends Component
         $originalPath = $view->getTemplatesPath();
 
         $template = 'customer';
+        $templateOverride = null;
+        $extensions = ['.html', '.twig'];
 
         if ($settings->customerTemplateOverride){
             // let's check if the file exists
             $overridePath = $originalPath.DIRECTORY_SEPARATOR.$settings->customerTemplateOverride;
-            if (file_exists($overridePath)){
-                $template = $settings->customerTemplateOverride;
+            foreach ($extensions as $extension) {
+                if (file_exists($overridePath.$extension)){
+                    $templateOverride = $settings->customerTemplateOverride;
+                    $template = $templateOverride;
+                }
             }
-        }else{
+        }
+
+        if (is_null($templateOverride)){
             $view->setTemplatesPath($this->getEmailsPath());
         }
 
@@ -309,14 +316,21 @@ class Orders extends Component
 
         $originalPath = $view->getTemplatesPath();
         $template = 'admin';
+        $templateOverride = null;
+        $extensions = ['.html', '.twig'];
 
         if ($settings->adminTemplateOverride){
             // let's check if the file exists
             $overridePath = $originalPath.DIRECTORY_SEPARATOR.$settings->adminTemplateOverride;
-            if (file_exists($overridePath)){
-                $template = $settings->adminTemplateOverride;
+            foreach ($extensions as $extension) {
+                if (file_exists($overridePath.$extension)){
+                    $templateOverride = $settings->adminTemplateOverride;
+                    $template = $templateOverride;
+                }
             }
-        }else{
+        }
+
+        if (is_null($templateOverride)){
             $view->setTemplatesPath($this->getEmailsPath());
         }
 

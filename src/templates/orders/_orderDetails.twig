@@ -29,7 +29,7 @@
             <td>
             </td>
         </tr>
-                {# SHIPPING AND TAX #}
+                {# SHIPPING AND TAX
                 <tr>
                     <td></td>
                     <td>
@@ -69,12 +69,17 @@
                     </td>
                     <td></td>
                 </tr>
+                #}
 
         <tr>
             <td></td>
             <td>
                 <div class="isPaid">
-                    <span>{{ 'PAID'|t('enupal-stripe') }}</div>
+                    {% if order.getButton().enableSubscriptions %}
+                        <span>{{ 'SUBSCRIBED'|t('enupal-stripe') }}</div>
+                    {% else %}
+                        <span>{{ 'PAID'|t('enupal-stripe') }}</div>
+                    {% endif %}
             </td>
             <td></td>
             <td></td>
