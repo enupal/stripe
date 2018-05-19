@@ -69,9 +69,17 @@ var enupalStripe = {};
 
             // Pay Button clicked
             enupalButtonElement.find('.enupal-stripe-button').on('click', function(e) {
-                e.preventDefault();
-
-                enupalStripe.submitPayment(enupalButtonElement, enupalStripeData, stripeHandler);
+                var form = enupalButtonElement[0];
+                if (!form.checkValidity()) {
+                    if (form.reportValidity) {
+                        form.reportValidity();
+                    } else {
+                        //warn IE users somehow
+                    }
+                }else{
+                    e.preventDefault();
+                    enupalStripe.submitPayment(enupalButtonElement, enupalStripeData, stripeHandler);
+                }
             });
         },
 

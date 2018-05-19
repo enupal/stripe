@@ -1,6 +1,5 @@
 {%- set handle = craft.stripeButton.labelToHandle(block.label) %}
-{%- set required = false  %}
-
+{%- set required = block.required  %}
 
 <input type="text"
         name="metadata[{{ handle }}]"

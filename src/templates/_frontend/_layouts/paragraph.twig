@@ -1,5 +1,5 @@
 {%- set handle = craft.stripeButton.labelToHandle(block.label) %}
-{%- set required = false  %}
+{%- set required = block.required  %}
 {%- set initialRows = block.initialRows ? block.initialRows : 10 %}
 
 <textarea aria-multiline="true"
