@@ -587,7 +587,7 @@ class Buttons extends Component
         }
 
         if ($button) {
-            if (!$button->hasUnlimitedStock && (int)$button->quantity < 0) {
+            if (!$button->hasUnlimitedStock && (int)$button->quantity <= 0) {
                 $buttonHtml = '<span class="error">Out of Stock</span>';
 
                 return TemplateHelper::raw($buttonHtml);
