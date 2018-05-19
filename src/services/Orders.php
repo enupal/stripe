@@ -19,6 +19,7 @@ use enupal\stripe\events\OrderCompleteEvent;
 use Stripe\Charge;
 use Stripe\Customer;
 use Stripe\Error\Card;
+use Stripe\InvoiceItem;
 use Stripe\Plan;
 use yii\base\Component;
 use enupal\stripe\Stripe as StripePlugin;
@@ -487,6 +488,11 @@ class Orders extends Component
                 $plan = Json::decode($button->singlePlanInfo, true);
                 $planId = $plan['id'];
 
+                // Lets create an invoice item if there is a setup fee
+                if ($button->singlePlanSetupFee){
+                    $this->addOneTimeSetupFee($customer, $button->singlePlanSetupFee, $button);
+                }
+
                 // Either single plan or multiple plans the user should select one plan and plan id should be available in the post request
                 $subscription = $this->addPlanToCustomer($customer, $planId, $token, $isNew, $data);
                 $stripeId = $subscription->id ?? null;
@@ -494,6 +500,10 @@ class Orders extends Component
 
             if ($button->subscriptionType == SubscriptionType::SINGLE_PLAN && $button->enableCustomPlanAmount) {
                 if (isset($data['customPlanAmount']) && $data['customPlanAmount'] > 0){
+                    // Lets create an invoice item if there is a setup fee
+                    if ($button->singlePlanSetupFee){
+                        $this->addOneTimeSetupFee($customer, $button->singlePlanSetupFee, $button);
+                    }
                     // test what is returning we need a stripe id
                     $subscription = $this->addCustomPlan($customer, $data, $button, $token, $isNew);
                     $stripeId = $subscription->id ?? null;
@@ -505,6 +515,14 @@ class Orders extends Component
 
                 if (is_null($planId) || empty($planId)){
                     throw new \Exception(Craft::t('enupal-stripe','Plan Id is required'));
+                }
+
+                foreach ($button->enupalMultiplePlans as $plan) {
+                    if ($plan->selectPlan == $planId){
+                        if ($plan->setupFee){
+                            $this->addOneTimeSetupFee($customer, $plan->setupFee, $button);
+                        }
+                    }
                 }
 
                 $subscription = $this->addPlanToCustomer($customer, $planId, $token, $isNew, $data);
@@ -723,6 +741,18 @@ class Orders extends Component
         $subscription = $customer->subscriptions->create($subscriptionSettings);
 
         return $subscription;
+    }
+
+    private function addOneTimeSetupFee($customer, $amount, $button)
+    {
+        InvoiceItem::create(
+            [
+                "customer" => $customer->id,
+                "amount" => ($amount*100),
+                "currency" => $button->currency,
+                "description" => "One-time setup fee: ".$button->name
+            ]
+        );
     }
 
     /**

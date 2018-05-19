@@ -576,8 +576,14 @@ class Buttons extends Component
         $buttonHtml = null;
         $settings = StripePlugin::$app->settings->getSettings();
 
-        if (!$settings->testPublishableKey || !$settings->livePublishableKey) {
-            return StripePlugin::t("Please add a valid Stripe account in the plugin settings");
+        if ($settings->testMode){
+            if (!$settings->testPublishableKey || !$settings->testSecretKey) {
+                return StripePlugin::t("Please add a valid Stripe account in the plugin settings");
+            }
+        }else{
+            if (!$settings->livePublishableKey || !$settings->liveSecretKey) {
+                return StripePlugin::t("Please add a valid Stripe account in the plugin settings");
+            }
         }
 
         if ($button) {

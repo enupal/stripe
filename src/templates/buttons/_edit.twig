@@ -219,18 +219,6 @@
                     autofocus: true,
                 }) }}
 
-                {{ forms.textField({
-                    first: true,
-                    label: "Free trial Period"|t('enupal-stripe'),
-                    instructions: "Specifies a trial period in (an integer number of) days. If you include a trial period, the customer won’t be billed for the first time until the trial period ends. If the customer cancels before the trial period is over, she’ll never be billed at all.",
-                    id: 'singlePlanTrialPeriod',
-                    name: 'singlePlanTrialPeriod',
-                    unit: 'Days',
-                    value: stripeButton.singlePlanTrialPeriod,
-                    errors: stripeButton.getErrors('singlePlanTrialPeriod'),
-                    autofocus: true,
-                }) }}
-
                 {{ forms.lightswitchField({
                     label: "Enable Custom Amount"|t('enupal-stripe'),
                     instructions: "This option allows the user enter a custom amount. It will create a new subscription plan for this customer."|t('enupal-stripe'),
@@ -293,7 +281,18 @@
                         label: 'Interval/Frequency'|t('enupal-stripe'),
                         errors: stripeButton.getErrors('customPlanInterval')|merge(stripeButton.getErrors('customPlanInterval')),
                     }, frequencyInput) }}
-                    <hr>
+
+                    {{ forms.textField({
+                        first: true,
+                        label: "Free trial Period"|t('enupal-stripe'),
+                        instructions: "Specifies a trial period in (an integer number of) days. If you include a trial period, the customer won’t be billed for the first time until the trial period ends. If the customer cancels before the trial period is over, she’ll never be billed at all.",
+                        id: 'singlePlanTrialPeriod',
+                        name: 'singlePlanTrialPeriod',
+                        unit: 'Days',
+                        value: stripeButton.singlePlanTrialPeriod,
+                        errors: stripeButton.getErrors('singlePlanTrialPeriod'),
+                        autofocus: true,
+                    }) }}
                 </div>
             </div>
 
