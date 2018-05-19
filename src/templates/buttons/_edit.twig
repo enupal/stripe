@@ -132,6 +132,17 @@
 
             {{ forms.textField({
                 first: true,
+                label: "Checkout Button Text"|t('enupal-stripe'),
+                instructions: 'Text used for the final checkout button. You can use {{amount}} to add the final amount to charge.',
+                placeholder: 'Pay {{amount}}',
+                id: 'checkoutButtonText',
+                name: 'checkoutButtonText',
+                value: stripeButton.checkoutButtonText,
+                errors: stripeButton.getErrors('checkoutButtonText')
+            }) }}
+
+            {{ forms.textField({
+                first: true,
                 label: "Payment Button Processing Text"|t('enupal-stripe'),
                 instructions: 'Text used when the payment is processing',
                 placeholder: 'Please wait...',

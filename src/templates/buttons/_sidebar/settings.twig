@@ -219,4 +219,13 @@
         autofocus: true,
         errors: stripeButton.getErrors('returnUrl')
     }) }}
+
+    {{ forms.textField({
+        label: "Button Class <span class='info'>Add custom classes to your pay button</span>"|t('enupal-stripe'),
+        id: 'buttonClass',
+        name: 'buttonClass',
+        value: stripeButton.buttonClass,
+        autofocus: true,
+        errors: stripeButton.getErrors('buttonClass')
+    }) }}
 </div>

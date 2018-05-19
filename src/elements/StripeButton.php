@@ -87,6 +87,7 @@ class StripeButton extends Element
     // Button
     public $buttonText;
     public $paymentButtonProcessingText;
+    public $checkoutButtonText;
     public $returnUrl;
     // Subscriptions
     public $enableSubscriptions;
@@ -113,6 +114,8 @@ class StripeButton extends Element
 
     public $enableRecurringPayment;
     public $recurringPaymentType;
+
+    public $buttonClass;
 
     protected $env;
     protected $paypalUrl;
@@ -522,6 +525,9 @@ class StripeButton extends Element
         $record->enableRecurringPayment = $this->enableRecurringPayment;
         $record->recurringPaymentType = $this->recurringPaymentType;
 
+        $record->buttonClass = $this->buttonClass;
+        $record->checkoutButtonText = $this->checkoutButtonText;
+
         $record->returnUrl = $this->returnUrl;
         $record->buttonText = $this->buttonText;
         $record->paymentButtonProcessingText = $this->paymentButtonProcessingText;
@@ -634,6 +640,7 @@ class StripeButton extends Element
             'multiplePlansAmounts' => $multiplePlansAmounts,
             'stripe' => [
                 'description' => $this->name,
+                'panel-label' =>  $this->checkoutButtonText ?? 'Pay {{amount}}',
                 'name' => $this->companyName ?? $info->name,
                 'currency' => $currency,
                 'locale' => $this->language,

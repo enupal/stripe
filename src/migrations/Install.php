@@ -98,9 +98,11 @@ class Install extends Migration
             'showItemPrice' => $this->boolean()->defaultValue(0),
             'showItemCurrency' => $this->boolean()->defaultValue(0),
             'returnUrl' => $this->string(),
+            'buttonClass' => $this->string(),
             // Button
             'buttonText' => $this->string(),
             'paymentButtonProcessingText' => $this->string(),
+            'checkoutButtonText' => $this->string(),
             //
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),

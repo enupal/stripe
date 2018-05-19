@@ -85,7 +85,6 @@
 
         {% else %}
             {# Susbscription Pay logic #}
-
             {% if button.subscriptionType == 0 %}
                 {# Single Plan #}
                 {% if button.enableCustomPlanAmount %}
@@ -116,15 +115,11 @@
                         </section>
                     </div>
                 {% endif %}
-
             {% endif %}
-
         {% endif %}
-
         {# ENDS FIELD LOGIC #}
-
         {% endnamespace %}
 
-        <button class="enupal-stripe-button"><span>{{ button.getButtonText() }}</span></button>
+        <button class="{{ button.buttonClass }}"><span>{{ button.getButtonText() }}</span></button>
     </form>
 {% endspaceless %}

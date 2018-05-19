@@ -134,6 +134,8 @@ class StripeButtonsQuery extends ElementQuery
             'enupalstripe_buttons.returnUrl',
             'enupalstripe_buttons.buttonText',
             'enupalstripe_buttons.paymentButtonProcessingText',
+            'enupalstripe_buttons.checkoutButtonText',
+            'enupalstripe_buttons.buttonClass',
         ]);
 
         if ($this->name) {
