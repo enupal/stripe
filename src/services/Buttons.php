@@ -402,7 +402,6 @@ class Buttons extends Component
         return $button;
     }
 
-
     /**
      * This service allows add the variant to a PayPal button
      *

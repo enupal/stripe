@@ -14,12 +14,12 @@ use craft\mail\Message;
 use enupal\stripe\elements\Order;
 use enupal\stripe\enums\OrderStatus;
 use enupal\stripe\enums\SubscriptionType;
+use enupal\stripe\events\NotificationEvent;
 use enupal\stripe\events\OrderCompleteEvent;
 use Stripe\Charge;
 use Stripe\Customer;
 use Stripe\Error\Card;
 use Stripe\Plan;
-use Stripe\Stripe;
 use yii\base\Component;
 use enupal\stripe\Stripe as StripePlugin;
 use enupal\stripe\records\Order as OrderRecord;
@@ -44,6 +44,24 @@ class Orders extends Component
      * ```
      */
     const EVENT_AFTER_ORDER_COMPLETE = 'afterOrderComplete';
+
+    /**
+     * @event NotificationEvent The event that is triggered before a notification is send
+     *
+     * Plugins can get notified before a notification email is send
+     *
+     * ```php
+     * use enupal\stripe\events\NotificationEvent;
+     * use enupal\stripe\services\Orders;
+     * use yii\base\Event;
+     *
+     * Event::on(Orders::class, Orders::EVENT_BEFORE_SEND_NOTIFICATION_EMAIL, function(NotificationEvent $e) {
+     *      $message = $e->message;
+     *     // Do something
+     * });
+     * ```
+     */
+    const EVENT_BEFORE_SEND_NOTIFICATION_EMAIL = 'beforeSendNotificationEmail';
 
     /**
      * Returns a Order model if one is found in the database by id
@@ -275,6 +293,13 @@ class Orders extends Component
 
         $mailer = Craft::$app->getMailer();
 
+        $event = new NotificationEvent([
+            'message' => $message,
+            'type' => 'customer'
+        ]);
+
+        $this->trigger(self::EVENT_BEFORE_SEND_NOTIFICATION_EMAIL, $event);
+
         try {
             $result = $mailer->send($message);
         } catch (\Throwable $e) {
@@ -347,6 +372,13 @@ class Orders extends Component
         $message->setTo($emails);
 
         $mailer = Craft::$app->getMailer();
+
+        $event = new NotificationEvent([
+            'message' => $message,
+            'type' => 'admin'
+        ]);
+
+        $this->trigger(self::EVENT_BEFORE_SEND_NOTIFICATION_EMAIL, $event);
 
         try {
             $result = $mailer->send($message);
