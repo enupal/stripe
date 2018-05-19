@@ -115,6 +115,7 @@ var enupalStripe = {};
         getFinalAmount: function(enupalButtonElement, enupalStripeData){
             // We always return a default amount
             var finalAmount = finalAmount = enupalStripeData.stripe.amount;
+            var fee = 0;
 
             if (!enupalStripeData.enableSubscriptions){
                 // Check if custom amount
@@ -130,6 +131,10 @@ var enupalStripe = {};
                 var subscriptionType = enupalStripeData.subscriptionType;
 
                 if (subscriptionType == 0){
+
+                    if (enupalStripeData.singleSetupFee > 0){
+                        fee = enupalStripeData.singleSetupFee;
+                    }
                     // single plan
                     if (enupalStripeData.enableCustomPlanAmount){
                         // Custom plan
@@ -144,7 +149,6 @@ var enupalStripe = {};
                     var customPlanAmountId = null;
                     if (enupalStripeData.subscriptionStyle == 'radio'){
                         customPlanAmountId = $('input[name="enupalStripe[enupalMultiPlan]"]:checked').val();
-                        console.log(customPlanAmountId);
                     }else{
                         customPlanAmountId = enupalButtonElement.find( '[name="enupalStripe[enupalMultiPlan]"]' ).val();
                     }
@@ -155,6 +159,14 @@ var enupalStripe = {};
                         enupalStripeData.stripe['currency'] =  enupalStripeData.multiplePlansAmounts[customPlanAmountId]['currency'];
                     }
 
+                    if (customPlanAmountId in enupalStripeData.setupFees){
+                        var multiplePlanFee = enupalStripeData.setupFees[customPlanAmountId];
+
+                        if (multiplePlanFee > 0){
+                            fee = multiplePlanFee;
+                        }
+                    }
+
                     // Multi-select plan
                     if ( ( 'undefined' !== customPlanAmount ) && ( customPlanAmount > 0 ) ) {
                         finalAmount = customPlanAmount;
@@ -162,7 +174,7 @@ var enupalStripe = {};
                 }
             }
 
-            return finalAmount;
+            return parseFloat(finalAmount) + parseFloat(fee);
         },
 
         convertToCents: function(amount) {

@@ -517,12 +517,10 @@ class Orders extends Component
                     throw new \Exception(Craft::t('enupal-stripe','Plan Id is required'));
                 }
 
-                foreach ($button->enupalMultiplePlans as $plan) {
-                    if ($plan->selectPlan == $planId){
-                        if ($plan->setupFee){
-                            $this->addOneTimeSetupFee($customer, $plan->setupFee, $button);
-                        }
-                    }
+                $setupFee = $this->getSetupFeeFromMatrix($planId, $button);
+
+                if ($setupFee){
+                    $this->addOneTimeSetupFee($customer, $setupFee, $button);
                 }
 
                 $subscription = $this->addPlanToCustomer($customer, $planId, $token, $isNew, $data);
@@ -574,6 +572,25 @@ class Orders extends Component
         Craft::info('Enupal Stripe - Order Created: '.$order->number);
 
         return true;
+    }
+
+
+    /**
+     * @param $planId
+     * @param $button
+     * @return null
+     */
+    public function getSetupFeeFromMatrix($planId, $button)
+    {
+        foreach ($button->enupalMultiplePlans as $plan) {
+            if ($plan->selectPlan == $planId){
+                if ($plan->setupFee){
+                    return $plan->setupFee;
+                }
+            }
+        }
+
+        return null;
     }
 
     private function stripeCharge($data, $button, $customer, $isNew, $token)

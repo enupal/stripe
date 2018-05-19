@@ -600,6 +600,7 @@ class StripeButton extends Element
         $amount = $this->amount;
         $currency = $this->currency ?? 'USD';
         $multiplePlansAmounts = [];
+        $setupFees = [];
 
         if ($this->enableSubscriptions){
             if ($this->subscriptionType == SubscriptionType::SINGLE_PLAN){
@@ -614,6 +615,8 @@ class StripeButton extends Element
                         if ($plan){
                             $multiplePlansAmounts[$plan->id]['amount'] = $plan['amount']/100;
                             $multiplePlansAmounts[$plan->id]['currency'] = $plan['currency'];
+                            $setupFee = StripePlugin::$app->orders->getSetupFeeFromMatrix($plan->id, $this);
+                            $setupFees[$plan->id] = $setupFee;
                         }
                     }
                 }
@@ -638,6 +641,7 @@ class StripeButton extends Element
             'singleSetupFee' => $this->singlePlanSetupFee,
             'enableCustomPlanAmount' => $this->enableCustomPlanAmount,
             'multiplePlansAmounts' => $multiplePlansAmounts,
+            'setupFees' => $setupFees,
             'stripe' => [
                 'description' => $this->name,
                 'panel-label' =>  $this->checkoutButtonText ?? 'Pay {{amount}}',
