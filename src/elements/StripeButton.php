@@ -644,7 +644,7 @@ class StripeButton extends Element
             'setupFees' => $setupFees,
             'stripe' => [
                 'description' => $this->name,
-                'panel-label' =>  $this->checkoutButtonText ?? 'Pay {{amount}}',
+                'panelLabel' =>  $this->checkoutButtonText ?? 'Pay {{amount}}',
                 'name' => $this->companyName ?? $info->name,
                 'currency' => $currency,
                 'locale' => $this->language,
