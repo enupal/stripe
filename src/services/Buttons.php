@@ -18,6 +18,7 @@ use craft\fields\PlainText;
 use craft\fields\Table;
 use craft\helpers\FileHelper;
 use craft\helpers\Json;
+use craft\helpers\UrlHelper;
 use enupal\stripe\enums\SubscriptionType;
 use enupal\stripe\web\assets\StripeAsset;
 use enupal\stripe\elements\StripeButton;
@@ -692,6 +693,15 @@ class Buttons extends Component
                             'required' => 0,
                             'typesettings' => '{"placeholder":"","code":"","multiline":"","initialRows":"4","charLimit":"","columnType":"text"}',
                             'translationMethod' => Field::TRANSLATION_METHOD_SITE,
+                        ],
+                        'new3' => [
+                            'type' => Lightswitch::class,
+                            'name' => 'Required',
+                            'handle' => 'required',
+                            'instructions' => 'This field is required?',
+                            'required' => 0,
+                            'typesettings' => '{"default":""}',
+                            'translationMethod' => Field::TRANSLATION_METHOD_SITE,
                         ]
                     ]
                 ],
@@ -725,6 +735,15 @@ class Buttons extends Component
                             'required' => 1,
                             'typesettings' => '{"min":"2","max":null,"decimals":"0","size":null}',
                             'translationMethod' => Field::TRANSLATION_METHOD_SITE,
+                        ],
+                        'new4' => [
+                            'type' => Lightswitch::class,
+                            'name' => 'Required',
+                            'handle' => 'required',
+                            'instructions' => 'This field is required?',
+                            'required' => 0,
+                            'typesettings' => '{"default":""}',
+                            'translationMethod' => Field::TRANSLATION_METHOD_SITE,
                         ]
                     ]
                 ],
@@ -750,6 +769,15 @@ class Buttons extends Component
                             'typesettings' => '{"addRowLabel":"Add an option","maxRows":"","minRows":"1","columns":{"col1":{"heading":"Option Label","handle":"optionLabel","width":"","type":"singleline"},"col2":{"heading":"Value","handle":"value","width":"","type":"singleline"}},"defaults":{"row1":{"col1":"","col2":""}},"columnType":"text"}',
                             'translationMethod' => Field::TRANSLATION_METHOD_SITE,
                         ],
+                        'new3' => [
+                            'type' => Lightswitch::class,
+                            'name' => 'Required',
+                            'handle' => 'required',
+                            'instructions' => 'This field is required?',
+                            'required' => 0,
+                            'typesettings' => '{"default":""}',
+                            'translationMethod' => Field::TRANSLATION_METHOD_SITE,
+                        ]
                     ]
                 ],
                 'new4' => [
@@ -774,6 +802,15 @@ class Buttons extends Component
                             'typesettings' => '{"addRowLabel":"Add an option","maxRows":"","minRows":"1","columns":{"col1":{"heading":"Option Label","handle":"optionLabel","width":"","type":"singleline"},"col2":{"heading":"Value","handle":"value","width":"","type":"singleline"}},"defaults":{"row1":{"col1":"","col2":""}},"columnType":"text"}',
                             'translationMethod' => Field::TRANSLATION_METHOD_SITE,
                         ],
+                        'new3' => [
+                            'type' => Lightswitch::class,
+                            'name' => 'Required',
+                            'handle' => 'required',
+                            'instructions' => 'This field is required?',
+                            'required' => 0,
+                            'typesettings' => '{"default":""}',
+                            'translationMethod' => Field::TRANSLATION_METHOD_SITE,
+                        ]
                     ]
                 ],
                 'new5' => [
@@ -807,6 +844,15 @@ class Buttons extends Component
                             'typesettings' => '{"min":null,"max":null,"decimals":"0","size":null}',
                             'translationMethod' => Field::TRANSLATION_METHOD_SITE,
                         ],
+                        'new3' => [
+                            'type' => Lightswitch::class,
+                            'name' => 'Required',
+                            'handle' => 'required',
+                            'instructions' => 'This field is required?',
+                            'required' => 0,
+                            'typesettings' => '{"default":""}',
+                            'translationMethod' => Field::TRANSLATION_METHOD_SITE,
+                        ]
                     ]
                 ],
                 'new6' => [
@@ -831,6 +877,15 @@ class Buttons extends Component
                             'typesettings' => '{"addRowLabel":"Add an option","maxRows":"","minRows":"1","columns":{"col1":{"heading":"Option Label","handle":"optionLabel","width":"","type":"singleline"},"col2":{"heading":"Value","handle":"value","width":"","type":"singleline"}},"defaults":{"row1":{"col1":"","col2":""}},"columnType":"text"}',
                             'translationMethod' => Field::TRANSLATION_METHOD_SITE,
                         ],
+                        'new3' => [
+                            'type' => Lightswitch::class,
+                            'name' => 'Required',
+                            'handle' => 'required',
+                            'instructions' => 'This field is required?',
+                            'required' => 0,
+                            'typesettings' => '{"default":""}',
+                            'translationMethod' => Field::TRANSLATION_METHOD_SITE,
+                        ]
                     ]
                 ],
             ]
@@ -867,6 +922,8 @@ class Buttons extends Component
     {
         $fieldsService = Craft::$app->getFields();
 
+        $subscriptionUrl = UrlHelper::cpUrl('enupal-stripe/settings/subscriptions');
+
         $matrixSettings = [
             'minBlocks' => "",
             'maxBlocks' => "",
@@ -879,7 +936,7 @@ class Buttons extends Component
                             'type' => Dropdown::class,
                             'name' => 'Select Plan',
                             'handle' => 'selectPlan',
-                            'instructions' => "Can't see your plans? Go to Settings -> Subscriptions and click on Refresh Plans",
+                            'instructions' => "Can't see your plans? Go to [Subscriptions]($subscriptionUrl) and click on Refresh Plans",
                             'required' => 1,
                             'typesettings' => '{"options":[{"label":"Select Plan...","value":"","default":""}]}',
                             'translationMethod' => Field::TRANSLATION_METHOD_SITE,

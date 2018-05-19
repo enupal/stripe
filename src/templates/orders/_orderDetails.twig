@@ -75,11 +75,8 @@
             <td></td>
             <td>
                 <div class="isPaid">
-                    {% if order.getButton().enableSubscriptions %}
-                        <span>{{ 'SUBSCRIBED'|t('enupal-stripe') }}</div>
-                    {% else %}
-                        <span>{{ 'PAID'|t('enupal-stripe') }}</div>
-                    {% endif %}
+                    <span>{{ 'PAID'|t('enupal-stripe') }}</span>
+                </div>
             </td>
             <td></td>
             <td></td>
