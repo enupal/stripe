@@ -87,9 +87,11 @@
 
             Craft.postActionRequest('enupal-stripe/buttons/refresh-plans', {}, function(response, textStatus) {
                 that.$refreshPlansButton.removeClass('disabled').siblings('.spinner').addClass('hidden');
-
                 if (textStatus === 'success') {
-                    if (response.plans.length > 0) {
+                    if ("error" in response ){
+                        Craft.cp.displayError(Craft.t('enupal-stripe', response.error));
+                    }
+                    else if (response.plans.length > 0) {
                         var currentPlan = $planSelect.val(),
                             currentPlanStillExists = false;
 

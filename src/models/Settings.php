@@ -52,7 +52,15 @@ class Settings extends Model
         return [
             [
                 ['livePublishableKey', 'liveSecretKey'],
-                'required', 'on' => 'general'
+                'required', 'on' => 'general', 'when' => function($model) {
+                    return !$model->testMode;
+                }
+            ],
+            [
+                ['testPublishableKey', 'testSecretKey'],
+                'required', 'on' => 'general', 'when' => function($model) {
+                return $model->testMode;
+            }
             ],
             [
                 ['customerNotificationSenderEmail', 'customerNotificationReplyToEmail'],
