@@ -17,28 +17,7 @@
    inkscape:version="0.92.3 (2405546, 2018-03-11)"
    sodipodi:docname="craft-pay-icon4.svg">
   <defs
-     id="defs2">
-	
-
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-	
-	
-</defs>
+     id="defs2" />
   <sodipodi:namedview
      id="base"
      pagecolor="#ffffff"
@@ -47,8 +26,8 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="0.70710678"
-     inkscape:cx="45.270454"
-     inkscape:cy="331.72965"
+     inkscape:cx="308.00348"
+     inkscape:cy="384.6521"
      inkscape:document-units="mm"
      inkscape:current-layer="layer1"
      showgrid="false"
@@ -61,39 +40,24 @@
      inkscape:guide-bbox="true"
      inkscape:snap-to-guides="true">
     <sodipodi:guide
-       position="48.923686,58.652296"
+       position="59.795832,49.477082"
        orientation="0.70710678,0.70710678"
        id="guide4675"
        inkscape:locked="false" />
     <sodipodi:guide
-       position="158.88229,60.589582"
+       position="206.54589,85.686609"
        orientation="0.70710678,0.70710678"
        id="guide4677"
        inkscape:locked="false" />
     <sodipodi:guide
-       position="183.88541,73.15729"
-       orientation="0.70710678,0.70710678"
-       id="guide4681"
+       position="-118.00416,105.56875"
+       orientation="1,0"
+       id="guide864"
        inkscape:locked="false" />
     <sodipodi:guide
-       position="97.847372,76.893441"
-       orientation="0.70710678,0.70710678"
-       id="guide7345"
-       inkscape:locked="false" />
-    <sodipodi:guide
-       position="56.874954,72.216225"
-       orientation="0.70710678,0.70710678"
-       id="guide7347"
-       inkscape:locked="false" />
-    <sodipodi:guide
-       position="317.3677,77.985936"
-       orientation="0.70710678,0.70710678"
-       id="guide7707"
-       inkscape:locked="false" />
-    <sodipodi:guide
-       position="288.92499,69.056248"
-       orientation="0.70710678,0.70710678"
-       id="guide7709"
+       position="-92.604165,105.56875"
+       orientation="0,1"
+       id="guide866"
        inkscape:locked="false" />
   </sodipodi:namedview>
   <metadata
@@ -104,7 +68,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -119,11 +83,6 @@
        id="rect4514"
        inkscape:connector-curvature="0" />
     <path
-       style="fill:#000000;stroke:none;stroke-width:0.99999994px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;opacity:0.125;fill-opacity:0.98000002"
-       d="M 667.34375 356.07227 L 162.28125 468.07812 L 154.85547 541.9707 L 398.49805 785.61133 L 647.625 785.61133 C 724.96672 785.61133 787.23047 723.34758 787.23047 646.00586 L 787.23047 475.94727 L 667.34375 356.07227 z "
-       transform="matrix(0.26458333,0,0,0.26458333,0,87)"
-       id="path7349" />
-    <path
        style="fill:none;stroke:none;stroke-width:0.26458332px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
        d="M 151.98202,212.61841 63.863257,124.49964 11.992921,173.75074 199.97027,260.60665 Z"
        id="path4753"
@@ -133,153 +92,128 @@
     <g
        style="fill:#f5f3f3;fill-opacity:1"
        id="g4683"
-       transform="matrix(2.2016797,0,0,2.2016797,26.695054,123.46292)">
-</g>
+       transform="matrix(2.2016797,0,0,2.2016797,26.695054,123.46292)" />
     <g
        style="fill:#f5f3f3;fill-opacity:1"
        id="g4685"
-       transform="matrix(2.2016797,0,0,2.2016797,26.695054,123.46292)">
-</g>
+       transform="matrix(2.2016797,0,0,2.2016797,26.695054,123.46292)" />
     <g
        style="fill:#f5f3f3;fill-opacity:1"
        id="g4687"
-       transform="matrix(2.2016797,0,0,2.2016797,26.695054,123.46292)">
-</g>
+       transform="matrix(2.2016797,0,0,2.2016797,26.695054,123.46292)" />
     <g
        style="fill:#f5f3f3;fill-opacity:1"
        id="g4689"
-       transform="matrix(2.2016797,0,0,2.2016797,26.695054,123.46292)">
-</g>
+       transform="matrix(2.2016797,0,0,2.2016797,26.695054,123.46292)" />
     <g
        style="fill:#f5f3f3;fill-opacity:1"
        id="g4691"
-       transform="matrix(2.2016797,0,0,2.2016797,26.695054,123.46292)">
-</g>
+       transform="matrix(2.2016797,0,0,2.2016797,26.695054,123.46292)" />
     <g
        style="fill:#f5f3f3;fill-opacity:1"
        id="g4693"
-       transform="matrix(2.2016797,0,0,2.2016797,26.695054,123.46292)">
-</g>
+       transform="matrix(2.2016797,0,0,2.2016797,26.695054,123.46292)" />
     <g
        style="fill:#f5f3f3;fill-opacity:1"
        id="g4695"
-       transform="matrix(2.2016797,0,0,2.2016797,26.695054,123.46292)">
-</g>
+       transform="matrix(2.2016797,0,0,2.2016797,26.695054,123.46292)" />
     <g
        style="fill:#f5f3f3;fill-opacity:1"
        id="g4697"
-       transform="matrix(2.2016797,0,0,2.2016797,26.695054,123.46292)">
-</g>
+       transform="matrix(2.2016797,0,0,2.2016797,26.695054,123.46292)" />
     <g
        style="fill:#f5f3f3;fill-opacity:1"
        id="g4699"
-       transform="matrix(2.2016797,0,0,2.2016797,26.695054,123.46292)">
-</g>
+       transform="matrix(2.2016797,0,0,2.2016797,26.695054,123.46292)" />
     <g
        style="fill:#f5f3f3;fill-opacity:1"
        id="g4701"
-       transform="matrix(2.2016797,0,0,2.2016797,26.695054,123.46292)">
-</g>
+       transform="matrix(2.2016797,0,0,2.2016797,26.695054,123.46292)" />
     <g
        style="fill:#f5f3f3;fill-opacity:1"
        id="g4703"
-       transform="matrix(2.2016797,0,0,2.2016797,26.695054,123.46292)">
-</g>
+       transform="matrix(2.2016797,0,0,2.2016797,26.695054,123.46292)" />
     <g
        style="fill:#f5f3f3;fill-opacity:1"
        id="g4705"
-       transform="matrix(2.2016797,0,0,2.2016797,26.695054,123.46292)">
-</g>
+       transform="matrix(2.2016797,0,0,2.2016797,26.695054,123.46292)" />
     <g
        style="fill:#f5f3f3;fill-opacity:1"
        id="g4707"
-       transform="matrix(2.2016797,0,0,2.2016797,26.695054,123.46292)">
-</g>
+       transform="matrix(2.2016797,0,0,2.2016797,26.695054,123.46292)" />
     <g
        style="fill:#f5f3f3;fill-opacity:1"
        id="g4709"
-       transform="matrix(2.2016797,0,0,2.2016797,26.695054,123.46292)">
-</g>
+       transform="matrix(2.2016797,0,0,2.2016797,26.695054,123.46292)" />
     <g
        style="fill:#f5f3f3;fill-opacity:1"
        id="g4711"
-       transform="matrix(2.2016797,0,0,2.2016797,26.695054,123.46292)">
-</g>
+       transform="matrix(2.2016797,0,0,2.2016797,26.695054,123.46292)" />
     <g
        id="g7526"
        style="fill:#f5f3f3;fill-opacity:1"
-       transform="matrix(0.30621649,0,0,0.30621649,36.453327,118.26223)">
-</g>
+       transform="matrix(0.30621649,0,0,0.30621649,36.453327,118.26223)" />
     <g
        id="g7528"
        style="fill:#f5f3f3;fill-opacity:1"
-       transform="matrix(0.30621649,0,0,0.30621649,36.453327,118.26223)">
-</g>
+       transform="matrix(0.30621649,0,0,0.30621649,36.453327,118.26223)" />
     <g
        id="g7530"
        style="fill:#f5f3f3;fill-opacity:1"
-       transform="matrix(0.30621649,0,0,0.30621649,36.453327,118.26223)">
-</g>
+       transform="matrix(0.30621649,0,0,0.30621649,36.453327,118.26223)" />
     <g
        id="g7532"
        style="fill:#f5f3f3;fill-opacity:1"
-       transform="matrix(0.30621649,0,0,0.30621649,36.453327,118.26223)">
-</g>
+       transform="matrix(0.30621649,0,0,0.30621649,36.453327,118.26223)" />
     <g
        id="g7534"
        style="fill:#f5f3f3;fill-opacity:1"
-       transform="matrix(0.30621649,0,0,0.30621649,36.453327,118.26223)">
-</g>
+       transform="matrix(0.30621649,0,0,0.30621649,36.453327,118.26223)" />
     <g
        id="g7536"
        style="fill:#f5f3f3;fill-opacity:1"
-       transform="matrix(0.30621649,0,0,0.30621649,36.453327,118.26223)">
-</g>
+       transform="matrix(0.30621649,0,0,0.30621649,36.453327,118.26223)" />
     <g
        id="g7538"
        style="fill:#f5f3f3;fill-opacity:1"
-       transform="matrix(0.30621649,0,0,0.30621649,36.453327,118.26223)">
-</g>
+       transform="matrix(0.30621649,0,0,0.30621649,36.453327,118.26223)" />
     <g
        id="g7540"
        style="fill:#f5f3f3;fill-opacity:1"
-       transform="matrix(0.30621649,0,0,0.30621649,36.453327,118.26223)">
-</g>
+       transform="matrix(0.30621649,0,0,0.30621649,36.453327,118.26223)" />
     <g
        id="g7542"
        style="fill:#f5f3f3;fill-opacity:1"
-       transform="matrix(0.30621649,0,0,0.30621649,36.453327,118.26223)">
-</g>
+       transform="matrix(0.30621649,0,0,0.30621649,36.453327,118.26223)" />
     <g
        id="g7544"
        style="fill:#f5f3f3;fill-opacity:1"
-       transform="matrix(0.30621649,0,0,0.30621649,36.453327,118.26223)">
-</g>
+       transform="matrix(0.30621649,0,0,0.30621649,36.453327,118.26223)" />
     <g
        id="g7546"
        style="fill:#f5f3f3;fill-opacity:1"
-       transform="matrix(0.30621649,0,0,0.30621649,36.453327,118.26223)">
-</g>
+       transform="matrix(0.30621649,0,0,0.30621649,36.453327,118.26223)" />
     <g
        id="g7548"
        style="fill:#f5f3f3;fill-opacity:1"
-       transform="matrix(0.30621649,0,0,0.30621649,36.453327,118.26223)">
-</g>
+       transform="matrix(0.30621649,0,0,0.30621649,36.453327,118.26223)" />
     <g
        id="g7550"
        style="fill:#f5f3f3;fill-opacity:1"
-       transform="matrix(0.30621649,0,0,0.30621649,36.453327,118.26223)">
-</g>
+       transform="matrix(0.30621649,0,0,0.30621649,36.453327,118.26223)" />
     <g
        id="g7552"
        style="fill:#f5f3f3;fill-opacity:1"
-       transform="matrix(0.30621649,0,0,0.30621649,36.453327,118.26223)">
-</g>
+       transform="matrix(0.30621649,0,0,0.30621649,36.453327,118.26223)" />
     <g
        id="g7554"
        style="fill:#f5f3f3;fill-opacity:1"
-       transform="matrix(0.30621649,0,0,0.30621649,36.453327,118.26223)">
-</g>
+       transform="matrix(0.30621649,0,0,0.30621649,36.453327,118.26223)" />
+    <path
+       style="fill:#000000;stroke:none;stroke-width:0.99999994px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;opacity:0.179"
+       d="M 662.85938 351.62695 L 198.69727 394.70117 L 154.52734 535.22852 L 404.91016 785.61133 L 647.625 785.61133 C 724.96672 785.61133 787.23047 723.34758 787.23047 646.00586 L 787.23047 476.16016 L 662.85938 351.62695 z "
+       transform="matrix(0.26458333,0,0,0.26458333,0,87)"
+       id="path868" />
     <path
        id="path11328"
        d="m 37.321038,162.7772 v -11.50504 c 0,-6.35078 5.1541,-11.50504 11.50488,-11.50504 H 163.87642 c 6.35077,0 11.5051,5.15426 11.5051,11.50504 v 11.50504 z m 138.060482,17.25755 v 40.26762 c 0,6.35077 -5.15433,11.50505 -11.5051,11.50505 H 48.825918 c -6.35078,0 -11.50488,-5.15428 -11.50488,-11.50505 V 180.03475 Z M 89.093693,208.79733 H 54.578588 v 5.75253 H 89.093693 Z M 106.35128,197.2923 H 54.578588 v 5.75252 h 51.772692 z m 51.77269,0 h -17.25756 v 5.75252 h 17.25756 z"

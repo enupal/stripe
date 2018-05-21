@@ -850,7 +850,7 @@ class Buttons extends Component
                             'typesettings' => '{"min":null,"max":null,"decimals":"0","size":null}',
                             'translationMethod' => Field::TRANSLATION_METHOD_SITE,
                         ],
-                        'new3' => [
+                        'new4' => [
                             'type' => Lightswitch::class,
                             'name' => 'Required',
                             'handle' => 'required',

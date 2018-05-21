@@ -217,6 +217,7 @@ class StripeVariable
      * @param $planId
      * @return null|string
      * @throws \yii\base\InvalidConfigException
+     * @throws \Exception
      */
     public function getDefaultPlanName($planId)
     {

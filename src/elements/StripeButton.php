@@ -337,7 +337,6 @@ class StripeButton extends Element
     public function __toString()
     {
         try {
-            // @todo - For some reason the Title returns null possible Craft3 bug
             return $this->name;
         } catch (\Exception $e) {
             ErrorHandler::convertExceptionToError($e);
@@ -432,6 +431,8 @@ class StripeButton extends Element
 
     /**
      * @inheritdoc
+     * @throws \yii\base\InvalidConfigException
+     * @throws \yii\base\InvalidConfigException
      */
     protected function tableAttributeHtml(string $attribute): string
     {
@@ -586,6 +587,7 @@ class StripeButton extends Element
     /**
      * @return string
      * @throws \yii\web\ServerErrorHttpException
+     * @throws \Exception
      */
     public function getPublicData()
     {

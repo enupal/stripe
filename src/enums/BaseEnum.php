@@ -32,6 +32,7 @@ abstract class BaseEnum
      * @param bool $strict Defaults to false. If set to true, will do a case sensitive search for the name.
      *
      * @return bool true if it is a valid name, false otherwise.
+     * @throws \ReflectionException
      */
     public static function isValidName($name, $strict = false)
     {
@@ -52,6 +53,7 @@ abstract class BaseEnum
      * @param bool $strict Defaults to false. If set the true, will do a case sensitive search for the value.
      *
      * @return bool true if it is a valid value, false otherwise.
+     * @throws \ReflectionException
      */
     public static function isValidValue($value, $strict = false)
     {
@@ -61,6 +63,7 @@ abstract class BaseEnum
 
     /**
      * @return array|null
+     * @throws \ReflectionException
      */
     public static function getConstants()
     {

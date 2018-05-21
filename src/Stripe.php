@@ -59,7 +59,7 @@ class Stripe extends Plugin
             function(Event $event) {
                 /** @var CraftVariable $variable */
                 $variable = $event->sender;
-                $variable->set('stripeButton', StripeVariable::class);
+                $variable->set('pay', StripeVariable::class);
             }
         );
 
@@ -75,6 +75,7 @@ class Stripe extends Plugin
 
     /**
      * @inheritdoc
+     * @throws \Throwable
      */
     protected function afterInstall()
     {
@@ -123,6 +124,7 @@ class Stripe extends Plugin
 
     /**
      * @inheritdoc
+     * @throws \yii\base\Exception
      */
     protected function settingsHtml()
     {

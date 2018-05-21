@@ -145,7 +145,6 @@ class ButtonsController extends BaseController
      * Retrieve all stripe plans as options for dropdown select field
      *
      * @return \yii\web\Response
-     * @throws \yii\base\InvalidConfigException
      */
     public function actionRefreshPlans()
     {

@@ -50,7 +50,9 @@ class Plans extends Component
 
     /**
      * Get all plans
-     * @throws \Throwable
+     *
+     * @param $button
+     * @return array|bool
      * @throws \yii\base\InvalidConfigException
      */
     public function getMultiplePlansFromButton($button)
