@@ -8,7 +8,7 @@
 
 namespace enupal\stripe\events;
 
-use enupal\stripe\elements\Order;
+
 use yii\base\Event;
 use craft\mail\Message;
 

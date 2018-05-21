@@ -9,7 +9,7 @@
 namespace enupal\stripe\web\assets;
 
 use craft\web\AssetBundle;
-use craft\web\assets\cp\CpAsset;
+
 
 class FontAwesomeAsset extends AssetBundle
 {

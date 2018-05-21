@@ -9,8 +9,7 @@
 namespace enupal\stripe\records;
 
 use craft\db\ActiveRecord;
-use yii\db\ActiveQueryInterface;
-use craft\records\Element;
+
 
 /**
  * Class Customer record.
