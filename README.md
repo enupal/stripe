@@ -1,11 +1,11 @@
 <p align="center">
-	<a href="https://enupal.com/en/craft-plugins/enupal-paypal/docs/" target="_blank">
-	<img width="212" height="212" src="https://enupal.com/assets/uploads/craft-pay-icon.svg" alt="Enupal Backup"></a>
+	<a href="https://enupal.com/en/craft-plugins/enupal-stripe/docs/" target="_blank">
+	<img width="212" height="212" src="https://enupal.com/assets/docs/stripe-payments-icon.svg" alt="Enupal Backup"></a>
 </p>
 
-# Paypal Buy Now Buttons Plugin for Craft CMS 3.x
+# Stripe Payments Plugin for Craft CMS 3.x
 
-Craft Pay allows customers sign up for recurring and one-time payments with Stripe, perfect for orders, donations, subscriptions, and events. Create simple payment forms in seconds easily without coding. For Craft CMS 3.x
+Stripe Payments allows customers sign up for recurring and one-time payments with Stripe, perfect for orders, donations, subscriptions, and events. Create simple payment forms in seconds easily without coding. For Craft CMS 3.x
 
 ![Screenshot](https://enupal.com/assets/docs/5-paypal.png)
 
@@ -13,7 +13,7 @@ Craft Pay allows customers sign up for recurring and one-time payments with Stri
 
 ### Start accepting one-time and recurring payments on your Craft CMS site 
 
- * One line of Code: `{{ craft.pay.displayButton('handle') }} `
+ * One line of Code: `{{ craft.enupalStripe.displayButton('handle') }} `
  * Secure Payment Processing powered by [Stripe Checkout](https://stripe.com/checkout)
  * Optimized for Mobile
  * Subscriptions Integration: Allow your customers to sign up for recurring payments.
@@ -31,15 +31,15 @@ Craft Pay allows customers sign up for recurring and one-time payments with Stri
 
 ## Documentation
 
-https://enupal.com/en/craft-plugins/enupal-paypal/docs/
+https://enupal.com/en/craft-plugins/enupal-stripe/docs/
 
-## Craft Pay Support
+## Stripe Payments Support
 
 Via Email:
 
 Send us a note at: support@enupal.com
 
-Create an [issue](https://github.com/enupal/craft-pay/issues) on Github
+Create an [issue](https://github.com/enupal/enupal-stripe/issues) on Github
 
 ------------------------------------------------------------
 

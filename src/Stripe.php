@@ -59,7 +59,8 @@ class Stripe extends Plugin
             function(Event $event) {
                 /** @var CraftVariable $variable */
                 $variable = $event->sender;
-                $variable->set('pay', StripeVariable::class);
+                $variable->set('enupalStripe', StripeVariable::class);
+                $variable->set('enupalstripe', StripeVariable::class);
             }
         );
 

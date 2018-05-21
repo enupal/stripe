@@ -1,6 +1,6 @@
 {
   "name": "enupal/stripe",
-  "description": "Craft Pay allows customers sign up for recurring and one-time payments with Stripe, perfect for orders, donations, subscriptions, and events. Create simple payment forms in seconds easily without coding. For Craft CMS 3.x",
+  "description": "Stripe Payments allows customers sign up for recurring and one-time payments with Stripe, perfect for orders, donations, subscriptions, and events. Create simple payment forms in seconds easily without coding. For Craft CMS 3.x",
   "type": "craft-plugin",
   "version": "1.0.0",
   "keywords": [
@@ -10,6 +10,12 @@
     "craft-plugin",
     "stripe",
     "buy now",
+    "recurring payments",
+    "payments",
+    "donations",
+    "mobile",
+    "subscriptions",
+    "plans",
     "sell",
     "payment",
     "credit card",
@@ -38,7 +44,7 @@
     "stripe/stripe-php": "^6.6.0"
   },
   "extra": {
-    "name": "Craft Pay",
+    "name": "Stripe Payments",
     "handle": "enupal-stripe",
     "schemaVersion": "1.0.0",
     "hasSettings": true,
