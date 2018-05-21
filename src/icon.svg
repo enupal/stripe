@@ -15,7 +15,7 @@
    version="1.1"
    id="svg8"
    inkscape:version="0.92.3 (2405546, 2018-03-11)"
-   sodipodi:docname="craft-pay-icon4.svg">
+   sodipodi:docname="craft-pay-icon.svg">
   <defs
      id="defs2" />
   <sodipodi:namedview
@@ -25,9 +25,9 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="0.70710678"
-     inkscape:cx="308.00348"
-     inkscape:cy="384.6521"
+     inkscape:zoom="0.5"
+     inkscape:cx="239.79609"
+     inkscape:cy="306.33553"
      inkscape:document-units="mm"
      inkscape:current-layer="layer1"
      showgrid="false"
@@ -55,9 +55,24 @@
        id="guide864"
        inkscape:locked="false" />
     <sodipodi:guide
-       position="-92.604165,105.56875"
+       position="30.493229,134.27604"
        orientation="0,1"
        id="guide866"
+       inkscape:locked="false" />
+    <sodipodi:guide
+       position="30.493229,116.94583"
+       orientation="0,1"
+       id="guide903"
+       inkscape:locked="false" />
+    <sodipodi:guide
+       position="37.321037,134.2228"
+       orientation="1,0"
+       id="guide905"
+       inkscape:locked="false" />
+    <sodipodi:guide
+       position="175.28667,116.94583"
+       orientation="1,0"
+       id="guide907"
        inkscape:locked="false" />
   </sodipodi:namedview>
   <metadata
@@ -81,12 +96,16 @@
        style="opacity:1;fill:#f7bc38;fill-opacity:0.87437189;fill-rule:nonzero;stroke:none;stroke-width:3.6756835;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;paint-order:stroke markers fill"
        d="M 40.612551,90.246622 H 171.35065 c 20.46333,0 36.93748,16.474118 36.93748,36.937468 v 130.7381 c 0,20.46333 -16.47415,36.93748 -36.93748,36.93748 H 40.612551 c -20.46337,0 -36.9374961,-16.47415 -36.9374961,-36.93748 v -130.7381 c 0,-20.46335 16.4741261,-36.937468 36.9374961,-36.937468 z"
        id="rect4514"
-       inkscape:connector-curvature="0" />
+       inkscape:connector-curvature="0"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
     <path
        style="fill:none;stroke:none;stroke-width:0.26458332px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
        d="M 151.98202,212.61841 63.863257,124.49964 11.992921,173.75074 199.97027,260.60665 Z"
        id="path4753"
-       inkscape:connector-curvature="0" />
+       inkscape:connector-curvature="0"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
     <g
        id="g4852" />
     <g
@@ -213,11 +232,20 @@
        style="fill:#000000;stroke:none;stroke-width:0.99999994px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;opacity:0.179"
        d="M 662.85938 351.62695 L 198.69727 394.70117 L 154.52734 535.22852 L 404.91016 785.61133 L 647.625 785.61133 C 724.96672 785.61133 787.23047 723.34758 787.23047 646.00586 L 787.23047 476.16016 L 662.85938 351.62695 z "
        transform="matrix(0.26458333,0,0,0.26458333,0,87)"
-       id="path868" />
+       id="path868"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
+    <path
+       style="fill:#000000;stroke:none;stroke-width:0.21675286px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;opacity:0.214"
+       d="m 37.321038,162.72406 v 17.33021 H 174.64225 v -17.33021 z"
+       id="path913"
+       inkscape:connector-curvature="0" />
     <path
        id="path11328"
        d="m 37.321038,162.7772 v -11.50504 c 0,-6.35078 5.1541,-11.50504 11.50488,-11.50504 H 163.87642 c 6.35077,0 11.5051,5.15426 11.5051,11.50504 v 11.50504 z m 138.060482,17.25755 v 40.26762 c 0,6.35077 -5.15433,11.50505 -11.5051,11.50505 H 48.825918 c -6.35078,0 -11.50488,-5.15428 -11.50488,-11.50505 V 180.03475 Z M 89.093693,208.79733 H 54.578588 v 5.75253 H 89.093693 Z M 106.35128,197.2923 H 54.578588 v 5.75252 h 51.772692 z m 51.77269,0 h -17.25756 v 5.75252 h 17.25756 z"
        inkscape:connector-curvature="0"
-       style="fill:#ffffff;stroke-width:5.75251722;fill-opacity:1" />
+       style="fill:#ffffff;stroke-width:5.75251722;fill-opacity:1"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
   </g>
 </svg>
