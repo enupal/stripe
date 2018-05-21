@@ -36,12 +36,12 @@
     }
 } %}
 
-{% set currencyOptions = craft.stripeButton.getCurrencyIsoOptions() %}
-{% set languageOptions = craft.stripeButton.getLanguageOptions() %}
-{% set discountOptions = craft.stripeButton.getDiscountOptions() %}
-{% set amountTypeOptions = craft.stripeButton.getAmountTypeOptions() %}
-{% set frequencyOptions = craft.stripeButton.getFrequencyOptions() %}
-{% set subscriptionTypes = craft.stripeButton.getSubscriptionsTypes() %}
+{% set currencyOptions = craft.enupalStripe.getCurrencyIsoOptions() %}
+{% set languageOptions = craft.enupalStripe.getLanguageOptions() %}
+{% set discountOptions = craft.enupalStripe.getDiscountOptions() %}
+{% set amountTypeOptions = craft.enupalStripe.getAmountTypeOptions() %}
+{% set frequencyOptions = craft.enupalStripe.getFrequencyOptions() %}
+{% set subscriptionTypes = craft.enupalStripe.getSubscriptionsTypes() %}
 
 {% block actionButton %}
     <input type="hidden" name="action" value="enupal-stripe/buttons/save-button">

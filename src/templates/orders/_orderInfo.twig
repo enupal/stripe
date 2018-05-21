@@ -51,7 +51,7 @@
         </table>
     </div>
     <div class="meta">
-        {% set orderStatusOptions = craft.stripeButton.getOrderStatuses() %}
+        {% set orderStatusOptions = craft.enupalStripe.getOrderStatuses() %}
         {{ forms.selectField({
             label: "Order Status"|t('enupal-stripe'),
             id: 'orderStatusId',

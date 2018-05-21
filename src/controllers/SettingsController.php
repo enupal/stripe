@@ -58,16 +58,17 @@ class SettingsController extends BaseController
      */
     public function actionUpdatePlans()
     {
+        $result = null;
         try {
             $this->requirePostRequest();
 
             $result = Stripe::$app->plans->getUpdatePlans();
 
         } catch (\Throwable $e) {
-            return $this->asErrorJson($e->getMessage());
+            Craft::error($e->getMessage(), __METHOD__);
         }
         if (!$result){
-            Craft::$app->getSession()->setError(Stripe::t('No plans were found in stripe'));
+            Craft::$app->getSession()->setError(Stripe::t('No plans were found in stripe. Check your Stripe Keys'));
         }
         else{
             Craft::$app->getSession()->setNotice(Stripe::t('Stripe plans updated.'));

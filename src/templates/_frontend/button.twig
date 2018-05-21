@@ -41,7 +41,7 @@
                         </label>
                     </div>
                     <div class="input">
-                        {%- set input = craft.stripeButton.displayField(block)  %}
+                        {%- set input = craft.enupalStripe.displayField(block)  %}
                         {{ input|raw }}
                     </div>
                 </section>
@@ -109,7 +109,7 @@
                                 </label>
                             </div>
                             <div class="input">
-                                {%- set input = craft.stripeButton.displayMultiSelect(button.subscriptionStyle, button.enupalMultiplePlans)  %}
+                                {%- set input = craft.enupalStripe.displayMultiSelect(button.subscriptionStyle, button.enupalMultiplePlans)  %}
                                 {{ input|raw }}
                             </div>
                         </section>
