@@ -26,6 +26,7 @@ var enupalStripe = {};
         initializeForm: function(enupalButtonElement) {
             // get the form ID
             var enupalStripeData = $.parseJSON($(enupalButtonElement).find('[name="enupalStripe[stripeData]"]').val());
+
             // reset our values
             $(enupalButtonElement).find('[name="enupalStripe[stripeData]"]').val('');
 
@@ -112,10 +113,11 @@ var enupalStripe = {};
         },
 
         submitPayment: function(enupalButtonElement, enupalStripeData, stripeHandler) {
-            var stripeConfig = enupalStripeData.stripe;
-            stripeConfig.amount = this.convertToCents(this.getFinalAmount(enupalButtonElement, enupalStripeData));
+            var enupalStripeDataSubmission = $.extend(true,{},enupalStripeData);
+            var stripeConfig = enupalStripeDataSubmission.stripe;
+            stripeConfig.amount = this.convertToCents(this.getFinalAmount(enupalButtonElement, enupalStripeDataSubmission));
             enupalButtonElement.find('[name="enupalStripe[amount]"]').val(stripeConfig.amount);
-            enupalButtonElement.find('[name="enupalStripe[testMode]"]').val(enupalStripeData.testMode);
+            enupalButtonElement.find('[name="enupalStripe[testMode]"]').val(enupalStripeDataSubmission.testMode);
             // If everything checks out then let's open the form
             stripeHandler.open(stripeConfig);
         },
