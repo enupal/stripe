@@ -59,7 +59,7 @@ class StripeVariable
      * @throws \Twig_Error_Loader
      * @throws \yii\base\Exception
      */
-    public function displayButton($handle, array $options = null)
+    public function paymentForm($handle, array $options = null)
     {
         return Stripe::$app->buttons->getButtonHtml($handle, $options);
     }

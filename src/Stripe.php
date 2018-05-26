@@ -112,7 +112,7 @@ class Stripe extends Plugin
                     "url" => 'enupal-stripe/orders'
                 ],
                 'buttons' => [
-                    "label" => self::t("Buttons"),
+                    "label" => self::t("Payment Forms"),
                     "url" => 'enupal-stripe/buttons'
                 ],
                 'settings' => [

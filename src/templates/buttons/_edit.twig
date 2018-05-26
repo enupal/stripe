@@ -10,10 +10,10 @@
 {% extends "enupal-stripe/_layouts/base" %}
 {% import "_includes/forms" as forms %}
 {% set crumbs = [
-    { label: "Buttons"|t('enupal-stripe'), url: cpUrl('enupal-stripe/buttons') }
+    { label: "Stripe Payment Forms"|t('enupal-stripe'), url: cpUrl('enupal-stripe/buttons') }
 ] %}
 
-{% set title = 'Edit Stripe Button'|t('enupal-stripe') %}
+{% set title = 'Edit Payment Form'|t('enupal-stripe') %}
 {% set fullPageForm = true %}
 {% set saveShortcutRedirect = continueEditingUrl %}
 {% set tab = stripeButton.getFieldLayout().getTabs()[0] %}
@@ -76,7 +76,12 @@
 
     {% namespace 'fields' %}
     <div id="tab1">
-
+             <hr>
+            {{ forms.field({
+                label: "Stripe Checkout Overlay"|t('enupal-stripe'),
+                instructions: "Configure all options available in the Stripe Checkout overlay."|t('enupal-stripe')
+            }, null) }}
+            <hr>
             {{ forms.textField({
                 first: true,
                 label: "Item name or Company Name"|t('enupal-stripe'),
@@ -118,7 +123,11 @@
                 criteria: {kind: ['image'], siteId : null}
             })) }}
             <hr>
-
+            {{ forms.field({
+                label: "Pay Buttons Settings"|t('enupal-stripe'),
+                instructions: "Configure the text for the Pay Form Button and the Checkout Button"|t('enupal-stripe')
+            }, null) }}
+             <hr>
             {{ forms.textField({
                 first: true,
                 label: "Payment Button Text"|t('enupal-stripe'),
@@ -132,17 +141,6 @@
 
             {{ forms.textField({
                 first: true,
-                label: "Checkout Button Text"|t('enupal-stripe'),
-                instructions: 'Text used for the final checkout button. You can use {{amount}} to add the final amount to charge.',
-                placeholder: 'Pay {{amount}}',
-                id: 'checkoutButtonText',
-                name: 'checkoutButtonText',
-                value: stripeButton.checkoutButtonText,
-                errors: stripeButton.getErrors('checkoutButtonText')
-            }) }}
-
-            {{ forms.textField({
-                first: true,
                 label: "Payment Button Processing Text"|t('enupal-stripe'),
                 instructions: 'Text used when the payment is processing',
                 placeholder: 'Please wait...',
@@ -150,6 +148,17 @@
                 name: 'paymentButtonProcessingText',
                 value: stripeButton.paymentButtonProcessingText,
                 errors: stripeButton.getErrors('paymentButtonProcessingText')
+            }) }}
+
+            {{ forms.textField({
+                first: true,
+                label: "Checkout Button Text"|t('enupal-stripe'),
+                instructions: 'Text used for the final checkout button. You can use {{amount}} to add the final amount to charge.',
+                placeholder: 'Pay {{amount}}',
+                id: 'checkoutButtonText',
+                name: 'checkoutButtonText',
+                value: stripeButton.checkoutButtonText,
+                errors: stripeButton.getErrors('checkoutButtonText')
             }) }}
     </div>
     <div id="tab2" class="hidden">

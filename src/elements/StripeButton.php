@@ -361,7 +361,7 @@ class StripeButton extends Element
         $sources = [
             [
                 'key' => '*',
-                'label' => StripePlugin::t('All Buttons'),
+                'label' => StripePlugin::t('All Payment Forms'),
             ]
         ];
 
