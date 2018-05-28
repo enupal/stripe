@@ -19,11 +19,11 @@ Stripe Payments allows customers sign up for recurring and one-time payments wit
  * Subscriptions Integration: Allow your customers to sign up for recurring payments.
  * Basic Payment Form Builder: Add field types to capture more data to store with each Stripe payment record: Single Line, Paragraph, numbers, Dropdowns, checkboxes.
  * Custom Amounts: Allow your customers to pay what they want by entering an amount. Perfect for single and recurring donation or any custom payment form.
- * Manage buttons
+ * Manage Payment Forms
  * Multi-Language Support: Stripe Checkout supports 12 languages and the ability to autodetect the current language of the visitor
  * View sales in your control panel
  * Send out email notifications for admins and customers 
- * Inventory management for each button
+ * Inventory management for each Payment Form
  * Stripe Test and Live accounts
  * Events: After Order Create and Before Send Email
  * Support 135+ currencies 

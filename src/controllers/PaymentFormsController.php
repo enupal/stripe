@@ -93,7 +93,7 @@ class PaymentFormsController extends BaseController
         } else {
             if ($formId !== null) {
                 if ($paymentForm === null) {
-                    // Get the button
+                    // Get the payment form
                     $paymentForm = Stripe::$app->paymentForms->getPaymentFormById($formId);
 
                     if (!$paymentForm) {

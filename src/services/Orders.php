@@ -564,7 +564,7 @@ class Orders extends Component
         // Let's update the stock
         if ($savePaymentForm){
             if (!StripePlugin::$app->paymentForms->savePaymentForm($paymentForm)){
-                Craft::error('Something went wrong updating the stripe button stock: '.json_encode($paymentForm->getErrors()), __METHOD__);
+                Craft::error('Something went wrong updating the payment form stock: '.json_encode($paymentForm->getErrors()), __METHOD__);
                 return false;
             }
         }
