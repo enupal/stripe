@@ -44,7 +44,7 @@
 {% set subscriptionTypes = craft.enupalStripe.getSubscriptionsTypes() %}
 
 {% block actionButton %}
-    <input type="hidden" name="action" value="enupal-stripe/forms/save-button">
+    <input type="hidden" name="action" value="enupal-stripe/payment-forms/save-form">
     {{ redirectInput('enupal-stripe/forms') }}
     <input type="hidden" id="formId" name="formId" value="{{ stripeForm.id is defined ? stripeForm.id : '' }}">
 
@@ -70,7 +70,7 @@
 {% endblock %}
 
 {% block content %}
-    <input type="hidden" name="action" value="enupal-stripe/forms/save-button">
+    <input type="hidden" name="action" value="enupal-stripe/payment-forms/save-form">
     <input type="hidden" name="handle" value="{{ stripeForm.handle }}">
     <input type="hidden" name="formId" value="{{ formId }}">
 
