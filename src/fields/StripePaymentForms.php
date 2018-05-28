@@ -13,10 +13,10 @@ use enupal\stripe\elements\StripeButton;
 use enupal\stripe\Stripe as StripePlugin;
 
 /**
- * Class StripePaymentsForms
+ * Class StripePaymentForms
  *
  */
-class StripePaymentsForms extends BaseRelationField
+class StripePaymentForms extends BaseRelationField
 {
     /**
      * @inheritdoc
@@ -28,7 +28,7 @@ class StripePaymentsForms extends BaseRelationField
      */
     public static function displayName(): string
     {
-        return StripePlugin::t('Stripe Payments Forms');
+        return StripePlugin::t('Stripe Payment Forms');
     }
 
     /**
