@@ -45,7 +45,7 @@ class ButtonsController extends BaseController
 
         // Save it
         if (!Stripe::$app->buttons->saveButton($button)) {
-            Craft::$app->getSession()->setError(Stripe::t('Couldn’t save button.'));
+            Craft::$app->getSession()->setError(Stripe::t('Couldn’t save form.'));
 
             Craft::$app->getUrlManager()->setRouteParams([
                     'button' => $button
@@ -55,7 +55,7 @@ class ButtonsController extends BaseController
             return null;
         }
 
-        Craft::$app->getSession()->setNotice(Stripe::t('Button saved.'));
+        Craft::$app->getSession()->setNotice(Stripe::t('Payment form saved.'));
 
         return $this->redirectToPostedUrl($button);
     }

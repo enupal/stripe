@@ -13,7 +13,7 @@
 
     {{ forms.textField({
         first: true,
-        label: "Handle <span class='info'>How you’ll refer to this Stripe Button in the templates.</span>"|t('enupal-stripe'),
+        label: "Handle <span class='info'>How you’ll refer to this Stripe Form in the templates.</span>"|t('enupal-stripe'),
         id: 'handle',
         name: 'handle',
         value: stripeButton.handle,
@@ -221,7 +221,7 @@
     }) }}
 
     {{ forms.textField({
-        label: "Button Class <span class='info'>Add custom classes to your pay button</span>"|t('enupal-stripe'),
+        label: "Button Class <span class='info'>Add custom classes to your Stripe Payment Form</span>"|t('enupal-stripe'),
         id: 'buttonClass',
         name: 'buttonClass',
         value: stripeButton.buttonClass,
