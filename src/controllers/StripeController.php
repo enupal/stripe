@@ -14,6 +14,8 @@ use yii\web\NotFoundHttpException;
 
 class StripeController extends BaseController
 {
+    protected $allowAnonymous = ['save-order'];
+
     /**
      * @return \yii\web\Response
      * @throws NotFoundHttpException

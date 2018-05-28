@@ -18,7 +18,6 @@ use enupal\stripe\elements\StripeButton as StripeElement;
 
 class OrdersController extends BaseController
 {
-
     /**
      * Save an Order
      *
