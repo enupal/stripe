@@ -31,7 +31,7 @@ class Plans extends Component
 
         $currentFieldContext = Craft::$app->getContent()->fieldContext;
         Craft::$app->getContent()->fieldContext = 'enupalStripe:';
-        $matrixMultiplePlansField = Craft::$app->fields->getFieldByHandle(StripePlugin::$app->buttons::MULTIPLE_PLANS_HANDLE);
+        $matrixMultiplePlansField = Craft::$app->fields->getFieldByHandle(StripePlugin::$app->paymentForms::MULTIPLE_PLANS_HANDLE);
 
         $matrixFields = $matrixMultiplePlansField->getBlockTypeFields();
         foreach ($matrixFields as $matrixField) {
@@ -51,11 +51,11 @@ class Plans extends Component
     /**
      * Get all plans
      *
-     * @param $button
+     * @param $paymentForm
      * @return array|bool
      * @throws \yii\base\InvalidConfigException
      */
-    public function getMultiplePlansFromButton($button)
+    public function getMultiplePlansFromButton($paymentForm)
     {
         $options = $this->getStripePlans();
         $finalPlans = [];
@@ -66,7 +66,7 @@ class Plans extends Component
 
         $currentFieldContext = Craft::$app->getContent()->fieldContext;
         Craft::$app->getContent()->fieldContext = 'enupalStripe:';
-        $matrixMultiplePlansField = Craft::$app->fields->getFieldByHandle(StripePlugin::$app->buttons::MULTIPLE_PLANS_HANDLE);
+        $matrixMultiplePlansField = Craft::$app->fields->getFieldByHandle(StripePlugin::$app->paymentForms::MULTIPLE_PLANS_HANDLE);
 
         $matrixFields = $matrixMultiplePlansField->getBlockTypeFields();
         foreach ($matrixFields as $matrixField) {

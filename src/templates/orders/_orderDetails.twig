@@ -1,4 +1,4 @@
-{% set button = order.getButton() %}
+{% set form = order.getPaymentForm() %}
 <div class="order-details pane">
     <table id="" class="data fullwidth collapsible">
         <thead>
@@ -15,7 +15,7 @@
 
         <tr class="infoRow">
             <td>
-                <a href="{{ button.cpEditUrl }}">{{ button.name }}</a>
+                <a href="{{ form.cpEditUrl }}">{{ form.name }}</a>
             </td>
             <td>
                 {{ order.quantity }}

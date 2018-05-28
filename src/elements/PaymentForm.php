@@ -22,15 +22,15 @@ use yii\base\ErrorHandler;
 use craft\helpers\UrlHelper;
 use craft\elements\actions\Delete;
 
-use enupal\stripe\elements\db\StripeButtonsQuery;
-use enupal\stripe\records\StripeButton as StripeButtonRecord;
+use enupal\stripe\elements\db\PaymentFormsQuery;
+use enupal\stripe\records\PaymentForm as PaymentFormRecord;
 use enupal\stripe\Stripe as StripePlugin;
 use craft\validators\UniqueValidator;
 
 /**
- * StripeButton represents a entry element.
+ * PaymentForm represents a entry element.
  */
-class StripeButton extends Element
+class PaymentForm extends Element
 {
     /**
      * @inheritdoc
@@ -118,7 +118,6 @@ class StripeButton extends Element
     public $buttonClass;
 
     protected $env;
-    protected $paypalUrl;
     protected $ipnUrl;
     protected $publishableKey;
 
@@ -254,7 +253,7 @@ class StripeButton extends Element
      */
     public function getFieldContext(): string
     {
-        return 'enupalPaypal:'.$this->id;
+        return 'enupalStripeForm:'.$this->id;
     }
 
     /**
@@ -264,7 +263,7 @@ class StripeButton extends Element
      */
     public static function displayName(): string
     {
-        return StripePlugin::t('Stripe Buttons');
+        return StripePlugin::t('Stripe PaymentForms');
     }
 
     /**
@@ -272,7 +271,7 @@ class StripeButton extends Element
      */
     public static function refHandle()
     {
-        return 'paypal-buttons';
+        return 'stripe-payment-forms';
     }
 
     /**
@@ -324,7 +323,7 @@ class StripeButton extends Element
     public function getCpEditUrl()
     {
         return UrlHelper::cpUrl(
-            'enupal-stripe/buttons/edit/'.$this->id
+            'enupal-stripe/forms/edit/'.$this->id
         );
     }
 
@@ -346,11 +345,11 @@ class StripeButton extends Element
     /**
      * @inheritdoc
      *
-     * @return StripeButtonsQuery The newly created [[StripeButtonsQuery]] instance.
+     * @return PaymentFormsQuery The newly created [[PaymentFormsQuery]] instance.
      */
     public static function find(): ElementQueryInterface
     {
-        return new StripeButtonsQuery(get_called_class());
+        return new PaymentFormsQuery(get_called_class());
     }
 
     /**
@@ -380,8 +379,8 @@ class StripeButton extends Element
         // Delete
         $actions[] = Craft::$app->getElements()->createAction([
             'type' => Delete::class,
-            'confirmationMessage' => StripePlugin::t("Are you sure you want to delete this Stripe Button, and all of it's orders?"),
-            'successMessage' => StripePlugin::t('Payapal Buttons deleted.'),
+            'confirmationMessage' => StripePlugin::t("Are you sure you want to delete this Payment Form, and all of it's orders?"),
+            'successMessage' => StripePlugin::t('Payment Forms deleted.'),
         ]);
 
         return $actions;
@@ -471,13 +470,13 @@ class StripeButton extends Element
      */
     public function afterSave(bool $isNew)
     {
-        $record = new StripeButtonRecord();
-        // Get the StripeButton record
+        $record = new PaymentFormRecord();
+        // Get the PaymentForm record
         if (!$isNew) {
-            $record = StripeButtonRecord::findOne($this->id);
+            $record = PaymentFormRecord::findOne($this->id);
 
             if (!$record) {
-                throw new \Exception('Invalid StripeButton ID: '.$this->id);
+                throw new \Exception('Invalid PaymentForm ID: '.$this->id);
             }
         } else {
             $record->id = $this->id;
@@ -546,7 +545,7 @@ class StripeButton extends Element
         return [
             [['name', 'handle'], 'required'],
             [['name', 'handle'], 'string', 'max' => 255],
-            [['name', 'handle'], UniqueValidator::class, 'targetClass' => StripeButtonRecord::class],
+            [['name', 'handle'], UniqueValidator::class, 'targetClass' => PaymentFormRecord::class],
             [
                 ['discount'],
                 DiscountValidator::class
@@ -580,7 +579,7 @@ class StripeButton extends Element
      */
     public function displayButton(array $options = null)
     {
-        return StripePlugin::$app->buttons->getButtonHtml($this->handle, $options);
+        return StripePlugin::$app->paymentForms->getPaymentFormHtml($this->handle, $options);
     }
 
 
@@ -626,11 +625,12 @@ class StripeButton extends Element
         }
 
         $publicData = [
+            'paymentFormId' => $this->id,
             'handle' => $this->handle,
             'amountType' => $this->amountType,
             'customerQuantity' => $this->customerQuantity ? (boolean)$this->customerQuantity : false,
             'buttonText' => $this->buttonText,
-            'paymentButtonProcessingText' => $this->paymentButtonProcessingText ? $this->getButtonText($this->paymentButtonProcessingText) : $this->getButtonText(),
+            'paymentButtonProcessingText' => $this->paymentButtonProcessingText ? $this->getPaymentFormText($this->paymentButtonProcessingText) : $this->getPaymentFormText(),
             'pbk' => $this->getPublishableKey(),
             'testMode' => $this->settings->testMode,
             'enableRecurringPayment' => (boolean)$this->enableRecurringPayment,
@@ -696,7 +696,7 @@ class StripeButton extends Element
      *
      * @return string
      */
-    public function getButtonText($default = null)
+    public function getPaymentFormText($default = null)
     {
         if (is_null($default)){
             $default = "Pay with card";
@@ -767,7 +767,7 @@ class StripeButton extends Element
      */
     public function getFormFieldHandle()
     {
-        return Stripe::$app->buttons::BASIC_FORM_FIELDS_HANDLE;
+        return Stripe::$app->paymentForms::BASIC_FORM_FIELDS_HANDLE;
     }
 
     /**
@@ -775,7 +775,7 @@ class StripeButton extends Element
      */
     public function getMultiplePlansHandle()
     {
-        return Stripe::$app->buttons::MULTIPLE_PLANS_HANDLE;
+        return Stripe::$app->paymentForms::MULTIPLE_PLANS_HANDLE;
     }
 
     /**

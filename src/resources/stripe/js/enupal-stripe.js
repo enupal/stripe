@@ -10,20 +10,23 @@ var enupalStripe = {};
 (function($) {
     'use strict';
     enupalStripe = {
-        // All Enupal Stripe buttons
-        buttonsList: {},
+        // All Stripe Payment Forms
+        paymentFormsList: {},
         finalData: {},
 
         init: function() {
-            this.buttonsList = $('.enupal-stripe-form');
+            this.paymentFormsList = $('.enupal-stripe-form');
 
-            this.buttonsList.each(function() {
+            this.paymentFormsList.each(function() {
                 var enupalButtonElement = $(this);
                 enupalStripe.initializeForm(enupalButtonElement);
             });
         },
 
         initializeForm: function(enupalButtonElement) {
+            if (typeof $(enupalButtonElement).find('[name="enupalStripe[stripeData]"]').val() === 'undefined'){
+                return false;
+            }
             // get the form ID
             var enupalStripeData = $.parseJSON($(enupalButtonElement).find('[name="enupalStripe[stripeData]"]').val());
 
@@ -34,6 +37,8 @@ var enupalStripe = {};
 
             //  Stripe config
             var stripeHandler = null;
+
+            var paymentFormId = 'stripe-payments-submit-button-'+enupalStripeData.paymentFormId;
 
             // Stripe Checkout handler configuration.
             // Docs: https://stripe.com/docs/checkout#integration-custom
@@ -57,7 +62,7 @@ var enupalStripe = {};
                 enupalStripe.addValuesToForm(enupalButtonElement, args, enupalStripeData);
 
                 // Disable pay button and show a nice UI message
-                enupalButtonElement.find('.enupal-stripe-button')
+                enupalButtonElement.find('#'+paymentFormId)
                     .prop('disabled', true)
                     .find('span')
                     .text(enupalStripeData.paymentButtonProcessingText);
@@ -69,7 +74,7 @@ var enupalStripe = {};
             }
 
             // Pay Button clicked
-            enupalButtonElement.find('.enupal-stripe-button').on('click', function(e) {
+            enupalButtonElement.find('#'+paymentFormId).on('click', function(e) {
                 var form = enupalButtonElement[0];
                 if (!form.checkValidity()) {
                     if (form.reportValidity) {

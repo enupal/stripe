@@ -15,7 +15,7 @@
 {% set saveShortcutRedirect = 'enupal-stripe/settings/default' %}
 {% set currencyOptions = craft.enupalStripe.getCurrencyOptions() %}
 
-{% set saveButton %}
+{% set savePaymentForm %}
     <div class="buttons">
         <input class="btn submit" type="submit" value="{{ 'Save'|t }}">
     </div>
@@ -31,7 +31,7 @@
         {% namespace 'settings' %}
             {{ forms.field({
                 label: "Default values"|t('enupal-stripe'),
-                instructions: "These are the default settings when create a new Paypal Button and you can override it as per-button basis."|t('enupal-stripe'),
+                instructions: "These are the default settings when create a new Payment Form and you can override it as per-form basis."|t('enupal-stripe'),
             }, null) }}
             <hr>
             {{ forms.textField({

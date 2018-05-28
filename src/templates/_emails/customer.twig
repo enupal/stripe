@@ -174,7 +174,7 @@
                                                     <tr>
                                                         <td align="center" valign="top" mc:edit="body5"
                                                             style="color: #434345; font-weight: bolder; font-family: 'Trebuchet MS', Helvetica, sans-serif, 'Lato', sans-serif; font-size: 16px; mso-line-height-rule: exactly; line-height: 24px; font-weight: 400;">
-                                                            {{ "Product:" }} {{ order.getButton().name }}
+                                                            {{ "Product:" }} {{ order.getPaymentForm().name }}
                                                         </td>
                                                     </tr>
                                                     <tr>
@@ -203,7 +203,7 @@
                                                                                     style="color: #ffffff; font-family: 'Trebuchet MS', Helvetica, sans-serif, 'Lato', sans-serif;  padding: 0 25px; font-size: 14px; mso-line-height-rule: exactly; line-height: 24px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.06em">
                                                                                       <span style="color: #ffffff;">
                                                                                         <a style="text-decoration: none; color: #ffffff;"
-                                                                                           href="{{ order.getButton().returnUrl }}">read more</a>
+                                                                                           href="{{ order.getPaymentForm().returnUrl }}">read more</a>
                                                                                       </span>
                                                                                 </td>
                                                                             </tr>

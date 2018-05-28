@@ -457,22 +457,22 @@ class Orders extends Component
         $request = Craft::$app->getRequest();
         $data = $request->getBodyParam('enupalStripe');
         $token = $data['token'] ?? null;
-        $buttonId = $data['buttonId'] ?? null;
+        $formId = $data['formId'] ?? null;
 
-        if (is_null($token) || is_null($buttonId)){
-            Craft::error('Unable to get the stripe token or buttonId', __METHOD__);
+        if (is_null($token) || is_null($formId)){
+            Craft::error('Unable to get the stripe token or formId', __METHOD__);
             return false;
         }
 
-        $button = StripePlugin::$app->buttons->getButtonById((int)$buttonId);
+        $paymentForm = StripePlugin::$app->paymentForms->getPaymentFormById((int)$formId);
 
-        if (is_null($button)) {
+        if (is_null($paymentForm)) {
             throw new \Exception(Craft::t('enupal-stripe','Unable to find the Stripe Button associated to the order'));
         }
 
         $order = $this->populateOrder($data);
-        $order->currency = $button->currency;
-        $order->buttonId = $button->id;
+        $order->currency = $paymentForm->currency;
+        $order->formId = $paymentForm->id;
 
         StripePlugin::$app->settings->initializeStripe();
 
@@ -481,16 +481,16 @@ class Orders extends Component
         $charge = null;
         $stripeId = null;
 
-        if ($button->enableSubscriptions){
+        if ($paymentForm->enableSubscriptions){
             $planId = null;
 
-            if ($button->subscriptionType == SubscriptionType::SINGLE_PLAN && !$button->enableCustomPlanAmount){
-                $plan = Json::decode($button->singlePlanInfo, true);
+            if ($paymentForm->subscriptionType == SubscriptionType::SINGLE_PLAN && !$paymentForm->enableCustomPlanAmount){
+                $plan = Json::decode($paymentForm->singlePlanInfo, true);
                 $planId = $plan['id'];
 
                 // Lets create an invoice item if there is a setup fee
-                if ($button->singlePlanSetupFee){
-                    $this->addOneTimeSetupFee($customer, $button->singlePlanSetupFee, $button);
+                if ($paymentForm->singlePlanSetupFee){
+                    $this->addOneTimeSetupFee($customer, $paymentForm->singlePlanSetupFee, $paymentForm);
                 }
 
                 // Either single plan or multiple plans the user should select one plan and plan id should be available in the post request
@@ -498,29 +498,29 @@ class Orders extends Component
                 $stripeId = $subscription->id ?? null;
             }
 
-            if ($button->subscriptionType == SubscriptionType::SINGLE_PLAN && $button->enableCustomPlanAmount) {
+            if ($paymentForm->subscriptionType == SubscriptionType::SINGLE_PLAN && $paymentForm->enableCustomPlanAmount) {
                 if (isset($data['customPlanAmount']) && $data['customPlanAmount'] > 0){
                     // Lets create an invoice item if there is a setup fee
-                    if ($button->singlePlanSetupFee){
-                        $this->addOneTimeSetupFee($customer, $button->singlePlanSetupFee, $button);
+                    if ($paymentForm->singlePlanSetupFee){
+                        $this->addOneTimeSetupFee($customer, $paymentForm->singlePlanSetupFee, $paymentForm);
                     }
                     // test what is returning we need a stripe id
-                    $subscription = $this->addCustomPlan($customer, $data, $button, $token, $isNew);
+                    $subscription = $this->addCustomPlan($customer, $data, $paymentForm, $token, $isNew);
                     $stripeId = $subscription->id ?? null;
                 }
             }
 
-            if ($button->subscriptionType == SubscriptionType::MULTIPLE_PLANS) {
+            if ($paymentForm->subscriptionType == SubscriptionType::MULTIPLE_PLANS) {
                 $planId = $data['enupalMultiPlan'] ?? null;
 
                 if (is_null($planId) || empty($planId)){
                     throw new \Exception(Craft::t('enupal-stripe','Plan Id is required'));
                 }
 
-                $setupFee = $this->getSetupFeeFromMatrix($planId, $button);
+                $setupFee = $this->getSetupFeeFromMatrix($planId, $paymentForm);
 
                 if ($setupFee){
-                    $this->addOneTimeSetupFee($customer, $setupFee, $button);
+                    $this->addOneTimeSetupFee($customer, $setupFee, $paymentForm);
                 }
 
                 $subscription = $this->addPlanToCustomer($customer, $planId, $token, $isNew, $data);
@@ -531,13 +531,13 @@ class Orders extends Component
             if (isset($data['recurringToggle']) && $data['recurringToggle'] == 'on'){
                 if (isset($data['customAmount']) && $data['customAmount'] > 0){
                     // test what is returning we need a stripe id
-                    $subscription = $this->addRecurringPayment($customer, $data, $button, $token, $isNew);
+                    $subscription = $this->addRecurringPayment($customer, $data, $paymentForm, $token, $isNew);
                     $stripeId = $subscription->id ?? null;
                 }
             }
 
             if (is_null($stripeId)){
-                $charge = $this->stripeCharge($data, $button, $customer, $isNew, $token);
+                $charge = $this->stripeCharge($data, $paymentForm, $customer, $isNew, $token);
                 $stripeId = $charge['id'] ?? null;
             }
         }
@@ -548,10 +548,10 @@ class Orders extends Component
         }
 
         // Stock
-        $saveButton = false;
-        if (!$button->hasUnlimitedStock && (int)$button->quantity > 0){
-            $button->quantity -= $order->quantity;
-            $saveButton = true;
+        $savePaymentForm = false;
+        if (!$paymentForm->hasUnlimitedStock && (int)$paymentForm->quantity > 0){
+            $paymentForm->quantity -= $order->quantity;
+            $savePaymentForm = true;
         }
 
         $order->stripeTransactionId = $stripeId;
@@ -562,9 +562,9 @@ class Orders extends Component
         }
 
         // Let's update the stock
-        if ($saveButton){
-            if (!StripePlugin::$app->buttons->saveButton($button)){
-                Craft::error('Something went wrong updating the stripe button stock: '.json_encode($button->getErrors()), __METHOD__);
+        if ($savePaymentForm){
+            if (!StripePlugin::$app->paymentForms->savePaymentForm($paymentForm)){
+                Craft::error('Something went wrong updating the payment form stock: '.json_encode($paymentForm->getErrors()), __METHOD__);
                 return false;
             }
         }
@@ -577,12 +577,12 @@ class Orders extends Component
 
     /**
      * @param $planId
-     * @param $button
+     * @param $paymentForm
      * @return null
      */
-    public function getSetupFeeFromMatrix($planId, $button)
+    public function getSetupFeeFromMatrix($planId, $paymentForm)
     {
-        foreach ($button->enupalMultiplePlans as $plan) {
+        foreach ($paymentForm->enupalMultiplePlans as $plan) {
             if ($plan->selectPlan == $planId){
                 if ($plan->setupFee){
                     return $plan->setupFee;
@@ -593,7 +593,7 @@ class Orders extends Component
         return null;
     }
 
-    private function stripeCharge($data, $button, $customer, $isNew, $token)
+    private function stripeCharge($data, $paymentForm, $customer, $isNew, $token)
     {
         $description = Craft::t('enupal-stripe', 'Order from {email}', ['email' => $data['email']]);
         $charge = null;
@@ -602,7 +602,7 @@ class Orders extends Component
         try {
             $chargeSettings = [
                 'amount' => $data['amount'], // amount in cents
-                'currency' => $button->currency,
+                'currency' => $paymentForm->currency,
                 'customer' => $customer->id,
                 'description' => $description,
                 'metadata' => $this->getStripeMetadata($data),
@@ -681,12 +681,12 @@ class Orders extends Component
     /**
      * @param $customer
      * @param $data
-     * @param $button
+     * @param $paymentForm
      * @param $token
      * @param $isNew
      * @return mixed
      */
-    private function addRecurringPayment($customer, $data, $button, $token, $isNew)
+    private function addRecurringPayment($customer, $data, $paymentForm, $token, $isNew)
     {
         $currentTime = time();
         $planName = strval($currentTime);
@@ -694,11 +694,11 @@ class Orders extends Component
         //Create new plan for this customer:
         Plan::create([
             "amount" => $data['amount'],
-            "interval" => $button->recurringPaymentType,
+            "interval" => $paymentForm->recurringPaymentType,
             "product" => [
                 "name" => "Plan for recurring payment from: " . $data['email'],
             ],
-            "currency" => $button->currency,
+            "currency" => $paymentForm->currency,
             "id" => $planName
         ]);
 
@@ -721,12 +721,12 @@ class Orders extends Component
     /**
      * @param $customer
      * @param $data
-     * @param $button
+     * @param $paymentForm
      * @param $token
      * @param $isNew
      * @return mixed
      */
-    private function addCustomPlan($customer, $data, $button, $token, $isNew)
+    private function addCustomPlan($customer, $data, $paymentForm, $token, $isNew)
     {
         $currentTime = time();
         $planName = strval($currentTime);
@@ -734,13 +734,13 @@ class Orders extends Component
         //Create new plan for this customer:
         Plan::create([
             "amount" => $data['amount'],
-            "interval" => $button->customPlanFrequency,
-            "interval_count" => $button->customPlanInterval,
+            "interval" => $paymentForm->customPlanFrequency,
+            "interval_count" => $paymentForm->customPlanInterval,
             "product" => [
                 "name" => "Custom Plan from: " . $data['email'],
             ],
-            "trial_period_days" => $button->singlePlanTrialPeriod ?? '',
-            "currency" => $button->currency,
+            "trial_period_days" => $paymentForm->singlePlanTrialPeriod ?? '',
+            "currency" => $paymentForm->currency,
             "id" => $planName
         ]);
 
@@ -760,14 +760,14 @@ class Orders extends Component
         return $subscription;
     }
 
-    private function addOneTimeSetupFee($customer, $amount, $button)
+    private function addOneTimeSetupFee($customer, $amount, $paymentForm)
     {
         InvoiceItem::create(
             [
                 "customer" => $customer->id,
                 "amount" => ($amount*100),
-                "currency" => $button->currency,
-                "description" => "One-time setup fee: ".$button->name
+                "currency" => $paymentForm->currency,
+                "description" => "One-time setup fee: ".$paymentForm->name
             ]
         );
     }

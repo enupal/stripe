@@ -3,7 +3,7 @@ if (typeof Craft.StripeButton === typeof undefined) {
 }
 
 /**
- * Class Craft.StripeButton.OrderTableView
+ * Class Craft.PaymentForm.OrderTableView
  */
 Craft.StripeButton.OrderTableView = Craft.TableElementIndexView.extend({
 

@@ -14,7 +14,7 @@ use enupal\stripe\Stripe;
 use yii\web\NotFoundHttpException;
 use yii\base\Exception;
 
-use enupal\stripe\elements\StripeButton as StripeElement;
+use enupal\stripe\elements\PaymentForm as StripeElement;
 
 class OrdersController extends BaseController
 {
@@ -66,8 +66,8 @@ class OrdersController extends BaseController
     /**
      * Edit a Button.
      *
-     * @param int|null           $orderId The button's ID, if editing an existing button.
-     * @param StripeElement|null $order   The order send back by setRouteParams if any errors on saveButton
+     * @param int|null           $orderId The form's ID, if editing an existing form.
+     * @param StripeElement|null $order   The order send back by setRouteParams if any errors on savePaymentForm
      *
      * @return \yii\web\Response
      * @throws HttpException

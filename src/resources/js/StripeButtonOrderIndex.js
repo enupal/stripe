@@ -3,7 +3,7 @@ if (typeof Craft.StripeButton === typeof undefined) {
 }
 
 /**
- * Class Craft.StripeButton.OrderIndex
+ * Class Craft.PaymentForm.OrderIndex
  */
 Craft.StripeButton.OrderIndex = Craft.BaseElementIndex.extend({
     getViewClass: function(mode) {

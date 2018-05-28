@@ -18,7 +18,7 @@ class OrdersQuery extends ElementQuery
     public $id;
     public $dateCreated;
     public $number;
-    public $buttonId;
+    public $formId;
     public $stripeTransactionId;
     public $orderStatusId;
     public $totalPrice;
@@ -114,7 +114,7 @@ class OrdersQuery extends ElementQuery
             'enupalstripe_orders.tax',
             'enupalstripe_orders.discount',
             'enupalstripe_orders.shipping',
-            'enupalstripe_orders.buttonId',
+            'enupalstripe_orders.formId',
             'enupalstripe_orders.quantity',
             'enupalstripe_orders.stripeTransactionId',
             'enupalstripe_orders.transactionInfo',

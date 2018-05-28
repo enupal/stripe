@@ -9,7 +9,6 @@
 namespace enupal\stripe\migrations;
 
 use craft\db\Migration;
-use enupal\stripe\enums\PaypalSize;
 
 /**
  * Installation Migration
@@ -34,7 +33,7 @@ class Install extends Migration
     public function safeDown()
     {
         $this->dropTableIfExists('{{%enupalstripe_orders}}');
-        $this->dropTableIfExists('{{%enupalstripe_buttons}}');
+        $this->dropTableIfExists('{{%enupalstripe_forms}}');
         $this->dropTableIfExists('{{%enupalstripe_customers}}');
 
         return true;
@@ -47,7 +46,7 @@ class Install extends Migration
      */
     protected function createTables()
     {
-        $this->createTable('{{%enupalstripe_buttons}}', [
+        $this->createTable('{{%enupalstripe_forms}}', [
             'id' => $this->primaryKey(),
             'companyName' => $this->string(),
             'name' => $this->string()->notNull(),
@@ -111,7 +110,7 @@ class Install extends Migration
 
         $this->createTable('{{%enupalstripe_orders}}', [
             'id' => $this->primaryKey(),
-            'buttonId' => $this->integer(),
+            'formId' => $this->integer(),
             'testMode' => $this->boolean()->defaultValue(0),
             'number' => $this->string(),
             'currency' => $this->string(),
@@ -163,11 +162,11 @@ class Install extends Migration
         $this->createIndex(
             $this->db->getIndexName(
                 '{{%enupalstripe_orders}}',
-                'buttonId',
+                'formId',
                 false, true
             ),
             '{{%enupalstripe_orders}}',
-            'buttonId',
+            'formId',
             false
         );
     }
@@ -181,9 +180,9 @@ class Install extends Migration
     {
         $this->addForeignKey(
             $this->db->getForeignKeyName(
-                '{{%enupalstripe_buttons}}', 'id'
+                '{{%enupalstripe_forms}}', 'id'
             ),
-            '{{%enupalstripe_buttons}}', 'id',
+            '{{%enupalstripe_forms}}', 'id',
             '{{%elements}}', 'id', 'CASCADE', null
         );
 
@@ -197,10 +196,10 @@ class Install extends Migration
 
         $this->addForeignKey(
             $this->db->getForeignKeyName(
-                '{{%enupalstripe_orders}}', 'buttonId'
+                '{{%enupalstripe_orders}}', 'formId'
             ),
-            '{{%enupalstripe_orders}}', 'buttonId',
-            '{{%enupalstripe_buttons}}', 'id', 'CASCADE', null
+            '{{%enupalstripe_orders}}', 'formId',
+            '{{%enupalstripe_forms}}', 'id', 'CASCADE', null
         );
     }
 }

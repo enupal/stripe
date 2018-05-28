@@ -21,48 +21,48 @@ use craft\helpers\Json;
 use craft\helpers\UrlHelper;
 use enupal\stripe\enums\SubscriptionType;
 use enupal\stripe\web\assets\StripeAsset;
-use enupal\stripe\elements\StripeButton;
+use enupal\stripe\elements\PaymentForm;
 use enupal\stripe\enums\AmountType;
 use enupal\stripe\enums\DiscountType;
 use yii\base\Component;
 use enupal\stripe\Stripe as StripePlugin;
-use enupal\stripe\elements\StripeButton as StripeElement;
-use enupal\stripe\records\StripeButton as StripeButtonRecord;
+use enupal\stripe\elements\PaymentForm as StripeElement;
+use enupal\stripe\records\PaymentForm as PaymentFormRecord;
 use craft\helpers\Template as TemplateHelper;
 
 use yii\base\Exception;
 
-class Buttons extends Component
+class PaymentForms extends Component
 {
-    protected $buttonRecord;
+    protected $paymentFormRecord;
 
     const BASIC_FORM_FIELDS_HANDLE = 'enupalStripeBasicFields';
     const MULTIPLE_PLANS_HANDLE = 'enupalMultiplePlans';
 
     /**
-     * Returns a StripeButton model if one is found in the database by id
+     * Returns a PaymentForm model if one is found in the database by id
      *
      * @param int $id
      * @param int $siteId
      *
-     * @return null|StripeButton|\craft\base\ElementInterface
+     * @return null|PaymentForm|\craft\base\ElementInterface
      */
-    public function getButtonById(int $id, int $siteId = null)
+    public function getPaymentFormById(int $id, int $siteId = null)
     {
-        $button = Craft::$app->getElements()->getElementById($id, StripeElement::class, $siteId);
+        $paymentForm = Craft::$app->getElements()->getElementById($id, StripeElement::class, $siteId);
 
-        return $button;
+        return $paymentForm;
     }
 
     /**
-     * Returns a StripeButton model if one is found in the database by handle
+     * Returns a PaymentForm model if one is found in the database by handle
      *
      * @param string $handle
      * @param int    $siteId
      *
      * @return null|\craft\base\ElementInterface|array
      */
-    public function getButtonBySku($handle, int $siteId = null)
+    public function getPaymentFormBySku($handle, int $siteId = null)
     {
         $query = StripeElement::find();
         $query->handle($handle);
@@ -72,11 +72,11 @@ class Buttons extends Component
     }
 
     /**
-     * Returns all Buttons
+     * Returns all PaymentForms
      *
      * @return null|StripeElement[]
      */
-    public function getAllButtons()
+    public function getAllPaymentForms()
     {
         $query = StripeElement::find();
 
@@ -84,32 +84,32 @@ class Buttons extends Component
     }
 
     /**
-     * @param $button StripeElement
+     * @param $paymentForm StripeElement
      *
      * @throws \Exception
      * @return bool
      * @throws \Throwable
      */
-    public function saveButton(StripeElement $button)
+    public function savePaymentForm(StripeElement $paymentForm)
     {
         $isNewForm = true;
-        if ($button->id) {
-            $buttonRecord = StripeButtonRecord::findOne($button->id);
+        if ($paymentForm->id) {
+            $paymentFormRecord = PaymentFormRecord::findOne($paymentForm->id);
             $isNewForm = false;
 
-            if (!$buttonRecord) {
-                throw new Exception(StripePlugin::t('No StripeButton exists with the ID “{id}”', ['id' => $button->id]));
+            if (!$paymentFormRecord) {
+                throw new Exception(StripePlugin::t('No PaymentForm exists with the ID “{id}”', ['id' => $paymentForm->id]));
             }
         }
 
-        if ($button->enableSubscriptions){
-            if ($button->subscriptionType == SubscriptionType::SINGLE_PLAN && $button->singlePlanInfo){
-                $plan = StripePlugin::$app->plans->getStripePlan($button->singlePlanInfo);
-                $button->singlePlanInfo = Json::encode($plan);
+        if ($paymentForm->enableSubscriptions){
+            if ($paymentForm->subscriptionType == SubscriptionType::SINGLE_PLAN && $paymentForm->singlePlanInfo){
+                $plan = StripePlugin::$app->plans->getStripePlan($paymentForm->singlePlanInfo);
+                $paymentForm->singlePlanInfo = Json::encode($plan);
             }
         }
 
-        if (!$button->validate()) {
+        if (!$paymentForm->validate()) {
             return false;
         }
 
@@ -117,20 +117,20 @@ class Buttons extends Component
 
         try {
             // Set the field context
-            Craft::$app->content->fieldContext = $button->getFieldContext();
+            Craft::$app->content->fieldContext = $paymentForm->getFieldContext();
             if ($isNewForm) {
-                $fieldLayout = $button->getFieldLayout();
+                $fieldLayout = $paymentForm->getFieldLayout();
 
                 // Save the field layout
                 Craft::$app->getFields()->saveLayout($fieldLayout);
 
                 // Assign our new layout id info to our form model and records
-                $button->fieldLayoutId = $fieldLayout->id;
-                $button->setFieldLayout($fieldLayout);
-                $button->fieldLayoutId = $fieldLayout->id;
+                $paymentForm->fieldLayoutId = $fieldLayout->id;
+                $paymentForm->setFieldLayout($fieldLayout);
+                $paymentForm->fieldLayoutId = $fieldLayout->id;
             }
 
-            if (Craft::$app->elements->saveElement($button)) {
+            if (Craft::$app->elements->saveElement($paymentForm)) {
                 $transaction->commit();
             }
         } catch (\Exception $e) {
@@ -153,20 +153,20 @@ class Buttons extends Component
     }
 
     /**
-     * @param StripeElement $button
+     * @param StripeElement $paymentForm
      *
      * @return StripeElement
      */
-    public function populateButtonFromPost(StripeElement $button)
+    public function populatePaymentFormFromPost(StripeElement $paymentForm)
     {
         $request = Craft::$app->getRequest();
 
         $postFields = $request->getBodyParam('fields');
 
-        $button->setAttributes(/** @scrutinizer ignore-type */
+        $paymentForm->setAttributes(/** @scrutinizer ignore-type */
             $postFields, false);
 
-        return $button;
+        return $paymentForm;
     }
 
     /**
@@ -375,44 +375,44 @@ class Buttons extends Component
      * @throws \Exception
      * @throws \Throwable
      */
-    public function createNewButton($name = null, $handle = null): StripeElement
+    public function createNewPaymentForm($name = null, $handle = null): StripeElement
     {
-        $button = new StripeElement();
-        $name = empty($name) ? 'Button' : $name;
-        $handle = empty($handle) ? 'button' : $handle;
+        $paymentForm = new StripeElement();
+        $name = empty($name) ? 'Payment Form' : $name;
+        $handle = empty($handle) ? 'paymentForm' : $handle;
 
         $settings = StripePlugin::$app->settings->getSettings();
 
-        $button->name = $this->getFieldAsNew('name', $name);
-        $button->handle = $this->getFieldAsNew('handle', $handle);
-        $button->hasUnlimitedStock = 1;
-        $button->enableBillingAddress = 0;
-        $button->enableShippingAddress = 0;
-        $button->customerQuantity = 0;
-        $button->buttonClass = 'enupal-stripe-button';
-        $button->amountType = AmountType::ONE_TIME_SET_AMOUNT;
-        $button->currency = $settings->defaultCurrency ? $settings->defaultCurrency : 'USD';
-        $button->enabled = 1;
-        $button->language = 'en';
+        $paymentForm->name = $this->getFieldAsNew('name', $name);
+        $paymentForm->handle = $this->getFieldAsNew('handle', $handle);
+        $paymentForm->hasUnlimitedStock = 1;
+        $paymentForm->enableBillingAddress = 0;
+        $paymentForm->enableShippingAddress = 0;
+        $paymentForm->customerQuantity = 0;
+        $paymentForm->buttonClass = 'enupal-stripe-button';
+        $paymentForm->amountType = AmountType::ONE_TIME_SET_AMOUNT;
+        $paymentForm->currency = $settings->defaultCurrency ? $settings->defaultCurrency : 'USD';
+        $paymentForm->enabled = 1;
+        $paymentForm->language = 'en';
 
         // Set default variant
-        $button = $this->addDefaultVariant($button);
+        $paymentForm = $this->addDefaultVariant($paymentForm);
 
-        $this->saveButton($button);
+        $this->savePaymentForm($paymentForm);
 
-        return $button;
+        return $paymentForm;
     }
 
     /**
-     * This service allows add the variant to a PayPal button
+     * This service allows add the variant to a Stripe Payment Form
      *
-     * @param StripeElement $button
+     * @param StripeElement $paymentForm
      *
      * @return StripeElement|null
      */
-    public function addDefaultVariant(StripeElement $button)
+    public function addDefaultVariant(StripeElement $paymentForm)
     {
-        if (is_null($button)) {
+        if (is_null($paymentForm)) {
             return null;
         }
 
@@ -425,10 +425,10 @@ class Buttons extends Component
         Craft::$app->getContent()->fieldContext = $currentFieldContext;
 
         if (is_null($matrixBasicField) || is_null($matrixMultiplePlans)) {
-            // Can't add variants to this button (Someone delete the fields)
-            // Let's not throw an exception and just return the Button element with not variants
-            Craft::error("Can't add variants to Stripe Button", __METHOD__);
-            return $button;
+            // Can't add variants to this payment form (Someone delete the fields)
+            // Let's not throw an exception and just return the Payment Form element with not variants
+            Craft::error("Can't add variants to Stripe Payment Form", __METHOD__);
+            return $paymentForm;
         }
 
         // Create a tab
@@ -448,11 +448,11 @@ class Buttons extends Component
         // Set the field layout
         $fieldLayout = Craft::$app->fields->assembleLayout($postedFieldLayout, $requiredFields);
 
-        $fieldLayout->type = StripeButton::class;
+        $fieldLayout->type = PaymentForm::class;
         // Set the tab to the form
-        $button->setFieldLayout($fieldLayout);
+        $paymentForm->setFieldLayout($fieldLayout);
 
-        return $button;
+        return $paymentForm;
     }
 
     /**
@@ -509,8 +509,8 @@ class Buttons extends Component
         $band = true;
         do {
             $newField = $field == "handle" ? $value.$i : $value." ".$i;
-            $button = $this->getFieldValue($field, $newField);
-            if (is_null($button)) {
+            $paymentForm = $this->getFieldValue($field, $newField);
+            if (is_null($paymentForm)) {
                 $band = false;
             }
 
@@ -526,11 +526,11 @@ class Buttons extends Component
      * @param string $field
      * @param string $value
      *
-     * @return StripeButtonRecord
+     * @return PaymentFormRecord
      */
     public function getFieldValue($field, $value)
     {
-        $result = StripeButtonRecord::findOne([$field => $value]);
+        $result = PaymentFormRecord::findOne([$field => $value]);
 
         return $result;
     }
@@ -560,7 +560,7 @@ class Buttons extends Component
     }
 
     /**
-     * Returns a complete Stripe Button for display in template
+     * Returns a complete Stripe Payment Form for display in template
      *
      * @param string     $handle
      * @param array|null $options
@@ -569,11 +569,11 @@ class Buttons extends Component
      * @throws \Twig_Error_Loader
      * @throws \yii\base\Exception
      */
-    public function getButtonHtml($handle, array $options = null)
+    public function getPaymentFormHtml($handle, array $options = null)
     {
-        $button = StripePlugin::$app->buttons->getButtonBySku($handle);
-        $templatePath = StripePlugin::$app->buttons->getEnupalStripePath();
-        $buttonHtml = null;
+        $paymentForm = StripePlugin::$app->paymentForms->getPaymentFormBySku($handle);
+        $templatePath = StripePlugin::$app->paymentForms->getEnupalStripePath();
+        $paymentFormHtml = null;
         $settings = StripePlugin::$app->settings->getSettings();
 
         if ($settings->testMode){
@@ -586,11 +586,11 @@ class Buttons extends Component
             }
         }
 
-        if ($button) {
-            if (!$button->hasUnlimitedStock && (int)$button->quantity <= 0) {
-                $buttonHtml = '<span class="error">Out of Stock</span>';
+        if ($paymentForm) {
+            if (!$paymentForm->hasUnlimitedStock && (int)$paymentForm->quantity <= 0) {
+                $paymentFormHtml = '<span class="error">Out of Stock</span>';
 
-                return TemplateHelper::raw($buttonHtml);
+                return TemplateHelper::raw($paymentFormHtml);
             }
 
             $view = Craft::$app->getView();
@@ -600,9 +600,9 @@ class Buttons extends Component
             $view->registerJsFile("https://checkout.stripe.com/checkout.js");
             $view->registerAssetBundle(StripeAsset::class);
 
-            $buttonHtml = $view->renderTemplate(
-                'button', [
-                    'button' => $button,
+            $paymentFormHtml = $view->renderTemplate(
+                'paymentForm', [
+                    'paymentForm' => $paymentForm,
                     'settings' => $settings,
                     'options' => $options
                 ]
@@ -610,31 +610,31 @@ class Buttons extends Component
 
             $view->setTemplatesPath(Craft::$app->path->getSiteTemplatesPath());
         } else {
-            $buttonHtml = StripePlugin::t("Stripe Button not found or disabled");
+            $paymentFormHtml = StripePlugin::t("Stripe Payment Form not found or disabled");
         }
 
-        return TemplateHelper::raw($buttonHtml);
+        return TemplateHelper::raw($paymentFormHtml);
     }
 
     /**
-     * @param StripeElement $button
+     * @param StripeElement $paymentForm
      *
      * @return bool
      * @throws \Exception
      * @throws \Throwable
      * @throws \yii\db\Exception
      */
-    public function deleteButton(StripeElement $button)
+    public function deletePaymentForm(StripeElement $paymentForm)
     {
         $transaction = Craft::$app->db->beginTransaction();
 
         try {
-            // Delete the Button Element
-            $success = Craft::$app->elements->deleteElementById($button->id);
+            // Delete the Payment Form Element
+            $success = Craft::$app->elements->deleteElementById($paymentForm->id);
 
             if (!$success) {
                 $transaction->rollback();
-                Craft::error("Couldn’t delete Stripe Button", __METHOD__);
+                Craft::error("Couldn’t delete Stripe Payment Form", __METHOD__);
 
                 return false;
             }
@@ -787,7 +787,7 @@ class Buttons extends Component
                     ]
                 ],
                 'new4' => [
-                    'name' => 'Radio Buttons',
+                    'name' => 'Radio PaymentForms',
                     'handle' => 'radioButtons',
                     'fields' => [
                         'new1' => [

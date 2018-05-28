@@ -15,7 +15,7 @@ use craft\records\Element;
 /**
  * Class Paypal record.
  */
-class StripeButton extends ActiveRecord
+class PaymentForm extends ActiveRecord
 {
     /**
      * @inheritdoc
@@ -24,7 +24,7 @@ class StripeButton extends ActiveRecord
      */
     public static function tableName(): string
     {
-        return '{{%enupalstripe_buttons}}';
+        return '{{%enupalstripe_forms}}';
     }
 
     /**

@@ -48,11 +48,6 @@ class Stripe extends Plugin
         }
         );
 
-        Event::on(UrlManager::class, UrlManager::EVENT_REGISTER_SITE_URL_RULES, function(RegisterUrlRulesEvent $event) {
-            $event->rules = array_merge($event->rules, $this->getSiteUrlRules());
-        }
-        );
-
         Event::on(
             CraftVariable::class,
             CraftVariable::EVENT_INIT,
@@ -80,7 +75,7 @@ class Stripe extends Plugin
      */
     protected function afterInstall()
     {
-        Stripe::$app->buttons->createDefaultVariantFields();
+        Stripe::$app->paymentForms->createDefaultVariantFields();
     }
 
     /**
@@ -88,7 +83,7 @@ class Stripe extends Plugin
      */
     protected function afterUninstall()
     {
-        Stripe::$app->buttons->deleteVariantFields();
+        Stripe::$app->paymentForms->deleteVariantFields();
     }
 
     /**
@@ -111,9 +106,9 @@ class Stripe extends Plugin
                     "label" => self::t("Orders"),
                     "url" => 'enupal-stripe/orders'
                 ],
-                'buttons' => [
+                'forms' => [
                     "label" => self::t("Payment Forms"),
-                    "url" => 'enupal-stripe/buttons'
+                    "url" => 'enupal-stripe/forms'
                 ],
                 'settings' => [
                     "label" => self::t("Settings"),
@@ -149,31 +144,14 @@ class Stripe extends Plugin
     private function getCpUrlRules()
     {
         return [
-            'enupal-stripe/buttons/new' =>
-                'enupal-stripe/buttons/edit-button',
+            'enupal-stripe/forms/new' =>
+                'enupal-stripe/payment-forms/edit-form',
 
-            'enupal-stripe/buttons/edit/<buttonId:\d+>' =>
-                'enupal-stripe/buttons/edit-button',
+            'enupal-stripe/forms/edit/<formId:\d+>' =>
+                'enupal-stripe/payment-forms/edit-form',
 
             'enupal-stripe/orders/edit/<orderId:\d+>' =>
-                'enupal-stripe/orders/edit-order',
-
-            'enupal-stripe/payments/new' =>
-                'enupal-stripe/payments/edit-button',
-
-            'enupal-stripe/payments/edit/<paymentId:\d+>' =>
-                'enupal-stripe/payments/edit-button',
-        ];
-    }
-
-    /**
-     * @return array
-     */
-    private function getSiteUrlRules()
-    {
-        return [
-            'enupal-stripe/ipn' =>
-                'enupal-stripe/paypal/ipn'
+                'enupal-stripe/orders/edit-order'
         ];
     }
 }

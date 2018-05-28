@@ -10,13 +10,13 @@
 {% extends "enupal-stripe/_layouts/base" %}
 {% import "_includes/forms" as forms %}
 {% set crumbs = [
-    { label: "Stripe Payment Forms"|t('enupal-stripe'), url: cpUrl('enupal-stripe/buttons') }
+    { label: "Stripe Payment Forms"|t('enupal-stripe'), url: cpUrl('enupal-stripe/forms') }
 ] %}
 
 {% set title = 'Edit Payment Form'|t('enupal-stripe') %}
 {% set fullPageForm = true %}
 {% set saveShortcutRedirect = continueEditingUrl %}
-{% set tab = stripeButton.getFieldLayout().getTabs()[0] %}
+{% set tab = stripeForm.getFieldLayout().getTabs()[0] %}
 {% set fields = tab.getFields() %}
 
 {% set tabs = {
@@ -44,24 +44,24 @@
 {% set subscriptionTypes = craft.enupalStripe.getSubscriptionsTypes() %}
 
 {% block actionButton %}
-    <input type="hidden" name="action" value="enupal-stripe/buttons/save-button">
-    {{ redirectInput('enupal-stripe/buttons') }}
-    <input type="hidden" id="buttonId" name="buttonId" value="{{ stripeButton.id is defined ? stripeButton.id : '' }}">
+    <input type="hidden" name="action" value="enupal-stripe/payment-forms/save-form">
+    {{ redirectInput('enupal-stripe/forms') }}
+    <input type="hidden" id="formId" name="formId" value="{{ stripeForm.id is defined ? stripeForm.id : '' }}">
 
     <div class="btngroup submit first">
         <input type="submit" class="btn submit" value="{{ 'Save'|t('enupal-stripe') }}">
-        {% if stripeButton.id != null %}
+        {% if stripeForm.id != null %}
             <div class="btn submit menubtn"></div>
             <div class="menu">
                 <ul>
-                    <li><a class="formsubmit" data-redirect="{{('enupal-stripe/buttons/edit/'~stripeButton.id)|hash}}">{{ "Save and continue editing"|t('enupal-stripe') }} <span class="shortcut">⌘S</span></a></li>
+                    <li><a class="formsubmit" data-redirect="{{('enupal-stripe/forms/edit/'~stripeForm.id)|hash}}">{{ "Save and continue editing"|t('enupal-stripe') }} <span class="shortcut">⌘S</span></a></li>
                 </ul>
                 <hr>
                 <ul>
                     <li><a class="formsubmit error"
-                           data-action="enupal-stripe/buttons/delete-button"
-                           data-confirm='{{ "Are you sure you want to delete this Stripe Button, and all of it's orders?"|t('enupal-stripe') }}'
-                           data-redirect="{{ 'enupal-stripe/buttons'|hash }}">{{ "Delete"|t('enupal-stripe') }}</a>
+                           data-action="enupal-stripe/payment-forms/delete-form"
+                           data-confirm='{{ "Are you sure you want to delete this Payment Form, and all of it's orders?"|t('enupal-stripe') }}'
+                           data-redirect="{{ 'enupal-stripe/forms'|hash }}">{{ "Delete"|t('enupal-stripe') }}</a>
                     </li>
                 </ul>
             </div>
@@ -70,9 +70,9 @@
 {% endblock %}
 
 {% block content %}
-    <input type="hidden" name="action" value="enupal-stripe/buttons/save-button">
-    <input type="hidden" name="handle" value="{{ stripeButton.handle }}">
-    <input type="hidden" name="buttonId" value="{{ buttonId }}">
+    <input type="hidden" name="action" value="enupal-stripe/payment-forms/save-form">
+    <input type="hidden" name="handle" value="{{ stripeForm.handle }}">
+    <input type="hidden" name="formId" value="{{ formId }}">
 
     {% namespace 'fields' %}
     <div id="tab1">
@@ -88,8 +88,8 @@
                 instructions: 'The name of your product or company',
                 id: 'companyName',
                 name: 'companyName',
-                value: stripeButton.companyName,
-                errors: stripeButton.getErrors('companyName'),
+                value: stripeForm.companyName,
+                errors: stripeForm.getErrors('companyName'),
                 autofocus: true,
                 required: true
             }) }}
@@ -100,8 +100,8 @@
                 instructions: 'What this Stripe Button will be called in the CP. This value will be used to set the <strong>Item Description</strong> in the Stripe checkout window',
                 id: 'name',
                 name: 'name',
-                value: stripeButton.name,
-                errors: stripeButton.getErrors('name'),
+                value: stripeForm.name,
+                errors: stripeForm.getErrors('name'),
                 autofocus: true,
                 required: true
             }) }}
@@ -124,7 +124,7 @@
             })) }}
             <hr>
             {{ forms.field({
-                label: "Pay Buttons Settings"|t('enupal-stripe'),
+                label: "Pay PaymentForms Settings"|t('enupal-stripe'),
                 instructions: "Configure the text for the Pay Form Button and the Checkout Button"|t('enupal-stripe')
             }, null) }}
              <hr>
@@ -135,8 +135,8 @@
                 placeholder: 'Pay with card',
                 id: 'buttonText',
                 name: 'buttonText',
-                value: stripeButton.buttonText,
-                errors: stripeButton.getErrors('buttonText')
+                value: stripeForm.buttonText,
+                errors: stripeForm.getErrors('buttonText')
             }) }}
 
             {{ forms.textField({
@@ -146,8 +146,8 @@
                 placeholder: 'Please wait...',
                 id: 'paymentButtonProcessingText',
                 name: 'paymentButtonProcessingText',
-                value: stripeButton.paymentButtonProcessingText,
-                errors: stripeButton.getErrors('paymentButtonProcessingText')
+                value: stripeForm.paymentButtonProcessingText,
+                errors: stripeForm.getErrors('paymentButtonProcessingText')
             }) }}
 
             {{ forms.textField({
@@ -157,8 +157,8 @@
                 placeholder: 'Pay {{amount}}',
                 id: 'checkoutButtonText',
                 name: 'checkoutButtonText',
-                value: stripeButton.checkoutButtonText,
-                errors: stripeButton.getErrors('checkoutButtonText')
+                value: stripeForm.checkoutButtonText,
+                errors: stripeForm.getErrors('checkoutButtonText')
             }) }}
     </div>
     <div id="tab2" class="hidden">
@@ -167,24 +167,24 @@
             instructions: "Connect a payment button to an individual Stripe plan or let your site visitors pick a plan to subscribe to. Add a custom amount option, charge a setup fee or tie into free trials."|t('enupal-stripe'),
             id: 'enableSubscriptions',
             name: 'enableSubscriptions',
-            on: stripeButton.enableSubscriptions,
+            on: stripeForm.enableSubscriptions,
             toggle: 'subscriptions-wrapper'
         }) }}
         <hr>
-        <div id="subscriptions-wrapper" {% if not stripeButton.enableSubscriptions %} class="hidden" {% endif %}>
+        <div id="subscriptions-wrapper" {% if not stripeForm.enableSubscriptions %} class="hidden" {% endif %}>
 
             {{ forms.selectField({
                 label: "Subscription Type"|t('enupal-stripe'),
                 id: 'subscriptionType',
                 name: 'subscriptionType',
                 options: subscriptionTypes,
-                value: stripeButton.subscriptionType
+                value: stripeForm.subscriptionType
             }) }}
 
-            <div id="single-subscription-wrapper" {% if stripeButton.subscriptionType != 0 %}  class="hidden" {% endif %}>
+            <div id="single-subscription-wrapper" {% if stripeForm.subscriptionType != 0 %}  class="hidden" {% endif %}>
 
                 {% set planList = [] %}
-                {% set singlePlan = stripeButton.getSinglePlan() %}
+                {% set singlePlan = stripeForm.getSinglePlan() %}
                 {% set planInput %}
                     {% if singlePlan.id is defined and singlePlan.nickname is defined %}
                         {% set planList = planList|merge([{'label': singlePlan.defaultPlanName, 'value': singlePlan.id}]) %}
@@ -204,13 +204,13 @@
                     </div>
                 {% endset %}
 
-                <div id="single-plan-select-wrapper" {% if stripeButton.enableCustomPlanAmount %}  class="hidden" {% endif %}>
+                <div id="single-plan-select-wrapper" {% if stripeForm.enableCustomPlanAmount %}  class="hidden" {% endif %}>
 
                     {{ forms.field({
                         label: "Select Plan"|t('enupal-stripe'),
                         instructions: "Select any plan created on stripe. Remember check the plan when you go live"|t('enupal-stripe'),
                         id: 'plan',
-                        errors: stripeButton.getErrors('singlePlanInfo'),
+                        errors: stripeForm.getErrors('singlePlanInfo'),
                     }, planInput) }}
 
                 </div>
@@ -222,9 +222,9 @@
                     instructions: 'Setup Fee for the first payment',
                     name: 'singlePlanSetupFee',
                     placeholder: 'Enter amount',
-                    unit: stripeButton.currency,
-                    value: (stripeButton.singlePlanSetupFee == '0' ? '0'|number : (stripeButton.singlePlanSetupFee ? stripeButton.singlePlanSetupFee|number ?: '')),
-                    errors: stripeButton.getErrors('singlePlanSetupFee'),
+                    unit: stripeForm.currency,
+                    value: (stripeForm.singlePlanSetupFee == '0' ? '0'|number : (stripeForm.singlePlanSetupFee ? stripeForm.singlePlanSetupFee|number ?: '')),
+                    errors: stripeForm.getErrors('singlePlanSetupFee'),
                     autofocus: true,
                 }) }}
 
@@ -233,10 +233,10 @@
                     instructions: "This option allows the user enter a custom amount. It will create a new subscription plan for this customer."|t('enupal-stripe'),
                     id: 'enableCustomPlanAmount',
                     name: 'enableCustomPlanAmount',
-                    on: stripeButton.enableCustomPlanAmount,
+                    on: stripeForm.enableCustomPlanAmount,
                     toggle: 'custom-single-plan-wrapper'
                 }) }}
-                <div id="custom-single-plan-wrapper" {% if not stripeButton.enableCustomPlanAmount %}  class="hidden" {% endif %}>
+                <div id="custom-single-plan-wrapper" {% if not stripeForm.enableCustomPlanAmount %}  class="hidden" {% endif %}>
                     <hr>
                     {{ forms.textField({
                         first: true,
@@ -244,9 +244,9 @@
                         id: 'customPlanMinimumAmount',
                         name: 'customPlanMinimumAmount',
                         placeholder: 'Enter amount',
-                        unit: stripeButton.currency,
-                        value: (stripeButton.customPlanMinimumAmount == '0' ? '0'|number : (stripeButton.customPlanMinimumAmount ? stripeButton.customPlanMinimumAmount|number ?: '')),
-                        errors: stripeButton.getErrors('customPlanMinimumAmount'),
+                        unit: stripeForm.currency,
+                        value: (stripeForm.customPlanMinimumAmount == '0' ? '0'|number : (stripeForm.customPlanMinimumAmount ? stripeForm.customPlanMinimumAmount|number ?: '')),
+                        errors: stripeForm.getErrors('customPlanMinimumAmount'),
                         autofocus: true,
                     }) }}
 
@@ -256,9 +256,9 @@
                         id: 'customPlanDefaultAmount',
                         name: 'customPlanDefaultAmount',
                         placeholder: 'Enter amount',
-                        unit: stripeButton.currency,
-                        value: (stripeButton.customPlanDefaultAmount == '0' ? '0'|number : (stripeButton.customPlanDefaultAmount ? stripeButton.customPlanDefaultAmount|number ?: '')),
-                        errors: stripeButton.getErrors('customPlanDefaultAmount'),
+                        unit: stripeForm.currency,
+                        value: (stripeForm.customPlanDefaultAmount == '0' ? '0'|number : (stripeForm.customPlanDefaultAmount ? stripeForm.customPlanDefaultAmount|number ?: '')),
+                        errors: stripeForm.getErrors('customPlanDefaultAmount'),
                         autofocus: true,
                     }) }}
 
@@ -270,7 +270,7 @@
                                     id: 'customPlanInterval',
                                     name: 'customPlanInterval',
                                     placeholder: 'Enter interval'|t('enupal-stripe'),
-                                    value: stripeButton.customPlanInterval ?? 1
+                                    value: stripeForm.customPlanInterval ?? 1
                                 }) }}
                             </div>
                             <div class="textwrapper">
@@ -278,7 +278,7 @@
                                     id: 'customPlanInterval',
                                     name: 'customPlanFrequency',
                                     options: frequencyOptions,
-                                    value: stripeButton.customPlanInterval
+                                    value: stripeForm.customPlanInterval
                                 }) }}
                             </div>
                         </div>
@@ -288,7 +288,7 @@
                         id: 'interval-frequency',
                         instructions: "The number of intervals between subscription billings. For example, Interval=month and Frequency=3 bills every 3 months. Maximum of one year interval allowed (1 year, 12 months, or 52 weeks).",
                         label: 'Interval/Frequency'|t('enupal-stripe'),
-                        errors: stripeButton.getErrors('customPlanInterval')|merge(stripeButton.getErrors('customPlanInterval')),
+                        errors: stripeForm.getErrors('customPlanInterval')|merge(stripeForm.getErrors('customPlanInterval')),
                     }, frequencyInput) }}
 
                     {{ forms.textField({
@@ -298,20 +298,20 @@
                         id: 'singlePlanTrialPeriod',
                         name: 'singlePlanTrialPeriod',
                         unit: 'Days',
-                        value: stripeButton.singlePlanTrialPeriod,
-                        errors: stripeButton.getErrors('singlePlanTrialPeriod'),
+                        value: stripeForm.singlePlanTrialPeriod,
+                        errors: stripeForm.getErrors('singlePlanTrialPeriod'),
                         autofocus: true,
                     }) }}
                 </div>
             </div>
 
-            <div id="multiple-subscriptions-wrapper" {% if stripeButton.subscriptionType != 1 %}  class="hidden" {% endif %}>
+            <div id="multiple-subscriptions-wrapper" {% if stripeForm.subscriptionType != 1 %}  class="hidden" {% endif %}>
                 {{ forms.selectField({
                     label: "Display Plans As"|t('enupal-stripe'),
                     id: 'subscriptionStyle',
                     name: 'subscriptionStyle',
                     options: {'radio':'Radio','dropdown':'Dropdown'},
-                    value: stripeButton.subscriptionStyle
+                    value: stripeForm.subscriptionStyle
                 }) }}
 
                 {{ forms.textField({
@@ -321,17 +321,17 @@
                     placeholder: "Select a Plan...",
                     id: 'selectPlanLabel',
                     name: 'selectPlanLabel',
-                    value: stripeButton.selectPlanLabel,
-                    errors: stripeButton.getErrors('selectPlanLabel'),
+                    value: stripeForm.selectPlanLabel,
+                    errors: stripeForm.getErrors('selectPlanLabel'),
                     autofocus: true,
                 }) }}
                 <hr>
                 {% for field in fields %}
-                    {% if field.handle == stripeButton.getMultiplePlansHandle() %}
+                    {% if field.handle == stripeForm.getMultiplePlansHandle() %}
                         {% include "_includes/field" with {
                             field:    field,
                             required: field.required,
-                            element:  stripeButton,
+                            element:  stripeForm,
                             static: null
                         } only %}
                     {% endif %}
@@ -342,11 +342,11 @@
     </div>
     <div id="tab3" class="hidden">
         {% for field in fields %}
-            {% if field.handle == stripeButton.getFormFieldHandle() %}
+            {% if field.handle == stripeForm.getFormFieldHandle() %}
                 {% include "_includes/field" with {
                     field:    field,
                     required: field.required,
-                    element:  stripeButton,
+                    element:  stripeForm,
                     static: null
                 } only %}
             {% endif %}
@@ -357,17 +357,17 @@
 
 {% block details %}
     {% namespace 'fields' %}
-        {% include "enupal-stripe/buttons/_sidebar/settings" %}
+        {% include "enupal-stripe/forms/_sidebar/settings" %}
         <hr>
     {% endnamespace %}
     <div class="meta read-only">
         <div class="data">
             <h5 class="heading">{{ "Date Created"|t('commerce') }}</h5>
-            <div class="value">{{ stripeButton.dateCreated|date('short') }} {{ stripeButton.dateCreated|time('short') }}</div>
+            <div class="value">{{ stripeForm.dateCreated|date('short') }} {{ stripeForm.dateCreated|time('short') }}</div>
         </div>
         <div class="data">
             <h5 class="heading">{{ "Date Updated"|t('commerce') }}</h5>
-            <div class="value">{{ stripeButton.dateUpdated|date('short') }} {{ stripeButton.dateUpdated|time('short') }}</div>
+            <div class="value">{{ stripeForm.dateUpdated|date('short') }} {{ stripeForm.dateUpdated|time('short') }}</div>
         </div>
     </div>
 {% endblock %}

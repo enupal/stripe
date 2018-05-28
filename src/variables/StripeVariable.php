@@ -11,7 +11,6 @@ namespace enupal\stripe\variables;
 use enupal\stripe\enums\OrderStatus;
 use enupal\stripe\enums\FrequencyType;
 use enupal\stripe\Stripe;
-use enupal\stripe\PaypalButtons;
 use craft\helpers\Template as TemplateHelper;
 use Craft;
 
@@ -61,7 +60,7 @@ class StripeVariable
      */
     public function paymentForm($handle, array $options = null)
     {
-        return Stripe::$app->buttons->getButtonHtml($handle, $options);
+        return Stripe::$app->paymentForms->getPaymentFormHtml($handle, $options);
     }
 
     /**
@@ -69,7 +68,7 @@ class StripeVariable
      */
     public function getCurrencyIsoOptions()
     {
-        return Stripe::$app->buttons->getIsoCurrencies();
+        return Stripe::$app->paymentForms->getIsoCurrencies();
     }
 
     /**
@@ -77,7 +76,7 @@ class StripeVariable
      */
     public function getCurrencyOptions()
     {
-        return Stripe::$app->buttons->getCurrencies();
+        return Stripe::$app->paymentForms->getCurrencies();
     }
 
     /**
@@ -85,7 +84,7 @@ class StripeVariable
      */
     public function getLanguageOptions()
     {
-        return Stripe::$app->buttons->getLanguageOptions();
+        return Stripe::$app->paymentForms->getLanguageOptions();
     }
 
     /**
@@ -93,7 +92,7 @@ class StripeVariable
      */
     public function getDiscountOptions()
     {
-        return Stripe::$app->buttons->getDiscountOptions();
+        return Stripe::$app->paymentForms->getDiscountOptions();
     }
 
     /**
@@ -101,7 +100,7 @@ class StripeVariable
      */
     public function getAmountTypeOptions()
     {
-        return Stripe::$app->buttons->getAmountTypeOptions();
+        return Stripe::$app->paymentForms->getAmountTypeOptions();
     }
 
     /**
@@ -135,7 +134,7 @@ class StripeVariable
      */
     public function getSubscriptionsTypes()
     {
-        $options = Stripe::$app->buttons->getSubscriptionsTypes();
+        $options = Stripe::$app->paymentForms->getSubscriptionsTypes();
 
         return $options;
     }
@@ -145,7 +144,7 @@ class StripeVariable
      */
     public function getSubscriptionsPlans()
     {
-        $options = Stripe::$app->buttons->getSubscriptionsTypes();
+        $options = Stripe::$app->paymentForms->getSubscriptionsTypes();
 
         return $options;
     }
@@ -157,7 +156,7 @@ class StripeVariable
      */
     public function labelToHandle($label)
     {
-        $handle = Stripe::$app->buttons->labelToHandle($label);
+        $handle = Stripe::$app->paymentForms->labelToHandle($label);
 
         return strtolower($handle);
     }
@@ -171,7 +170,7 @@ class StripeVariable
      */
     public function displayField($block)
     {
-        $templatePath = Stripe::$app->buttons->getEnupalStripePath();
+        $templatePath = Stripe::$app->paymentForms->getEnupalStripePath();
         $view = Craft::$app->getView();
         $view->setTemplatesPath($templatePath);
 
@@ -198,7 +197,7 @@ class StripeVariable
      */
     public function displayMultiSelect($type, $matrix)
     {
-        $templatePath = Stripe::$app->buttons->getEnupalStripePath();
+        $templatePath = Stripe::$app->paymentForms->getEnupalStripePath();
         $view = Craft::$app->getView();
         $view->setTemplatesPath($templatePath);
 
