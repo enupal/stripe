@@ -18,7 +18,7 @@ use enupal\stripe\services\App;
 use enupal\stripe\services\Orders;
 use yii\base\Event;
 use craft\web\twig\variables\CraftVariable;
-use enupal\stripe\fields\Buttons as BuyNowButtonField;
+use enupal\stripe\fields\StripePaymentsForms as BuyNowButtonField;
 
 use enupal\stripe\variables\StripeVariable;
 use enupal\stripe\models\Settings;
