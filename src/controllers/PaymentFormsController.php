@@ -18,7 +18,7 @@ use yii\web\NotFoundHttpException;
 
 use enupal\stripe\elements\PaymentForm as StripeElement;
 
-class ButtonsController extends BaseController
+class PaymentFormsController extends BaseController
 {
     /**
      * Save a Button
@@ -28,7 +28,7 @@ class ButtonsController extends BaseController
      * @throws \Throwable
      * @throws \yii\web\BadRequestHttpException
      */
-    public function actionSaveButton()
+    public function actionSaveForm()
     {
         $this->requirePostRequest();
 
@@ -61,7 +61,7 @@ class ButtonsController extends BaseController
     }
 
     /**
-     * Edit a Button.
+     * Edit a Payment Form.
      *
      * @param int|null           $formId The button's ID, if editing an existing button.
      * @param StripeElement|null $paymentForm   The button send back by setRouteParams if any errors on savePaymentForm
@@ -71,7 +71,7 @@ class ButtonsController extends BaseController
      * @throws \Exception
      * @throws \Throwable
      */
-    public function actionEditButton(int $formId = null, StripeElement $paymentForm = null)
+    public function actionEditForm(int $formId = null, StripeElement $paymentForm = null)
     {
        # $paymentForm = Stripe::$app->paymentForms->getPaymentFormById($formId);
        # foreach ($paymentForm->{Stripe::$app->paymentForms::MULTIPLE_PLANS_HANDLE} as $item) {
@@ -85,7 +85,7 @@ class ButtonsController extends BaseController
             $paymentForm = Stripe::$app->paymentForms->createNewPaymentForm();
 
             if ($paymentForm->id) {
-                $url = UrlHelper::cpUrl('enupal-stripe/buttons/edit/'.$paymentForm->id);
+                $url = UrlHelper::cpUrl('enupal-stripe/forms/edit/'.$paymentForm->id);
                 return $this->redirect($url);
             } else {
                 throw new \Exception(Stripe::t('Error creating Button'));
@@ -110,11 +110,11 @@ class ButtonsController extends BaseController
         $variables['stripeForm'] = $paymentForm;
 
         // Set the "Continue Editing" URL
-        $variables['continueEditingUrl'] = 'enupal-stripe/buttons/edit/{id}';
+        $variables['continueEditingUrl'] = 'enupal-stripe/forms/edit/{id}';
 
         $variables['settings'] = Stripe::$app->settings->getSettings();
 
-        return $this->renderTemplate('enupal-stripe/buttons/_edit', $variables);
+        return $this->renderTemplate('enupal-stripe/forms/_edit', $variables);
     }
 
     /**
@@ -126,7 +126,7 @@ class ButtonsController extends BaseController
      * @throws \yii\db\Exception
      * @throws \yii\web\BadRequestHttpException
      */
-    public function actionDeleteButton()
+    public function actionDeleteForm()
     {
         $this->requirePostRequest();
 
@@ -137,6 +137,8 @@ class ButtonsController extends BaseController
 
         // @TODO - handle errors
         Stripe::$app->paymentForms->deletePaymentForm($paymentForm);
+
+        Craft::$app->getSession()->setNotice(Stripe::t('Payment form deleted.'));
 
         return $this->redirectToPostedUrl($paymentForm);
     }

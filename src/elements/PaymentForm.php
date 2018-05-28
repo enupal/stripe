@@ -323,7 +323,7 @@ class PaymentForm extends Element
     public function getCpEditUrl()
     {
         return UrlHelper::cpUrl(
-            'enupal-stripe/buttons/edit/'.$this->id
+            'enupal-stripe/forms/edit/'.$this->id
         );
     }
 
@@ -379,8 +379,8 @@ class PaymentForm extends Element
         // Delete
         $actions[] = Craft::$app->getElements()->createAction([
             'type' => Delete::class,
-            'confirmationMessage' => StripePlugin::t("Are you sure you want to delete this Stripe Button, and all of it's orders?"),
-            'successMessage' => StripePlugin::t('Payapal PaymentForms deleted.'),
+            'confirmationMessage' => StripePlugin::t("Are you sure you want to delete this Payment Form, and all of it's orders?"),
+            'successMessage' => StripePlugin::t('Payment Forms deleted.'),
         ]);
 
         return $actions;

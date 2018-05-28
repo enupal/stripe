@@ -106,9 +106,9 @@ class Stripe extends Plugin
                     "label" => self::t("Orders"),
                     "url" => 'enupal-stripe/orders'
                 ],
-                'buttons' => [
+                'forms' => [
                     "label" => self::t("Payment Forms"),
-                    "url" => 'enupal-stripe/buttons'
+                    "url" => 'enupal-stripe/forms'
                 ],
                 'settings' => [
                     "label" => self::t("Settings"),
@@ -144,20 +144,14 @@ class Stripe extends Plugin
     private function getCpUrlRules()
     {
         return [
-            'enupal-stripe/buttons/new' =>
-                'enupal-stripe/buttons/edit-button',
+            'enupal-stripe/forms/new' =>
+                'enupal-stripe/payment-forms/edit-form',
 
-            'enupal-stripe/buttons/edit/<formId:\d+>' =>
-                'enupal-stripe/buttons/edit-button',
+            'enupal-stripe/forms/edit/<formId:\d+>' =>
+                'enupal-stripe/payment-forms/edit-form',
 
             'enupal-stripe/orders/edit/<orderId:\d+>' =>
-                'enupal-stripe/orders/edit-order',
-
-            'enupal-stripe/payments/new' =>
-                'enupal-stripe/payments/edit-button',
-
-            'enupal-stripe/payments/edit/<paymentId:\d+>' =>
-                'enupal-stripe/payments/edit-button',
+                'enupal-stripe/orders/edit-order'
         ];
     }
 }

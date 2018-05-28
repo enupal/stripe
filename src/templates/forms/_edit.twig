@@ -10,7 +10,7 @@
 {% extends "enupal-stripe/_layouts/base" %}
 {% import "_includes/forms" as forms %}
 {% set crumbs = [
-    { label: "Stripe Payment Forms"|t('enupal-stripe'), url: cpUrl('enupal-stripe/buttons') }
+    { label: "Stripe Payment Forms"|t('enupal-stripe'), url: cpUrl('enupal-stripe/forms') }
 ] %}
 
 {% set title = 'Edit Payment Form'|t('enupal-stripe') %}
@@ -44,8 +44,8 @@
 {% set subscriptionTypes = craft.enupalStripe.getSubscriptionsTypes() %}
 
 {% block actionButton %}
-    <input type="hidden" name="action" value="enupal-stripe/buttons/save-button">
-    {{ redirectInput('enupal-stripe/buttons') }}
+    <input type="hidden" name="action" value="enupal-stripe/forms/save-button">
+    {{ redirectInput('enupal-stripe/forms') }}
     <input type="hidden" id="formId" name="formId" value="{{ stripeForm.id is defined ? stripeForm.id : '' }}">
 
     <div class="btngroup submit first">
@@ -54,14 +54,14 @@
             <div class="btn submit menubtn"></div>
             <div class="menu">
                 <ul>
-                    <li><a class="formsubmit" data-redirect="{{('enupal-stripe/buttons/edit/'~stripeForm.id)|hash}}">{{ "Save and continue editing"|t('enupal-stripe') }} <span class="shortcut">⌘S</span></a></li>
+                    <li><a class="formsubmit" data-redirect="{{('enupal-stripe/forms/edit/'~stripeForm.id)|hash}}">{{ "Save and continue editing"|t('enupal-stripe') }} <span class="shortcut">⌘S</span></a></li>
                 </ul>
                 <hr>
                 <ul>
                     <li><a class="formsubmit error"
-                           data-action="enupal-stripe/buttons/delete-button"
-                           data-confirm='{{ "Are you sure you want to delete this Stripe Button, and all of it's orders?"|t('enupal-stripe') }}'
-                           data-redirect="{{ 'enupal-stripe/buttons'|hash }}">{{ "Delete"|t('enupal-stripe') }}</a>
+                           data-action="enupal-stripe/payment-forms/delete-form"
+                           data-confirm='{{ "Are you sure you want to delete this Payment Form, and all of it's orders?"|t('enupal-stripe') }}'
+                           data-redirect="{{ 'enupal-stripe/forms'|hash }}">{{ "Delete"|t('enupal-stripe') }}</a>
                     </li>
                 </ul>
             </div>
@@ -70,7 +70,7 @@
 {% endblock %}
 
 {% block content %}
-    <input type="hidden" name="action" value="enupal-stripe/buttons/save-button">
+    <input type="hidden" name="action" value="enupal-stripe/forms/save-button">
     <input type="hidden" name="handle" value="{{ stripeForm.handle }}">
     <input type="hidden" name="formId" value="{{ formId }}">
 
@@ -357,7 +357,7 @@
 
 {% block details %}
     {% namespace 'fields' %}
-        {% include "enupal-stripe/buttons/_sidebar/settings" %}
+        {% include "enupal-stripe/forms/_sidebar/settings" %}
         <hr>
     {% endnamespace %}
     <div class="meta read-only">
