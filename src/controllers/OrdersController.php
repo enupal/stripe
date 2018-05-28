@@ -14,7 +14,7 @@ use enupal\stripe\Stripe;
 use yii\web\NotFoundHttpException;
 use yii\base\Exception;
 
-use enupal\stripe\elements\StripeButton as StripeElement;
+use enupal\stripe\elements\PaymentForm as StripeElement;
 
 class OrdersController extends BaseController
 {

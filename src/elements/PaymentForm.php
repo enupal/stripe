@@ -22,15 +22,15 @@ use yii\base\ErrorHandler;
 use craft\helpers\UrlHelper;
 use craft\elements\actions\Delete;
 
-use enupal\stripe\elements\db\StripeButtonsQuery;
+use enupal\stripe\elements\db\PaymentFormsQuery;
 use enupal\stripe\records\StripeButton as StripeButtonRecord;
 use enupal\stripe\Stripe as StripePlugin;
 use craft\validators\UniqueValidator;
 
 /**
- * StripeButton represents a entry element.
+ * PaymentForm represents a entry element.
  */
-class StripeButton extends Element
+class PaymentForm extends Element
 {
     /**
      * @inheritdoc
@@ -346,11 +346,11 @@ class StripeButton extends Element
     /**
      * @inheritdoc
      *
-     * @return StripeButtonsQuery The newly created [[StripeButtonsQuery]] instance.
+     * @return PaymentFormsQuery The newly created [[PaymentFormsQuery]] instance.
      */
     public static function find(): ElementQueryInterface
     {
-        return new StripeButtonsQuery(get_called_class());
+        return new PaymentFormsQuery(get_called_class());
     }
 
     /**
@@ -472,12 +472,12 @@ class StripeButton extends Element
     public function afterSave(bool $isNew)
     {
         $record = new StripeButtonRecord();
-        // Get the StripeButton record
+        // Get the PaymentForm record
         if (!$isNew) {
             $record = StripeButtonRecord::findOne($this->id);
 
             if (!$record) {
-                throw new \Exception('Invalid StripeButton ID: '.$this->id);
+                throw new \Exception('Invalid PaymentForm ID: '.$this->id);
             }
         } else {
             $record->id = $this->id;

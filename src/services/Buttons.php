@@ -21,12 +21,12 @@ use craft\helpers\Json;
 use craft\helpers\UrlHelper;
 use enupal\stripe\enums\SubscriptionType;
 use enupal\stripe\web\assets\StripeAsset;
-use enupal\stripe\elements\StripeButton;
+use enupal\stripe\elements\PaymentForm;
 use enupal\stripe\enums\AmountType;
 use enupal\stripe\enums\DiscountType;
 use yii\base\Component;
 use enupal\stripe\Stripe as StripePlugin;
-use enupal\stripe\elements\StripeButton as StripeElement;
+use enupal\stripe\elements\PaymentForm as StripeElement;
 use enupal\stripe\records\StripeButton as StripeButtonRecord;
 use craft\helpers\Template as TemplateHelper;
 
@@ -40,12 +40,12 @@ class Buttons extends Component
     const MULTIPLE_PLANS_HANDLE = 'enupalMultiplePlans';
 
     /**
-     * Returns a StripeButton model if one is found in the database by id
+     * Returns a PaymentForm model if one is found in the database by id
      *
      * @param int $id
      * @param int $siteId
      *
-     * @return null|StripeButton|\craft\base\ElementInterface
+     * @return null|PaymentForm|\craft\base\ElementInterface
      */
     public function getButtonById(int $id, int $siteId = null)
     {
@@ -55,7 +55,7 @@ class Buttons extends Component
     }
 
     /**
-     * Returns a StripeButton model if one is found in the database by handle
+     * Returns a PaymentForm model if one is found in the database by handle
      *
      * @param string $handle
      * @param int    $siteId
@@ -98,7 +98,7 @@ class Buttons extends Component
             $isNewForm = false;
 
             if (!$buttonRecord) {
-                throw new Exception(StripePlugin::t('No StripeButton exists with the ID “{id}”', ['id' => $button->id]));
+                throw new Exception(StripePlugin::t('No PaymentForm exists with the ID “{id}”', ['id' => $button->id]));
             }
         }
 
@@ -448,7 +448,7 @@ class Buttons extends Component
         // Set the field layout
         $fieldLayout = Craft::$app->fields->assembleLayout($postedFieldLayout, $requiredFields);
 
-        $fieldLayout->type = StripeButton::class;
+        $fieldLayout->type = PaymentForm::class;
         // Set the tab to the form
         $button->setFieldLayout($fieldLayout);
 

@@ -9,7 +9,7 @@
 namespace enupal\stripe\fields;
 
 use craft\fields\BaseRelationField;
-use enupal\stripe\elements\StripeButton;
+use enupal\stripe\elements\PaymentForm;
 use enupal\stripe\Stripe as StripePlugin;
 
 /**
@@ -36,7 +36,7 @@ class StripePaymentForms extends BaseRelationField
      */
     protected static function elementType(): string
     {
-        return StripeButton::class;
+        return PaymentForm::class;
     }
 
     /**

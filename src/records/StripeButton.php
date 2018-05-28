@@ -24,7 +24,7 @@ class StripeButton extends ActiveRecord
      */
     public static function tableName(): string
     {
-        return '{{%enupalstripe_buttons}}';
+        return '{{%enupalstripe_forms}}';
     }
 
     /**
