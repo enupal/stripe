@@ -24,6 +24,9 @@ var enupalStripe = {};
         },
 
         initializeForm: function(enupalButtonElement) {
+            if (typeof $(enupalButtonElement).find('[name="enupalStripe[stripeData]"]').val() === 'undefined'){
+                return false;
+            }
             // get the form ID
             var enupalStripeData = $.parseJSON($(enupalButtonElement).find('[name="enupalStripe[stripeData]"]').val());
 
