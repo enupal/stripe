@@ -16,8 +16,8 @@
         label: "Handle <span class='info'>How you’ll refer to this Stripe Form in the templates.</span>"|t('enupal-stripe'),
         id: 'handle',
         name: 'handle',
-        value: stripeButton.handle,
-        errors: stripeButton.getErrors('handle'),
+        value: stripeForm.handle,
+        errors: stripeForm.getErrors('handle'),
         autofocus: true,
         required: true
     }) }}
@@ -27,18 +27,18 @@
         id: 'language',
         name: 'language',
         options: languageOptions,
-        value: stripeButton.language
+        value: stripeForm.language
     }) }}
 
     {{ forms.lightswitchField({
         label: "Enabled"|t('enupal-stripe'),
         id: 'enabled',
         name: 'enabled',
-        on: stripeButton.enabled
+        on: stripeForm.enabled
     }) }}
 </div>
 <hr>
-<div id="one-time-payment-wrapper" class="meta {% if stripeButton.enableSubscriptions %} hidden {% endif %}">
+<div id="one-time-payment-wrapper" class="meta {% if stripeForm.enableSubscriptions %} hidden {% endif %}">
     <h6>{{ 'One Time Payment'|t('sprout-forms') }}</h6>
     {% set amountInput %}
     <div class="flex">
@@ -48,7 +48,7 @@
                 id: 'amount',
                 name: 'amount',
                 placeholder: 'Enter amount'|t('enupal-stripe'),
-                value: (stripeButton.amount == '0' ? '0'|number : (stripeButton.amount ? stripeButton.amount|number ?: ''))
+                value: (stripeForm.amount == '0' ? '0'|number : (stripeForm.amount ? stripeForm.amount|number ?: ''))
             }) }}
         </div>
         <div class="textwrapper">
@@ -56,7 +56,7 @@
                 id: 'currency',
                 name: 'currency',
                 options: currencyOptions,
-                value: stripeButton.currency
+                value: stripeForm.currency
             }) }}
         </div>
     </div>
@@ -67,7 +67,7 @@
         id: 'amountType',
         name: 'amountType',
         options: amountTypeOptions,
-        value: stripeButton.amountType
+        value: stripeForm.amountType
     }) }}
 
     {{ forms.textField({
@@ -76,8 +76,8 @@
         id: 'customAmountLabel',
         name: 'customAmountLabel',
         placeholder: 'Pay what you want:',
-        value: stripeButton.customAmountLabel,
-        errors: stripeButton.getErrors('customAmountLabel')
+        value: stripeForm.customAmountLabel,
+        errors: stripeForm.getErrors('customAmountLabel')
     }) }}
 
     {{ forms.textField({
@@ -86,23 +86,23 @@
         id: 'minimumAmount',
         name: 'minimumAmount',
         placeholder: 'Enter amount',
-        unit: stripeButton.currency,
-        value: (stripeButton.minimumAmount == '0' ? '0'|number : (stripeButton.minimumAmount ? stripeButton.minimumAmount|number ?: '')),
-        errors: stripeButton.getErrors('minimumAmount'),
+        unit: stripeForm.currency,
+        value: (stripeForm.minimumAmount == '0' ? '0'|number : (stripeForm.minimumAmount ? stripeForm.minimumAmount|number ?: '')),
+        errors: stripeForm.getErrors('minimumAmount'),
         autofocus: true,
     }) }}
 
     {{ forms.field({
         id: 'amount',
         label: 'Amount <span class="info">- The amount of the product, service, or contribution, not including shipping, handling, or tax.<br>- Default amount if using custom amount.</span>'|t('enupal-stripe'),
-        errors: stripeButton.getErrors('amount')|merge(stripeButton.getErrors('currency')),
+        errors: stripeForm.getErrors('amount')|merge(stripeForm.getErrors('currency')),
     }, amountInput) }}
 
     {{ forms.lightswitchField({
         label: "Recurring Payment <span class='info'>Make this payment recurring for the customer.</span>"|t('enupal-stripe'),
         id: 'enableRecurringPayment',
         name: 'enableRecurringPayment',
-        on: stripeButton.enableRecurringPayment
+        on: stripeForm.enableRecurringPayment
     }) }}
 
     {{ forms.selectField({
@@ -110,7 +110,7 @@
         id: 'recurringPaymentType',
         name: 'recurringPaymentType',
         options: frequencyOptions,
-        value: stripeButton.recurringPaymentType
+        value: stripeForm.recurringPaymentType
     }) }}
 </div>
 <hr>
@@ -122,9 +122,9 @@
                 {{ forms.text({
                     id: 'quantity',
                     name: 'quantity',
-                    value: (stripeButton.hasUnlimitedStock ? '' : (stripeButton.quantity == '0' ? '0': (stripeButton.quantity ? stripeButton.quantity : ''))),
+                    value: (stripeForm.hasUnlimitedStock ? '' : (stripeForm.quantity == '0' ? '0': (stripeForm.quantity ? stripeForm.quantity : ''))),
                     placeholder: 'Enter stock'|t('enupal-stripe'),
-                    disabled: stripeButton.hasUnlimitedStock
+                    disabled: stripeForm.hasUnlimitedStock
                 }) }}
             </div>
             <div class="nowrap">
@@ -133,7 +133,7 @@
                     class: 'unlimited-stock',
                     label: 'Unlimited'|t('enupal-stripe'),
                     name: 'hasUnlimitedStock',
-                    checked: stripeButton.hasUnlimitedStock,
+                    checked: stripeForm.hasUnlimitedStock,
                 }) }}
             </div>
         </div>
@@ -142,7 +142,7 @@
     {{ forms.field({
         id: 'stock',
         label: 'Stock'|t('enupal-stripe'),
-        errors: stripeButton.getErrors('hasUnlimitedStock')|merge(stripeButton.getErrors('quantity')),
+        errors: stripeForm.getErrors('hasUnlimitedStock')|merge(stripeForm.getErrors('quantity')),
     }, stockInput) }}
 </div>
 {# Disable discounts for now
@@ -154,7 +154,7 @@
         id: 'discountType',
         name: 'discountType',
         options: discountOptions,
-        value: stripeButton.discountType
+        value: stripeForm.discountType
     }) }}
     {{ forms.textField({
         first: true,
@@ -162,8 +162,8 @@
         id: 'discount',
         name: 'discount',
         placeholder: 'Enter discount',
-        value: (stripeButton.discount == '0' ? '0'|number : (stripeButton.discount ? stripeButton.discount|number ?: '')),
-        errors: stripeButton.getErrors('discount'),
+        value: (stripeForm.discount == '0' ? '0'|number : (stripeForm.discount ? stripeForm.discount|number ?: '')),
+        errors: stripeForm.getErrors('discount'),
         autofocus: true,
     }) }}
 </div>
@@ -176,21 +176,21 @@
         label: "Shipping Address <span class='info'>Enables buyers to specify the Shipping Address</span>"|t('enupal-stripe'),
         id: 'enableShippingAddress',
         name: 'enableShippingAddress',
-        on: stripeButton.enableShippingAddress
+        on: stripeForm.enableShippingAddress
     }) }}
 
     {{ forms.lightswitchField({
         label: "Billing Address <span class='info'>Enables buyers to specify the Billing Address</span>"|t('enupal-stripe'),
         id: 'enableBillingAddress',
         name: 'enableBillingAddress',
-        on: stripeButton.enableBillingAddress
+        on: stripeForm.enableBillingAddress
     }) }}
 
     {{ forms.lightswitchField({
         label: "Verify Zip <span class='info'>Specify whether Checkout should validate the billing ZIP code</span>"|t('enupal-stripe'),
         id: 'verifyZip',
         name: 'verifyZip',
-        on: stripeButton.verifyZip
+        on: stripeForm.verifyZip
     }) }}
     {#
     {{ forms.textField({
@@ -199,9 +199,9 @@
         id: 'shippingAmount',
         name: 'shippingAmount',
         placeholder: 'Enter amount',
-        unit: stripeButton.currency,
-        value: (stripeButton.shippingAmount == '0' ? '0'|number : (stripeButton.shippingAmount ? stripeButton.shippingAmount|number ?: '')),
-        errors: stripeButton.getErrors('shippingAmount'),
+        unit: stripeForm.currency,
+        value: (stripeForm.shippingAmount == '0' ? '0'|number : (stripeForm.shippingAmount ? stripeForm.shippingAmount|number ?: '')),
+        errors: stripeForm.getErrors('shippingAmount'),
         autofocus: true,
     }) }}
     #}
@@ -214,18 +214,18 @@
         label: "Return URL <span class='info'>Redirect buyers' to this URL after they complete their payments</span>"|t('enupal-stripe'),
         id: 'returnUrl',
         name: 'returnUrl',
-        value: stripeButton.returnUrl,
+        value: stripeForm.returnUrl,
         placeholder: '/thank-you',
         autofocus: true,
-        errors: stripeButton.getErrors('returnUrl')
+        errors: stripeForm.getErrors('returnUrl')
     }) }}
 
     {{ forms.textField({
-        label: "Button Class <span class='info'>Add custom classes to your Stripe Payment Form</span>"|t('enupal-stripe'),
+        label: "Submit Button Class <span class='info'>Add custom classes to your submit Button</span>"|t('enupal-stripe'),
         id: 'buttonClass',
         name: 'buttonClass',
-        value: stripeButton.buttonClass,
+        value: stripeForm.buttonClass,
         autofocus: true,
-        errors: stripeButton.getErrors('buttonClass')
+        errors: stripeForm.getErrors('buttonClass')
     }) }}
 </div>

@@ -14,7 +14,7 @@
 {% set fullPageForm = true %}
 {% set saveShortcutRedirect = 'enupal-stripe/settings/notifications' %}
 
-{% set saveButton %}
+{% set savePaymentForm %}
     <div class="buttons">
         <input class="btn submit" type="submit"
                value="{{ 'Save'|t('enupal-stripe') }}">
@@ -43,7 +43,7 @@
                 label: "Subject"|t('enupal-stripe'),
                 instructions: "The email Subject"|t('enupal-stripe'),
                 name: 'customerNotificationSubject',
-                placeholder: 'Order Recieved: {{ order.number }}, {{ order.getButton().name }}',
+                placeholder: 'Order Recieved: {{ order.number }}, {{ order.getPaymentForm().name }}',
                 value: settings.customerNotificationSubject,
                 errors: (settings is defined ? settings.getErrors('customerNotificationSubject') : null)
             }) }}

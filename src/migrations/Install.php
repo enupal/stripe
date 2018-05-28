@@ -9,7 +9,6 @@
 namespace enupal\stripe\migrations;
 
 use craft\db\Migration;
-use enupal\stripe\enums\PaypalSize;
 
 /**
  * Installation Migration
@@ -111,7 +110,7 @@ class Install extends Migration
 
         $this->createTable('{{%enupalstripe_orders}}', [
             'id' => $this->primaryKey(),
-            'buttonId' => $this->integer(),
+            'formId' => $this->integer(),
             'testMode' => $this->boolean()->defaultValue(0),
             'number' => $this->string(),
             'currency' => $this->string(),
@@ -163,11 +162,11 @@ class Install extends Migration
         $this->createIndex(
             $this->db->getIndexName(
                 '{{%enupalstripe_orders}}',
-                'buttonId',
+                'formId',
                 false, true
             ),
             '{{%enupalstripe_orders}}',
-            'buttonId',
+            'formId',
             false
         );
     }
@@ -197,9 +196,9 @@ class Install extends Migration
 
         $this->addForeignKey(
             $this->db->getForeignKeyName(
-                '{{%enupalstripe_orders}}', 'buttonId'
+                '{{%enupalstripe_orders}}', 'formId'
             ),
-            '{{%enupalstripe_orders}}', 'buttonId',
+            '{{%enupalstripe_orders}}', 'formId',
             '{{%enupalstripe_forms}}', 'id', 'CASCADE', null
         );
     }

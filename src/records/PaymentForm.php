@@ -15,7 +15,7 @@ use craft\records\Element;
 /**
  * Class Paypal record.
  */
-class StripeButton extends ActiveRecord
+class PaymentForm extends ActiveRecord
 {
     /**
      * @inheritdoc

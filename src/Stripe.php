@@ -48,11 +48,6 @@ class Stripe extends Plugin
         }
         );
 
-        Event::on(UrlManager::class, UrlManager::EVENT_REGISTER_SITE_URL_RULES, function(RegisterUrlRulesEvent $event) {
-            $event->rules = array_merge($event->rules, $this->getSiteUrlRules());
-        }
-        );
-
         Event::on(
             CraftVariable::class,
             CraftVariable::EVENT_INIT,
@@ -80,7 +75,7 @@ class Stripe extends Plugin
      */
     protected function afterInstall()
     {
-        Stripe::$app->buttons->createDefaultVariantFields();
+        Stripe::$app->paymentForms->createDefaultVariantFields();
     }
 
     /**
@@ -88,7 +83,7 @@ class Stripe extends Plugin
      */
     protected function afterUninstall()
     {
-        Stripe::$app->buttons->deleteVariantFields();
+        Stripe::$app->paymentForms->deleteVariantFields();
     }
 
     /**
@@ -152,7 +147,7 @@ class Stripe extends Plugin
             'enupal-stripe/buttons/new' =>
                 'enupal-stripe/buttons/edit-button',
 
-            'enupal-stripe/buttons/edit/<buttonId:\d+>' =>
+            'enupal-stripe/buttons/edit/<formId:\d+>' =>
                 'enupal-stripe/buttons/edit-button',
 
             'enupal-stripe/orders/edit/<orderId:\d+>' =>
@@ -163,17 +158,6 @@ class Stripe extends Plugin
 
             'enupal-stripe/payments/edit/<paymentId:\d+>' =>
                 'enupal-stripe/payments/edit-button',
-        ];
-    }
-
-    /**
-     * @return array
-     */
-    private function getSiteUrlRules()
-    {
-        return [
-            'enupal-stripe/ipn' =>
-                'enupal-stripe/paypal/ipn'
         ];
     }
 }

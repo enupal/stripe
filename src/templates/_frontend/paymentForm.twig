@@ -1,12 +1,12 @@
-{%- set redirectUri = button.returnUrl -%}
+{%- set redirectUri = paymentForm.returnUrl -%}
 {% spaceless %}
-    <form class="enupal-stripe-form" id="enupal-stripe-{{ button.id }}" method="POST">
+    <form class="enupal-stripe-form" id="enupal-stripe-{{ paymentForm.id }}" method="POST">
         {{ csrfInput() }}
         <input type="hidden" aria-hidden="true" name="action"
                value="enupal-stripe/stripe/save-order">
         {%- if redirectUri is not empty %}
             {% if redirectUri|slice(0, 1)|lower == '?' %}
-                {%- set redirectUri = craft.request.getUrl()~button.returnUrl %}
+                {%- set redirectUri = craft.request.getUrl()~paymentForm.returnUrl %}
             {% endif %}
 
             <input type="hidden" aria-hidden="true" name="redirect"
@@ -15,15 +15,15 @@
 
         {% namespace 'enupalStripe' %}
             <input type="hidden" name="token" value />
-            {% if button.enableSubscriptions %}
+            {% if paymentForm.enableSubscriptions %}
                 <input type="hidden" name="planId" value>
             {% endif %}
             <input type="hidden" name="email" value />
-            <input type="hidden" name="buttonId" value="{{ button.id }}" />
+            <input type="hidden" name="formId" value="{{ paymentForm.id }}" />
             <input type="hidden" name="amount" value />
-            <input type="hidden" name='stripeData' value="{{ button.getPublicData() }}">
+            <input type="hidden" name='stripeData' value="{{ paymentForm.getPublicData() }}">
             <input type="hidden" name='testMode' value=>
-            {% if button.enableShippingAddress %}
+            {% if paymentForm.enableShippingAddress %}
                     <input type="hidden" name="address[name]" value />
                     <input type="hidden" name="address[country]" value />
                     <input type="hidden" name="address[zip]" value />
@@ -32,7 +32,7 @@
                     <input type="hidden" name="address[city]" value />
             {% endif %}
 
-        {% for block in button.enupalStripeBasicFields %}
+        {% for block in paymentForm.enupalStripeBasicFields %}
             <div class="fields">
                 <section class="tab">
                     <div class="heading">
@@ -49,16 +49,16 @@
         {% endfor %}
 
         {# FIELDS LOGIC #}
-        {% if not button.enableSubscriptions  %}
+        {% if not paymentForm.enableSubscriptions  %}
             {# One time payment logic #}
-            {% if button.amountType == 1 %}
-                {% set customLabel = button.getCustomLabel() %}
-                {% set currencySymbol = button.getCurrencySymbol() %}
-                {% set customId = 'customAmount-'~button.id %}
-                {% set recurringId = 'recurringToggle-'~button.id %}
-                {% set interval = button.recurringPaymentType == 'month' ? 'monthly' : 'yearly'  %}
+            {% if paymentForm.amountType == 1 %}
+                {% set customLabel = paymentForm.getCustomLabel() %}
+                {% set currencySymbol = paymentForm.getCurrencySymbol() %}
+                {% set customId = 'customAmount-'~paymentForm.id %}
+                {% set recurringId = 'recurringToggle-'~paymentForm.id %}
+                {% set interval = paymentForm.recurringPaymentType == 'month' ? 'monthly' : 'yearly'  %}
                 {% set recurringLabel = 'Make this a '~interval~' payment' %}
-                {% set minimumAmount = button.amount ? button.amount|number_format : button.minimumAmount ? button.minimumAmount|number_format : '' %}
+                {% set minimumAmount = paymentForm.amount ? paymentForm.amount|number_format : paymentForm.minimumAmount ? paymentForm.minimumAmount|number_format : '' %}
                 <div class="form-group">
                     <div class="heading">
                         <label for="{{ customId }}">
@@ -67,11 +67,11 @@
                     </div>
                     <div class="enupal-input-icon">
                         <i>{{ currencySymbol }}</i>
-                        <input type="number" class="form-control" id="{{ customId }}" name="customAmount" min="{{ button.minimumAmount|number_format }}" placeholder="1" value="{{ minimumAmount }}">
+                        <input type="number" class="form-control" id="{{ customId }}" name="customAmount" min="{{ paymentForm.minimumAmount|number_format }}" placeholder="1" value="{{ minimumAmount }}">
                     </div>
                 </div>
             {% endif %}
-            {% if button.enableRecurringPayment %}
+            {% if paymentForm.enableRecurringPayment %}
                 <div class="form-group">
                     <div class="enupal-input-icon">
                         <input type="checkbox" class="form-control" id="{{ recurringId }}" name="recurringToggle">
@@ -85,31 +85,31 @@
 
         {% else %}
             {# Susbscription Pay logic #}
-            {% if button.subscriptionType == 0 %}
+            {% if paymentForm.subscriptionType == 0 %}
                 {# Single Plan #}
-                {% if button.enableCustomPlanAmount %}
-                    {% set currencySymbol = button.getCurrencySymbol() %}
-                    {% set customId = 'customSingleAmount-'~button.id %}
-                    {% set minimumAmount = button.customPlanDefaultAmount ? button.customPlanDefaultAmount|number_format : '' %}
+                {% if paymentForm.enableCustomPlanAmount %}
+                    {% set currencySymbol = paymentForm.getCurrencySymbol() %}
+                    {% set customId = 'customSingleAmount-'~paymentForm.id %}
+                    {% set minimumAmount = paymentForm.customPlanDefaultAmount ? paymentForm.customPlanDefaultAmount|number_format : '' %}
                     <div class="form-group">
                         <div class="enupal-input-icon">
                             <i>{{ currencySymbol }}</i>
-                            <input type="number" class="form-control" id="{{ customId }}" name="customPlanAmount" min="{{ button.customPlanMinimumAmount|number_format }}" placeholder="1" value="{{ minimumAmount }}">
+                            <input type="number" class="form-control" id="{{ customId }}" name="customPlanAmount" min="{{ paymentForm.customPlanMinimumAmount|number_format }}" placeholder="1" value="{{ minimumAmount }}">
                         </div>
                     </div>
                 {% endif %}
             {% else %}
                 {# User select Plan #}
-                {% if button.enupalMultiplePlans|length %}
+                {% if paymentForm.enupalMultiplePlans|length %}
                     <div class="fields">
                         <section class="tab">
                             <div class="heading">
-                                <label for="{{ button.selectPlanLabel }}">
-                                    {{- button.selectPlanLabel|raw|t -}}
+                                <label for="{{ paymentForm.selectPlanLabel }}">
+                                    {{- paymentForm.selectPlanLabel|raw|t -}}
                                 </label>
                             </div>
                             <div class="input">
-                                {%- set input = craft.enupalStripe.displayMultiSelect(button.subscriptionStyle, button.enupalMultiplePlans)  %}
+                                {%- set input = craft.enupalStripe.displayMultiSelect(paymentForm.subscriptionStyle, paymentForm.enupalMultiplePlans)  %}
                                 {{ input|raw }}
                             </div>
                         </section>
@@ -120,6 +120,6 @@
         {# ENDS FIELD LOGIC #}
         {% endnamespace %}
 
-        <button class="{{ button.buttonClass }}"><span>{{ button.getButtonText() }}</span></button>
+        <button id="stripe-payments-submit-button-{{ paymentForm.id }}" class="{{ paymentForm.buttonClass }}"><span>{{ paymentForm.getPaymentFormText() }}</span></button>
     </form>
 {% endspaceless %}

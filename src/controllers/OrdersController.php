@@ -67,7 +67,7 @@ class OrdersController extends BaseController
      * Edit a Button.
      *
      * @param int|null           $orderId The button's ID, if editing an existing button.
-     * @param StripeElement|null $order   The order send back by setRouteParams if any errors on saveButton
+     * @param StripeElement|null $order   The order send back by setRouteParams if any errors on savePaymentForm
      *
      * @return \yii\web\Response
      * @throws HttpException

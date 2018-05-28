@@ -18,9 +18,9 @@ class App extends Component
     public $settings;
 
     /**
-     * @var Buttons
+     * @var PaymentForms
      */
-    public $buttons;
+    public $paymentForms;
 
     /**
      * @var Orders
@@ -35,7 +35,7 @@ class App extends Component
     public function init()
     {
         $this->settings = new Settings();
-        $this->buttons = new Buttons();
+        $this->paymentForms = new PaymentForms();
         $this->orders = new Orders();
         $this->plans = new Plans();
     }
