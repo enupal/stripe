@@ -44,7 +44,7 @@ class ChartsController extends ElementIndexesController
             ->limit(null);
 
         // Get the chart data table
-        $dataTable = ChartHelper::getRunChartDataFromQuery($query, $startDate, $endDate, 'enupalstripe_orders.dateOrdered', 'sum', '[[enupalstripe_orders.totalPrice]]', [
+        $dataTable = ChartHelper::getRunChartDataFromQuery($query, $startDate, $endDate, 'elements.dateCreated', 'sum', '[[enupalstripe_orders.totalPrice]]', [
             'intervalUnit' => $intervalUnit,
             'valueLabel' => Craft::t('enupal-stripe', 'Revenue'),
             'valueType' => 'currency',
