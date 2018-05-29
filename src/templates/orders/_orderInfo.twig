@@ -40,7 +40,11 @@
                 <td>
                     <strong>{{ "Stripe Reference"|t('enupal-stripe') }} </strong>
                 </td>
-                <td>{{ order.stripeTransactionId }}</td>
+                {% set url = "https://dashboard.stripe.com" %}
+                {% set url = order.testMode ? url~'/test' : url %}
+                {% set url = order.stripeTransactionId|slice(0, 3) == 'sub' ? url~'/subscriptions' : url~'/payments' %}
+
+                <td><a target="_blank" href="{{ url~'/'~order.stripeTransactionId }}">{{ order.stripeTransactionId }}</a></td>
             </tr>
             <tr>
                 <td>
