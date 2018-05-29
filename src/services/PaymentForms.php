@@ -787,7 +787,7 @@ class PaymentForms extends Component
                     ]
                 ],
                 'new4' => [
-                    'name' => 'Radio PaymentForms',
+                    'name' => 'Radio Buttons',
                     'handle' => 'radioButtons',
                     'fields' => [
                         'new1' => [

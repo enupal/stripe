@@ -624,6 +624,8 @@ class PaymentForm extends Element
             }
         }
 
+        $currentUser = Craft::$app->getUser()->getIdentity();
+
         $publicData = [
             'paymentFormId' => $this->id,
             'handle' => $this->handle,
@@ -652,6 +654,7 @@ class PaymentForm extends Element
                 'locale' => $this->language,
                 'amount' => $amount,
                 'image' => $logoUrl,
+                'email' => $currentUser->email ?? '',
                 'allowRememberMe' => (boolean)$this->enableRememberMe,
                 'zipCode' => (boolean)$this->verifyZip,
             ]

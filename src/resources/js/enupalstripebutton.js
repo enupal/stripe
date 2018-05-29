@@ -85,7 +85,7 @@
 
             var $planSelect = $("#fields-singlePlanInfo");
 
-            Craft.postActionRequest('enupal-stripe/forms/refresh-plans', {}, function(response, textStatus) {
+            Craft.postActionRequest('enupal-stripe/payment-forms/refresh-plans', {}, function(response, textStatus) {
                 that.$refreshPlansButton.removeClass('disabled').siblings('.spinner').addClass('hidden');
                 if (textStatus === 'success') {
                     if ("error" in response ){
