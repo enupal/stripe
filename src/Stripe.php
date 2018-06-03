@@ -18,7 +18,7 @@ use enupal\stripe\services\App;
 use enupal\stripe\services\Orders;
 use yii\base\Event;
 use craft\web\twig\variables\CraftVariable;
-use enupal\stripe\fields\StripePaymentForms as BuyNowButtonField;
+use enupal\stripe\fields\StripePaymentForms as StripePaymentFormsField;
 
 use enupal\stripe\variables\StripeVariable;
 use enupal\stripe\models\Settings;
@@ -65,7 +65,7 @@ class Stripe extends Plugin
         });
 
         Event::on(Fields::class, Fields::EVENT_REGISTER_FIELD_TYPES, function(RegisterComponentTypesEvent $event) {
-            $event->types[] = BuyNowButtonField::class;
+            $event->types[] = StripePaymentFormsField::class;
         });
     }
 

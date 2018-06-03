@@ -264,6 +264,7 @@ class Order extends Element
         $attributes['itemSku'] = ['label' => StripePaymentsPlugin::t('Form Handle')];
         $attributes['stripeTransactionId'] = ['label' => StripePaymentsPlugin::t('Stripe Transaction Id')];
         $attributes['dateOrdered'] = ['label' => StripePaymentsPlugin::t('Date Ordered')];
+        $attributes['paymentType'] = ['label' => StripePaymentsPlugin::t('Payment Type')];
 
         return $attributes;
     }
@@ -314,6 +315,10 @@ class Order extends Element
             case 'itemSku':
                 {
                     return '<a href="'.$this->getPaymentForm()->getCpEditUrl().'">'.$this->getPaymentForm()->handle.'</a>';
+                }
+            case 'paymentType':
+                {
+                    return $this->getPaymentType();
                 }
 
         }
