@@ -26,12 +26,12 @@ class StripeController extends BaseController
     {
         $this->requirePostRequest();
 
-        $result = StripePlugin::$app->orders->processPayment();
+        $order = StripePlugin::$app->orders->processPayment();
 
-        if (!$result){
+        if (is_null($order)){
             throw new NotFoundHttpException();
         }
 
-        return $this->redirectToPostedUrl();
+        return $this->redirectToPostedUrl($order);
     }
 }

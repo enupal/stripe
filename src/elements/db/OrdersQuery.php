@@ -133,6 +133,12 @@ class OrdersQuery extends ElementQuery
             'enupalstripe_orders.dateOrdered'
         ]);
 
+        if ($this->id) {
+            $this->subQuery->andWhere(Db::parseParam(
+                'enupalstripe_orders.id', $this->id)
+            );
+        }
+
         if ($this->number) {
             $this->subQuery->andWhere(Db::parseParam(
                 'enupalstripe_orders.number', $this->number)

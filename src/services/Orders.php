@@ -90,7 +90,7 @@ class Orders extends Component
     public function getOrderByNumber($number, int $siteId = null)
     {
         $query = Order::find();
-        $query->handle($number);
+        $query->number($number);
         $query->siteId($siteId);
 
         return $query->one();
@@ -448,12 +448,13 @@ class Orders extends Component
     /**
      * Process Stripe Payment Listener
      *
-     * @return bool
+     * @return Order|null
      * @throws \Exception
      * @throws \Throwable
      */
     public function processPayment()
     {
+        $result = null;
         $request = Craft::$app->getRequest();
         $data = $request->getBodyParam('enupalStripe');
         $token = $data['token'] ?? null;
@@ -544,7 +545,7 @@ class Orders extends Component
 
         if (is_null($stripeId)){
             Craft::error('Something went wrong making the charge to Stripe. -CHECK PREVIOUS LOGS-', __METHOD__);
-            return false;
+            return $result;
         }
 
         // Stock
@@ -558,20 +559,21 @@ class Orders extends Component
         // Finally save the order in Craft CMS
         if (!StripePlugin::$app->orders->saveOrder($order)){
             Craft::error('Something went wrong saving the Stripe Order: '.json_encode($order->getErrors()), __METHOD__);
-            return false;
+            return $result;
         }
 
         // Let's update the stock
         if ($savePaymentForm){
             if (!StripePlugin::$app->paymentForms->savePaymentForm($paymentForm)){
                 Craft::error('Something went wrong updating the payment form stock: '.json_encode($paymentForm->getErrors()), __METHOD__);
-                return false;
+                return $result;
             }
         }
 
         Craft::info('Enupal Stripe - Order Created: '.$order->number);
+        $result = $order;
 
-        return true;
+        return $result;
     }
 
 

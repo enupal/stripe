@@ -5,7 +5,7 @@
         <tr>
             <th scope="col">{{ 'Button'|t('enupal-stripe') }}</th>
             <th scope="col">{{ 'Quantity'|t('enupal-stripe') }}</th>
-            <th scope="col"></th>
+            <th scope="col">{{ 'Type'|t('enupal-stripe') }}</th>
             <th scope="col"></th>
             <th scope="col"></th>
             <th scope="col"></th>
@@ -21,6 +21,7 @@
                 {{ order.quantity }}
             </td>
             <td>
+                {{ order.getPaymentType() }}
             </td>
             <td></td>
             <td></td>

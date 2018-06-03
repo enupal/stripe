@@ -215,7 +215,7 @@
         id: 'returnUrl',
         name: 'returnUrl',
         value: stripeForm.returnUrl,
-        placeholder: '/thank-you',
+        placeholder: '/order?number={number}',
         autofocus: true,
         errors: stripeForm.getErrors('returnUrl')
     }) }}

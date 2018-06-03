@@ -229,5 +229,37 @@ class StripeVariable
 
         return $planName;
     }
+
+    /**
+     * @param $number
+     * @return array|\craft\base\ElementInterface
+     */
+    public function getOrderByNumber($number)
+    {
+        $oder = Stripe::$app->orders->getOrderByNumber($number);
+
+        return $oder;
+    }
+
+    /**
+     * @param $id
+     * @return array|\craft\base\ElementInterface
+     */
+    public function getOrderById($id)
+    {
+        $oder = Stripe::$app->orders->getOrderById($id);
+
+        return $oder;
+    }
+
+    /**
+     * @return \enupal\stripe\elements\Order[]|null
+     */
+    public function getAllOrders()
+    {
+        $oders = Stripe::$app->orders->getAllOrders();
+
+        return $oders;
+    }
 }
 

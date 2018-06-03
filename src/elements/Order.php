@@ -434,4 +434,19 @@ class Order extends Element
 
         return $address;
     }
+
+    /**
+     * @return string
+     */
+    public function getPaymentType()
+    {
+        $type = StripePaymentsPlugin::t("Payment");
+        $transactionId = substr($this->stripeTransactionId, 0, 3);
+
+        if ($transactionId == 'sub'){
+            $type = StripePaymentsPlugin::t("Subscription");
+        }
+
+        return $type;
+    }
 }
