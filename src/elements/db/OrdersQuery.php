@@ -76,7 +76,7 @@ class OrdersQuery extends ElementQuery
     /**
      * @inheritdoc
      */
-    public function getPaypalTransactionId()
+    public function getStripeTransactionId()
     {
         return $this->stripeTransactionId;
     }

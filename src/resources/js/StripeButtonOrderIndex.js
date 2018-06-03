@@ -16,5 +16,5 @@ Craft.StripeButton.OrderIndex = Craft.BaseElementIndex.extend({
     }
 });
 
-// Register the Paypal order index class
+// Register the Stripe order index class
 Craft.registerElementIndexClass('enupal\\stripe\\elements\\Order', Craft.StripeButton.OrderIndex);

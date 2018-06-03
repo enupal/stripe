@@ -261,8 +261,8 @@ class Order extends Element
         $attributes['address'] = ['label' => StripePaymentsPlugin::t('Shipping Address')];
         $attributes['email'] = ['label' => StripePaymentsPlugin::t('Customer Email')];
         $attributes['itemName'] = ['label' => StripePaymentsPlugin::t('Item Name')];
-        $attributes['itemSku'] = ['label' => StripePaymentsPlugin::t('Item Handle')];
-        $attributes['stripeTransactionId'] = ['label' => StripePaymentsPlugin::t('PayPal Transaction Id')];
+        $attributes['itemSku'] = ['label' => StripePaymentsPlugin::t('Form Handle')];
+        $attributes['stripeTransactionId'] = ['label' => StripePaymentsPlugin::t('Stripe Transaction Id')];
         $attributes['dateOrdered'] = ['label' => StripePaymentsPlugin::t('Date Ordered')];
 
         return $attributes;

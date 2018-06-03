@@ -13,7 +13,7 @@ use yii\db\ActiveQueryInterface;
 use craft\records\Element;
 
 /**
- * Class Paypal record.
+ * Class Payment Form record.
  */
 class PaymentForm extends ActiveRecord
 {
