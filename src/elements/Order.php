@@ -445,7 +445,7 @@ class Order extends Element
      */
     public function getPaymentType()
     {
-        $type = StripePaymentsPlugin::t("Payment");
+        $type = StripePaymentsPlugin::t("One-Time");
         $transactionId = substr($this->stripeTransactionId, 0, 3);
 
         if ($transactionId == 'sub'){

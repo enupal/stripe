@@ -43,6 +43,8 @@ class Settings extends Model
     public $adminNotificationReplyToEmail;
     public $adminNotificationTemplate;
     public $adminTemplateOverride;
+    // Checkout Email
+    public $currentUserEmail = 0;
 
     /**
      * @inheritdoc

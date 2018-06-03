@@ -55,7 +55,18 @@
                 value: settings.defaultCurrency
             }) }}
 
+            <hr>
 
+            {{ forms.lightswitchField({
+                label: 'Email address of the logged in user'|t('enupal-stripe'),
+                instructions: 'Get the email of the current user logged in. This disallow the user edit the email in the Stripe Checkout Form',
+                id: 'currentUserEmail',
+                name: 'currentUserEmail',
+                on: settings.currentUserEmail,
+                onLabel: "On"|t('enupal-stripe'),
+                offLabel: "Off"|t('enupal-stripe'),
+                errors: settings.getErrors('currentUserEmail'),
+            }) }}
         {% endnamespace %}
 
     </div>
