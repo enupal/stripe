@@ -25,14 +25,20 @@ class SettingsController extends BaseController
         $this->requirePostRequest();
         $request = Craft::$app->getRequest();
         $settings = $request->getBodyParam('settings');
-        $scenario = $request->getBodyParam('paypalScenario');
+        $scenario = $request->getBodyParam('stripeScenario');
 
-        if (!Stripe::$app->settings->saveSettings($settings, $scenario)) {
+        $plugin = Stripe::$app->settings->getPlugin();
+        $settingsModel = $plugin->getSettings();
+
+        $settingsModel->setAttributes($settings, false);
+
+        if (!Stripe::$app->settings->saveSettings($settingsModel, $scenario)) {
+
             Craft::$app->getSession()->setError(Stripe::t('Couldn’t save settings.'));
 
             // Send the settings back to the template
             Craft::$app->getUrlManager()->setRouteParams([
-                'settings' => $settings
+                'settings' => $settingsModel
             ]);
 
             return null;
@@ -43,21 +49,31 @@ class SettingsController extends BaseController
         return $this->redirectToPostedUrl();
     }
 
+
     /**
+     * Updates all stripe plans as options for dropdown select field within matrix field
+     *
      * @return \yii\web\Response
-     * @throws \yii\base\Exception
      * @throws \yii\web\BadRequestHttpException
      */
-    public function actionGetSizeUrl()
+    public function actionUpdatePlans()
     {
-        $this->requireAcceptsJson();
-        $request = Craft::$app->getRequest();
+        $result = null;
+        try {
+            $this->requirePostRequest();
 
-        $size = $request->getBodyParam('size');
-        $language = $request->getBodyParam('language');
+            $result = Stripe::$app->plans->getUpdatePlans();
 
-        $buttonUrl = Stripe::$app->buttons->getButtonSizeUrl($size, $language);
+        } catch (\Throwable $e) {
+            Craft::error($e->getMessage(), __METHOD__);
+        }
+        if (!$result){
+            Craft::$app->getSession()->setError(Stripe::t('No plans were found in stripe. Check your Stripe Keys'));
+        }
+        else{
+            Craft::$app->getSession()->setNotice(Stripe::t('Stripe plans updated.'));
+        }
 
-        return $this->asJson(['buttonUrl' => $buttonUrl]);
+        return $this->redirectToPostedUrl();
     }
 }

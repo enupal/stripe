@@ -1,0 +1,27 @@
+{%- set handle = craft.enupalStripe.labelToHandle(block.label) %}
+{%- set required = block.required %}
+{%- set options = block.options ? block.options : [] %}
+<div
+        id="{{ handle }}"
+        class="{{ handle }}">
+
+    {% if handle is defined and (handle|length < 3 or handle|slice(-2) != '[]') %}
+        <input type="hidden" aria-hidden="true" name="metadata[{{ handle }}]" value="">
+    {% endif %}
+
+    {%- for key, option in options %}
+
+        {%- set label = (option.optionLabel is defined ? option.optionLabel : option) %}
+        {%- set optionValue = (option.value is defined ? option.value : key) %}
+
+        <label for="{{ handle }}-{{ loop.index }}">
+            <input type="checkbox"
+                   name="metadata[{{ handle }}][]"
+                    id="{{ handle }}-{{ loop.index }}"
+                    {%- if required %} required aria-required="true"{% endif %}
+                    {%- if optionValue %} value="{{ optionValue }}"{% endif %}
+            >
+            {%- if label %}&nbsp;{{ label|raw }}{% endif -%}
+        </label>
+    {% endfor %}
+</div>

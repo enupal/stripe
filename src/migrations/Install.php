@@ -9,7 +9,6 @@
 namespace enupal\stripe\migrations;
 
 use craft\db\Migration;
-use enupal\stripe\enums\PaypalSize;
 
 /**
  * Installation Migration
@@ -34,7 +33,8 @@ class Install extends Migration
     public function safeDown()
     {
         $this->dropTableIfExists('{{%enupalstripe_orders}}');
-        $this->dropTableIfExists('{{%enupalstripe_buttons}}');
+        $this->dropTableIfExists('{{%enupalstripe_forms}}');
+        $this->dropTableIfExists('{{%enupalstripe_customers}}');
 
         return true;
     }
@@ -46,19 +46,36 @@ class Install extends Migration
      */
     protected function createTables()
     {
-        $this->createTable('{{%enupalstripe_buttons}}', [
+        $this->createTable('{{%enupalstripe_forms}}', [
             'id' => $this->primaryKey(),
-            'companyName' => $this->string()->notNull(),
+            'companyName' => $this->string(),
             'name' => $this->string()->notNull(),
-            'sku' => $this->string()->notNull(),
+            'handle' => $this->string()->notNull(),
             'currency' => $this->string()->defaultValue('USD'),
             'language' => $this->string()->defaultValue('en'),
             'amountType' => $this->integer(),
-            'minimunAmount' => $this->decimal(14, 4)->defaultValue(0),
+            'minimumAmount' => $this->decimal(14, 4)->defaultValue(0),
             'customAmountLabel' => $this->string(),
             'amount' => $this->decimal(14, 4)->defaultValue(0),
             'logoImage' => $this->string(),
             'enableRememberMe' => $this->boolean(),
+            // Recurring
+            'enableRecurringPayment' => $this->boolean(),
+            'recurringPaymentType' => $this->string(),
+            // Subscriptions
+            'enableSubscriptions' => $this->boolean(),
+            'subscriptionType' => $this->integer(),
+            'singlePlanSetupFee' => $this->decimal(14, 4),
+            'singlePlanTrialPeriod' => $this->integer(),
+            'singlePlanInfo' => $this->text(),
+            'enableCustomPlanAmount' => $this->boolean(),
+            'customPlanMinimumAmount' => $this->decimal(14, 4)->defaultValue(0),
+            'customPlanDefaultAmount' => $this->decimal(14, 4),
+            'customPlanInterval' => $this->integer(),
+            'customPlanFrequency' => $this->string(),
+
+            'subscriptionStyle' => $this->string(),
+            'selectPlanLabel' => $this->string(),
             // Inventory
             'quantity' => $this->integer(),
             'hasUnlimitedStock' => $this->boolean()->defaultValue(1),
@@ -80,9 +97,11 @@ class Install extends Migration
             'showItemPrice' => $this->boolean()->defaultValue(0),
             'showItemCurrency' => $this->boolean()->defaultValue(0),
             'returnUrl' => $this->string(),
+            'buttonClass' => $this->string(),
             // Button
             'buttonText' => $this->string(),
             'paymentButtonProcessingText' => $this->string(),
+            'checkoutButtonText' => $this->string(),
             //
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
@@ -91,7 +110,7 @@ class Install extends Migration
 
         $this->createTable('{{%enupalstripe_orders}}', [
             'id' => $this->primaryKey(),
-            'buttonId' => $this->integer(),
+            'formId' => $this->integer(),
             'testMode' => $this->boolean()->defaultValue(0),
             'number' => $this->string(),
             'currency' => $this->string(),
@@ -120,6 +139,17 @@ class Install extends Migration
             'dateUpdated' => $this->dateTime()->notNull(),
             'uid' => $this->uid()
         ]);
+
+        $this->createTable('{{%enupalstripe_customers}}', [
+            'id' => $this->primaryKey(),
+            'email' => $this->string(),
+            'stripeId' => $this->string(),
+            'testMode' => $this->boolean(),
+            //
+            'dateCreated' => $this->dateTime()->notNull(),
+            'dateUpdated' => $this->dateTime()->notNull(),
+            'uid' => $this->uid()
+        ]);
     }
 
     /**
@@ -132,11 +162,11 @@ class Install extends Migration
         $this->createIndex(
             $this->db->getIndexName(
                 '{{%enupalstripe_orders}}',
-                'buttonId',
+                'formId',
                 false, true
             ),
             '{{%enupalstripe_orders}}',
-            'buttonId',
+            'formId',
             false
         );
     }
@@ -150,9 +180,9 @@ class Install extends Migration
     {
         $this->addForeignKey(
             $this->db->getForeignKeyName(
-                '{{%enupalstripe_buttons}}', 'id'
+                '{{%enupalstripe_forms}}', 'id'
             ),
-            '{{%enupalstripe_buttons}}', 'id',
+            '{{%enupalstripe_forms}}', 'id',
             '{{%elements}}', 'id', 'CASCADE', null
         );
 
@@ -166,10 +196,10 @@ class Install extends Migration
 
         $this->addForeignKey(
             $this->db->getForeignKeyName(
-                '{{%enupalstripe_orders}}', 'buttonId'
+                '{{%enupalstripe_orders}}', 'formId'
             ),
-            '{{%enupalstripe_orders}}', 'buttonId',
-            '{{%enupalstripe_buttons}}', 'id', 'CASCADE', null
+            '{{%enupalstripe_orders}}', 'formId',
+            '{{%enupalstripe_forms}}', 'id', 'CASCADE', null
         );
     }
 }

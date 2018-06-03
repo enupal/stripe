@@ -1,11 +1,11 @@
-{% set button = order.getButton() %}
+{% set form = order.getPaymentForm() %}
 <div class="order-details pane">
     <table id="" class="data fullwidth collapsible">
         <thead>
         <tr>
             <th scope="col">{{ 'Button'|t('enupal-stripe') }}</th>
             <th scope="col">{{ 'Quantity'|t('enupal-stripe') }}</th>
-            <th scope="col"></th>
+            <th scope="col">{{ 'Type'|t('enupal-stripe') }}</th>
             <th scope="col"></th>
             <th scope="col"></th>
             <th scope="col"></th>
@@ -15,12 +15,13 @@
 
         <tr class="infoRow">
             <td>
-                <a href="{{ button.cpEditUrl }}">{{ button.name }}</a>
+                <a href="{{ form.cpEditUrl }}">{{ form.name }}</a>
             </td>
             <td>
                 {{ order.quantity }}
             </td>
             <td>
+                {{ order.getPaymentType() }}
             </td>
             <td></td>
             <td></td>
@@ -29,20 +30,21 @@
             <td>
             </td>
         </tr>
-                {# SHIPPING AND TAX #}
+
                 <tr>
                     <td></td>
                     <td>
-                        <strong>{{ "Shipping "|t('enupal-stripe')}}</strong><br>
+                        <strong></strong><br>
                     </td>
                     <td></td>
                     <td></td>
                     <td></td>
                     <td>
-                        <span class="right">{{ order.shipping|currency(order.currency) }}</span>
+                        <span class="right"></span>
                     </td>
                     <td></td>
                 </tr>
+                {# SHIPPING AND TAX
                 <tr>
                     <td></td>
                     <td>
@@ -69,12 +71,14 @@
                     </td>
                     <td></td>
                 </tr>
+                #}
 
         <tr>
             <td></td>
             <td>
                 <div class="isPaid">
-                    <span>{{ 'PAID'|t('enupal-stripe') }}</div>
+                    <span>{{ 'PAID'|t('enupal-stripe') }}</span>
+                </div>
             </td>
             <td></td>
             <td></td>
@@ -110,7 +114,13 @@
             <td>
             </td>
             <td>
-                {{ variant }}
+                {% if variant is iterable %}
+                    {% for val in variant %}
+                        {{ val }}
+                    {% endfor %}
+                {% else %}
+                    {{ variant }}
+                {% endif %}
             </td>
             <td>
             </td>

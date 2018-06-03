@@ -33,6 +33,7 @@ class Settings extends Model
     public $customerNotificationSenderEmail;
     public $customerNotificationReplyToEmail;
     public $customerNotificationTemplate;
+    public $customerTemplateOverride;
     // Notification Admin
     public $enableAdminNotification;
     public $adminNotificationRecipients;
@@ -41,6 +42,9 @@ class Settings extends Model
     public $adminNotificationSenderEmail;
     public $adminNotificationReplyToEmail;
     public $adminNotificationTemplate;
+    public $adminTemplateOverride;
+    // Checkout Email
+    public $currentUserEmail = 0;
 
     /**
      * @inheritdoc
@@ -49,8 +53,16 @@ class Settings extends Model
     {
         return [
             [
-                ['liveAccount'],
-                'required', 'on' => 'general'
+                ['livePublishableKey', 'liveSecretKey'],
+                'required', 'on' => 'general', 'when' => function($model) {
+                    return !$model->testMode;
+                }
+            ],
+            [
+                ['testPublishableKey', 'testSecretKey'],
+                'required', 'on' => 'general', 'when' => function($model) {
+                return $model->testMode;
+            }
             ],
             [
                 ['customerNotificationSenderEmail', 'customerNotificationReplyToEmail'],

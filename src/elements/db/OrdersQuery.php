@@ -18,7 +18,7 @@ class OrdersQuery extends ElementQuery
     public $id;
     public $dateCreated;
     public $number;
-    public $buttonId;
+    public $formId;
     public $stripeTransactionId;
     public $orderStatusId;
     public $totalPrice;
@@ -76,7 +76,7 @@ class OrdersQuery extends ElementQuery
     /**
      * @inheritdoc
      */
-    public function getPaypalTransactionId()
+    public function getStripeTransactionId()
     {
         return $this->stripeTransactionId;
     }
@@ -114,7 +114,7 @@ class OrdersQuery extends ElementQuery
             'enupalstripe_orders.tax',
             'enupalstripe_orders.discount',
             'enupalstripe_orders.shipping',
-            'enupalstripe_orders.buttonId',
+            'enupalstripe_orders.formId',
             'enupalstripe_orders.quantity',
             'enupalstripe_orders.stripeTransactionId',
             'enupalstripe_orders.transactionInfo',
@@ -132,6 +132,12 @@ class OrdersQuery extends ElementQuery
             'enupalstripe_orders.variants',
             'enupalstripe_orders.dateOrdered'
         ]);
+
+        if ($this->id) {
+            $this->subQuery->andWhere(Db::parseParam(
+                'enupalstripe_orders.id', $this->id)
+            );
+        }
 
         if ($this->number) {
             $this->subQuery->andWhere(Db::parseParam(

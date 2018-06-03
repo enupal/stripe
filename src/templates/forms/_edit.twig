@@ -1,0 +1,391 @@
+{#
+/**
+ * EnupalStripe plugin for Craft CMS 3.x
+ *
+ * @link      https://enupal.com/
+ * @copyright Copyright (c) 2018 Enupal
+ */
+#}
+
+{% extends "enupal-stripe/_layouts/base" %}
+{% import "_includes/forms" as forms %}
+{% set crumbs = [
+    { label: "Stripe Payment Forms"|t('enupal-stripe'), url: cpUrl('enupal-stripe/forms') }
+] %}
+
+{% set title = 'Edit Payment Form'|t('enupal-stripe') %}
+{% set fullPageForm = true %}
+{% set saveShortcutRedirect = continueEditingUrl %}
+{% set tab = stripeForm.getFieldLayout().getTabs()[0] %}
+{% set fields = tab.getFields() %}
+
+{% set tabs = {
+    general:  {
+        label: "General"|t,
+        url: '#fields-tab1',
+    },
+    subscriptions:  {
+        label: "Subscriptions"|t,
+        url: '#fields-tab2',
+        class: (notificationErrors is defined ? notificationErrors : null)
+    },
+    formFields:  {
+        label: "Form Fields"|t,
+        url: '#fields-tab3',
+        class: (notificationErrors is defined ? notificationErrors : null)
+    }
+} %}
+
+{% set currencyOptions = craft.enupalStripe.getCurrencyIsoOptions() %}
+{% set languageOptions = craft.enupalStripe.getLanguageOptions() %}
+{% set discountOptions = craft.enupalStripe.getDiscountOptions() %}
+{% set amountTypeOptions = craft.enupalStripe.getAmountTypeOptions() %}
+{% set frequencyOptions = craft.enupalStripe.getFrequencyOptions() %}
+{% set subscriptionTypes = craft.enupalStripe.getSubscriptionsTypes() %}
+
+{% block actionButton %}
+    <input type="hidden" name="action" value="enupal-stripe/payment-forms/save-form">
+    {{ redirectInput('enupal-stripe/forms') }}
+    <input type="hidden" id="formId" name="formId" value="{{ stripeForm.id is defined ? stripeForm.id : '' }}">
+
+    <div class="btngroup submit first">
+        <input type="submit" class="btn submit" value="{{ 'Save'|t('enupal-stripe') }}">
+        {% if stripeForm.id != null %}
+            <div class="btn submit menubtn"></div>
+            <div class="menu">
+                <ul>
+                    <li><a class="formsubmit" data-redirect="{{('enupal-stripe/forms/edit/'~stripeForm.id)|hash}}">{{ "Save and continue editing"|t('enupal-stripe') }} <span class="shortcut">⌘S</span></a></li>
+                </ul>
+                <hr>
+                <ul>
+                    <li><a class="formsubmit error"
+                           data-action="enupal-stripe/payment-forms/delete-form"
+                           data-confirm='{{ "Are you sure you want to delete this Payment Form, and all of it's orders?"|t('enupal-stripe') }}'
+                           data-redirect="{{ 'enupal-stripe/forms'|hash }}">{{ "Delete"|t('enupal-stripe') }}</a>
+                    </li>
+                </ul>
+            </div>
+        {% endif %}
+    </div>
+{% endblock %}
+
+{% block content %}
+    <input type="hidden" name="action" value="enupal-stripe/payment-forms/save-form">
+    <input type="hidden" name="handle" value="{{ stripeForm.handle }}">
+    <input type="hidden" name="formId" value="{{ formId }}">
+
+    {% namespace 'fields' %}
+    <div id="tab1">
+             <hr>
+            {{ forms.field({
+                label: "Stripe Checkout Overlay"|t('enupal-stripe'),
+                instructions: "Configure all options available in the Stripe Checkout overlay."|t('enupal-stripe')
+            }, null) }}
+            <hr>
+            {{ forms.textField({
+                first: true,
+                label: "Item name or Company Name"|t('enupal-stripe'),
+                instructions: 'The name of your product or company',
+                id: 'companyName',
+                name: 'companyName',
+                value: stripeForm.companyName,
+                errors: stripeForm.getErrors('companyName'),
+                autofocus: true,
+                required: true
+            }) }}
+
+            {{ forms.textField({
+                first: true,
+                label: "Item description"|t('enupal-stripe'),
+                instructions: 'What this Stripe Button will be called in the CP. This value will be used to set the <strong>Item Description</strong> in the Stripe checkout window',
+                id: 'name',
+                name: 'name',
+                value: stripeForm.name,
+                errors: stripeForm.getErrors('name'),
+                autofocus: true,
+                required: true
+            }) }}
+
+            {{ forms.field({
+                label: '<i class="fa fa-picture-o" aria-hidden="true"></i> '~'Logo'|t('enupal-stripe'),
+                instructions: 'An Image of your brand or product. The recommended minimum size is 128x128px. The supported image types are: .gif, .jpeg, and .png.'|t('enupal-slider'),
+                id: 'logoImage'
+            }, forms.elementSelect({
+                elements: logoElement,
+                elementType: elementType,
+                id: 'logoImage',
+                name: 'logoImage',
+                class: 'logoImage-field',
+                jsClass: 'Craft.AssetSelectInput',
+                selectionLabel: 'Add an image'|t('enupal-stripe'),
+                limit: 1,
+                viewMode: 'large',
+                criteria: {kind: ['image'], siteId : null}
+            })) }}
+            <hr>
+            {{ forms.field({
+                label: "Pay PaymentForms Settings"|t('enupal-stripe'),
+                instructions: "Configure the text for the Pay Form Button and the Checkout Button"|t('enupal-stripe')
+            }, null) }}
+             <hr>
+            {{ forms.textField({
+                first: true,
+                label: "Payment Button Text"|t('enupal-stripe'),
+                instructions: 'Text used for the pay button. "Pay with card" is the default',
+                placeholder: 'Pay with card',
+                id: 'buttonText',
+                name: 'buttonText',
+                value: stripeForm.buttonText,
+                errors: stripeForm.getErrors('buttonText')
+            }) }}
+
+            {{ forms.textField({
+                first: true,
+                label: "Payment Button Processing Text"|t('enupal-stripe'),
+                instructions: 'The text used when the payment is processing',
+                placeholder: 'Please wait...',
+                id: 'paymentButtonProcessingText',
+                name: 'paymentButtonProcessingText',
+                value: stripeForm.paymentButtonProcessingText,
+                errors: stripeForm.getErrors('paymentButtonProcessingText')
+            }) }}
+
+            {{ forms.textField({
+                first: true,
+                label: "Checkout Button Text"|t('enupal-stripe'),
+                instructions: 'The text used for the final checkout button. You can use {{amount}} to add the final amount to charge.',
+                placeholder: 'Pay {{amount}}',
+                id: 'checkoutButtonText',
+                name: 'checkoutButtonText',
+                value: stripeForm.checkoutButtonText,
+                errors: stripeForm.getErrors('checkoutButtonText')
+            }) }}
+    </div>
+    <div id="tab2" class="hidden">
+        {{ forms.lightswitchField({
+            label: "Enable Subscription Payment <span class='info'>If enabled will override any <b>One-Time</b> settings previously set up.</span>"|t('enupal-stripe'),
+            instructions: "Connect a payment button to an individual Stripe plan or let your site visitors pick a plan to subscribe to. Add a custom amount option, charge a setup fee or tie into free trials."|t('enupal-stripe'),
+            id: 'enableSubscriptions',
+            name: 'enableSubscriptions',
+            on: stripeForm.enableSubscriptions,
+            toggle: 'subscriptions-wrapper'
+        }) }}
+        <hr>
+        <div id="subscriptions-wrapper" {% if not stripeForm.enableSubscriptions %} class="hidden" {% endif %}>
+
+            {{ forms.selectField({
+                label: "Subscription Type"|t('enupal-stripe'),
+                id: 'subscriptionType',
+                name: 'subscriptionType',
+                options: subscriptionTypes,
+                value: stripeForm.subscriptionType
+            }) }}
+
+            <div id="single-subscription-wrapper" {% if stripeForm.subscriptionType != 0 %}  class="hidden" {% endif %}>
+
+                {% set planList = [] %}
+                {% set singlePlan = stripeForm.getSinglePlan() %}
+                {% set planInput %}
+                    {% if singlePlan.id is defined and singlePlan.nickname is defined %}
+                        {% set planList = planList|merge([{'label': singlePlan.defaultPlanName, 'value': singlePlan.id}]) %}
+                    {% endif %}
+                    <div class="flex">
+                        {{ forms.select({
+                            name: 'singlePlanInfo',
+                            options: planList,
+                            id: 'singlePlanInfo',
+                            value: singlePlan.id ?? null,
+                            readonly: true,
+                            class: 'singlePlanInfo'
+                        }) }}
+
+                        <div id="refresh-plans-btn" class="btn">{{ "Refresh"|t('enupal-stripe') }}</div>
+                        <div class="spinner hidden"></div>
+                    </div>
+                {% endset %}
+
+                <div id="single-plan-select-wrapper" {% if stripeForm.enableCustomPlanAmount %}  class="hidden" {% endif %}>
+
+                    {{ forms.field({
+                        label: "Select Plan"|t('enupal-stripe'),
+                        instructions: "Select any plan created on stripe. Remember check the plan when you go live"|t('enupal-stripe'),
+                        id: 'plan',
+                        errors: stripeForm.getErrors('singlePlanInfo'),
+                    }, planInput) }}
+
+                </div>
+
+                {{ forms.textField({
+                    first: true,
+                    label: "Plan Setup Fee"|t('enupal-stripe'),
+                    id: 'singlePlanSetupFee',
+                    instructions: 'Setup Fee for the first payment',
+                    name: 'singlePlanSetupFee',
+                    placeholder: 'Enter amount',
+                    unit: stripeForm.currency,
+                    value: (stripeForm.singlePlanSetupFee == '0' ? '0'|number : (stripeForm.singlePlanSetupFee ? stripeForm.singlePlanSetupFee|number ?: '')),
+                    errors: stripeForm.getErrors('singlePlanSetupFee'),
+                    autofocus: true,
+                }) }}
+
+                {{ forms.lightswitchField({
+                    label: "Enable Custom Amount"|t('enupal-stripe'),
+                    instructions: "This option allows the user enter a custom amount. It will create a new subscription plan for this customer."|t('enupal-stripe'),
+                    id: 'enableCustomPlanAmount',
+                    name: 'enableCustomPlanAmount',
+                    on: stripeForm.enableCustomPlanAmount,
+                    toggle: 'custom-single-plan-wrapper'
+                }) }}
+                <div id="custom-single-plan-wrapper" {% if not stripeForm.enableCustomPlanAmount %}  class="hidden" {% endif %}>
+                    <hr>
+                    {{ forms.textField({
+                        first: true,
+                        label: "Minimum Amount"|t('enupal-stripe'),
+                        id: 'customPlanMinimumAmount',
+                        name: 'customPlanMinimumAmount',
+                        placeholder: 'Enter amount',
+                        unit: stripeForm.currency,
+                        value: (stripeForm.customPlanMinimumAmount == '0' ? '0'|number : (stripeForm.customPlanMinimumAmount ? stripeForm.customPlanMinimumAmount|number ?: '')),
+                        errors: stripeForm.getErrors('customPlanMinimumAmount'),
+                        autofocus: true,
+                    }) }}
+
+                    {{ forms.textField({
+                        first: true,
+                        label: "Default Amount"|t('enupal-stripe'),
+                        id: 'customPlanDefaultAmount',
+                        name: 'customPlanDefaultAmount',
+                        placeholder: 'Enter amount',
+                        unit: stripeForm.currency,
+                        value: (stripeForm.customPlanDefaultAmount == '0' ? '0'|number : (stripeForm.customPlanDefaultAmount ? stripeForm.customPlanDefaultAmount|number ?: '')),
+                        errors: stripeForm.getErrors('customPlanDefaultAmount'),
+                        autofocus: true,
+                    }) }}
+
+                    {% set frequencyInput %}
+                        <div class="flex">
+                            <div class="textwrapper">
+                                {{ forms.text({
+                                    label: "Interval"|t('enupal-stripe'),
+                                    id: 'customPlanInterval',
+                                    name: 'customPlanInterval',
+                                    placeholder: 'Enter interval'|t('enupal-stripe'),
+                                    value: stripeForm.customPlanInterval ?? 1
+                                }) }}
+                            </div>
+                            <div class="textwrapper">
+                                {{ forms.selectField({
+                                    id: 'customPlanInterval',
+                                    name: 'customPlanFrequency',
+                                    options: frequencyOptions,
+                                    value: stripeForm.customPlanInterval
+                                }) }}
+                            </div>
+                        </div>
+                    {% endset %}
+
+                    {{ forms.field({
+                        id: 'interval-frequency',
+                        instructions: "The number of intervals between subscription billings. For example, Interval=month and Frequency=3 bills every 3 months. Maximum of one year interval allowed (1 year, 12 months, or 52 weeks).",
+                        label: 'Interval/Frequency'|t('enupal-stripe'),
+                        errors: stripeForm.getErrors('customPlanInterval')|merge(stripeForm.getErrors('customPlanInterval')),
+                    }, frequencyInput) }}
+
+                    {{ forms.textField({
+                        first: true,
+                        label: "Free trial Period"|t('enupal-stripe'),
+                        instructions: "Specifies a trial period in (an integer number of) days. If you include a trial period, the customer won’t be billed for the first time until the trial period ends. If the customer cancels before the trial period is over, she’ll never be billed at all.",
+                        id: 'singlePlanTrialPeriod',
+                        name: 'singlePlanTrialPeriod',
+                        unit: 'Days',
+                        value: stripeForm.singlePlanTrialPeriod,
+                        errors: stripeForm.getErrors('singlePlanTrialPeriod'),
+                        autofocus: true,
+                    }) }}
+                </div>
+            </div>
+
+            <div id="multiple-subscriptions-wrapper" {% if stripeForm.subscriptionType != 1 %}  class="hidden" {% endif %}>
+                {{ forms.selectField({
+                    label: "Display Plans As"|t('enupal-stripe'),
+                    id: 'subscriptionStyle',
+                    name: 'subscriptionStyle',
+                    options: {'radio':'Radio','dropdown':'Dropdown'},
+                    value: stripeForm.subscriptionStyle
+                }) }}
+
+                {{ forms.textField({
+                    first: true,
+                    label: "Select Label"|t('enupal-stripe'),
+                    instructions: "Add a label for the Dropdown or Radiobutton",
+                    placeholder: "Select a Plan...",
+                    id: 'selectPlanLabel',
+                    name: 'selectPlanLabel',
+                    value: stripeForm.selectPlanLabel,
+                    errors: stripeForm.getErrors('selectPlanLabel'),
+                    autofocus: true,
+                }) }}
+                <hr>
+                {% for field in fields %}
+                    {% if field.handle == stripeForm.getMultiplePlansHandle() %}
+                        {% include "_includes/field" with {
+                            field:    field,
+                            required: field.required,
+                            element:  stripeForm,
+                            static: null
+                        } only %}
+                    {% endif %}
+                {% endfor %}
+            </div>
+        </div>
+
+    </div>
+    <div id="tab3" class="hidden">
+        {% for field in fields %}
+            {% if field.handle == stripeForm.getFormFieldHandle() %}
+                {% include "_includes/field" with {
+                    field:    field,
+                    required: field.required,
+                    element:  stripeForm,
+                    static: null
+                } only %}
+            {% endif %}
+        {% endfor %}
+    </div>
+    {% endnamespace %}
+{% endblock %}
+
+{% block details %}
+    {% namespace 'fields' %}
+        {% include "enupal-stripe/forms/_sidebar/settings" %}
+        <hr>
+    {% endnamespace %}
+    <div class="meta read-only">
+        <div class="data">
+            <h5 class="heading">{{ "Date Created"|t('commerce') }}</h5>
+            <div class="value">{{ stripeForm.dateCreated|date('short') }} {{ stripeForm.dateCreated|time('short') }}</div>
+        </div>
+        <div class="data">
+            <h5 class="heading">{{ "Date Updated"|t('commerce') }}</h5>
+            <div class="value">{{ stripeForm.dateUpdated|date('short') }} {{ stripeForm.dateUpdated|time('short') }}</div>
+        </div>
+    </div>
+{% endblock %}
+
+{% do view.registerAssetBundle("enupal\\stripe\\web\\assets\\StripeButtonAsset") %}
+{% do view.registerAssetBundle("enupal\\stripe\\web\\assets\\FontAwesomeAsset") %}
+{% js %}
+    $(document).ready(function() {
+        new EnupalStripe();
+    });
+{% endjs %}
+
+{% css %}
+    .stripe-instructions {
+    margin-top: 2px;
+    color: #8f98a3;
+    }
+    .meta h6{
+    color: #333f4d;
+    }
+{% endcss %}

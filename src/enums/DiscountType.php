@@ -9,7 +9,7 @@
 namespace enupal\stripe\enums;
 
 /**
- * Paypal discount types
+ * Stripe discount types
  */
 abstract class DiscountType extends BaseEnum
 {

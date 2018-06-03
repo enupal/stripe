@@ -1,0 +1,18 @@
+{#
+/**
+ * EnupalStripe plugin for Craft CMS 3.x
+ *
+ * @link      https://enupal.com/
+ * @copyright Copyright (c) 2018 Enupal
+ */
+#}
+
+{% extends "enupal-stripe/_layouts/elementindex" %}
+{% set title = "Stripe Payment Forms"|t %}
+{% set elementType = 'enupal\\stripe\\elements\\PaymentForm' %}
+{% do view.registerAssetBundle("enupal\\stripe\\web\\assets\\FontAwesomeAsset") %}
+{% block actionButton %}
+    <div class="buttons">
+        <a class="btn submit add icon" href="{{ url('enupal-stripe/forms/new') }}">{{ "New Payment Form"|t('enupal-stripe') }}</a>
+    </div>
+{% endblock %}

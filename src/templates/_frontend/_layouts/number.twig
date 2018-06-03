@@ -1,0 +1,16 @@
+{%- set handle = craft.enupalStripe.labelToHandle(block.label) %}
+{%- set required = block.required  %}
+{%- set min = block.minValue ? block.minValue : null %}
+{%- set max = block.maxValue ? block.maxValue : null %}
+
+<input type="number"
+       name="metadata[{{ handle }}]"
+       id="{{ handle }}"
+       class="{{ handle }}"
+        {%- if required %} required aria-required="true"{% endif %}
+       value=""
+        {%- if block.placeholder %} placeholder="{{ block.placeholder }}"{% endif %}
+        {%- if min is not null %} min="{{ min }}"{% endif %}
+        {%- if max is not null %} max="{{ max }}"{% endif %}
+
+/>

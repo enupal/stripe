@@ -9,7 +9,7 @@
 namespace enupal\stripe\enums;
 
 /**
- * Paypal shipping options
+ * Stripe shipping options
  */
 abstract class ShippingOptions extends BaseEnum
 {

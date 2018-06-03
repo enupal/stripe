@@ -1,6 +1,6 @@
 {
   "name": "enupal/stripe",
-  "description": "The easiest payment flow on web and mobile",
+  "description": "Allows customers sign up for recurring and one-time payments with Stripe, perfect for orders, donations, subscriptions, and events. Create simple payment forms in seconds easily without coding. For Craft CMS 3.x",
   "type": "craft-plugin",
   "version": "1.0.0",
   "keywords": [
@@ -10,6 +10,12 @@
     "craft-plugin",
     "stripe",
     "buy now",
+    "recurring payments",
+    "payments",
+    "donations",
+    "mobile",
+    "subscriptions",
+    "plans",
     "sell",
     "payment",
     "credit card",
@@ -19,7 +25,7 @@
   ],
   "autoload": {
     "psr-4": {
-      "enupal\\paypal\\": "src/"
+      "enupal\\stripe\\": "src/"
     }
   },
   "authors": [
@@ -30,18 +36,19 @@
   ],
   "support": {
     "email": "support@enupal.com",
-    "issues": "https://github.com/enupal/paypal/issues",
-    "docs": "https://enupal.com/en/craft-plugins/enupal-paypal/docs"
+    "issues": "https://github.com/enupal/stripe/issues",
+    "docs": "https://enupal.com/en/craft-plugins/enupal-stripe/docs"
   },
   "require": {
-    "craftcms/cms": "^3.0.0"
+    "craftcms/cms": "^3.0.0",
+    "stripe/stripe-php": "^6.6.0"
   },
   "extra": {
-    "name": "Stripe",
+    "name": "Stripe Payments",
     "handle": "enupal-stripe",
     "schemaVersion": "1.0.0",
     "hasSettings": true,
-    "changelogUrl": "https://raw.githubusercontent.com/enupal/paypal/master/CHANGELOG.md",
+    "changelogUrl": "https://raw.githubusercontent.com/enupal/stripe/master/CHANGELOG.md",
     "developer": "Enupal",
     "class": "enupal\\stripe\\Stripe",
     "components": {

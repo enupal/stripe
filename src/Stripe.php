@@ -18,9 +18,9 @@ use enupal\stripe\services\App;
 use enupal\stripe\services\Orders;
 use yii\base\Event;
 use craft\web\twig\variables\CraftVariable;
-use enupal\stripe\fields\Buttons as BuyNowButtonField;
+use enupal\stripe\fields\StripePaymentForms as StripePaymentFormsField;
 
-use enupal\stripe\variables\PaypalVariable;
+use enupal\stripe\variables\StripeVariable;
 use enupal\stripe\models\Settings;
 use craft\base\Plugin;
 
@@ -40,15 +40,11 @@ class Stripe extends Plugin
     public function init()
     {
         parent::init();
+
         self::$app = $this->get('app');
 
         Event::on(UrlManager::class, UrlManager::EVENT_REGISTER_CP_URL_RULES, function(RegisterUrlRulesEvent $event) {
             $event->rules = array_merge($event->rules, $this->getCpUrlRules());
-        }
-        );
-
-        Event::on(UrlManager::class, UrlManager::EVENT_REGISTER_SITE_URL_RULES, function(RegisterUrlRulesEvent $event) {
-            $event->rules = array_merge($event->rules, $this->getSiteUrlRules());
         }
         );
 
@@ -58,7 +54,8 @@ class Stripe extends Plugin
             function(Event $event) {
                 /** @var CraftVariable $variable */
                 $variable = $event->sender;
-                $variable->set('stripeButton', PaypalVariable::class);
+                $variable->set('enupalStripe', StripeVariable::class);
+                $variable->set('enupalstripe', StripeVariable::class);
             }
         );
 
@@ -68,16 +65,17 @@ class Stripe extends Plugin
         });
 
         Event::on(Fields::class, Fields::EVENT_REGISTER_FIELD_TYPES, function(RegisterComponentTypesEvent $event) {
-            $event->types[] = BuyNowButtonField::class;
+            $event->types[] = StripePaymentFormsField::class;
         });
     }
 
     /**
      * @inheritdoc
+     * @throws \Throwable
      */
     protected function afterInstall()
     {
-        Stripe::$app->buttons->createDefaultVariantFields();
+        Stripe::$app->paymentForms->createDefaultVariantFields();
     }
 
     /**
@@ -85,7 +83,7 @@ class Stripe extends Plugin
      */
     protected function afterUninstall()
     {
-        Stripe::$app->buttons->deleteVariantFields();
+        Stripe::$app->paymentForms->deleteVariantFields();
     }
 
     /**
@@ -108,9 +106,9 @@ class Stripe extends Plugin
                     "label" => self::t("Orders"),
                     "url" => 'enupal-stripe/orders'
                 ],
-                'buttons' => [
-                    "label" => self::t("Buttons"),
-                    "url" => 'enupal-stripe/buttons'
+                'forms' => [
+                    "label" => self::t("Payment Forms"),
+                    "url" => 'enupal-stripe/forms'
                 ],
                 'settings' => [
                     "label" => self::t("Settings"),
@@ -122,6 +120,7 @@ class Stripe extends Plugin
 
     /**
      * @inheritdoc
+     * @throws \yii\base\Exception
      */
     protected function settingsHtml()
     {
@@ -145,31 +144,14 @@ class Stripe extends Plugin
     private function getCpUrlRules()
     {
         return [
-            'enupal-stripe/buttons/new' =>
-                'enupal-stripe/buttons/edit-button',
+            'enupal-stripe/forms/new' =>
+                'enupal-stripe/payment-forms/edit-form',
 
-            'enupal-stripe/buttons/edit/<buttonId:\d+>' =>
-                'enupal-stripe/buttons/edit-button',
+            'enupal-stripe/forms/edit/<formId:\d+>' =>
+                'enupal-stripe/payment-forms/edit-form',
 
             'enupal-stripe/orders/edit/<orderId:\d+>' =>
-                'enupal-stripe/orders/edit-order',
-
-            'enupal-stripe/payments/new' =>
-                'enupal-stripe/payments/edit-button',
-
-            'enupal-stripe/payments/edit/<paymentId:\d+>' =>
-                'enupal-stripe/payments/edit-button',
-        ];
-    }
-
-    /**
-     * @return array
-     */
-    private function getSiteUrlRules()
-    {
-        return [
-            'enupal-stripe/ipn' =>
-                'enupal-stripe/paypal/ipn'
+                'enupal-stripe/orders/edit-order'
         ];
     }
 }

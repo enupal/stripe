@@ -10,12 +10,12 @@
 {% extends "enupal-stripe/_layouts/settings" %}
 {% import "_includes/forms" as forms %}
 
-{% set settings = craft.paypalButton.getSettings() %}
+{% set settings = settings is defined ? settings : craft.enupalStripe.getSettings()  %}
 {% set fullPageForm = true %}
 {% set saveShortcutRedirect = 'enupal-stripe/settings/taxes' %}
-{% set discountOptions = craft.paypalButton.getDiscountOptions() %}
+{% set discountOptions = craft.enupalStripe.getDiscountOptions() %}
 
-{% set saveButton %}
+{% set savePaymentForm %}
     <div class="buttons">
         <input class="btn submit" type="submit" value="{{ 'Save'|t }}">
     </div>
@@ -25,7 +25,7 @@
 
     <input type="hidden" name="action"
            value="enupal-stripe/settings/save-settings">
-    <input type="hidden" name="paypalScenario" value="taxes">
+    <input type="hidden" name="stripeScenario" value="taxes">
     <div id="settings-cp">
 
         {% namespace 'settings' %}

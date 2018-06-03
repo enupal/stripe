@@ -10,12 +10,12 @@
 {% extends "enupal-stripe/_layouts/settings" %}
 {% import "_includes/forms" as forms %}
 
-{% set settings = craft.paypalButton.getSettings() %}
+{% set settings = settings is defined ? settings : craft.enupalStripe.getSettings()  %}
 {% set fullPageForm = true %}
 {% set saveShortcutRedirect = 'enupal-stripe/settings/default' %}
-{% set currencyOptions = craft.paypalButton.getCurrencyOptions() %}
+{% set currencyOptions = craft.enupalStripe.getCurrencyOptions() %}
 
-{% set saveButton %}
+{% set savePaymentForm %}
     <div class="buttons">
         <input class="btn submit" type="submit" value="{{ 'Save'|t }}">
     </div>
@@ -31,7 +31,7 @@
         {% namespace 'settings' %}
             {{ forms.field({
                 label: "Default values"|t('enupal-stripe'),
-                instructions: "These are the default settings when create a new Paypal Button and you can override it as per-button basis."|t('enupal-stripe'),
+                instructions: "These are the default settings when create a new Payment Form and you can override it as per-form basis."|t('enupal-stripe'),
             }, null) }}
             <hr>
             {{ forms.textField({
@@ -44,17 +44,6 @@
                 autofocus: true,
                 errors: settings.getErrors('returnUrl')
             }) }}
-
-            {{ forms.textField({
-                label: "Global Cancel URL"|t('enupal-stripe'),
-                instructions: "Redirect buyers' to this URL if they cancel checkout before completing their payments."|t('enupal-stripe'),
-                id: 'cancelUrl',
-                name: 'cancelUrl',
-                placeholder: '/something-went-wrong',
-                value: settings.cancelUrl,
-                autofocus: true,
-                errors: settings.getErrors('cancelUrl')
-            }) }}
             <hr>
 
             {{ forms.selectField({
@@ -66,7 +55,18 @@
                 value: settings.defaultCurrency
             }) }}
 
+            <hr>
 
+            {{ forms.lightswitchField({
+                label: 'Email address of the logged in user'|t('enupal-stripe'),
+                instructions: 'Get the email of the current user logged in. This disallow the user edit the email in the Stripe Checkout Form',
+                id: 'currentUserEmail',
+                name: 'currentUserEmail',
+                on: settings.currentUserEmail,
+                onLabel: "On"|t('enupal-stripe'),
+                offLabel: "Off"|t('enupal-stripe'),
+                errors: settings.getErrors('currentUserEmail'),
+            }) }}
         {% endnamespace %}
 
     </div>

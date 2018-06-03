@@ -14,20 +14,6 @@
                 <h4>{{ 'Information'|t('enupal-test') }}</h4>
             </tr>
             <tr>
-                <td><strong>{{ "First Name"|t('enupal-stripe') }}</strong>
-                </td>
-                <td>
-                    {{ order.firstName }}
-                </td>
-            </tr>
-            <tr>
-                <td><strong>{{ "Last Name"|t('enupal-stripe') }}</strong>
-                </td>
-                <td>
-                    {{ order.lastName }}
-                </td>
-            </tr>
-            <tr>
                 <td><strong>{{ "Email"|t('enupal-stripe') }}</strong>
                 </td>
                 <td>
@@ -52,9 +38,13 @@
             </tr>
             <tr>
                 <td>
-                    <strong>{{ "Paypal ID"|t('enupal-stripe') }} </strong>
+                    <strong>{{ "Stripe Reference"|t('enupal-stripe') }} </strong>
                 </td>
-                <td>{{ order.stripeTransactionId }}</td>
+                {% set url = "https://dashboard.stripe.com" %}
+                {% set url = order.testMode ? url~'/test' : url %}
+                {% set url = order.stripeTransactionId|slice(0, 3) == 'sub' ? url~'/subscriptions' : url~'/payments' %}
+
+                <td><a target="_blank" href="{{ url~'/'~order.stripeTransactionId }}">{{ order.stripeTransactionId }}</a></td>
             </tr>
             <tr>
                 <td>
@@ -65,7 +55,7 @@
         </table>
     </div>
     <div class="meta">
-        {% set orderStatusOptions = craft.paypalButton.getOrderStatuses() %}
+        {% set orderStatusOptions = craft.enupalStripe.getOrderStatuses() %}
         {{ forms.selectField({
             label: "Order Status"|t('enupal-stripe'),
             id: 'orderStatusId',

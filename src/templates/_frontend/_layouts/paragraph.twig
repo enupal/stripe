@@ -1,0 +1,14 @@
+{%- set handle = craft.enupalStripe.labelToHandle(block.label) %}
+{%- set required = block.required  %}
+{%- set initialRows = block.initialRows ? block.initialRows : 10 %}
+
+<textarea aria-multiline="true"
+       name="metadata[{{ handle }}]"
+       id="{{ handle }}"
+       class="{{ handle }}"
+        {%- if required %} required aria-required="true"{% endif %}
+
+        {%- if block.placeholder %} placeholder="{{ block.placeholder }}"{% endif %}
+       maxlength="255"
+       rows="{{ initialRows }}"
+></textarea>

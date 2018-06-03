@@ -19,7 +19,7 @@ use craft\elements\actions\Delete;
 use enupal\stripe\elements\db\OrdersQuery;
 use enupal\stripe\records\Order as OrderRecord;
 use enupal\stripe\enums\OrderStatus;
-use enupal\stripe\Stripe as PaypalPlugin;
+use enupal\stripe\Stripe as StripePaymentsPlugin;
 use craft\validators\UniqueValidator;
 
 /**
@@ -58,7 +58,7 @@ class Order extends Element
      */
     public $orderStatusId = OrderStatus::NEW;
 
-    public $buttonId;
+    public $formId;
     public $currency;
     public $totalPrice;
     public $shipping;
@@ -88,7 +88,7 @@ class Order extends Element
      */
     public static function displayName(): string
     {
-        return PaypalPlugin::t('Orders');
+        return StripePaymentsPlugin::t('Orders');
     }
 
     /**
@@ -174,7 +174,7 @@ class Order extends Element
     {
         $statusId = $this->orderStatusId ?? OrderStatus::NEW;
 
-        $colors = PaypalPlugin::$app->orders->getColorStatuses();
+        $colors = StripePaymentsPlugin::$app->orders->getColorStatuses();
 
         return $colors[$statusId];
     }
@@ -187,15 +187,15 @@ class Order extends Element
         $sources = [
             [
                 'key' => '*',
-                'label' => PaypalPlugin::t('All Orders'),
+                'label' => StripePaymentsPlugin::t('All Orders'),
             ]
         ];
 
         $statuses = OrderStatus::getConstants();
 
-        $colors = PaypalPlugin::$app->orders->getColorStatuses();
+        $colors = StripePaymentsPlugin::$app->orders->getColorStatuses();
 
-        $sources[] = ['heading' => PaypalPlugin::t("Order Status")];
+        $sources[] = ['heading' => StripePaymentsPlugin::t("Order Status")];
 
         foreach ($statuses as $code => $status) {
             $key = 'orderStatusId:'.$status;
@@ -220,8 +220,8 @@ class Order extends Element
         // Delete
         $actions[] = Craft::$app->getElements()->createAction([
             'type' => Delete::class,
-            'confirmationMessage' => PaypalPlugin::t('Are you sure you want to delete the selected orders?'),
-            'successMessage' => PaypalPlugin::t('Orders deleted.'),
+            'confirmationMessage' => StripePaymentsPlugin::t('Are you sure you want to delete the selected orders?'),
+            'successMessage' => StripePaymentsPlugin::t('Orders deleted.'),
         ]);
 
         return $actions;
@@ -241,9 +241,9 @@ class Order extends Element
     protected static function defineSortOptions(): array
     {
         $attributes = [
-            'dateOrdered' => PaypalPlugin::t('Date Ordered'),
-            'number' => PaypalPlugin::t('Order Number'),
-            'totalPrice' => PaypalPlugin::t('Total'),
+            'dateOrdered' => StripePaymentsPlugin::t('Date Ordered'),
+            'number' => StripePaymentsPlugin::t('Order Number'),
+            'totalPrice' => StripePaymentsPlugin::t('Total'),
         ];
 
         return $attributes;
@@ -254,16 +254,17 @@ class Order extends Element
      */
     protected static function defineTableAttributes(): array
     {
-        $attributes['number'] = ['label' => PaypalPlugin::t('Order Number')];
-        $attributes['totalPrice'] = ['label' => PaypalPlugin::t('Total')];
-        $attributes['firstName'] = ['label' => PaypalPlugin::t('Amount')];
-        $attributes['lastName'] = ['label' => PaypalPlugin::t('Amount')];
-        $attributes['address'] = ['label' => PaypalPlugin::t('Shipping Address')];
-        $attributes['email'] = ['label' => PaypalPlugin::t('Customer Email')];
-        $attributes['itemName'] = ['label' => PaypalPlugin::t('Item Name')];
-        $attributes['itemSku'] = ['label' => PaypalPlugin::t('Item SKU')];
-        $attributes['stripeTransactionId'] = ['label' => PaypalPlugin::t('PayPal Transaction Id')];
-        $attributes['dateOrdered'] = ['label' => PaypalPlugin::t('Date Ordered')];
+        $attributes['number'] = ['label' => StripePaymentsPlugin::t('Order Number')];
+        $attributes['totalPrice'] = ['label' => StripePaymentsPlugin::t('Total')];
+        $attributes['firstName'] = ['label' => StripePaymentsPlugin::t('Amount')];
+        $attributes['lastName'] = ['label' => StripePaymentsPlugin::t('Amount')];
+        $attributes['address'] = ['label' => StripePaymentsPlugin::t('Shipping Address')];
+        $attributes['email'] = ['label' => StripePaymentsPlugin::t('Customer Email')];
+        $attributes['itemName'] = ['label' => StripePaymentsPlugin::t('Item Name')];
+        $attributes['itemSku'] = ['label' => StripePaymentsPlugin::t('Form Handle')];
+        $attributes['stripeTransactionId'] = ['label' => StripePaymentsPlugin::t('Stripe Transaction Id')];
+        $attributes['dateOrdered'] = ['label' => StripePaymentsPlugin::t('Date Ordered')];
+        $attributes['paymentType'] = ['label' => StripePaymentsPlugin::t('Payment Type')];
 
         return $attributes;
     }
@@ -309,11 +310,15 @@ class Order extends Element
                 }
             case 'itemName':
                 {
-                    return $this->getButton()->name;
+                    return $this->getPaymentForm()->name;
                 }
             case 'itemSku':
                 {
-                    return '<a href="'.$this->getButton()->getCpEditUrl().'">'.$this->getButton()->sku.'</a>';
+                    return '<a href="'.$this->getPaymentForm()->getCpEditUrl().'">'.$this->getPaymentForm()->handle.'</a>';
+                }
+            case 'paymentType':
+                {
+                    return $this->getPaymentType();
                 }
 
         }
@@ -323,7 +328,6 @@ class Order extends Element
 
     /**
      * @inheritdoc
-     * @throws Exception if reasons
      */
     public function afterSave(bool $isNew)
     {
@@ -332,7 +336,7 @@ class Order extends Element
             $record = OrderRecord::findOne($this->id);
 
             if (!$record) {
-                throw new Exception('Invalid Order ID: '.$this->id);
+                throw new \Exception('Invalid Order ID: '.$this->id);
             }
         } else {
             $record = new OrderRecord();
@@ -344,7 +348,7 @@ class Order extends Element
         $record->orderStatusId = $this->orderStatusId;
         $record->currency = $this->currency;
         $record->totalPrice = $this->totalPrice;
-        $record->buttonId = $this->buttonId;
+        $record->formId = $this->formId;
         $record->quantity = $this->quantity;
         $record->stripeTransactionId = $this->stripeTransactionId;
         $record->email = $this->email;
@@ -379,15 +383,14 @@ class Order extends Element
         ];
     }
 
-
     /**
      * @return \craft\base\ElementInterface|null
      */
-    public function getButton()
+    public function getPaymentForm()
     {
-        $button = PaypalPlugin::$app->buttons->getButtonById($this->buttonId);
+        $paymentForm = StripePaymentsPlugin::$app->paymentForms->getPaymentFormById($this->formId);
 
-        return $button;
+        return $paymentForm;
     }
 
     /**
@@ -435,5 +438,20 @@ class Order extends Element
         $address = Craft::$app->getView()->renderString($address, ['order'=>$this]);
 
         return $address;
+    }
+
+    /**
+     * @return string
+     */
+    public function getPaymentType()
+    {
+        $type = StripePaymentsPlugin::t("One-Time");
+        $transactionId = substr($this->stripeTransactionId, 0, 3);
+
+        if ($transactionId == 'sub'){
+            $type = StripePaymentsPlugin::t("Subscription");
+        }
+
+        return $type;
     }
 }

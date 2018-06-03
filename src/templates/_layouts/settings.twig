@@ -22,15 +22,23 @@
             <li>
                 <a href="{{ cpUrl('enupal-stripe/settings/general') }}"
                    {% if selectedSidebarItem == 'general' %}class="sel"{% endif %}><i
-                            class="fa fa-paypal fa-fw" aria-hidden="true"></i>&nbsp;{{ "General"|t('enupal-stripe') }}
+                            class="fa fa-cc-stripe fa-fw" aria-hidden="true"></i>&nbsp;{{ "General"|t('enupal-stripe') }}
                 </a>
             </li>
+            <li>
+                <a href="{{ cpUrl('enupal-stripe/settings/subscriptions') }}"
+                   {% if selectedSidebarItem == 'subscriptions' %}class="sel"{% endif %}><i
+                            class="fa fa-calendar fa-fw" aria-hidden="true"></i>&nbsp;{{ "Subscription Plans"|t('enupal-stripe') }}
+                </a>
+            </li>
+            {#
             <li>
                 <a href="{{ cpUrl('enupal-stripe/settings/taxes') }}"
                    {% if selectedSidebarItem == 'taxes' %}class="sel"{% endif %}><i
                             class="fa fa-percent fa-fw" aria-hidden="true"></i>&nbsp;{{ "Taxes"|t('enupal-stripe') }}
                 </a>
             </li>
+            #}
             <li class="heading"><span>{{ "Advanced"|t('enupal-stripe') }}</span>
             </li>
             <li>
@@ -54,4 +62,4 @@
 
 {% endset %}
 
-{% do view.registerAssetBundle("enupal\\paypal\\assetbundles\\FontAwesomeAsset") %}
+{% do view.registerAssetBundle("enupal\\stripe\\web\\assets\\FontAwesomeAsset") %}

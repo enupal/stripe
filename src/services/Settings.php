@@ -9,8 +9,11 @@
 namespace enupal\stripe\services;
 
 use Craft;
+use craft\db\Query;
 use yii\base\Component;
 use enupal\stripe\models\Settings as SettingsModel;
+use enupal\stripe\Stripe as StripePlugin;
+use Stripe\Stripe;
 
 class Settings extends Component
 {
@@ -18,18 +21,15 @@ class Settings extends Component
      * Saves Settings
      *
      * @param string $scenario
-     * @param array  $postSettings
+     * @param SettingsModel  $settings
      *
      * @return bool
      */
-    public function saveSettings(array $postSettings, string $scenario = null): bool
+    public function saveSettings(SettingsModel $settings, string $scenario = null): bool
     {
         $plugin = $this->getPlugin();
-        $settings = $plugin->getSettings();
 
-        $settings->setAttributes($postSettings, false);
-
-        if ($scenario) {
+        if (!is_null($scenario)) {
             $settings->setScenario($scenario);
         }
 
@@ -38,7 +38,7 @@ class Settings extends Component
             return false;
         }
 
-        $success = Craft::$app->getPlugins()->savePluginSettings($plugin, $postSettings);
+        $success = Craft::$app->getPlugins()->savePluginSettings($plugin, $settings->getAttributes());
 
         return $success;
     }
@@ -48,9 +48,17 @@ class Settings extends Component
      */
     public function getSettings()
     {
-        $plugin = $this->getPlugin();
+        $pluginSettings =  (new Query())
+            ->select(['settings'])
+            ->from(['{{%plugins}}'])
+            ->where(['handle' => 'enupal-stripe'])
+            ->one();
 
-        return $plugin->getSettings();
+        $settings = new SettingsModel();
+
+        $settings->setAttributes(json_decode($pluginSettings['settings'], true), false);
+
+        return $settings;
     }
 
     /**
@@ -59,5 +67,43 @@ class Settings extends Component
     public function getPlugin()
     {
         return Craft::$app->getPlugins()->getPlugin('enupal-stripe');
+    }
+
+    /**
+     * @return string
+     */
+    public function getPublishableKey()
+    {
+        $settings = $this->getSettings();
+        $publishableKey = $settings->testMode ? $settings->testPublishableKey : $settings->livePublishableKey;
+
+        return $publishableKey;
+    }
+
+    /**
+     * @return string
+     */
+    public function getPrivateKey()
+    {
+        $settings = $this->getSettings();
+        $secretKey = $settings->testMode ? $settings->testSecretKey : $settings->liveSecretKey;
+
+        return $secretKey;
+    }
+
+    /**
+     * @throws \Exception
+     */
+    public function initializeStripe()
+    {
+        $privateKey = $this->getPrivateKey();
+
+        if ($privateKey) {
+            Stripe::setAppInfo(StripePlugin::getInstance()->name, StripePlugin::getInstance()->version, StripePlugin::getInstance()->documentationUrl);
+            Stripe::setApiKey($privateKey);
+        }
+        else{
+            throw new \Exception(Craft::t('enupal-stripe','Unable to get the stripe keys.'));
+        }
     }
 }

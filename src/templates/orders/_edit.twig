@@ -55,7 +55,9 @@
 {% endblock %}
 
 {% block content %}
-
+    {% if order.testMode %}
+        <span class="testMode">Test Mode</span>
+    {% endif %}
     {% include 'enupal-stripe/orders/_orderDetails' %}
 
 {% endblock %}
@@ -72,5 +74,17 @@
     -ms-transform: rotate(-20deg);
     -webkit-transform: rotate(-20deg);
     transform: rotate(-20deg);
+    }
+    .testMode {
+    background-color: #f7e633;
+    color: #363636;
+    border-radius: 5px;
+    font-weight: 700;
+    font-size: 11px;
+    text-transform: uppercase;
+    padding-left: 9px;
+    padding-right: 9px;
+    height: 26px;
+    line-height: 26px;
     }
 {% endcss %}

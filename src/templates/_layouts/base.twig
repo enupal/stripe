@@ -9,4 +9,4 @@
 
 {% extends "_layouts/cp" %}
 
-{% set selectedSubnavItem = craft.app.request.getSegment(2) == 'button' ? 'buttons' : craft.request.getSegment(2)  %}
+{% set selectedSubnavItem = craft.app.request.getSegment(2) == 'form' ? 'forms' : craft.app.request.getSegment(2)   %}

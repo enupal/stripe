@@ -1,0 +1,22 @@
+{%- set handle = "multi-plan-dropdown" %}
+{%- set required = false  %}
+{%- set selected = false  %}
+{%- set isSelected = false %}
+
+<select
+        name="enupalMultiPlan"
+        id="{{ handle }}"
+        class="{{ handle }}"
+        required aria-required="true"
+>
+    {% for key,block in matrixField %}
+        {% if not selected %}
+            {% set selected = block.default %}
+        {% endif %}
+        {%- set optionLabel = (block.customLabel ? block.customLabel : craft.enupalStripe.getDefaultPlanName(block.selectPlan)) -%}
+        {%- set optionValue = (block.selectPlan is defined ? block.selectPlan : key) -%}
+
+        <option {% if selected and not isSelected %} {% set isSelected = true %} selected {% endif %} value="{{ optionValue }}"
+        >{{ optionLabel }}</option>
+    {% endfor %}
+</select>

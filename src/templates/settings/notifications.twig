@@ -10,11 +10,11 @@
 {% extends "enupal-stripe/_layouts/settings" %}
 {% import "_includes/forms" as forms %}
 
-{% set settings = craft.paypalButton.getSettings() %}
+{% set settings = settings is defined ? settings : craft.enupalStripe.getSettings()  %}
 {% set fullPageForm = true %}
 {% set saveShortcutRedirect = 'enupal-stripe/settings/notifications' %}
 
-{% set saveButton %}
+{% set savePaymentForm %}
     <div class="buttons">
         <input class="btn submit" type="submit"
                value="{{ 'Save'|t('enupal-stripe') }}">
@@ -24,7 +24,7 @@
 {% set content %}
     <input type="hidden" name="action"
            value="enupal-stripe/settings/save-settings">
-    <input type="hidden" name="paypalScenario" value="customerNotification">
+    <input type="hidden" name="stripeScenario" value="customerNotification">
     <div id="settings-cp">
         {% namespace 'settings' %}
 
@@ -43,7 +43,7 @@
                 label: "Subject"|t('enupal-stripe'),
                 instructions: "The email Subject"|t('enupal-stripe'),
                 name: 'customerNotificationSubject',
-                placeholder: 'Order Recieved: {{ order.number }}, {{ order.getButton().name }}',
+                placeholder: 'Order Recieved: {{ order.number }}, {{ order.getPaymentForm().name }}',
                 value: settings.customerNotificationSubject,
                 errors: (settings is defined ? settings.getErrors('customerNotificationSubject') : null)
             }) }}
@@ -70,6 +70,17 @@
                 name: 'customerNotificationReplyToEmail',
                 value: settings.customerNotificationReplyToEmail,
                 errors: (settings is defined ? settings.getErrors('customerNotificationReplyToEmail') : null)
+            }) }}
+
+            <hr>
+
+            {{ forms.textField({
+                label: "Template Override"|t('enupal-stripe'),
+                instructions: "Which template should be loaded when sending the email. <b> This will override the default template</b>"|t('enupal-stripe'),
+                placeholder: "_emails/customer",
+                name: 'customerTemplateOverride',
+                value: settings.customerTemplateOverride,
+                errors: (settings is defined ? settings.getErrors('customerTemplateOverride') : null)
             }) }}
 
         {% endnamespace %}
