@@ -29,7 +29,7 @@ class StripeController extends BaseController
         $order = StripePlugin::$app->orders->processPayment();
 
         if (is_null($order)){
-            throw new NotFoundHttpException();
+            throw new NotFoundHttpException("Unable to process the Payment");
         }
 
         return $this->redirectToPostedUrl($order);
