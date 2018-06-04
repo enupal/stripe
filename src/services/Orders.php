@@ -225,7 +225,7 @@ class Orders extends Component
      *
      * @return Order
      */
-    public function populateButtonFromPost(Order $order)
+    public function populatePaymentFormFromPost(Order $order)
     {
         $request = Craft::$app->getRequest();
 
@@ -460,7 +460,7 @@ class Orders extends Component
         $token = $data['token'] ?? null;
         $formId = $data['formId'] ?? null;
 
-        if (is_null($token) || is_null($formId)){
+        if (empty($token) || empty($formId)){
             Craft::error('Unable to get the stripe token or formId', __METHOD__);
             return $result;
         }

@@ -172,6 +172,7 @@
             var $fieldWrapper = $("#fields-customAmountLabel-field");
             var currentAmountLabel = this.$amountLabel.html();
             var amountLabel = $("#fields-amount-label");
+            var recurringValue = this.$recurringToggle.val();
 
             if (value == '0'){
                 $fieldWrapper.addClass('hidden');
@@ -185,7 +186,9 @@
                 amountLabel.text("Default Amount");
                 this.$minimumAmountField.removeClass('hidden');
                 this.$recurringToggleField.removeClass('hidden');
-                this.$recurringTypeField.removeClass('hidden');
+                if (recurringValue == 1) {
+                    this.$recurringTypeField.removeClass('hidden');
+                }
             }
         },
 

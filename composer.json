@@ -2,7 +2,7 @@
   "name": "enupal/stripe",
   "description": "Allows customers sign up for recurring and one-time payments with Stripe, perfect for orders, donations, subscriptions, and events. Create simple payment forms in seconds easily without coding. For Craft CMS 3.x",
   "type": "craft-plugin",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "keywords": [
     "craft",
     "cms",
@@ -31,7 +31,7 @@
   "authors": [
     {
       "name": "Enupal",
-      "homepage": "http://enupal.com/en"
+      "homepage": "http://enupal.com"
     }
   ],
   "support": {

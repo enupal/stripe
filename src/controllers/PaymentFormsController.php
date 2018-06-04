@@ -21,7 +21,7 @@ use enupal\stripe\elements\PaymentForm as StripeElement;
 class PaymentFormsController extends BaseController
 {
     /**
-     * Save a Button
+     * Save a Payment Form
      *
      * @return null|\yii\web\Response
      * @throws \Exception
@@ -88,7 +88,7 @@ class PaymentFormsController extends BaseController
                 $url = UrlHelper::cpUrl('enupal-stripe/forms/edit/'.$paymentForm->id);
                 return $this->redirect($url);
             } else {
-                throw new \Exception(Stripe::t('Error creating Button'));
+                throw new \Exception(Stripe::t('Error creating Payment Form'));
             }
         } else {
             if ($formId !== null) {
@@ -97,7 +97,7 @@ class PaymentFormsController extends BaseController
                     $paymentForm = Stripe::$app->paymentForms->getPaymentFormById($formId);
 
                     if (!$paymentForm) {
-                        throw new NotFoundHttpException(Stripe::t('Button not found'));
+                        throw new NotFoundHttpException(Stripe::t('Payment Form not found'));
                     }
                 }
             }
@@ -118,7 +118,7 @@ class PaymentFormsController extends BaseController
     }
 
     /**
-     * Delete a Stripe Button.
+     * Delete a Stripe Payment Form.
      *
      * @return \yii\web\Response
      * @throws \Exception
