@@ -44,7 +44,7 @@ class OrdersController extends BaseController
             throw new NotFoundHttpException(Stripe::t('Order not found'));
         }
 
-        $order = Stripe::$app->orders->populateButtonFromPost($order);
+        $order = Stripe::$app->orders->populatePaymentFormFromPost($order);
 
         // Save it
         if (!Stripe::$app->orders->saveOrder($order)) {

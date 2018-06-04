@@ -49,7 +49,7 @@ class StripeVariable
     }
 
     /**
-     * Returns a complete PayPal Button for display in template
+     * Returns a complete Payment Form for display in template
      *
      * @param string     $handle
      * @param array|null $options

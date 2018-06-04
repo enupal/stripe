@@ -225,7 +225,7 @@ class Orders extends Component
      *
      * @return Order
      */
-    public function populateButtonFromPost(Order $order)
+    public function populatePaymentFormFromPost(Order $order)
     {
         $request = Craft::$app->getRequest();
 
