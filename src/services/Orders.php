@@ -1,9 +1,9 @@
 <?php
 /**
- * EnupalStripe plugin for Craft CMS 3.x
+ * Stripe Payments plugin for Craft CMS 3.x
  *
  * @link      https://enupal.com/
- * @copyright Copyright (c) 2018 Enupal
+ * @copyright Copyright (c) 2018 Enupal LLC
  */
 
 namespace enupal\stripe\services;
@@ -408,7 +408,7 @@ class Orders extends Component
     }
 
     /**
-     * @param array $data
+     * @param $data array
      *
      * @return Order
      * @throws \Exception
@@ -462,7 +462,7 @@ class Orders extends Component
 
         if (is_null($token) || is_null($formId)){
             Craft::error('Unable to get the stripe token or formId', __METHOD__);
-            return false;
+            return $result;
         }
 
         $paymentForm = StripePlugin::$app->paymentForms->getPaymentFormById((int)$formId);
@@ -570,7 +570,7 @@ class Orders extends Component
             }
         }
 
-        Craft::info('Enupal Stripe - Order Created: '.$order->number);
+        Craft::info('Enupal Stripe - Order Created: './** @scrutinizer ignore-type */ $order->number);
         $result = $order;
 
         return $result;
@@ -580,7 +580,7 @@ class Orders extends Component
     /**
      * @param $planId
      * @param $paymentForm
-     * @return null
+     * @return null|float
      */
     public function getSetupFeeFromMatrix($planId, $paymentForm)
     {

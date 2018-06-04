@@ -1,8 +1,8 @@
 /**
- * EnupalStripe plugin for Craft CMS 3.x
+ * Stripe Payments plugin for Craft CMS 3.x
  *
  * @link      https://enupal.com/
- * @copyright Copyright (c) 2018 Enupal
+ * @copyright Copyright (c) 2018 Enupal LLC
  */
 
 var enupalStripe = {};

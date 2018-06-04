@@ -1,9 +1,9 @@
 <?php
 /**
- * EnupalStripe plugin for Craft CMS 3.x
+ * Stripe Payments plugin for Craft CMS 3.x
  *
  * @link      https://enupal.com/
- * @copyright Copyright (c) 2018 Enupal
+ * @copyright Copyright (c) 2018 Enupal LLC
  */
 
 namespace enupal\stripe\elements;
@@ -13,7 +13,7 @@ use craft\base\Element;
 use craft\behaviors\FieldLayoutBehavior;
 use craft\elements\db\ElementQueryInterface;
 use craft\helpers\Json;
-use enupal\backup\models\Settings;
+use enupal\stripe\models\Settings;
 use enupal\stripe\enums\DiscountType;
 use enupal\stripe\enums\SubscriptionType;
 use enupal\stripe\Stripe;
@@ -413,6 +413,7 @@ class PaymentForm extends Element
      */
     protected static function defineTableAttributes(): array
     {
+        $attributes = [];
         $attributes['name'] = ['label' => StripePlugin::t('Name')];
         $attributes['handle'] = ['label' => StripePlugin::t('Handle')];
         $attributes['amount'] = ['label' => StripePlugin::t('Amount')];
@@ -446,7 +447,7 @@ class PaymentForm extends Element
                 }
             case 'dateCreated':
                 {
-                    return $this->dateCreated->format("Y-m-d H:i");
+                    return $this->dateCreated->/** @scrutinizer ignore-call */ format("Y-m-d H:i");
                 }
         }
 
