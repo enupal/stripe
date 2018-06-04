@@ -22,7 +22,7 @@ Stripe Payments allows customers sign up for recurring and one-time payments wit
  * Manage Payment Forms
  * Multi-Language Support: Stripe Checkout supports 12 languages and the ability to autodetect the current language of the visitor
  * View sales in your control panel
- * Send out email notifications for admins and customers 
+ * Send out email notifications for admins and customers
  * Inventory management for each Payment Form
  * Stripe Test and Live accounts
  * Events: After Order Create and Before Send Email
@@ -31,15 +31,13 @@ Stripe Payments allows customers sign up for recurring and one-time payments wit
 
 ## Documentation
 
-https://enupal.com/en/craft-plugins/enupal-stripe/docs/
+https://enupal.com/craft-plugins/stripe-payments/docs
 
 ## Stripe Payments Support
 
-Via Email:
+* Send us a note at: support@enupal.com
 
-Send us a note at: support@enupal.com
-
-Create an [issue](https://github.com/enupal/enupal-stripe/issues) on Github
+* Create an [issue](https://github.com/enupal/enupal-stripe/issues) on Github
 
 ------------------------------------------------------------
 
