@@ -37,7 +37,7 @@ https://enupal.com/craft-plugins/stripe-payments/docs
 
 * Send us a note at: support@enupal.com
 
-* Create an [issue](https://github.com/enupal/enupal-stripe/issues) on Github
+* Create an [issue](https://github.com/enupal/stripe/issues) on Github
 
 ------------------------------------------------------------
 
