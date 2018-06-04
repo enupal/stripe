@@ -1,5 +1,5 @@
 <p align="center">
-	<a href="https://enupal.com/en/craft-plugins/enupal-stripe/docs/" target="_blank">
+	<a href="https://enupal.com/en/craft-plugins/stripe-payments" target="_blank">
 	<img width="212" height="212" src="https://enupal.com/assets/docs/stripe-payments-icon.svg" alt="Enupal Backup"></a>
 </p>
 
