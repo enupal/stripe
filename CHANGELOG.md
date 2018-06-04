@@ -1,5 +1,5 @@
-# Craft Pay Changelog
+# Stripe Payments Changelog
 
-## 1.0.0 - 2018.04.15
+## 1.0.0 - 2018.06.03
 ### Added
 - Initial release

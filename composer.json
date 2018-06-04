@@ -37,7 +37,7 @@
   "support": {
     "email": "support@enupal.com",
     "issues": "https://github.com/enupal/stripe/issues",
-    "docs": "https://enupal.com/en/craft-plugins/enupal-stripe/docs"
+    "docs": "https://enupal.com/craft-plugins/stripe-payments/docs"
   },
   "require": {
     "craftcms/cms": "^3.0.0",
