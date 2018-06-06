@@ -67,6 +67,19 @@
                 offLabel: "Off"|t('enupal-stripe'),
                 errors: settings.getErrors('currentUserEmail'),
             }) }}
+
+            <hr>
+
+            {{ forms.lightswitchField({
+                label: 'Retrieve plans with a nickname'|t('enupal-stripe'),
+                instructions: 'If enabled Stripe Payments will retrieve just plans that have the nickname set',
+                id: 'plansWithNickname',
+                name: 'plansWithNickname',
+                on: settings.plansWithNickname,
+                onLabel: "On"|t('enupal-stripe'),
+                offLabel: "Off"|t('enupal-stripe'),
+                errors: settings.getErrors('plansWithNickname'),
+            }) }}
         {% endnamespace %}
 
     </div>

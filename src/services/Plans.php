@@ -51,11 +51,10 @@ class Plans extends Component
     /**
      * Get all plans
      *
-     * @param $paymentForm
      * @return array|bool
      * @throws \yii\base\InvalidConfigException
      */
-    public function getMultiplePlansFromButton($paymentForm)
+    public function getMultiplePlansFromButton()
     {
         $options = $this->getStripePlans();
         $finalPlans = [];
@@ -99,6 +98,7 @@ class Plans extends Component
     {
         $options = [];
         StripePlugin::$app->settings->initializeStripe();
+        $settings =  StripePlugin::$app->settings->getSettings();
 
         $plans = Plan::all();
         $option['label'] = 'Select Plan...';
@@ -107,18 +107,32 @@ class Plans extends Component
         array_push($options, $option);
         if (isset($plans['data'])) {
             foreach ($plans['data'] as $plan) {
-                if ($plan['nickname']) {
-                    $planId = $plan['id'];
-                    $planName = $this->getDefaultPlanName($plan);
-                    $option['label'] = $planName;
-                    $option['value'] = $planId;
-                    $option['default'] = '';
-                    array_push($options, $option);
+                if ($settings->plansWithNickname){
+                    if ($plan['nickname']) {
+                        $this->populatePlan($plan, $options);
+                    }
+                }else{
+                    $this->populatePlan($plan, $options);
                 }
             }
         }
 
         return $options;
+    }
+
+    /**
+     * @param $plan
+     * @param $options
+     * @throws \yii\base\InvalidConfigException
+     */
+    private function populatePlan($plan, &$options)
+    {
+        $planId = $plan['id'];
+        $planName = $this->getDefaultPlanName($plan);
+        $option['label'] = $planName;
+        $option['value'] = $planId;
+        $option['default'] = '';
+        array_push($options, $option);
     }
 
     /**
@@ -130,11 +144,12 @@ class Plans extends Component
      */
     public function getDefaultPlanName($plan)
     {
+        $nickname = $plan['nickname'] != '' ? $plan['nickname'] : $plan['id'] ;
         $intervalCount = $plan['interval_count'];
         $interval = $intervalCount > 1 ? $intervalCount.' '.$plan['interval'].'s' : $plan['interval'];
         $amount = $plan['amount'] ?? $plan['tiers'][0]['amount'] ?? 0;
         $amount = Craft::$app->getFormatter()->asCurrency($amount / 100, strtoupper($plan['currency']));
-        $planName = $plan['nickname'].' '.$amount.'/'.$interval;
+        $planName = $nickname.' '.$amount.'/'.$interval;
 
         return $planName;
     }

@@ -73,13 +73,6 @@ class PaymentFormsController extends BaseController
      */
     public function actionEditForm(int $formId = null, StripeElement $paymentForm = null)
     {
-       # $paymentForm = Stripe::$app->paymentForms->getPaymentFormById($formId);
-       # foreach ($paymentForm->{Stripe::$app->paymentForms::MULTIPLE_PLANS_HANDLE} as $item) {
-       #     Craft::dd($item->selectPlan);
-
-        #}
-        #Craft::dd($paymentForm->{Stripe::$app->paymentForms::MULTIPLE_PLANS_HANDLE});
-
         // Immediately create a new Slider
         if ($formId === null) {
             $paymentForm = Stripe::$app->paymentForms->createNewPaymentForm();
