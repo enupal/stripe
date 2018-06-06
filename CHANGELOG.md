@@ -1,5 +1,14 @@
 # Stripe Payments Changelog
 
+## 1.0.4 - 2018.06.06
+
+### Added
+- Added retrieve plans with nickname only
+
+### Fixed
+- Fixed issue with Field Type
+- Fixed typo
+
 ## 1.0.3 - 2018.06.05
 ### Fixed
 - Fixed issue with Dropdown form field in notification template
