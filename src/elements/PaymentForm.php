@@ -570,7 +570,7 @@ class PaymentForm extends Element
     }
 
     /**
-     * Returns a complete PayPal Button for display in template
+     * Returns the Stripe Payment Form in template
      *
      * @param array|null $options
      *
@@ -578,7 +578,7 @@ class PaymentForm extends Element
      * @throws \Twig_Error_Loader
      * @throws \yii\base\Exception
      */
-    public function displayButton(array $options = null)
+    public function paymentForm(array $options = null)
     {
         return StripePlugin::$app->paymentForms->getPaymentFormHtml($this->handle, $options);
     }
