@@ -11,6 +11,7 @@ namespace enupal\stripe\variables;
 use enupal\stripe\elements\Order;
 use enupal\stripe\enums\OrderStatus;
 use enupal\stripe\enums\FrequencyType;
+use enupal\stripe\services\PaymentForms;
 use enupal\stripe\Stripe;
 use craft\helpers\Template as TemplateHelper;
 use Craft;
@@ -172,22 +173,34 @@ class StripeVariable
         return strtolower($handle);
     }
 
+
     /**
      * @param $block
-     *
      * @return \Twig_Markup
-     * @throws \Twig_Error_Loader
      * @throws \yii\base\Exception
+     * @throws \yii\base\ExitException
      */
     public function displayField($block)
     {
         $templatePath = Stripe::$app->paymentForms->getEnupalStripePath();
         $view = Craft::$app->getView();
         $view->setTemplatesPath($templatePath);
+        $preValue = '';
+
+        if ($block->type == 'hidden'){
+            if ($block->hiddenValue) {
+                try {
+                    $preValue = Craft::$app->view->renderObjectTemplate($block->hiddenValue, Stripe::$app->paymentForms->getFieldVariables());
+                } catch (\Exception $e) {
+                    Craft::error($e->getMessage(), __METHOD__);
+                }
+            }
+        }
 
         $htmlField = $view->renderTemplate(
             '_layouts/'.strtolower($block->type), [
-                'block' => $block
+                'block' => $block,
+                'preValue' => $preValue
             ]
         );
 
@@ -271,6 +284,14 @@ class StripeVariable
         $oders = Stripe::$app->orders->getAllOrders();
 
         return $oders;
+    }
+
+    /**
+     * @param array $variables
+     */
+    public function addVariables(array $variables)
+    {
+        PaymentForms::addVariables($variables);
     }
 }
 
