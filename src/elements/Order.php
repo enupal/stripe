@@ -441,6 +441,22 @@ class Order extends Element
     }
 
     /**
+     * @return array
+     */
+    public function getShippingAddressAsArray()
+    {
+        $address = [];
+        $address['addressName'] = $this->addressName;
+        $address['addressStreet'] = $this->addressStreet;
+        $address['addressCity'] = $this->addressCity;
+        $address['addressState'] = $this->addressState;
+        $address['addressZip'] = $this->addressZip;
+        $address['addressCountry'] = $this->addressCountry;
+
+        return $address;
+    }
+
+    /**
      * @return string
      */
     public function getPaymentType()
