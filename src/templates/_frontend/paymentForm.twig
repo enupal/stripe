@@ -1,4 +1,5 @@
 {%- set redirectUri = paymentForm.returnUrl -%}
+{%- do craft.enupalStripe.addVariables(_context) -%}
 {% spaceless %}
     <form class="enupal-stripe-form" id="enupal-stripe-{{ paymentForm.id }}" method="POST">
         {{ csrfInput() }}
@@ -34,17 +35,17 @@
 
         {% for block in paymentForm.enupalStripeBasicFields %}
             <div class="fields">
-                <section class="tab">
+                {% if block.type != 'hidden' %}
                     <div class="heading">
                         <label for="{{ block.label }}">
                             {{- block.label|raw|t -}}
                         </label>
                     </div>
-                    <div class="input">
-                        {%- set input = craft.enupalStripe.displayField(block)  %}
-                        {{ input|raw }}
-                    </div>
-                </section>
+                {% endif %}
+                <div class="input">
+                    {%- set input = craft.enupalStripe.displayField(block)  %}
+                    {{ input|raw }}
+                </div>
             </div>
         {% endfor %}
 

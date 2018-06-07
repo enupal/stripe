@@ -40,6 +40,11 @@ class PaymentForms extends Component
     const MULTIPLE_PLANS_HANDLE = 'enupalMultiplePlans';
 
     /**
+     * @var array
+     */
+    protected static $fieldVariables = [];
+
+    /**
      * Returns a PaymentForm model if one is found in the database by id
      *
      * @param int $id
@@ -660,7 +665,7 @@ class PaymentForms extends Component
             $label,
             [
                 'asciiOnly' => true,
-                'separator' => '-'
+                'separator' => '_'
             ]
         );
 
@@ -1028,5 +1033,21 @@ class PaymentForms extends Component
         return $matrixMultiplePlansField;
     }
 
+    /**
+     * Adds variables to parse in templates
+     *
+     * @param array $variables
+     */
+    public static function addVariables(array $variables)
+    {
+        static::$fieldVariables = array_merge(static::$fieldVariables, $variables);
+    }
 
+    /**
+     * @return array
+     */
+    public function getFieldVariables()
+    {
+        return static::$fieldVariables;
+    }
 }

@@ -1,6 +1,6 @@
 <p align="center">
 	<a href="https://enupal.com/en/craft-plugins/stripe-payments" target="_blank">
-	<img width="212" height="212" src="https://enupal.com/assets/docs/stripe-payments-icon.svg" alt="Enupal Backup"></a>
+	<img width="212" height="212" src="https://enupal.com/assets/docs/stripe-payments-icon.svg" alt="Stripe Payments for Craft CMS 3.x"></a>
 </p>
 
 # Stripe Payments Plugin for Craft CMS 3.x

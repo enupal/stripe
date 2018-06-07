@@ -1,0 +1,8 @@
+{%- set handle = craft.enupalStripe.labelToHandle(block.label) %}
+
+<input type="hidden"
+       name="metadata[{{ handle }}]"
+       id="{{ handle }}"
+       class="{{ handle }}"
+       value="{{ preValue }}"
+/>

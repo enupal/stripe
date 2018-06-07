@@ -1,5 +1,11 @@
 # Stripe Payments Changelog
 
+## 1.1.0 - 2018.06.07
+
+### Added
+- Added Hidden field
+- Added `order.getShippingAddressAsArray()`
+
 ## 1.0.5 - 2018.06.06
 
 ### Added

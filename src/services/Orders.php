@@ -465,6 +465,12 @@ class Orders extends Component
             return $result;
         }
 
+        $amount = $data['amount'] ?? null;
+        if (empty($amount) || $amount == 'NaN'){
+            Craft::error('Unable to get the final amount from the post request', __METHOD__);
+            return $result;
+        }
+
         $paymentForm = StripePlugin::$app->paymentForms->getPaymentFormById((int)$formId);
 
         if (is_null($paymentForm)) {
