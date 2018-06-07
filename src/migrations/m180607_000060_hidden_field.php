@@ -3,7 +3,6 @@
 namespace enupal\stripe\migrations;
 
 use craft\db\Migration;
-use craft\db\Query;
 use craft;
 use enupal\stripe\services\PaymentForms;
 use craft\fields\PlainText;
