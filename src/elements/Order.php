@@ -418,7 +418,7 @@ class Order extends Element
     /**
      * @return array|mixed
      */
-    public function getVariants()
+    public function getFormFields()
     {
         $variants = [];
 

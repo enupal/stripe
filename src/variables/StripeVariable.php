@@ -8,6 +8,7 @@
 
 namespace enupal\stripe\variables;
 
+use enupal\stripe\elements\Order;
 use enupal\stripe\enums\OrderStatus;
 use enupal\stripe\enums\FrequencyType;
 use enupal\stripe\Stripe;
@@ -15,11 +16,21 @@ use craft\helpers\Template as TemplateHelper;
 use Craft;
 
 /**
- * EnupalStripe provides an API for accessing information about stripe buttons. It is accessible from templates via `craft.enupalStripe`.
+ * Stripe Payments provides an API for accessing information about stripe buttons. It is accessible from templates via `craft.enupalStripe`.
  *
  */
 class StripeVariable
 {
+    /**
+     * @var Order
+     */
+    public $orders;
+
+    public function __construct()
+    {
+        $this->orders = Order::find();
+    }
+
     /**
      * @return string
      */

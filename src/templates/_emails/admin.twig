@@ -194,7 +194,7 @@
                                                         <td align="center" valign="top" mc:edit="body5"
                                                             style="color: #434345; font-weight: bolder; font-family: 'Trebuchet MS', Helvetica, sans-serif, 'Lato', sans-serif; font-size: 16px; mso-line-height-rule: exactly; line-height: 24px; font-weight: 400;">
                                                             {{ "Details: " }}
-                                                            {% for key, variant in order.getVariants() %}
+                                                            {% for key, variant in order.getFormFields() %}
                                                                 {{ key }} : {{ variant }}{% if not loop.last %},{% endif %}
                                                             {% endfor %}
                                                         </td>

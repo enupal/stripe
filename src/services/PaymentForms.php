@@ -894,6 +894,30 @@ class PaymentForms extends Component
                         ]
                     ]
                 ],
+                'new7' => [
+                    'name' => 'Hidden',
+                    'handle' => 'hidden',
+                    'fields' => [
+                        'new1' => [
+                            'type' => PlainText::class,
+                            'name' => 'Label',
+                            'handle' => 'label',
+                            'instructions' => 'This field will not visible in the form, just in the source code',
+                            'required' => 1,
+                            'typesettings' => '{"placeholder":"","code":"","multiline":"","initialRows":"4","charLimit":"","columnType":"text"}',
+                            'translationMethod' => Field::TRANSLATION_METHOD_SITE,
+                        ],
+                        'new2' => [
+                            'type' => PlainText::class,
+                            'name' => 'Hidden Value',
+                            'handle' => 'hiddenValue',
+                            'instructions' => 'You can use twig code',
+                            'required' => 1,
+                            'typesettings' => '{"placeholder":"{{ craft.request.path }}","code":"","multiline":"","initialRows":"4","charLimit":"","columnType":"text"}',
+                            'translationMethod' => Field::TRANSLATION_METHOD_SITE
+                        ]
+                    ]
+                ],
             ]
         ];
 
@@ -974,7 +998,6 @@ class PaymentForms extends Component
                             'typesettings' => '{"default":""}',
                             'translationMethod' => Field::TRANSLATION_METHOD_SITE,
                         ]
-
                     ]
                 ]
             ]

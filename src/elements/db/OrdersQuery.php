@@ -19,6 +19,7 @@ class OrdersQuery extends ElementQuery
     public $dateCreated;
     public $number;
     public $formId;
+    public $email;
     public $stripeTransactionId;
     public $orderStatusId;
     public $totalPrice;
@@ -39,6 +40,8 @@ class OrdersQuery extends ElementQuery
     public function number($value)
     {
         $this->number = $value;
+
+        return $this;
     }
 
     /**
@@ -55,6 +58,8 @@ class OrdersQuery extends ElementQuery
     public function totalPrice($value)
     {
         $this->totalPrice = $value;
+
+        return $this;
     }
 
     /**
@@ -63,6 +68,42 @@ class OrdersQuery extends ElementQuery
     public function getTotalPrice()
     {
         return $this->totalPrice;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function email($value)
+    {
+        $this->email = $value;
+
+        return $this;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getEmail()
+    {
+        return $this->email;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function dateOrdered($value)
+    {
+        $this->dateOrdered = $value;
+
+        return $this;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getDateOrdered()
+    {
+        return $this->dateOrdered;
     }
 
     /**
@@ -142,6 +183,12 @@ class OrdersQuery extends ElementQuery
         if ($this->number) {
             $this->subQuery->andWhere(Db::parseParam(
                 'enupalstripe_orders.number', $this->number)
+            );
+        }
+
+        if ($this->email) {
+            $this->subQuery->andWhere(Db::parseParam(
+                'enupalstripe_orders.email', $this->email)
             );
         }
 
