@@ -16,5 +16,5 @@ abstract class OrderStatus extends BaseEnum
     // Constants
     // =========================================================================
     const NEW = 0;
-    const SHIPPED = 1;
+    const PROCESSED = 1;
 }

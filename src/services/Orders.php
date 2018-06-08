@@ -214,7 +214,7 @@ class Orders extends Component
     {
         $colors = [
             OrderStatus::NEW => 'green',
-            OrderStatus::SHIPPED => 'blue',
+            OrderStatus::PROCESSED => 'blue',
         ];
 
         return $colors;

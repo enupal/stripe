@@ -122,7 +122,7 @@ class StripeVariable
     {
         $options = [];
         $options[OrderStatus::NEW] = Stripe::t('New');
-        $options[OrderStatus::SHIPPED] = Stripe::t('Shipped');
+        $options[OrderStatus::PROCESSED] = Stripe::t('Processed');
 
         return $options;
     }
