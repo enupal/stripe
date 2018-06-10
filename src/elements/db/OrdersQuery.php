@@ -198,12 +198,11 @@ class OrdersQuery extends ElementQuery
             );
         }
 
-        if ($this->orderStatusId) {
+        if (is_integer($this->orderStatusId)) {
             $this->subQuery->andWhere(Db::parseParam(
                 'enupalstripe_orders.orderStatusId', $this->orderStatusId)
             );
         }
-
 
         if ($this->dateCreated) {
             $this->subQuery->andWhere(Db::parseDateParam('enupalstripe_orders.dateCreated', $this->dateCreated));

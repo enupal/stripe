@@ -12,6 +12,7 @@ use Craft;
 use craft\base\Element;
 use craft\elements\db\ElementQueryInterface;
 use craft\helpers\Db;
+use enupal\stripe\elements\actions\SetStatus;
 use yii\base\ErrorHandler;
 use craft\helpers\UrlHelper;
 use craft\elements\actions\Delete;
@@ -222,6 +223,10 @@ class Order extends Element
             'type' => Delete::class,
             'confirmationMessage' => StripePaymentsPlugin::t('Are you sure you want to delete the selected orders?'),
             'successMessage' => StripePaymentsPlugin::t('Orders deleted.'),
+        ]);
+
+        $actions[] = Craft::$app->getElements()->createAction([
+            'type' => SetStatus::class,
         ]);
 
         return $actions;

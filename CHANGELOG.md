@@ -1,5 +1,10 @@
 # Stripe Payments Changelog
 
+## 1.1.2 - 2018.06.10
+
+### Added
+- Added Set Status element action to Orders
+
 ## 1.1.1 - 2018.06.08
 
 ### Updated
