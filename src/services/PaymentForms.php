@@ -168,10 +168,33 @@ class PaymentForms extends Component
 
         $postFields = $request->getBodyParam('fields');
 
+        $postFields['amount'] = $this->getAmountAsFloat($postFields['amount']);
+        $postFields['minimumAmount'] = $this->getAmountAsFloat($postFields['minimumAmount']);
+        $postFields['singlePlanSetupFee'] = $this->getAmountAsFloat($postFields['singlePlanSetupFee']);
+        $postFields['customPlanMinimumAmount'] = $this->getAmountAsFloat($postFields['customPlanMinimumAmount']);
+        $postFields['customPlanDefaultAmount'] = $this->getAmountAsFloat($postFields['customPlanDefaultAmount']);
+
         $paymentForm->setAttributes(/** @scrutinizer ignore-type */
             $postFields, false);
 
         return $paymentForm;
+    }
+
+    /**
+     * @param $money
+     * @return float
+     */
+    public function getAmountAsFloat($money)
+    {
+        $cleanString = preg_replace('/([^0-9\.,])/i', '', $money);
+        $onlyNumbersString = preg_replace('/([^0-9])/i', '', $money);
+
+        $separatorsCountToBeErased = strlen($cleanString) - strlen($onlyNumbersString) - 1;
+
+        $stringWithCommaOrDot = preg_replace('/([,\.])/', '', $cleanString, $separatorsCountToBeErased);
+        $removedThousendSeparator = preg_replace('/(\.|,)(?=[0-9]{3,}$)/', '',  $stringWithCommaOrDot);
+
+        return (float) str_replace(',', '.', $removedThousendSeparator);
     }
 
     /**

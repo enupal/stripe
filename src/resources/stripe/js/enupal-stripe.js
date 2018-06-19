@@ -13,9 +13,12 @@ var enupalStripe = {};
         // All Stripe Payment Forms
         paymentFormsList: {},
         finalData: {},
+        zeroDecimals: {},
 
         init: function() {
             this.paymentFormsList = $('.enupal-stripe-form');
+
+            this.zeroDecimals = ['MGA', 'BIF', 'CLP', 'PYG', 'DJF', 'RWF', 'GNF', 'UGX', 'JPY', 'VND', 'VUV', 'XAF', 'KMF', 'KRW', 'XOF', 'XPF'];
 
             this.paymentFormsList.each(function() {
                 var enupalButtonElement = $(this);
@@ -33,7 +36,7 @@ var enupalStripe = {};
             // reset our values
             $(enupalButtonElement).find('[name="enupalStripe[stripeData]"]').val('');
 
-            this.finalData.finalAmount = enupalStripeData.amount;
+            this.finalData.finalAmount = enupalStripeData.stripe.amount;
 
             //  Stripe config
             var stripeHandler = null;
@@ -120,8 +123,8 @@ var enupalStripe = {};
         submitPayment: function(enupalButtonElement, enupalStripeData, stripeHandler) {
             var enupalStripeDataSubmission = $.extend(true,{},enupalStripeData);
             var stripeConfig = enupalStripeDataSubmission.stripe;
-            stripeConfig.amount = this.convertToCents(this.getFinalAmount(enupalButtonElement, enupalStripeDataSubmission));
-            enupalButtonElement.find('[name="enupalStripe[amount]"]').val(stripeConfig.amount);
+            stripeConfig.amount = this.convertToCents(this.getFinalAmount(enupalButtonElement, enupalStripeDataSubmission), stripeConfig.currency);
+            enupalButtonElement.find('[name="enupalStripe[amount]"]').val(this.convertFromCents(stripeConfig.amount, stripeConfig.currency));
             enupalButtonElement.find('[name="enupalStripe[testMode]"]').val(enupalStripeDataSubmission.testMode);
             // If everything checks out then let's open the form
             stripeHandler.open(stripeConfig);
@@ -129,7 +132,7 @@ var enupalStripe = {};
 
         getFinalAmount: function(enupalButtonElement, enupalStripeData){
             // We always return a default amount
-            var finalAmount = finalAmount = enupalStripeData.stripe.amount;
+            var finalAmount = enupalStripeData.stripe.amount;
             var fee = 0;
 
             if (!enupalStripeData.enableSubscriptions){
@@ -192,12 +195,31 @@ var enupalStripe = {};
             return parseFloat(finalAmount) + parseFloat(fee);
         },
 
-        convertToCents: function(amount) {
+        convertToCents: function(amount, currency) {
+            if (this.hasZeroDecimals(currency)){
+                return amount;
+            }
+
             return (amount * 100);
         },
 
-        convertFromCents: function(amount) {
+        convertFromCents: function(amount, currency) {
+            if (this.hasZeroDecimals(currency)){
+                return amount;
+            }
+
             return (amount / 100);
+        },
+
+        hasZeroDecimals: function(currency){
+            // Adds support for currencies with zero decimals
+            for (var i = 0; i < this.zeroDecimals.length; i++) {
+                if (this.zeroDecimals[i] === currency.toUpperCase()){
+                    return true;
+                }
+            }
+
+            return false;
         }
     };
 

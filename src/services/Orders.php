@@ -9,6 +9,8 @@
 namespace enupal\stripe\services;
 
 use Craft;
+use craft\db\Query;
+use craft\helpers\Db;
 use craft\helpers\Json;
 use craft\mail\Message;
 use enupal\stripe\elements\Order;
@@ -419,7 +421,7 @@ class Orders extends Component
         $order->orderStatusId = OrderStatus::NEW;
         $order->number = $this->getRandomStr();
         $order->email = $data['email'];
-        $order->totalPrice = $data['amount']/100;// revert cents
+        $order->totalPrice = $data['amount'];// revert cents
         $order->quantity = $data['quantity'] ?? 1;
         $order->shipping = $data['shippingAmount'] ?? 0;
         $order->tax = $data['taxAmount'] ?? 0;
@@ -582,7 +584,6 @@ class Orders extends Component
         return $result;
     }
 
-
     /**
      * @param $planId
      * @param $paymentForm
@@ -599,6 +600,21 @@ class Orders extends Component
         }
 
         return null;
+    }
+
+    /**
+     * @param $email
+     * @return null|string
+     */
+    public function getCustomerReference($email)
+    {
+        $customer = (new Query())
+            ->select(['stripeId'])
+            ->from('{{%enupalstripe_customers}}')
+            ->where(Db::parseParam('email', $email))
+            ->one();
+
+        return $customer['stripeId'] ?? null;
     }
 
     private function stripeCharge($data, $paymentForm, $customer, $isNew, $token)
@@ -739,18 +755,23 @@ class Orders extends Component
         $currentTime = time();
         $planName = strval($currentTime);
 
-        //Create new plan for this customer:
-        Plan::create([
+        $data = [
             "amount" => $data['amount'],
             "interval" => $paymentForm->customPlanFrequency,
             "interval_count" => $paymentForm->customPlanInterval,
             "product" => [
                 "name" => "Custom Plan from: " . $data['email'],
             ],
-            "trial_period_days" => $paymentForm->singlePlanTrialPeriod ?? '',
             "currency" => $paymentForm->currency,
             "id" => $planName
-        ]);
+        ];
+
+        if ($paymentForm->singlePlanTrialPeriod){
+            $data['trial_period_days'] = $paymentForm->singlePlanTrialPeriod;
+        }
+
+        //Create new plan for this customer:
+        Plan::create($data);
 
         // Add the plan to the customer
         $subscriptionSettings = [
@@ -768,16 +789,56 @@ class Orders extends Component
         return $subscription;
     }
 
+    public function convertToCents($amount, $currency)
+    {
+        if ($this->hasZeroDecimals($currency)){
+            return (int)$amount;
+        }
+
+        return (int)$amount * 100;
+    }
+
+    public function convertFromCents($amount, $currency)
+    {
+        if ($this->hasZeroDecimals($currency)){
+            return $amount;
+        }
+
+        return $amount / 100;
+    }
+
+    /**
+     * @param $customer
+     * @param $amount
+     * @param $paymentForm
+     */
     private function addOneTimeSetupFee($customer, $amount, $paymentForm)
     {
         InvoiceItem::create(
             [
                 "customer" => $customer->id,
-                "amount" => ($amount*100),
+                "amount" => $this->convertToCents($amount, $paymentForm->currency),
                 "currency" => $paymentForm->currency,
                 "description" => "One-time setup fee: ".$paymentForm->name
             ]
         );
+    }
+
+    /**
+     * @param $currency
+     * @return bool
+     */
+    private function hasZeroDecimals($currency)
+    {
+        $zeroDecimals = ['MGA', 'BIF', 'CLP', 'PYG', 'DJF', 'RWF', 'GNF', 'UGX', 'JPY', 'VND', 'VUV', 'XAF', 'KMF', 'KRW', 'XOF', 'XPF'];
+
+        foreach ($zeroDecimals as $zeroDecimal) {
+            if ($zeroDecimal == $currency){
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**

@@ -490,8 +490,8 @@ class PaymentForm extends Element
         $record->currency = $this->currency;
         $record->language = $this->language;
         $record->amountType = $this->amountType;
-        $record->amount = $this->amount;
-        $record->minimumAmount = $this->minimumAmount;
+        $record->amount = (float)$this->amount;
+        $record->minimumAmount = (float)$this->minimumAmount;
         $record->customAmountLabel = $this->customAmountLabel;
         $record->logoImage = $this->logoImage;
         $record->enableRememberMe = $this->enableRememberMe;
@@ -607,15 +607,15 @@ class PaymentForm extends Element
         if ($this->enableSubscriptions){
             if ($this->subscriptionType == SubscriptionType::SINGLE_PLAN){
                 $plan = Json::decode($this->singlePlanInfo, true);
-                $amount = $plan['amount']/100; // lets send in cents
-                $currency = $plan['currency'];
+                $currency = strtoupper($plan['currency']);
+                $amount = StripePlugin::$app->orders->convertFromCents($plan['amount'], $currency);
             }else{
                 // Multiple plans
                 foreach ($this->enupalMultiplePlans as $item) {
                     if ($item->selectPlan->value){
                         $plan = StripePlugin::$app->plans->getStripePlan($item->selectPlan->value);
                         if ($plan){
-                            $multiplePlansAmounts[$plan->id]['amount'] = $plan['amount']/100;
+                            $multiplePlansAmounts[$plan->id]['amount'] = StripePlugin::$app->orders->convertFromCents($plan['amount'], strtoupper($plan['currency']));
                             $multiplePlansAmounts[$plan->id]['currency'] = $plan['currency'];
                             $setupFee = StripePlugin::$app->orders->getSetupFeeFromMatrix($plan->id, $this);
                             $setupFees[$plan->id] = $setupFee;
