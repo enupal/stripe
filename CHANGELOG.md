@@ -1,5 +1,9 @@
 # Stripe Payments Changelog
 
+## 1.1.4 - 2018.06.19
+### Fixed
+- Fixed issue with custom amounts
+
 ## 1.1.3 - 2018.06.19
 ### Added
 - Added support to currencies with zero decimals
