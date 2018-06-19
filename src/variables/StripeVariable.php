@@ -293,5 +293,16 @@ class StripeVariable
     {
         PaymentForms::addVariables($variables);
     }
+
+    /**
+     * @param $email
+     * @return null|string
+     */
+    public function getCustomerReference($email)
+    {
+        $customerId = Stripe::$app->orders->getCustomerReference($email);
+
+        return $customerId;
+    }
 }
 
