@@ -5,6 +5,10 @@
 - Added support to currencies with zero decimals
 - Added link to view customer info in Stripe (Order view)
 
+### Fixed
+- Fixed issue where Frequency was not displayed after save
+- Fixed issue when Free trial Period was not set.
+
 ### Added
 - Added Set Status element action to Orders
 
