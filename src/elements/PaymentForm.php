@@ -490,8 +490,8 @@ class PaymentForm extends Element
         $record->currency = $this->currency;
         $record->language = $this->language;
         $record->amountType = $this->amountType;
-        $record->amount = $this->amount;
-        $record->minimumAmount = $this->minimumAmount;
+        $record->amount = (float)$this->amount;
+        $record->minimumAmount = (float)$this->minimumAmount;
         $record->customAmountLabel = $this->customAmountLabel;
         $record->logoImage = $this->logoImage;
         $record->enableRememberMe = $this->enableRememberMe;

@@ -59,7 +59,7 @@
                 {% set recurringId = 'recurringToggle-'~paymentForm.id %}
                 {% set interval = paymentForm.recurringPaymentType == 'month' ? 'monthly' : 'yearly'  %}
                 {% set recurringLabel = 'Make this a '~interval~' payment' %}
-                {% set minimumAmount = paymentForm.amount ? paymentForm.amount|number_format : paymentForm.minimumAmount ? paymentForm.minimumAmount|number_format : '' %}
+                {% set minimumAmount = paymentForm.amount ? "%.2f"|format(paymentForm.amount) : paymentForm.minimumAmount ? "%.2f"|format(paymentForm.minimumAmount) : '' %}
                 <div class="form-group">
                     <div class="heading">
                         <label for="{{ customId }}">
@@ -68,7 +68,7 @@
                     </div>
                     <div class="enupal-input-icon">
                         <i>{{ currencySymbol }}</i>
-                        <input type="number" class="form-control" id="{{ customId }}" name="customAmount" min="{{ paymentForm.minimumAmount|number_format }}" placeholder="1" value="{{ minimumAmount }}">
+                        <input type="number" class="form-control" id="{{ customId }}" name="customAmount" min="{{ "%.2f"|format(paymentForm.minimumAmount) }}" value="{{ minimumAmount }}">
                     </div>
                 </div>
             {% endif %}
@@ -91,11 +91,11 @@
                 {% if paymentForm.enableCustomPlanAmount %}
                     {% set currencySymbol = paymentForm.getCurrencySymbol() %}
                     {% set customId = 'customSingleAmount-'~paymentForm.id %}
-                    {% set minimumAmount = paymentForm.customPlanDefaultAmount ? paymentForm.customPlanDefaultAmount|number_format : '' %}
+                    {% set minimumAmount = paymentForm.customPlanDefaultAmount ? "%.2f"|format(paymentForm.customPlanDefaultAmount) : '' %}
                     <div class="form-group">
                         <div class="enupal-input-icon">
                             <i>{{ currencySymbol }}</i>
-                            <input type="number" class="form-control" id="{{ customId }}" name="customPlanAmount" min="{{ paymentForm.customPlanMinimumAmount|number_format }}" placeholder="1" value="{{ minimumAmount }}">
+                            <input type="number" class="form-control" id="{{ customId }}" name="customPlanAmount" min="{{ "%.2f"|format(paymentForm.customPlanMinimumAmount) }}" value="{{ minimumAmount }}">
                         </div>
                     </div>
                 {% endif %}

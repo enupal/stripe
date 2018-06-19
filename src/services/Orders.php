@@ -755,18 +755,23 @@ class Orders extends Component
         $currentTime = time();
         $planName = strval($currentTime);
 
-        //Create new plan for this customer:
-        Plan::create([
+        $data = [
             "amount" => $data['amount'],
             "interval" => $paymentForm->customPlanFrequency,
             "interval_count" => $paymentForm->customPlanInterval,
             "product" => [
                 "name" => "Custom Plan from: " . $data['email'],
             ],
-            "trial_period_days" => $paymentForm->singlePlanTrialPeriod ?? '',
             "currency" => $paymentForm->currency,
             "id" => $planName
-        ]);
+        ];
+
+        if ($paymentForm->singlePlanTrialPeriod){
+            $data['trial_period_days'] = $paymentForm->singlePlanTrialPeriod;
+        }
+
+        //Create new plan for this customer:
+        Plan::create($data);
 
         // Add the plan to the customer
         $subscriptionSettings = [
