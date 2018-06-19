@@ -1,5 +1,13 @@
 # Stripe Payments Changelog
 
+## 1.1.3 - 2018.06.19
+### Added
+- Added support to currencies with zero decimals
+- Added link to view customer info in Stripe (Order view)
+
+### Added
+- Added Set Status element action to Orders
+
 ## 1.1.2 - 2018.06.10
 
 ### Added
