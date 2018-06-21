@@ -929,8 +929,6 @@ class Orders extends Component
             }
         }
 
-        #Craft::dd($metadata);
-
         return $metadata;
     }
 
