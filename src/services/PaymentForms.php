@@ -721,6 +721,15 @@ class PaymentForms extends Component
                         ],
                         'new2' => [
                             'type' => PlainText::class,
+                            'name' => 'Handle',
+                            'handle' => 'fieldHandle',
+                            'instructions' => '',
+                            'required' => 1,
+                            'typesettings' => '{"placeholder":"","code":"","multiline":"","initialRows":"4","charLimit":"","columnType":"text"}',
+                            'translationMethod' => Field::TRANSLATION_METHOD_SITE,
+                        ],
+                        'new3' => [
+                            'type' => PlainText::class,
                             'name' => 'Placeholder',
                             'handle' => 'placeholder',
                             'instructions' => '',
@@ -728,7 +737,7 @@ class PaymentForms extends Component
                             'typesettings' => '{"placeholder":"","code":"","multiline":"","initialRows":"4","charLimit":"","columnType":"text"}',
                             'translationMethod' => Field::TRANSLATION_METHOD_SITE,
                         ],
-                        'new3' => [
+                        'new4' => [
                             'type' => Lightswitch::class,
                             'name' => 'Required',
                             'handle' => 'required',
@@ -754,6 +763,15 @@ class PaymentForms extends Component
                         ],
                         'new2' => [
                             'type' => PlainText::class,
+                            'name' => 'Handle',
+                            'handle' => 'fieldHandle',
+                            'instructions' => '',
+                            'required' => 1,
+                            'typesettings' => '{"placeholder":"","code":"","multiline":"","initialRows":"4","charLimit":"","columnType":"text"}',
+                            'translationMethod' => Field::TRANSLATION_METHOD_SITE,
+                        ],
+                        'new3' => [
+                            'type' => PlainText::class,
                             'name' => 'Placeholder',
                             'handle' => 'placeholder',
                             'instructions' => '',
@@ -761,7 +779,7 @@ class PaymentForms extends Component
                             'typesettings' => '{"placeholder":"","code":"","multiline":"","initialRows":"4","charLimit":"","columnType":"text"}',
                             'translationMethod' => Field::TRANSLATION_METHOD_SITE,
                         ],
-                        'new3' => [
+                        'new4' => [
                             'type' => Number::class,
                             'name' => 'Initial Rows',
                             'handle' => 'initialRows',
@@ -770,7 +788,7 @@ class PaymentForms extends Component
                             'typesettings' => '{"min":"2","max":null,"decimals":"0","size":null}',
                             'translationMethod' => Field::TRANSLATION_METHOD_SITE,
                         ],
-                        'new4' => [
+                        'new5' => [
                             'type' => Lightswitch::class,
                             'name' => 'Required',
                             'handle' => 'required',
@@ -795,6 +813,15 @@ class PaymentForms extends Component
                             'translationMethod' => Field::TRANSLATION_METHOD_SITE,
                         ],
                         'new2' => [
+                            'type' => PlainText::class,
+                            'name' => 'Handle',
+                            'handle' => 'fieldHandle',
+                            'instructions' => '',
+                            'required' => 1,
+                            'typesettings' => '{"placeholder":"","code":"","multiline":"","initialRows":"4","charLimit":"","columnType":"text"}',
+                            'translationMethod' => Field::TRANSLATION_METHOD_SITE,
+                        ],
+                        'new3' => [
                             'type' => Table::class,
                             'name' => 'Options',
                             'handle' => 'options',
@@ -803,7 +830,7 @@ class PaymentForms extends Component
                             'typesettings' => '{"addRowLabel":"Add an option","maxRows":"","minRows":"1","columns":{"col1":{"heading":"Option Label","handle":"optionLabel","width":"","type":"singleline"},"col2":{"heading":"Value","handle":"value","width":"","type":"singleline"}},"defaults":{"row1":{"col1":"","col2":""}},"columnType":"text"}',
                             'translationMethod' => Field::TRANSLATION_METHOD_SITE,
                         ],
-                        'new3' => [
+                        'new4' => [
                             'type' => Lightswitch::class,
                             'name' => 'Required',
                             'handle' => 'required',
@@ -828,6 +855,15 @@ class PaymentForms extends Component
                             'translationMethod' => Field::TRANSLATION_METHOD_SITE,
                         ],
                         'new2' => [
+                            'type' => PlainText::class,
+                            'name' => 'Handle',
+                            'handle' => 'fieldHandle',
+                            'instructions' => '',
+                            'required' => 1,
+                            'typesettings' => '{"placeholder":"","code":"","multiline":"","initialRows":"4","charLimit":"","columnType":"text"}',
+                            'translationMethod' => Field::TRANSLATION_METHOD_SITE,
+                        ],
+                        'new3' => [
                             'type' => Table::class,
                             'name' => 'Options',
                             'handle' => 'options',
@@ -836,7 +872,7 @@ class PaymentForms extends Component
                             'typesettings' => '{"addRowLabel":"Add an option","maxRows":"","minRows":"1","columns":{"col1":{"heading":"Option Label","handle":"optionLabel","width":"","type":"singleline"},"col2":{"heading":"Value","handle":"value","width":"","type":"singleline"}},"defaults":{"row1":{"col1":"","col2":""}},"columnType":"text"}',
                             'translationMethod' => Field::TRANSLATION_METHOD_SITE,
                         ],
-                        'new3' => [
+                        'new4' => [
                             'type' => Lightswitch::class,
                             'name' => 'Required',
                             'handle' => 'required',
@@ -861,6 +897,15 @@ class PaymentForms extends Component
                             'translationMethod' => Field::TRANSLATION_METHOD_SITE,
                         ],
                         'new2' => [
+                            'type' => PlainText::class,
+                            'name' => 'Handle',
+                            'handle' => 'fieldHandle',
+                            'instructions' => '',
+                            'required' => 1,
+                            'typesettings' => '{"placeholder":"","code":"","multiline":"","initialRows":"4","charLimit":"","columnType":"text"}',
+                            'translationMethod' => Field::TRANSLATION_METHOD_SITE,
+                        ],
+                        'new3' => [
                             'type' => Number::class,
                             'name' => 'Min Value',
                             'handle' => 'minValue',
@@ -869,7 +914,7 @@ class PaymentForms extends Component
                             'typesettings' => '{"min":null,"max":null,"decimals":"0","size":null}',
                             'translationMethod' => Field::TRANSLATION_METHOD_SITE,
                         ],
-                        'new3' => [
+                        'new4' => [
                             'type' => Number::class,
                             'name' => 'Max Value',
                             'handle' => 'maxValue',
@@ -878,7 +923,7 @@ class PaymentForms extends Component
                             'typesettings' => '{"min":null,"max":null,"decimals":"0","size":null}',
                             'translationMethod' => Field::TRANSLATION_METHOD_SITE,
                         ],
-                        'new4' => [
+                        'new5' => [
                             'type' => Lightswitch::class,
                             'name' => 'Required',
                             'handle' => 'required',
@@ -903,6 +948,15 @@ class PaymentForms extends Component
                             'translationMethod' => Field::TRANSLATION_METHOD_SITE,
                         ],
                         'new2' => [
+                            'type' => PlainText::class,
+                            'name' => 'Handle',
+                            'handle' => 'fieldHandle',
+                            'instructions' => '',
+                            'required' => 1,
+                            'typesettings' => '{"placeholder":"","code":"","multiline":"","initialRows":"4","charLimit":"","columnType":"text"}',
+                            'translationMethod' => Field::TRANSLATION_METHOD_SITE,
+                        ],
+                        'new3' => [
                             'type' => Table::class,
                             'name' => 'Options',
                             'handle' => 'options',
@@ -911,7 +965,7 @@ class PaymentForms extends Component
                             'typesettings' => '{"addRowLabel":"Add an option","maxRows":"","minRows":"1","columns":{"col1":{"heading":"Option Label","handle":"optionLabel","width":"","type":"singleline"},"col2":{"heading":"Value","handle":"value","width":"","type":"singleline"}},"defaults":{"row1":{"col1":"","col2":""}},"columnType":"text"}',
                             'translationMethod' => Field::TRANSLATION_METHOD_SITE,
                         ],
-                        'new3' => [
+                        'new4' => [
                             'type' => Lightswitch::class,
                             'name' => 'Required',
                             'handle' => 'required',
@@ -928,7 +982,7 @@ class PaymentForms extends Component
                     'fields' => [
                         'new1' => [
                             'type' => PlainText::class,
-                            'name' => 'Label',
+                            'name' => 'Handle',
                             'handle' => 'label',
                             'instructions' => 'This field will not visible in the form, just in the source code',
                             'required' => 1,

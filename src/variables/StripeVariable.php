@@ -162,13 +162,17 @@ class StripeVariable
     }
 
     /**
-     * @param $label
+     * @param $block mixed
      *
      * @return string
+     * @throws \Exception
      */
-    public function labelToHandle($label)
+    public function labelToHandle($block)
     {
-        $handle = Stripe::$app->paymentForms->labelToHandle($label);
+        $label = $block->label ?? Stripe::$app->orders->getRandomStr();
+        $handleFromUser = $block->fieldHandle ?? $label;
+
+        $handle = Stripe::$app->paymentForms->labelToHandle($handleFromUser);
 
         return strtolower($handle);
     }
