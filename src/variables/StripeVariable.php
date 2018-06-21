@@ -162,13 +162,17 @@ class StripeVariable
     }
 
     /**
-     * @param $label
+     * @param $block mixed
      *
      * @return string
+     * @throws \Exception
      */
-    public function labelToHandle($label)
+    public function labelToHandle($block)
     {
-        $handle = Stripe::$app->paymentForms->labelToHandle($label);
+        $label = $block->label ?? Stripe::$app->orders->getRandomStr();
+        $handleFromUser = $block->fieldHandle ?? $label;
+
+        $handle = Stripe::$app->paymentForms->labelToHandle($handleFromUser);
 
         return strtolower($handle);
     }
@@ -260,9 +264,9 @@ class StripeVariable
      */
     public function getOrderByNumber($number)
     {
-        $oder = Stripe::$app->orders->getOrderByNumber($number);
+        $order = Stripe::$app->orders->getOrderByNumber($number);
 
-        return $oder;
+        return $order;
     }
 
     /**
@@ -271,9 +275,9 @@ class StripeVariable
      */
     public function getOrderById($id)
     {
-        $oder = Stripe::$app->orders->getOrderById($id);
+        $order = Stripe::$app->orders->getOrderById($id);
 
-        return $oder;
+        return $order;
     }
 
     /**
@@ -281,9 +285,9 @@ class StripeVariable
      */
     public function getAllOrders()
     {
-        $oders = Stripe::$app->orders->getAllOrders();
+        $orders = Stripe::$app->orders->getAllOrders();
 
-        return $oders;
+        return $orders;
     }
 
     /**

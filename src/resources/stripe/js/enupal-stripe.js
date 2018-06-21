@@ -124,7 +124,7 @@ var enupalStripe = {};
             var enupalStripeDataSubmission = $.extend(true,{},enupalStripeData);
             var stripeConfig = enupalStripeDataSubmission.stripe;
             stripeConfig.amount = this.convertToCents(this.getFinalAmount(enupalButtonElement, enupalStripeDataSubmission), stripeConfig.currency);
-            enupalButtonElement.find('[name="enupalStripe[amount]"]').val(this.convertFromCents(stripeConfig.amount, stripeConfig.currency));
+            enupalButtonElement.find('[name="enupalStripe[amount]"]').val(stripeConfig.amount);
             enupalButtonElement.find('[name="enupalStripe[testMode]"]').val(enupalStripeDataSubmission.testMode);
             // If everything checks out then let's open the form
             stripeHandler.open(stripeConfig);

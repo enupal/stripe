@@ -11,6 +11,7 @@ namespace enupal\stripe\services;
 use Craft;
 use craft\db\Query;
 use craft\helpers\Db;
+use craft\helpers\FileHelper;
 use craft\helpers\Json;
 use craft\mail\Message;
 use enupal\stripe\elements\Order;
@@ -617,6 +618,14 @@ class Orders extends Component
         return $customer['stripeId'] ?? null;
     }
 
+    /**
+     * @param $data
+     * @param $paymentForm
+     * @param $customer
+     * @param $isNew
+     * @param $token
+     * @return null|\Stripe\ApiResource
+     */
     private function stripeCharge($data, $paymentForm, $customer, $isNew, $token)
     {
         $description = Craft::t('enupal-stripe', 'Order from {email}', ['email' => $data['email']]);
@@ -625,7 +634,7 @@ class Orders extends Component
 
         try {
             $chargeSettings = [
-                'amount' => $data['amount'], // amount in cents
+                'amount' => $data['amount'], // amount in cents from js
                 'currency' => $paymentForm->currency,
                 'customer' => $customer->id,
                 'description' => $description,
@@ -634,8 +643,6 @@ class Orders extends Component
             ];
 
             if (!$isNew){
-                // @todo we have duplicate card issues
-                //$chargeSettings['source'] = $token;
                 // Add card or payment method to user
                 $customer->sources->create(["source" => $token]);
             }
@@ -645,28 +652,46 @@ class Orders extends Component
         } catch (Card $e) {
             // Since it's a decline, \Stripe\Error\Card will be caught
             $body = $e->getJsonBody();
-            Craft::error('Stripe - declined error occurred: '.json_encode($body));
+            Craft::error('Stripe - declined error occurred: '.json_encode($body), __METHOD__);
+            $this->throwException($e);
         } catch (\Stripe\Error\RateLimit $e) {
             // Too many requests made to the API too quickly
-            Craft::error('Stripe - Too many requests made to the API too quickly: '.$e->getMessage());
+            Craft::error('Stripe - Too many requests made to the API too quickly: '.$e->getMessage(), __METHOD__);
+            $this->throwException($e);
         } catch (\Stripe\Error\InvalidRequest $e) {
             // Invalid parameters were supplied to Stripe's API
-            Craft::error('Stripe - Invalid parameters were supplied to Stripe\'s API: '.$e->getMessage());
+            Craft::error('Stripe - Invalid parameters were supplied to Stripe\'s API: '.$e->getMessage(), __METHOD__);
+            $this->throwException($e);
         } catch (\Stripe\Error\Authentication $e) {
             // Authentication with Stripe's API failed
             // (maybe changed API keys recently)
-            Craft::error('Stripe - Authentication with Stripe\'s API failed: '.$e->getMessage());
+            Craft::error('Stripe - Authentication with Stripe\'s API failed: '.$e->getMessage(), __METHOD__);
+            $this->throwException($e);
         } catch (\Stripe\Error\ApiConnection $e) {
             // Network communication with Stripe failed
-            Craft::error('Stripe - Network communication with Stripe failed: '.$e->getMessage());
+            Craft::error('Stripe - Network communication with Stripe failed: '.$e->getMessage(), __METHOD__);
+            $this->throwException($e);
         } catch (\Stripe\Error\Base $e) {
-            Craft::error('Stripe - an error occurred: '.$e->getMessage());
+            Craft::error('Stripe - an error occurred: '.$e->getMessage(), __METHOD__);
+            $this->throwException($e);
         } catch (\Exception $e) {
             // Something else happened, completely unrelated to Stripe
-            Craft::error('Stripe - something went wrong: '.$e->getMessage());
+            Craft::error('Stripe - something went wrong: '.$e->getMessage(), __METHOD__);
+            $this->throwException($e);
         }
 
         return $charge;
+    }
+
+    /**
+     * We should throw exceptions only if dev mode is enabled, when the site is live check error logs.
+     * @param $e
+     */
+    private function throwException($e)
+    {
+        if (Craft::$app->getConfig()->general->devMode){
+            throw $e;
+        }
     }
 
     /**
@@ -883,7 +908,7 @@ class Orders extends Component
     {
         $metadata = [];
         if (isset($data['metadata'])){
-            foreach ($data['metadata']as $key => $item) {
+            foreach ($data['metadata'] as $key => $item) {
                 if (is_array($item)){
                     $value = '';
                     // Checkboxes and if we add multi-select. lets concatenate the selected values

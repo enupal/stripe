@@ -1,5 +1,14 @@
 # Stripe Payments Changelog
 
+## 1.1.7 - 2018.06.21
+### Added
+- Added Handle field to all form fields to avoid error with metadata invalid params from Stripe
+- Added better error messages for when devMode is enabled
+
+### Fixed
+- Fixed bug where the amount was not converted from cents
+- Fixed deprecation error
+
 ## 1.1.4 - 2018.06.19
 ### Fixed
 - Fixed issue with custom amounts
