@@ -33,7 +33,7 @@
                     <input type="hidden" name="address[city]" value />
             {% endif %}
 
-        {% for block in paymentForm.enupalStripeBasicFields %}
+        {% for block in paymentForm.enupalStripeBasicFields.all() %}
             <div class="fields">
                 {% if block.type != 'hidden' %}
                     <div class="heading">

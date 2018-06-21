@@ -260,9 +260,9 @@ class StripeVariable
      */
     public function getOrderByNumber($number)
     {
-        $oder = Stripe::$app->orders->getOrderByNumber($number);
+        $order = Stripe::$app->orders->getOrderByNumber($number);
 
-        return $oder;
+        return $order;
     }
 
     /**
@@ -271,9 +271,9 @@ class StripeVariable
      */
     public function getOrderById($id)
     {
-        $oder = Stripe::$app->orders->getOrderById($id);
+        $order = Stripe::$app->orders->getOrderById($id);
 
-        return $oder;
+        return $order;
     }
 
     /**
@@ -281,9 +281,9 @@ class StripeVariable
      */
     public function getAllOrders()
     {
-        $oders = Stripe::$app->orders->getAllOrders();
+        $orders = Stripe::$app->orders->getAllOrders();
 
-        return $oders;
+        return $orders;
     }
 
     /**
