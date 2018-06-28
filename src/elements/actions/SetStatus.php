@@ -31,7 +31,7 @@ class SetStatus extends ElementAction
      */
     public function getTriggerHtml(): string
     {
-        return Craft::$app->view->renderTemplate('enupal-stripe/_setStatus/trigger');
+        return Craft::$app->view->renderTemplate('enupal-stripe/_setstatus/trigger');
     }
 
     // Public Methods
