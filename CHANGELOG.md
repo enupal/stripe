@@ -1,5 +1,9 @@
 # Stripe Payments Changelog
 
+## 1.1.9 - 2018.06.28
+### Fixed
+- Fixes bug with camelcase filename in Orders view
+
 ## 1.1.8 - 2018.06.27
 ### Fixed
 - Fixed bug with camel case in filenames: singleline a radiobuttons.
