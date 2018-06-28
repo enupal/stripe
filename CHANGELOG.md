@@ -1,5 +1,9 @@
 # Stripe Payments Changelog
 
+## 1.1.8 - 2018.06.27
+### Fixed
+- Fixed bug with camel case in filenames: singleline a radiobuttons.
+
 ## 1.1.7 - 2018.06.21
 ### Added
 - Added Handle field to all form fields to avoid error with metadata invalid params from Stripe
