@@ -1,6 +1,7 @@
 {%- set handle = craft.enupalStripe.labelToHandle(block) %}
 {%- set required = block.required  %}
 
+
 <input type="text"
         name="metadata[{{ handle }}]"
         id="{{ handle }}"

@@ -1,6 +1,7 @@
 {%- set handle = craft.enupalStripe.labelToHandle(block) %}
 {%- set required = block.required  %}
 {%- set options = block.options ? block.options : [] %}
+
 <div
         id="{{ handle }}"
         class="{{ handle }}">
