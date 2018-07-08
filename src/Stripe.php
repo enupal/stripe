@@ -2,6 +2,7 @@
 /**
  * Stripe Payments plugin for Craft CMS 3.x
  *
+ * @dedicado Al amor de vida, mi compañera de vida y motivacion de cualquier deseo ardiente de exito, a mi Sara **).
  * @link      https://enupal.com/
  * @copyright Copyright (c) 2018 Enupal LLC
  */
