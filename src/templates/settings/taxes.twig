@@ -35,24 +35,28 @@
             }, null) }}
             <hr>
 
-            {{ forms.selectField({
-                label: "Discount Type"|t('enupal-stripe'),
-                instructions: 'Percentage or amount.',
-                id: 'taxType',
-                name: 'taxType',
-                options: discountOptions,
-                value: settings.taxType
+            {{ forms.lightswitchField({
+                first: true,
+                label: "Enable Taxes"|t('enupal-stripe'),
+                id: 'enableTaxes',
+                name: 'enableTaxes',
+                on: settings.enableTaxes,
+                onLabel: "Enable",
+                offLabel: "Disable",
+                errors: settings.getErrors('enableTaxes')
             }) }}
 
             {{ forms.textField({
-                label: "Tax"|t('enupal-stripe'),
-                instructions: "Tax amount to apply to the payment"|t('enupal-stripe'),
-                id: 'tax',
-                name: 'tax',
-                value: settings.tax,
-                autofocus: true,
                 first: true,
-                errors: settings.getErrors('tax')
+                label: "Tax"|t('enupal-stripe'),
+                id: 'tax',
+                instructions: "Tax rate amount to apply to the payment. This is a positive decimal (with at most two decimal places) between 1 and 100"|t('enupal-stripe'),
+                name: 'tax',
+                placeholder: 'Enter percentage',
+                unit: '%',
+                value: settings.tax,
+                errors: settings.getErrors('tax'),
+                autofocus: true,
             }) }}
 
         {% endnamespace %}

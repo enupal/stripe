@@ -24,6 +24,7 @@ class Settings extends Model
     public $returnUrl;
     public $defaultCurrency = 'USD';
     // Tax
+    public $enableTaxes = 0;
     public $taxType = DiscountType::RATE;
     public $tax;
     // Notification Customer
@@ -75,9 +76,10 @@ class Settings extends Model
                 'email', 'on' => 'adminNotification'
             ],
             [
+                // A number and two decimals
                 ['tax'],
-                TaxValidator::class, 'on' => 'taxes'
-            ],
+                'number', 'min'=> '1', 'max'=>'100' ,'on' => 'taxes', 'numberPattern' => '/^\d+(.\d{1,2})?$/',
+            ]
         ];
     }
 }
