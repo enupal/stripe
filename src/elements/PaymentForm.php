@@ -632,6 +632,12 @@ class PaymentForm extends Element
             $email = $currentUser->email ?? '';
         }
 
+        $applyTax = false;
+        // Tax logic - apply just to subscriptions
+        if (((boolean)$this->enableRecurringPayment && !$this->enableSubscriptions) || $this->enableSubscriptions ){
+            $applyTax = true;
+        }
+
         $publicData = [
             'paymentFormId' => $this->id,
             'handle' => $this->handle,
@@ -652,6 +658,8 @@ class PaymentForm extends Element
             'enableCustomPlanAmount' => $this->enableCustomPlanAmount,
             'multiplePlansAmounts' => $multiplePlansAmounts,
             'setupFees' => $setupFees,
+            'applyTax' => $applyTax,
+            'tax' => $this->settings->tax,
             'stripe' => [
                 'description' => $this->name,
                 'panelLabel' =>  $this->checkoutButtonText ?? 'Pay {{amount}}',

@@ -44,20 +44,7 @@
                     </td>
                     <td></td>
                 </tr>
-                {# SHIPPING AND TAX
-                <tr>
-                    <td></td>
-                    <td>
-                        <strong>{{ "Tax "|t('enupal-stripe')}}</strong><br>
-                    </td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td>
-                        <span class="right">{{ order.tax|currency(order.currency) }}</span>
-                    </td>
-                    <td></td>
-                </tr>
+                {# SHIPPING
                 <tr>
                     <td></td>
                     <td>
@@ -72,7 +59,20 @@
                     <td></td>
                 </tr>
                 #}
-
+        {% if order.tax > 0 and order.stripeTransactionId|slice(3) == 'sub' %}
+        <tr>
+            <td></td>
+            <td>
+            </td>
+            <td></td>
+            <td></td>
+            <td>{{ "Tax"|t('enupal-stripe') }}</td>
+            <td>
+                <h2 class="right">{{ order.tax|currency(order.currency) }}</h2>
+            </td>
+            <td></td>
+        </tr>
+        {% endif %}
         <tr>
             <td></td>
             <td>

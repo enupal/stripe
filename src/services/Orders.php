@@ -311,11 +311,11 @@ class Orders extends Component
             $result = false;
         }
 
-        if ($result) {
-            Craft::info('Customer email sent successfully', __METHOD__);
-        } else {
+        if (!$result) {
             Craft::error('Unable to send customer email', __METHOD__);
         }
+
+        Craft::info('Customer email sent successfully', __METHOD__);
 
         return $result;
     }
@@ -391,11 +391,11 @@ class Orders extends Component
             $result = false;
         }
 
-        if ($result) {
-            Craft::info('Admin email sent successfully', __METHOD__);
-        } else {
+        if (!$result) {
             Craft::error('Unable to send admin email', __METHOD__);
         }
+
+        Craft::info('Admin email sent successfully', __METHOD__);
 
         return $result;
     }
@@ -462,6 +462,7 @@ class Orders extends Component
         $data = $request->getBodyParam('enupalStripe');
         $token = $data['token'] ?? null;
         $formId = $data['formId'] ?? null;
+        $settings = StripePlugin::$app->settings->getSettings();
 
         if (empty($token) || empty($formId)){
             Craft::error('Unable to get the stripe token or formId', __METHOD__);
@@ -562,6 +563,13 @@ class Orders extends Component
         if (!$paymentForm->hasUnlimitedStock && (int)$paymentForm->quantity > 0){
             $paymentForm->quantity -= $order->quantity;
             $savePaymentForm = true;
+        }
+
+        // Sum tax
+        if ($settings->enableTaxes && $settings->tax){
+            $tax = ($settings->tax / 100) * $order->totalPrice;
+            $order->totalPrice += $tax;
+            $order->tax = $tax;
         }
 
         $order->stripeTransactionId = $stripeId;
@@ -706,6 +714,8 @@ class Orders extends Component
      */
     private function addPlanToCustomer($customer, $planId, $token, $isNew, $data)
     {
+        $settings = StripePlugin::$app->settings->getSettings();
+
         //Get the plan from stripe it would trow an exception if the plan does not exists
         Plan::retrieve([
             "id" => $planId
@@ -715,6 +725,11 @@ class Orders extends Component
         $subscriptionSettings = [
             "plan" => $planId
         ];
+
+        // Add tax
+        if ($settings->enableTaxes && $settings->tax){
+            $subscriptionSettings['tax_percent'] = $settings->tax;
+        }
 
         if (!$isNew){
             $subscriptionSettings["source"] = $token;
@@ -739,6 +754,7 @@ class Orders extends Component
     {
         $currentTime = time();
         $planName = strval($currentTime);
+        $settings = StripePlugin::$app->settings->getSettings();
 
         //Create new plan for this customer:
         Plan::create([
@@ -755,6 +771,11 @@ class Orders extends Component
         $subscriptionSettings = [
             "plan" => $planName
         ];
+
+        // Add tax
+        if ($settings->enableTaxes && $settings->tax){
+            $subscriptionSettings['tax_percent'] = $settings->tax;
+        }
 
         if (!$isNew){
             $subscriptionSettings["source"] = $token;
@@ -779,6 +800,7 @@ class Orders extends Component
     {
         $currentTime = time();
         $planName = strval($currentTime);
+        $settings = StripePlugin::$app->settings->getSettings();
 
         $data = [
             "amount" => $data['amount'],
@@ -802,6 +824,11 @@ class Orders extends Component
         $subscriptionSettings = [
             "plan" => $planName
         ];
+
+        // Add tax
+        if ($settings->enableTaxes && $settings->tax){
+            $subscriptionSettings['tax_percent'] = $settings->tax;
+        }
 
         if (!$isNew){
             $subscriptionSettings["source"] = $token;

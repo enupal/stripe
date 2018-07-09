@@ -78,7 +78,7 @@ class Settings extends Model
             [
                 // A number and two decimals
                 ['tax'],
-                'number', 'min'=> '1', 'max'=>'100' ,'on' => 'taxes', 'numberPattern' => '/^\d+(.\d{1,2})?$/',
+                'number', 'min'=> '1', 'max'=>'100' , 'on' => 'taxes', 'numberPattern' => '/^\d+(.\d{1,2})?$/',
             ]
         ];
     }

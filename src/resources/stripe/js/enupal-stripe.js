@@ -134,11 +134,13 @@ var enupalStripe = {};
             // We always return a default amount
             var finalAmount = enupalStripeData.stripe.amount;
             var fee = 0;
+            var isRecurring = false;
 
             if (!enupalStripeData.enableSubscriptions){
                 // Check if custom amount
                 if ( enupalStripeData.amountType == 1) {
                     var customAmount = enupalButtonElement.find( '[name="enupalStripe[customAmount]"]' ).val();
+                    isRecurring = enupalButtonElement.find( '[name="enupalStripe[recurringToggle]"]' ).is(":checked");
 
                     if ( ( 'undefined' !== customAmount ) && ( customAmount > 0 ) ) {
                         finalAmount = customAmount;
@@ -190,6 +192,11 @@ var enupalStripe = {};
                         finalAmount = customPlanAmount;
                     }
                 }
+            }
+
+            if (enupalStripeData.applyTax || isRecurring){
+                var tax = (enupalStripeData.tax / 100) * finalAmount;
+                finalAmount = parseFloat(finalAmount) + parseFloat(tax);
             }
 
             return parseFloat(finalAmount) + parseFloat(fee);
