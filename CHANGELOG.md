@@ -1,5 +1,9 @@
 # Stripe Payments Changelog
 
+## 1.2.0 - 2018.07.08
+### Fixed
+- Fixes bug where the order was saving the order in cents with some currencies
+
 ## 1.1.9 - 2018.06.28
 ### Fixed
 - Fixes bug with camelcase filename in Orders view

@@ -422,7 +422,7 @@ class Orders extends Component
         $order->orderStatusId = OrderStatus::NEW;
         $order->number = $this->getRandomStr();
         $order->email = $data['email'];
-        $order->totalPrice = $data['amount'];// revert cents
+        $order->totalPrice = $data['amount'];// The amount come in cents, we revert this just before save the order
         $order->quantity = $data['quantity'] ?? 1;
         $order->shipping = $data['shippingAmount'] ?? 0;
         $order->tax = $data['taxAmount'] ?? 0;
@@ -565,14 +565,10 @@ class Orders extends Component
             $savePaymentForm = true;
         }
 
-        // Sum tax
-        if ($settings->enableTaxes && $settings->tax){
-            $tax = $this->getTax($settings->tax, $order->totalPrice);
-            $order->totalPrice += $tax;
-            $order->tax = $tax;
-        }
-
         $order->stripeTransactionId = $stripeId;
+        // revert cents
+        $order->totalPrice = $this->convertFromCents($order->totalPrice, $paymentForm->currency);
+
         // Finally save the order in Craft CMS
         if (!StripePlugin::$app->orders->saveOrder($order)){
             Craft::error('Something went wrong saving the Stripe Order: '.json_encode($order->getErrors()), __METHOD__);
@@ -633,7 +629,8 @@ class Orders extends Component
      */
     private function getTax($tax, $price)
     {
-        return ($tax / 100) * $price;
+        $total = ($tax / 100) * $price;
+        return number_format((float)$total, 2, '.', '');
     }
 
     /**
@@ -768,8 +765,9 @@ class Orders extends Component
 
         // Remove tax from amount
         if ($settings->enableTaxes && $settings->tax){
-            $tax = $this->getTax($settings->tax, $data['amount']);
-            $data['amount'] = (int)$data['amount'] - (int)$tax;
+            $currentAmount = $this->convertFromCents($data['amount'], $paymentForm->currency);
+            $beforeTax = $currentAmount - $data['taxAmount'];
+            $data['amount'] = $this->convertToCents($beforeTax, $paymentForm->currency);
         }
 
         //Create new plan for this customer:

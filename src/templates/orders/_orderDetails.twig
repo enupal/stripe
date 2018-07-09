@@ -59,7 +59,7 @@
                     <td></td>
                 </tr>
                 #}
-        {% if order.tax > 0 and order.stripeTransactionId|slice(3) == 'sub' %}
+        {% if order.tax > 0 and order.isSubscription() %}
         <tr>
             <td></td>
             <td>

@@ -199,6 +199,7 @@ var enupalStripe = {};
                 finalAmount = parseFloat(finalAmount) + parseFloat(tax);
                 var taxLabel = enupalStripeData.taxLabel + ': '+enupalStripeData.currencySymbol+tax;
 
+                enupalButtonElement.find('[name="enupalStripe[taxAmount]"]').val(tax);
                 enupalButtonElement.find( '[name="tax-amount-label"]' ).empty().append(taxLabel);
             }
 

@@ -467,12 +467,25 @@ class Order extends Element
     public function getPaymentType()
     {
         $type = StripePaymentsPlugin::t("One-Time");
-        $transactionId = substr($this->stripeTransactionId, 0, 3);
 
-        if ($transactionId == 'sub'){
+        if ($this->isSubscription()){
             $type = StripePaymentsPlugin::t("Subscription");
         }
 
         return $type;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isSubscription()
+    {
+        $transactionId = substr($this->stripeTransactionId, 0, 3);
+
+        if ($transactionId != 'sub'){
+            return false;
+        }
+
+        return true;
     }
 }
