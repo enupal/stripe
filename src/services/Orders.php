@@ -816,6 +816,19 @@ class Orders extends Component
         $planName = strval($currentTime);
         $settings = StripePlugin::$app->settings->getSettings();
 
+        // Remove tax from amount
+        if ($settings->enableTaxes && $settings->tax){
+            $currentAmount = $this->convertFromCents($data['amount'], $paymentForm->currency);
+            $beforeTax = $currentAmount - $data['taxAmount'];
+            $data['amount'] = $this->convertToCents($beforeTax, $paymentForm->currency);
+        }
+
+        if ($paymentForm->singlePlanSetupFee){
+            $currentAmount = $this->convertFromCents($data['amount'], $paymentForm->currency);
+            $beforeFee = $currentAmount - $paymentForm->singlePlanSetupFee;
+            $data['amount'] = $this->convertToCents($beforeFee, $paymentForm->currency);
+        }
+
         $data = [
             "amount" => $data['amount'],
             "interval" => $paymentForm->customPlanFrequency,

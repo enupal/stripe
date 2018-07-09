@@ -194,8 +194,8 @@ var enupalStripe = {};
                 }
             }
 
-            if (enupalStripeData.applyTax || isRecurring){
-                var tax = parseFloat((enupalStripeData.tax / 100) * finalAmount).toFixed(2);
+            if ((enupalStripeData.applyTax || isRecurring) && enupalStripeData.enableTaxes){
+                var tax = parseFloat((enupalStripeData.tax / 100) * (parseFloat(finalAmount) + parseFloat(fee))).toFixed(2);
                 finalAmount = parseFloat(finalAmount) + parseFloat(tax);
                 var taxLabel = enupalStripeData.taxLabel + ': '+enupalStripeData.currencySymbol+tax;
 

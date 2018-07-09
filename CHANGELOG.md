@@ -3,6 +3,7 @@
 ## 1.2.0 - 2018.07.08
 ### Fixed
 - Fixes bug where the order was saving the order in cents with some currencies
+- Fixes bug where Set Single Plan with custom amount was adding the fee to the final amount
 
 ## 1.1.9 - 2018.06.28
 ### Fixed
