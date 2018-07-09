@@ -122,6 +122,13 @@
         {# ENDS FIELD LOGIC #}
         {% endnamespace %}
 
-        <button id="stripe-payments-submit-button-{{ paymentForm.id }}" class="{{ paymentForm.buttonClass }}"><span>{{ paymentForm.getPaymentFormText() }}</span></button>
+        {% set buttonId = "stripe-payments-submit-button-" ~ paymentForm.id %}
+
+        {% if settings.enableTaxes and settings.tax and settings.displayTaxLabel %}
+            <p class="total-tax-amount">
+                <label name="tax-amount-label" for="{{ buttonId }}"></label>
+            </p>
+        {% endif %}
+        <button id="{{ buttonId }}" class="{{ paymentForm.buttonClass }}"><span>{{ paymentForm.getPaymentFormText() }}</span></button>
     </form>
 {% endspaceless %}

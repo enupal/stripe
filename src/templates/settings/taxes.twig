@@ -59,6 +59,18 @@
                 autofocus: true,
             }) }}
 
+            {{ forms.lightswitchField({
+                first: true,
+                label: "Display Tax Label"|t('enupal-stripe'),
+                instructions: 'Display the Tax Amount in a label',
+                id: 'displayTaxLabel',
+                name: 'displayTaxLabel',
+                on: settings.displayTaxLabel,
+                onLabel: "Enable",
+                offLabel: "Disable",
+                errors: settings.getErrors('displayTaxLabel')
+            }) }}
+
         {% endnamespace %}
 
     </div>

@@ -26,6 +26,7 @@ class Settings extends Model
     // Tax
     public $enableTaxes = 0;
     public $taxType = DiscountType::RATE;
+    public $displayTaxLabel = 0;
     public $tax;
     // Notification Customer
     public $enableCustomerNotification;

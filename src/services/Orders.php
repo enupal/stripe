@@ -567,7 +567,7 @@ class Orders extends Component
 
         // Sum tax
         if ($settings->enableTaxes && $settings->tax){
-            $tax = ($settings->tax / 100) * $order->totalPrice;
+            $tax = $this->getTax($settings->tax, $order->totalPrice);
             $order->totalPrice += $tax;
             $order->tax = $tax;
         }
@@ -624,6 +624,16 @@ class Orders extends Component
             ->one();
 
         return $customer['stripeId'] ?? null;
+    }
+
+    /**
+     * @param $tax
+     * @param $price
+     * @return float|int
+     */
+    private function getTax($tax, $price)
+    {
+        return ($tax / 100) * $price;
     }
 
     /**
@@ -755,6 +765,12 @@ class Orders extends Component
         $currentTime = time();
         $planName = strval($currentTime);
         $settings = StripePlugin::$app->settings->getSettings();
+
+        // Remove tax from amount
+        if ($settings->enableTaxes && $settings->tax){
+            $tax = $this->getTax($settings->tax, $data['amount']);
+            $data['amount'] = (int)$data['amount'] - (int)$tax;
+        }
 
         //Create new plan for this customer:
         Plan::create([

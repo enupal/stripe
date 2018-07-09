@@ -195,8 +195,11 @@ var enupalStripe = {};
             }
 
             if (enupalStripeData.applyTax || isRecurring){
-                var tax = (enupalStripeData.tax / 100) * finalAmount;
+                var tax = parseFloat((enupalStripeData.tax / 100) * finalAmount).toFixed(2);
                 finalAmount = parseFloat(finalAmount) + parseFloat(tax);
+                var taxLabel = enupalStripeData.taxLabel + ': '+enupalStripeData.currencySymbol+tax;
+
+                enupalButtonElement.find( '[name="tax-amount-label"]' ).empty().append(taxLabel);
             }
 
             return parseFloat(finalAmount) + parseFloat(fee);
@@ -207,7 +210,7 @@ var enupalStripe = {};
                 return amount;
             }
 
-            return (amount * 100);
+            return (amount * 100).toFixed(0);
         },
 
         convertFromCents: function(amount, currency) {

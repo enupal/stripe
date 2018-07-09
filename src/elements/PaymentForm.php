@@ -634,7 +634,7 @@ class PaymentForm extends Element
 
         $applyTax = false;
         // Tax logic - apply just to subscriptions
-        if (((boolean)$this->enableRecurringPayment && !$this->enableSubscriptions) || $this->enableSubscriptions ){
+        if ($this->enableSubscriptions ){
             $applyTax = true;
         }
 
@@ -660,6 +660,8 @@ class PaymentForm extends Element
             'setupFees' => $setupFees,
             'applyTax' => $applyTax,
             'tax' => $this->settings->tax,
+            'currencySymbol' => $this->getCurrencySymbol(),
+            'taxLabel' => Craft::t('site', 'Tax Amount'),
             'stripe' => [
                 'description' => $this->name,
                 'panelLabel' =>  $this->checkoutButtonText ?? 'Pay {{amount}}',
