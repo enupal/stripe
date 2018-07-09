@@ -1,9 +1,13 @@
 # Stripe Payments Changelog
 
-## 1.2.0 - 2018.07.08
+## 1.2.0 - 2018.07.09
+### Added
+- Added Taxes to subscriptions and recurring payments.
+
 ### Fixed
 - Fixes bug where the order was saving the order in cents with some currencies
 - Fixes bug where Set Single Plan with custom amount was adding the fee to the final amount
+- Fixes bug when saving Single Plan with inventory
 
 ## 1.1.9 - 2018.06.28
 ### Fixed
