@@ -462,7 +462,6 @@ class Orders extends Component
         $data = $request->getBodyParam('enupalStripe');
         $token = $data['token'] ?? null;
         $formId = $data['formId'] ?? null;
-        $settings = StripePlugin::$app->settings->getSettings();
 
         if (empty($token) || empty($formId)){
             Craft::error('Unable to get the stripe token or formId', __METHOD__);
@@ -577,7 +576,7 @@ class Orders extends Component
 
         // Let's update the stock
         if ($savePaymentForm){
-            if (!StripePlugin::$app->paymentForms->savePaymentForm($paymentForm)){
+            if (!StripePlugin::$app->paymentForms->savePaymentForm($paymentForm, false)){
                 Craft::error('Something went wrong updating the payment form stock: '.json_encode($paymentForm->getErrors()), __METHOD__);
                 return $result;
             }

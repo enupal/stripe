@@ -606,9 +606,11 @@ class PaymentForm extends Element
 
         if ($this->enableSubscriptions){
             if ($this->subscriptionType == SubscriptionType::SINGLE_PLAN){
-                $plan = Json::decode($this->singlePlanInfo, true);
-                $currency = strtoupper($plan['currency']);
-                $amount = StripePlugin::$app->orders->convertFromCents($plan['amount'], $currency);
+                if (!$this->enableCustomPlanAmount){
+                    $plan = Json::decode($this->singlePlanInfo, true);
+                    $currency = strtoupper($plan['currency']);
+                    $amount = StripePlugin::$app->orders->convertFromCents($plan['amount'], $currency);
+                }
             }else{
                 // Multiple plans
                 foreach ($this->enupalMultiplePlans as $item) {

@@ -91,11 +91,13 @@ class PaymentForms extends Component
     /**
      * @param $paymentForm StripeElement
      *
-     * @throws \Exception
+     * @param bool $updateSinglePlanInfo
      * @return bool
+     * @throws Exception
      * @throws \Throwable
+     * @throws \yii\db\Exception
      */
-    public function savePaymentForm(StripeElement $paymentForm)
+    public function savePaymentForm(StripeElement $paymentForm, bool $updateSinglePlanInfo = true)
     {
         $isNewForm = true;
         if ($paymentForm->id) {
@@ -107,7 +109,7 @@ class PaymentForms extends Component
             }
         }
 
-        if ($paymentForm->enableSubscriptions){
+        if ($paymentForm->enableSubscriptions && $updateSinglePlanInfo){
             if ($paymentForm->subscriptionType == SubscriptionType::SINGLE_PLAN && $paymentForm->singlePlanInfo){
                 $plan = StripePlugin::$app->plans->getStripePlan($paymentForm->singlePlanInfo);
                 $paymentForm->singlePlanInfo = Json::encode($plan);
