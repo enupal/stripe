@@ -17,6 +17,7 @@ Stripe Payments allows customers sign up for recurring and one-time payments wit
  * Secure Payment Processing powered by [Stripe Checkout](https://stripe.com/checkout)
  * Optimized for Mobile
  * Subscriptions Integration: Allow your customers to sign up for recurring payments.
+ * Applying Taxes to Subscriptions
  * Basic Payment Form Builder: Add field types to capture more data to store with each Stripe Order record: Single Line, Paragraph, numbers, Dropdowns, checkboxes.
  * Custom Amounts: Allow your customers to pay what they want by entering an amount. Perfect for single and recurring donation or any custom payment form.
  * Manage Payment Forms
@@ -41,10 +42,10 @@ https://enupal.com/craft-plugins/stripe-payments/docs
 
 ------------------------------------------------------------
 
-Brought to you by [enupal](https://enupal.com/en)
+Brought to you by [enupal](https://enupal.com)
 
 <p align="center">
-  <a href="https://enupal.com/en" target="_blank">
+  <a href="https://enupal.com" target="_blank">
   <img width="169" height="35" src="https://enupal.com/assets/docs/enupal-logo.png" alt="Enupal"></a>
 </p>
 
