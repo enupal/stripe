@@ -124,8 +124,19 @@
         {# ENDS FIELD LOGIC #}
         {% endnamespace %}
 
-        {% set buttonId = "stripe-payments-submit-button-" ~ paymentForm.id %}
+        {# Stripe Elements logic #}
+        <div class="form-row">
+            <label for="card-element-{{ paymentForm.id }}">
+                {{ "Credit or debit card"|t }}
+            </label>
+            <div id="card-element-{{ paymentForm.id }}">
+            </div>
 
+            <div id="card-errors-{{ paymentForm.id }}" role="alert"></div>
+        </div>
+        {# End elements logic #}
+
+        {% set buttonId = "stripe-payments-submit-button-" ~ paymentForm.id %}
         {% if settings.enableTaxes and settings.tax and settings.displayTaxLabel %}
             <p class="total-tax-amount">
                 <label name="tax-amount-label" for="{{ buttonId }}"></label>

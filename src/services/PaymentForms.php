@@ -24,6 +24,7 @@ use enupal\stripe\web\assets\StripeAsset;
 use enupal\stripe\elements\PaymentForm;
 use enupal\stripe\enums\AmountType;
 use enupal\stripe\enums\DiscountType;
+use enupal\stripe\web\assets\StripeElementsAsset;
 use yii\base\Component;
 use enupal\stripe\Stripe as StripePlugin;
 use enupal\stripe\elements\PaymentForm as StripeElement;
@@ -627,8 +628,12 @@ class PaymentForms extends Component
 
             $view->setTemplatesPath($templatePath);
 
-            $view->registerJsFile("https://checkout.stripe.com/checkout.js");
-            $view->registerAssetBundle(StripeAsset::class);
+            //@todo -> add paymentType settings
+            #$view->registerJsFile("https://checkout.stripe.com/checkout.js");
+            #$view->registerAssetBundle(StripeAsset::class);
+
+            $view->registerJsFile("https://js.stripe.com/v3/");
+            $view->registerAssetBundle(StripeElementsAsset::class);
 
             $paymentFormHtml = $view->renderTemplate(
                 'paymentForm', [
