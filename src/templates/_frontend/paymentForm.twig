@@ -125,15 +125,38 @@
         {% endnamespace %}
 
         {# Stripe Elements logic #}
-        <div class="form-row">
-            <label for="card-element-{{ paymentForm.id }}">
-                {{ "Credit or debit card"|t }}
-            </label>
-            <div id="card-element-{{ paymentForm.id }}">
+        {# card | ideal #}
+        {% set paymentType = 'ideal' %}
+        {% if paymentType == 'card' %}
+            <div class="form-row">
+                <label for="card-element-{{ paymentForm.id }}">
+                    {{ "Credit or debit card"|t }}
+                </label>
+                <div id="card-element-{{ paymentForm.id }}">
+                </div>
+
+                <div id="card-errors-{{ paymentForm.id }}" role="alert"></div>
+            </div>
+        {% else  %}
+            <div class="form-row">
+                <label for="name">
+                    {{ "Name"|t }}
+                </label>
+                <input id="name-{{ paymentForm.id }}" name="name" placeholder="Jenny Rosen" required>
             </div>
 
-            <div id="card-errors-{{ paymentForm.id }}" role="alert"></div>
-        </div>
+            <div class="form-row">
+                <label for="ideal-bank-element-{{ paymentForm.id }}">
+                    {{ "iDEAL Bank"|t }}
+                </label>
+                <div id="ideal-bank-element-{{ paymentForm.id }}">
+                    <!-- A Stripe Element will be inserted here. -->
+                </div>
+            </div>
+
+            <!-- Used to display form errors. -->
+            <div id="error-message-{{ paymentForm.id }}" role="alert"></div>
+        {% endif %}
         {# End elements logic #}
 
         {% set buttonId = "stripe-payments-submit-button-" ~ paymentForm.id %}

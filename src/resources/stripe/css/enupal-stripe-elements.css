@@ -1,18 +1,26 @@
 /**
- * The CSS shown here will not be introduced in the Quickstart guide, but shows
- * how you can use CSS to style your Element's container.
- */
+* The CSS shown here will not be introduced in the Quickstart guide, but
+* shows how you can use CSS to style your Element's container.
+*/
+input,
 .StripeElement {
-    background-color: white;
     height: 40px;
-    padding: 10px 12px;
-    border-radius: 4px;
+
+    color: #32325d;
+    background-color: white;
     border: 1px solid transparent;
+    border-radius: 4px;
+
     box-shadow: 0 1px 3px 0 #e6ebf1;
     -webkit-transition: box-shadow 150ms ease;
     transition: box-shadow 150ms ease;
 }
 
+input {
+    padding: 10px 12px;
+}
+
+input:focus,
 .StripeElement--focus {
     box-shadow: 0 1px 3px 0 #cfd7df;
 }
