@@ -1,10 +1,13 @@
+{# card | ideal #}
+{% set paymentType = 'ideal' %}
+{% set actionUrl = paymentType == 'card' ? 'enupal-stripe/stripe/save-order' :  'enupal-stripe/stripe/charge' %}
 {%- set redirectUri = paymentForm.returnUrl -%}
 {%- do craft.enupalStripe.addVariables(_context) -%}
 {% spaceless %}
     <form class="enupal-stripe-form" id="enupal-stripe-{{ paymentForm.id }}" method="POST">
         {{ csrfInput() }}
         <input type="hidden" aria-hidden="true" name="action"
-               value="enupal-stripe/stripe/save-order">
+               value="{{ actionUrl }}">
         {%- if redirectUri is not empty %}
             {% if redirectUri|slice(0, 1)|lower == '?' %}
                 {%- set redirectUri = craft.request.getUrl()~paymentForm.returnUrl %}
@@ -125,8 +128,6 @@
         {% endnamespace %}
 
         {# Stripe Elements logic #}
-        {# card | ideal #}
-        {% set paymentType = 'ideal' %}
         {% if paymentType == 'card' %}
             <div class="form-row">
                 <label for="card-element-{{ paymentForm.id }}">
@@ -138,13 +139,21 @@
                 <div id="card-errors-{{ paymentForm.id }}" role="alert"></div>
             </div>
         {% else  %}
-            <div class="form-row">
-                <label for="name">
-                    {{ "Name"|t }}
-                </label>
-                <input id="name-{{ paymentForm.id }}" name="name" placeholder="Jenny Rosen" required>
+            <div class="form-row inline">
+                <div class="col">
+                    <label for="name">
+                        {{ "Name"|t }}
+                    </label>
+                    <input id="name-{{ paymentForm.id }}" name="name" placeholder="Jenny Rosen" required>
+                </div>
+                <div class="col">
+                    <label for="email">
+                        {{ "Email Address"|t }}
+                    </label>
+                    <input id="email-{{ paymentForm.id }}" type="email" name="email" placeholder="jenny.rosen@example.com" required>
+                </div>
             </div>
-
+            {#
             <div class="form-row">
                 <label for="ideal-bank-element-{{ paymentForm.id }}">
                     {{ "iDEAL Bank"|t }}
@@ -153,6 +162,7 @@
                     <!-- A Stripe Element will be inserted here. -->
                 </div>
             </div>
+            #}
 
             <!-- Used to display form errors. -->
             <div id="error-message-{{ paymentForm.id }}" role="alert"></div>

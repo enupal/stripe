@@ -29,7 +29,7 @@ var enupalStripe = {};
         },
 
         initializeForm: function(enupalButtonElement) {
-            if (typeof $(enupalButtonElement).find('[name="enupalStripe[stripeData]"]').val() === 'undefined'){
+            if (typeof $(enupalButtonElement).find('[name="enupalStripe[stripeData]"]').val() === 'undefined') {
                 return false;
             }
             // get the form ID
@@ -67,9 +67,6 @@ var enupalStripe = {};
 
             //this.createCardElement(stripe, enupalStripeData, elements, style);
             this.createIdealElement(stripe, enupalStripeData, enupalButtonElement, elements, style);
-
-
-
         },
 
         createCardElement: function(stripe, enupalStripeData, elements, style) {
@@ -77,11 +74,11 @@ var enupalStripe = {};
             var card = elements.create('card', {style: style});
 
             // Add an instance of the card Element into the `card-element` <div>.
-            card.mount('#card-element-'+enupalStripeData.paymentFormId);
+            card.mount('#card-element-' + enupalStripeData.paymentFormId);
 
             // Handle real-time validation errors from the card Element.
             card.addEventListener('change', function(event) {
-                var displayError = document.getElementById('card-errors-'+enupalStripeData.paymentFormId);
+                var displayError = document.getElementById('card-errors-' + enupalStripeData.paymentFormId);
 
                 if (event.error) {
                     displayError.textContent = event.error.message;
@@ -97,7 +94,7 @@ var enupalStripe = {};
                 stripe.createToken(card).then(function(result) {
                     if (result.error) {
                         // Inform the user if there was an error.
-                        var errorElement = document.getElementById('card-errors-'+enupalStripeData.paymentFormId);
+                        var errorElement = document.getElementById('card-errors-' + enupalStripeData.paymentFormId);
                         errorElement.textContent = result.error.message;
                     } else {
                         // Send the token to your server.
@@ -112,24 +109,25 @@ var enupalStripe = {};
             var that = this;
 
             // Create an instance of the idealBank Element.
-            var idealBank = elements.create('idealBank', {style: style});
+            //var idealBank = elements.create('idealBank', {style: style});
 
             // Add an instance of the idealBank Element into the `ideal-bank-element` <div>.
-            idealBank.mount('#ideal-bank-element-'+enupalStripeData.paymentFormId);
+            //idealBank.mount('#ideal-bank-element-' + enupalStripeData.paymentFormId);
 
-            var errorMessage = document.getElementById('error-message-'+enupalStripeData.paymentFormId);
+            var errorMessage = document.getElementById('error-message-' + enupalStripeData.paymentFormId);
+
+            var form = enupalButtonElement[0];
 
             // Handle form submission.
-            enupalButtonElement[0].addEventListener('submit', function(event) {
+            form.addEventListener('submit', function(event) {
                 event.preventDefault();
                 //showLoading();
 
-                var enupalStripeDataSubmission = $.extend(true,{},enupalStripeData);
+                var enupalStripeDataSubmission = $.extend(true, {}, enupalStripeData);
                 var stripeConfig = enupalStripeDataSubmission.stripe;
                 stripeConfig.amount = that.convertToCents(that.getFinalAmount(enupalButtonElement, enupalStripeDataSubmission), stripeConfig.currency);
                 enupalButtonElement.find('[name="enupalStripe[amount]"]').val(stripeConfig.amount);
                 enupalButtonElement.find('[name="enupalStripe[testMode]"]').val(enupalStripeDataSubmission.testMode);
-                console.log(enupalButtonElement.find('[name="name"]').val());
 
                 var sourceData = {
                     type: 'ideal',
@@ -138,12 +136,17 @@ var enupalStripe = {};
                     owner: {
                         name: enupalButtonElement.find('[name="name"]').val(),
                     },
+                    statement_descriptor: enupalStripeData.description,
                     // Specify the URL to which the customer should be redirected
                     // after paying.
                     redirect: {
-                        return_url: 'https://shop.example.com/crtA6B28E1',
+                        return_url: 'http://craft3.test/pay?message=thank-you',
                     },
                 };
+
+                enupalButtonElement.submit();
+
+                /*
 
                 // Call `stripe.createSource` with the idealBank Element and additional options.
                 stripe.createSource(idealBank, sourceData).then(function(result) {
@@ -151,95 +154,96 @@ var enupalStripe = {};
                         // Inform the customer that there was an error.
                         errorMessage.textContent = result.error.message;
                         errorMessage.classList.add('visible');
-                        stopLoading();
+                        //stopLoading();
                     } else {
                         // Redirect the customer to the authorization URL.
                         errorMessage.classList.remove('visible');
-                        console.log(result.source)
-                        //stripeSourceHandler(result.source);
+                        console.log(result.source);
+                        $(form).append('<input type="hidden" name="source" value="'+JSON.stringify(result.source, null, 2)+'" />');
+                        //enupalButtonElement.submit();
                     }
-                });
+                });*/
             });
         },
 
-        getFinalAmount: function(enupalButtonElement, enupalStripeData){
+        getFinalAmount: function(enupalButtonElement, enupalStripeData) {
             // We always return a default amount
             var finalAmount = enupalStripeData.stripe.amount;
             var fee = 0;
             var isRecurring = false;
 
-            if (!enupalStripeData.enableSubscriptions){
+            if (!enupalStripeData.enableSubscriptions) {
                 // Check if custom amount
-                if ( enupalStripeData.amountType == 1) {
-                    var customAmount = enupalButtonElement.find( '[name="enupalStripe[customAmount]"]' ).val();
-                    isRecurring = enupalButtonElement.find( '[name="enupalStripe[recurringToggle]"]' ).is(":checked");
+                if (enupalStripeData.amountType == 1) {
+                    var customAmount = enupalButtonElement.find('[name="enupalStripe[customAmount]"]').val();
+                    isRecurring = enupalButtonElement.find('[name="enupalStripe[recurringToggle]"]').is(":checked");
 
-                    if ( ( 'undefined' !== customAmount ) && ( customAmount > 0 ) ) {
+                    if (('undefined' !== customAmount) && (customAmount > 0)) {
                         finalAmount = customAmount;
                     }
                 }
-            }else{
+            } else {
                 // Subscriptions!
                 var subscriptionType = enupalStripeData.subscriptionType;
 
-                if (subscriptionType == 0){
+                if (subscriptionType == 0) {
 
-                    if (enupalStripeData.singleSetupFee > 0){
+                    if (enupalStripeData.singleSetupFee > 0) {
                         fee = enupalStripeData.singleSetupFee;
                     }
                     // single plan
-                    if (enupalStripeData.enableCustomPlanAmount){
+                    if (enupalStripeData.enableCustomPlanAmount) {
                         // Custom plan
-                        var customPlanAmount = enupalButtonElement.find( '[name="enupalStripe[customPlanAmount]"]' ).val();
+                        var customPlanAmount = enupalButtonElement.find('[name="enupalStripe[customPlanAmount]"]').val();
 
-                        if ( ( 'undefined' !== customPlanAmount ) && ( customPlanAmount > 0 ) ) {
+                        if (('undefined' !== customPlanAmount) && (customPlanAmount > 0)) {
                             finalAmount = customPlanAmount;
                         }
                     }
-                }else{
+                } else {
                     // Custom plan
                     var customPlanAmountId = null;
-                    if (enupalStripeData.subscriptionStyle == 'radio'){
+                    if (enupalStripeData.subscriptionStyle == 'radio') {
                         customPlanAmountId = $('input[name="enupalStripe[enupalMultiPlan]"]:checked').val();
-                    }else{
-                        customPlanAmountId = enupalButtonElement.find( '[name="enupalStripe[enupalMultiPlan]"]' ).val();
+                    } else {
+                        customPlanAmountId = enupalButtonElement.find('[name="enupalStripe[enupalMultiPlan]"]').val();
                     }
                     var customPlanAmount = null;
 
-                    if (customPlanAmountId in enupalStripeData.multiplePlansAmounts){
+                    if (customPlanAmountId in enupalStripeData.multiplePlansAmounts) {
                         customPlanAmount = enupalStripeData.multiplePlansAmounts[customPlanAmountId]['amount'];
-                        enupalStripeData.stripe['currency'] =  enupalStripeData.multiplePlansAmounts[customPlanAmountId]['currency'];
+                        enupalStripeData.stripe['currency'] = enupalStripeData.multiplePlansAmounts[customPlanAmountId]['currency'];
                     }
 
-                    if (customPlanAmountId in enupalStripeData.setupFees){
+                    if (customPlanAmountId in enupalStripeData.setupFees) {
                         var multiplePlanFee = enupalStripeData.setupFees[customPlanAmountId];
 
-                        if (multiplePlanFee > 0){
+                        if (multiplePlanFee > 0) {
                             fee = multiplePlanFee;
                         }
                     }
 
                     // Multi-select plan
-                    if ( ( 'undefined' !== customPlanAmount ) && ( customPlanAmount > 0 ) ) {
+                    if (('undefined' !== customPlanAmount) && (customPlanAmount > 0)) {
                         finalAmount = customPlanAmount;
                     }
                 }
             }
 
-            if ((enupalStripeData.applyTax || isRecurring) && enupalStripeData.enableTaxes){
+            if ((enupalStripeData.applyTax || isRecurring) && enupalStripeData.enableTaxes) {
                 var tax = parseFloat((enupalStripeData.tax / 100) * (parseFloat(finalAmount) + parseFloat(fee))).toFixed(2);
                 finalAmount = parseFloat(finalAmount) + parseFloat(tax);
-                var taxLabel = enupalStripeData.taxLabel + ': '+enupalStripeData.currencySymbol+tax;
+                var taxLabel = enupalStripeData.taxLabel + ': ' + enupalStripeData.currencySymbol + tax;
 
                 enupalButtonElement.find('[name="enupalStripe[taxAmount]"]').val(tax);
-                enupalButtonElement.find( '[name="tax-amount-label"]' ).empty().append(taxLabel);
+                enupalButtonElement.find('[name="tax-amount-label"]').empty().append(taxLabel);
             }
 
             return parseFloat(finalAmount) + parseFloat(fee);
         },
 
         convertToCents: function(amount, currency) {
-            if (this.hasZeroDecimals(currency)){
+            if (this.hasZeroDecimals(currency)) {
                 return amount;
             }
 
@@ -247,17 +251,17 @@ var enupalStripe = {};
         },
 
         convertFromCents: function(amount, currency) {
-            if (this.hasZeroDecimals(currency)){
+            if (this.hasZeroDecimals(currency)) {
                 return amount;
             }
 
             return (amount / 100);
         },
 
-        hasZeroDecimals: function(currency){
+        hasZeroDecimals: function(currency) {
             // Adds support for currencies with zero decimals
             for (var i = 0; i < this.zeroDecimals.length; i++) {
-                if (this.zeroDecimals[i] === currency.toUpperCase()){
+                if (this.zeroDecimals[i] === currency.toUpperCase()) {
                     return true;
                 }
             }

@@ -24,6 +24,7 @@ use Stripe\Customer;
 use Stripe\Error\Card;
 use Stripe\InvoiceItem;
 use Stripe\Plan;
+use Stripe\Source;
 use yii\base\Component;
 use enupal\stripe\Stripe as StripePlugin;
 use enupal\stripe\records\Order as OrderRecord;
@@ -216,8 +217,9 @@ class Orders extends Component
     public function getColorStatuses()
     {
         $colors = [
+            OrderStatus::PENDING => 'white',
             OrderStatus::NEW => 'green',
-            OrderStatus::PROCESSED => 'blue',
+            OrderStatus::Processed => 'blue',
         ];
 
         return $colors;
@@ -412,14 +414,15 @@ class Orders extends Component
 
     /**
      * @param $data array
+     * @param $isPending bool
      *
      * @return Order
      * @throws \Exception
      */
-    public function populateOrder($data)
+    public function populateOrder($data, $isPending = false)
     {
         $order = new Order();
-        $order->orderStatusId = OrderStatus::NEW;
+        $order->orderStatusId = $isPending ? OrderStatus::PENDING : OrderStatus::NEW;
         $order->number = $this->getRandomStr();
         $order->email = $data['email'];
         $order->totalPrice = $data['amount'];// The amount come in cents, we revert this just before save the order
@@ -446,6 +449,74 @@ class Orders extends Component
         }
 
         return $order;
+    }
+
+    /**
+     * Process Ideal Payment
+     *
+     * @return array|null
+     * @throws \Throwable
+     * @throws \craft\errors\SiteNotFoundException
+     */
+    public function processIdealPayment()
+    {
+        $result = null;
+        $request = Craft::$app->getRequest();
+        $data = $request->getBodyParam('enupalStripe');
+        $name = $request->getBodyParam('name') ?? null;
+        $email = $request->getBodyParam('email') ?? null;
+        $formId = $data['formId'] ?? null;
+        $data['email'] = $email;
+        #$redirect = $request->getBodyParam('redirect') ?? Craft::alias(Craft::$app->getSites()->getPrimarySite()->baseUrl);
+        $redirect = 'http://craft3.test';
+
+        if (empty($name) || empty($email) || empty($formId)){
+            Craft::error('Unable to get the Full name, formId or email', __METHOD__);
+            return $result;
+        }
+
+        $amount = $data['amount'] ?? null;
+        if (empty($amount) || $amount == 'NaN'){
+            Craft::error('Unable to get the final amount from the post request', __METHOD__);
+            return $result;
+        }
+
+        $paymentForm = StripePlugin::$app->paymentForms->getPaymentFormById((int)$formId);
+
+        if (is_null($paymentForm)) {
+            throw new \Exception(Craft::t('enupal-stripe','Unable to find the Stripe Button associated to the order'));
+        }
+
+        $order = $this->populateOrder($data, true);
+        $order->currency = 'EUR';
+        $order->formId = $paymentForm->id;
+
+        StripePlugin::$app->settings->initializeStripe();
+
+        $source = Source::create([
+            'type' => 'ideal',
+            'amount' => $amount,
+            'currency' => 'eur',
+            'owner' => ['email' => $email, 'name' => $name],
+            'redirect' => ['return_url' => $redirect],
+        ]);
+
+        $order->stripeTransactionId = $source->id;
+        // revert cents
+        $order->totalPrice = $this->convertFromCents($order->totalPrice, $order->currency);
+
+        // Finally save the order in Craft CMS
+        if (!StripePlugin::$app->orders->saveOrder($order)){
+            Craft::error('Something went wrong saving the Stripe Order: '.json_encode($order->getErrors()), __METHOD__);
+            return $result;
+        }
+
+        $result = [
+            'order' => $order,
+            'source' => $source
+        ];
+
+        return $result;
     }
 
     /**

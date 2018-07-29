@@ -17,4 +17,5 @@ abstract class OrderStatus extends BaseEnum
     // =========================================================================
     const NEW = 0;
     const PROCESSED = 1;
+    const PENDING = 2;
 }
