@@ -124,7 +124,7 @@ class StripeVariable
         $options[OrderStatus::NEW] = Stripe::t('New');
         $options[OrderStatus::PROCESSED] = Stripe::t('Processed');
         $options[OrderStatus::PENDING] = Stripe::t('Pending');
-        
+
         return $options;
     }
 

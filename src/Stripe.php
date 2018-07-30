@@ -49,6 +49,11 @@ class Stripe extends Plugin
         }
         );
 
+        Event::on(UrlManager::class, UrlManager::EVENT_REGISTER_SITE_URL_RULES, function(RegisterUrlRulesEvent $event) {
+            $event->rules = array_merge($event->rules, $this->getSiteUrlRules());
+        }
+        );
+
         Event::on(
             CraftVariable::class,
             CraftVariable::EVENT_INIT,
@@ -153,6 +158,17 @@ class Stripe extends Plugin
 
             'enupal-stripe/orders/edit/<orderId:\d+>' =>
                 'enupal-stripe/orders/edit-order'
+        ];
+    }
+
+    /**
+     * @return array
+     */
+    private function getSiteUrlRules()
+    {
+        return [
+            'enupal/stripe-payments' =>
+                'enupal-stripe/webhook/stripe'
         ];
     }
 }

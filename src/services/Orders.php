@@ -101,6 +101,23 @@ class Orders extends Component
     }
 
     /**
+     * Returns a Order model if one is found in the database by stripe transaction id
+     *
+     * @param string $stripeTransactionId
+     * @param int    $siteId
+     *
+     * @return array|\craft\base\ElementInterface
+     */
+    public function getOrderByStripeId($stripeTransactionId, int $siteId = null)
+    {
+        $query = Order::find();
+        $query->stripeTransactionId($stripeTransactionId);
+        $query->siteId($siteId);
+
+        return $query->one();
+    }
+
+    /**
      * Returns all orders
      *
      * @return null|Order[]
@@ -219,7 +236,7 @@ class Orders extends Component
         $colors = [
             OrderStatus::PENDING => 'white',
             OrderStatus::NEW => 'green',
-            OrderStatus::Processed => 'blue',
+            OrderStatus::PROCESSED => 'blue',
         ];
 
         return $colors;

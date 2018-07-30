@@ -112,6 +112,8 @@ class OrdersQuery extends ElementQuery
     public function stripeTransactionId($value)
     {
         $this->stripeTransactionId = $value;
+
+        return $this;
     }
 
     /**
