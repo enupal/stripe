@@ -23,6 +23,9 @@ class WebhookController extends BaseController
     /**
      * @return \yii\web\Response
      * @throws NotFoundHttpException
+     * @throws \Throwable
+     * @throws \yii\base\Exception
+     * @throws \yii\db\Exception
      */
     public function actionStripe()
     {
@@ -35,12 +38,14 @@ class WebhookController extends BaseController
 
         $order = Stripe::$app->orders->getOrderByStripeId($stripeId);
 
-        if ($order === null) {
+        if ($order === null || $stripeId === null) {
             throw new NotFoundHttpException(Stripe::t('Order not found'));
         }
 
         switch ($eventJson['type']) {
             case 'source.chargeable':
+
+                $order = Stripe::$app->orders->idealCharge($order, $eventJson);
 
                 break;
             case 'source.failed':

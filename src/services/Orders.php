@@ -516,6 +516,7 @@ class Orders extends Component
             'currency' => 'eur',
             'owner' => ['email' => $email, 'name' => $name],
             'redirect' => ['return_url' => $redirect],
+            'metadata' => $this->getStripeMetadata($data)
         ]);
 
         $order->stripeTransactionId = $source->id;
@@ -534,6 +535,63 @@ class Orders extends Component
         ];
 
         return $result;
+    }
+
+
+    /**
+     * @param $order Order
+     * @param $sourceObject
+     * @return Order|null
+     * @throws \Throwable
+     * @throws \yii\base\Exception
+     * @throws \yii\db\Exception
+     */
+    public function idealCharge($order, $sourceObject)
+    {
+        $isNew = false;
+        $token = $order->stripeTransactionId;
+        StripePlugin::$app->settings->initializeStripe();
+        $customer = $this->getCustomer($order->email, $order->stripeTransactionId, $isNew, $order->testMode);
+        $paymentForm = $order->getPaymentForm();
+
+        $description = Craft::t('enupal-stripe', 'Order from {email}', ['email' => $order->email]);
+        $charge = null;
+        $addressData = $order->getShippingAddressAsArray();
+
+        if (!$isNew){
+            // Add card or payment method to user
+            $customer->sources->create(["source" => $token]);
+        }
+
+        $chargeSettings = [
+            'amount' => $sourceObject['data']['object']['amount'], // amount in cents from js
+            'currency' => $sourceObject['data']['object']['currency'],
+            'customer' => $customer->id,
+            'description' => $description,
+            'shipping' => $addressData,
+            'metadata' => $sourceObject['data']['object']['metadata'],
+        ];
+
+        $charge = $this->charge($chargeSettings);
+
+        $stripeId = $charge['id'] ?? null;
+
+        $order->stripeTransactionId = $stripeId;
+
+        if (is_null($stripeId)){
+            Craft::error('Something went wrong making the charge to Stripe. -CHECK PREVIOUS LOGS-', __METHOD__);
+            return null;
+        }
+
+        $order->orderStatusId = OrderStatus::NEW;
+
+        $order = $this->finishOrder($order, $paymentForm);
+
+        if ($order){
+            Craft::info('IDeal payment charged: '.$order->number, __METHOD__);
+        }
+
+        return $order;
     }
 
     /**
@@ -575,7 +633,7 @@ class Orders extends Component
         StripePlugin::$app->settings->initializeStripe();
 
         $isNew = false;
-        $customer = $this->getCustomer($data, $token, $isNew);
+        $customer = $this->getCustomer($data['email'], $token, $isNew, $data['testMode']);
         $charge = null;
         $stripeId = null;
 
@@ -645,16 +703,33 @@ class Orders extends Component
             return $result;
         }
 
+        $order->stripeTransactionId = $stripeId;
+
+        // revert cents
+        $order->totalPrice = $this->convertFromCents($order->totalPrice, $paymentForm->currency);
+
+        $order = $this->finishOrder($order, $paymentForm);
+
+        return $order;
+    }
+
+    /**
+     * @param $order
+     * @param $paymentForm
+     * @return null|Order
+     * @throws \Throwable
+     * @throws \yii\base\Exception
+     * @throws \yii\db\Exception
+     */
+    private function finishOrder($order, $paymentForm)
+    {
+        $result = null;
         // Stock
         $savePaymentForm = false;
         if (!$paymentForm->hasUnlimitedStock && (int)$paymentForm->quantity > 0){
             $paymentForm->quantity -= $order->quantity;
             $savePaymentForm = true;
         }
-
-        $order->stripeTransactionId = $stripeId;
-        // revert cents
-        $order->totalPrice = $this->convertFromCents($order->totalPrice, $paymentForm->currency);
 
         // Finally save the order in Craft CMS
         if (!StripePlugin::$app->orders->saveOrder($order)){
@@ -734,23 +809,37 @@ class Orders extends Component
         $charge = null;
         $addressData = $data['address'] ?? null;
 
+        if (!$isNew){
+            // Add card or payment method to user
+            $customer->sources->create(["source" => $token]);
+        }
+
+        $chargeSettings = [
+            'amount' => $data['amount'], // amount in cents from js
+            'currency' => $paymentForm->currency,
+            'customer' => $customer->id,
+            'description' => $description,
+            'metadata' => $this->getStripeMetadata($data),
+            'shipping' => $addressData ? $this->getShipping($addressData) : []
+        ];
+
+        $charge = $this->charge($chargeSettings);
+
+        return $charge;
+    }
+
+    /**
+     * Stripe Charge given the config array
+     *
+     * @param $settings
+     * @return null|\Stripe\ApiResource
+     */
+    public function charge($settings)
+    {
+        $charge = null;
+
         try {
-            $chargeSettings = [
-                'amount' => $data['amount'], // amount in cents from js
-                'currency' => $paymentForm->currency,
-                'customer' => $customer->id,
-                'description' => $description,
-                'metadata' => $this->getStripeMetadata($data),
-                'shipping' => $addressData ? $this->getShipping($addressData) : []
-            ];
-
-            if (!$isNew){
-                // Add card or payment method to user
-                $customer->sources->create(["source" => $token]);
-            }
-
-            $charge = Charge::create($chargeSettings);
-
+            $charge = Charge::create($settings);
         } catch (Card $e) {
             // Since it's a decline, \Stripe\Error\Card will be caught
             $body = $e->getJsonBody();
@@ -1007,20 +1096,21 @@ class Orders extends Component
         return false;
     }
 
+
     /**
-     * @param $data
+     * @param $email
      * @param $token
      * @param $isNew
-     * @return \Stripe\ApiResource|\Stripe\StripeObject
+     * @param bool $testMode
+     * @return null|\Stripe\ApiResource|\Stripe\StripeObject
      */
-    private function getCustomer($data, $token, &$isNew)
+    private function getCustomer($email, $token, &$isNew, $testMode = true)
     {
-        $email = $data['email'] ?? null;
         $stripeCustomer = null;
         // Check if customer exists
         $customerRecord = CustomerRecord::findOne([
             'email' => $email,
-            'testMode' => $data['testMode']
+            'testMode' => $testMode
         ]);
 
         if ($customerRecord){
@@ -1030,14 +1120,14 @@ class Orders extends Component
 
         if (!isset($stripeCustomer->id)){
             $stripeCustomer = Customer::create([
-                'email' => $data['email'],
+                'email' => $email,
                 'card' => $token
             ]);
 
             $customerRecord = new CustomerRecord();
-            $customerRecord->email = $data['email'];
+            $customerRecord->email = $email;
             $customerRecord->stripeId = $stripeCustomer->id;
-            $customerRecord->testMode = $data['testMode'];
+            $customerRecord->testMode = $testMode;
             $customerRecord->save(false);
             $isNew = true;
         }
