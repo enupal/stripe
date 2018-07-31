@@ -67,7 +67,7 @@ class PaymentForms extends Component
      * @param string $handle
      * @param int    $siteId
      *
-     * @return null|\craft\base\ElementInterface|array
+     * @return null|StripeElement|array
      */
     public function getPaymentFormBySku($handle, int $siteId = null)
     {
@@ -629,18 +629,22 @@ class PaymentForms extends Component
 
             $view->setTemplatesPath($templatePath);
 
-            //@todo -> add paymentType settings
-            #$view->registerJsFile("https://checkout.stripe.com/checkout.js");
-            #$view->registerAssetBundle(StripeAsset::class);
+            if ($paymentForm->enableCheckout){
+                $view->registerJsFile("https://checkout.stripe.com/checkout.js");
+                $view->registerAssetBundle(StripeAsset::class);
+            }else{
+                $view->registerJsFile("https://js.stripe.com/v3/");
+                $view->registerAssetBundle(StripeElementsAsset::class);
+            }
 
-            $view->registerJsFile("https://js.stripe.com/v3/");
-            $view->registerAssetBundle(StripeElementsAsset::class);
+            $paymentTypeIds = json_decode($paymentForm->paymentType, true);
 
             $paymentFormHtml = $view->renderTemplate(
                 'paymentForm', [
                     'paymentForm' => $paymentForm,
                     'settings' => $settings,
-                    'options' => $options
+                    'options' => $options,
+                    'paymentTypeIds' => $paymentTypeIds
                 ]
             );
 

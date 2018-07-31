@@ -104,7 +104,6 @@ class Install extends Migration
             'buttonText' => $this->string(),
             'paymentButtonProcessingText' => $this->string(),
             'checkoutButtonText' => $this->string(),
-            'postData' => $this->text(),
             //
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
@@ -137,6 +136,7 @@ class Install extends Migration
             'addressStreet' => $this->string(),
             'addressZip' => $this->string(),
             'variants' => $this->text(),
+            'postData' => $this->text(),
             //
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),

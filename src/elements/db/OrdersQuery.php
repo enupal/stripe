@@ -173,6 +173,7 @@ class OrdersQuery extends ElementQuery
             'enupalstripe_orders.addressStreet',
             'enupalstripe_orders.addressZip',
             'enupalstripe_orders.variants',
+            'enupalstripe_orders.postData',
             'enupalstripe_orders.dateOrdered'
         ]);
 

@@ -179,8 +179,7 @@ class PaymentFormsQuery extends ElementQuery
             'enupalstripe_forms.buttonText',
             'enupalstripe_forms.paymentButtonProcessingText',
             'enupalstripe_forms.checkoutButtonText',
-            'enupalstripe_forms.buttonClass',
-            'enupalstripe_forms.postData'
+            'enupalstripe_forms.buttonClass'
         ]);
 
         if ($this->name) {

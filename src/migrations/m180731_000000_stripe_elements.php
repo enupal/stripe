@@ -24,8 +24,8 @@ class m180731_000000_stripe_elements extends Migration
             $this->addColumn($table, 'paymentType', $this->string()->after('handle'));
         }
 
-        if (!$this->db->columnExists($table, 'postData')) {
-            $this->addColumn($table, 'postData', $this->text()->after('checkoutButtonText'));
+        if (!$this->db->columnExists("{{%enupalstripe_orders}}", 'postData')) {
+            $this->addColumn("{{%enupalstripe_orders}}", 'postData', $this->text()->after('variants'));
         }
 
         return true;

@@ -1,6 +1,4 @@
-{# card | ideal #}
-{% set paymentType = 'ideal' %}
-{% set actionUrl = paymentType == 'card' ? 'enupal-stripe/stripe/save-order' :  'enupal-stripe/stripe/charge' %}
+{% set actionUrl = paymentForm.enableCheckout ? 'enupal-stripe/stripe/save-order' :  'enupal-stripe/stripe/charge' %}
 {%- set redirectUri = paymentForm.returnUrl -%}
 {%- do craft.enupalStripe.addVariables(_context) -%}
 {% spaceless %}
@@ -128,44 +126,46 @@
         {% endnamespace %}
 
         {# Stripe Elements logic #}
-        {% if paymentType == 'card' %}
-            <div class="form-row">
-                <label for="card-element-{{ paymentForm.id }}">
-                    {{ "Credit or debit card"|t }}
-                </label>
-                <div id="card-element-{{ paymentForm.id }}">
-                </div>
-
-                <div id="card-errors-{{ paymentForm.id }}" role="alert"></div>
-            </div>
-        {% else  %}
-            <div class="form-row inline">
-                <div class="col">
-                    <label for="name">
-                        {{ "Name"|t }}
+        {% if not paymentForm.enableCheckout %}
+            {% if paymentType == 'card' %}
+                <div class="form-row">
+                    <label for="card-element-{{ paymentForm.id }}">
+                        {{ "Credit or debit card"|t }}
                     </label>
-                    <input id="name-{{ paymentForm.id }}" name="name" placeholder="Jenny Rosen" required>
-                </div>
-                <div class="col">
-                    <label for="email">
-                        {{ "Email Address"|t }}
-                    </label>
-                    <input id="email-{{ paymentForm.id }}" type="email" name="email" placeholder="jenny.rosen@example.com" required>
-                </div>
-            </div>
-            {#
-            <div class="form-row">
-                <label for="ideal-bank-element-{{ paymentForm.id }}">
-                    {{ "iDEAL Bank"|t }}
-                </label>
-                <div id="ideal-bank-element-{{ paymentForm.id }}">
-                    <!-- A Stripe Element will be inserted here. -->
-                </div>
-            </div>
-            #}
+                    <div id="card-element-{{ paymentForm.id }}">
+                    </div>
 
-            <!-- Used to display form errors. -->
-            <div id="error-message-{{ paymentForm.id }}" role="alert"></div>
+                    <div id="card-errors-{{ paymentForm.id }}" role="alert"></div>
+                </div>
+            {% else  %}
+                <div class="form-row inline">
+                    <div class="col">
+                        <label for="name">
+                            {{ "Name"|t }}
+                        </label>
+                        <input id="name-{{ paymentForm.id }}" name="name" placeholder="Jenny Rosen" required>
+                    </div>
+                    <div class="col">
+                        <label for="email">
+                            {{ "Email Address"|t }}
+                        </label>
+                        <input id="email-{{ paymentForm.id }}" type="email" name="email" placeholder="jenny.rosen@example.com" required>
+                    </div>
+                </div>
+                {#
+                <div class="form-row">
+                    <label for="ideal-bank-element-{{ paymentForm.id }}">
+                        {{ "iDEAL Bank"|t }}
+                    </label>
+                    <div id="ideal-bank-element-{{ paymentForm.id }}">
+                        <!-- A Stripe Element will be inserted here. -->
+                    </div>
+                </div>
+                #}
+
+                <!-- Used to display form errors. -->
+                <div id="error-message-{{ paymentForm.id }}" role="alert"></div>
+            {% endif %}
         {% endif %}
         {# End elements logic #}
 

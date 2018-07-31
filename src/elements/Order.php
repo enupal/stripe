@@ -78,6 +78,7 @@ class Order extends Element
     public $addressZip;
     // variants
     public $variants;
+    public $postData;
 
     public $dateCreated;
     public $dateOrdered;
@@ -372,6 +373,7 @@ class Order extends Element
         $record->variants = $this->variants;
         $record->transactionInfo = $this->transactionInfo;
         $record->testMode = $this->testMode;
+        $record->postData = $this->postData;
         $record->save(false);
 
         parent::afterSave($isNew);

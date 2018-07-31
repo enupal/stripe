@@ -61,7 +61,6 @@ use craft\records\Element;
  * @property string $buttonClass
  * @property string $buttonText
  * @property string $paymentButtonProcessingText
- * @property string $postData
  * @property string $checkoutButtonText
  */
 

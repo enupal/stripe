@@ -106,7 +106,7 @@ class Orders extends Component
      * @param string $stripeTransactionId
      * @param int    $siteId
      *
-     * @return array|\craft\base\ElementInterface
+     * @return null|\craft\base\ElementInterface
      */
     public function getOrderByStripeId($stripeTransactionId, int $siteId = null)
     {
@@ -504,7 +504,11 @@ class Orders extends Component
             throw new \Exception(Craft::t('enupal-stripe','Unable to find the Stripe Button associated to the order'));
         }
 
+        $postData = $_POST;
+        //unset($postData['CRS'])
+
         $order = $this->populateOrder($data, true);
+        $order->postData = json_encode($postData);
         $order->currency = 'EUR';
         $order->formId = $paymentForm->id;
 
