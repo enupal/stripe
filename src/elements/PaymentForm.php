@@ -50,6 +50,16 @@ class PaymentForm extends Element
     public $handle;
 
     /**
+     * @var bool
+     */
+    public $enableCheckout = 1;
+
+    /**
+     * @var string Payment Type
+     */
+    public $paymentType;
+
+    /**
      * @var string Currency
      */
     public $currency;
@@ -116,6 +126,7 @@ class PaymentForm extends Element
     public $recurringPaymentType;
 
     public $buttonClass;
+    public $postData;
 
     protected $env;
     protected $ipnUrl;
@@ -487,6 +498,8 @@ class PaymentForm extends Element
         $record->companyName = $this->companyName;
 
         $record->handle = $this->handle;
+        $record->enableCheckout = $this->enableCheckout;
+        $record->paymentType = $this->paymentType;
         $record->currency = $this->currency;
         $record->language = $this->language;
         $record->amountType = $this->amountType;
@@ -532,6 +545,7 @@ class PaymentForm extends Element
         $record->returnUrl = $this->returnUrl;
         $record->buttonText = $this->buttonText;
         $record->paymentButtonProcessingText = $this->paymentButtonProcessingText;
+        $record->postData = $this->postData;
 
         $record->save(false);
 

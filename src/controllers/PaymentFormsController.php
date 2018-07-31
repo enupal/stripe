@@ -12,11 +12,12 @@ use Craft;
 use craft\elements\Asset;
 use craft\helpers\UrlHelper;
 use craft\web\Controller as BaseController;
+use enupal\stripe\enums\PaymentType;
 use enupal\stripe\Stripe;
 use yii\web\NotFoundHttpException;
 
 
-use enupal\stripe\elements\PaymentForm as StripeElement;
+use enupal\stripe\elements\PaymentForm as PaymentFormElement;
 
 class PaymentFormsController extends BaseController
 {
@@ -33,7 +34,7 @@ class PaymentFormsController extends BaseController
         $this->requirePostRequest();
 
         $request = Craft::$app->getRequest();
-        $paymentForm = new StripeElement;
+        $paymentForm = new PaymentFormElement;
 
         $formId = $request->getBodyParam('formId');
 
@@ -64,14 +65,14 @@ class PaymentFormsController extends BaseController
      * Edit a Payment Form.
      *
      * @param int|null           $formId The button's ID, if editing an existing button.
-     * @param StripeElement|null $paymentForm   The button send back by setRouteParams if any errors on savePaymentForm
+     * @param PaymentFormElement|null $paymentForm   The button send back by setRouteParams if any errors on savePaymentForm
      *
      * @return \yii\web\Response
      * @throws NotFoundHttpException
      * @throws \Exception
      * @throws \Throwable
      */
-    public function actionEditForm(int $formId = null, StripeElement $paymentForm = null)
+    public function actionEditForm(int $formId = null, PaymentFormElement $paymentForm = null)
     {
         // Immediately create a new Slider
         if ($formId === null) {
@@ -106,6 +107,10 @@ class PaymentFormsController extends BaseController
         $variables['continueEditingUrl'] = 'enupal-stripe/forms/edit/{id}';
 
         $variables['settings'] = Stripe::$app->settings->getSettings();
+
+        $variables['availablePaymentTypes'] =  Stripe::$app->paymentForms->getPaymentTypes();
+
+        $variables['paymentTypeIdes'] = json_decode($paymentForm->paymentType);
 
         return $this->renderTemplate('enupal-stripe/forms/_edit', $variables);
     }

@@ -18,6 +18,8 @@ use craft\records\Element;
  * @property string $companyName
  * @property string $name
  * @property string $handle
+ * @property bool $enableCheckout
+ * @property string $paymentType
  * @property string $currency
  * @property string $language
  * @property integer $amountType
@@ -36,7 +38,7 @@ use craft\records\Element;
  * @property bool $enableCustomPlanAmount
  * @property float $customPlanMinimumAmount
  * @property float $customPlanDefaultAmount
- * @property integer    $customPlanInterval
+ * @property integer $customPlanInterval
  * @property string $customPlanFrequency
  * @property string $subscriptionStyle
  * @property string $selectPlanLabel
@@ -58,6 +60,9 @@ use craft\records\Element;
  * @property string $returnUrl
  * @property string $buttonClass
  * @property string $buttonText
+ * @property string $paymentButtonProcessingText
+ * @property string $postData
+ * @property string $checkoutButtonText
  */
 
 class PaymentForm extends ActiveRecord

@@ -36,6 +36,26 @@
         name: 'enabled',
         on: stripeForm.enabled
     }) }}
+
+    {{ forms.lightswitchField({
+        label: "Enable Stripe Checkout <span class='info'>Use <a href='https://stripe.com/checkout'>Stripe Checkout</a> if disable the payment form will be powered by <a href='https://stripe.com/elements'>Stripe Elements</a></span>"|t('enupal-stripe'),
+        id: 'enableCheckout',
+        name: 'enableCheckout',
+        on: stripeForm.enableCheckout
+    }) }}
+
+    <div id="stripe-elements-wrapper" class="{% if stripeForm.enableCheckout %} hidden {% endif %}">
+        <hr>
+        {{ forms.field({
+            label: "Payment Type <span class='info'>Leave unchecked to apply to all Payment Types.</span>"|t('enupal-stripe'),
+            errors: errors is defined ? errors : null,
+        },
+        forms.checkboxGroup({
+            name: "paymentType",
+            options : availablePaymentTypes,
+            values: paymentTypeIdes
+        })) }}
+    </div>
 </div>
 <hr>
 <div id="one-time-payment-wrapper" class="meta {% if stripeForm.enableSubscriptions %} hidden {% endif %}">

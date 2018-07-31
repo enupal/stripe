@@ -16,6 +16,7 @@
         $subscriptionTypeSelect: null,
         $refreshPlansButton: null,
         $enableSubscription: null,
+        $enableCheckout: null,
         $enableSingleCustomAmount: null,
 
         /**
@@ -34,6 +35,7 @@
             this.$recurringToggleField = $("#fields-enableRecurringPayment-field");
             this.$recurringTypeField = $("#fields-recurringPaymentType-field");
             this.$enableSubscription = $("#fields-enableSubscriptions");
+            this.$enableCheckout = $("#fields-enableCheckout");
             this.$enableSingleCustomAmount = $("#fields-enableCustomPlanAmount");
 
             this.addListener(this.$unlimitedStock, 'change', 'handleUnlimitedStock');
@@ -43,6 +45,7 @@
             this.addListener(this.$recurringToggleField, 'change', 'handleRecurringToggle');
             this.addListener(this.$refreshPlansButton, 'click', 'handleRefreshPlans');
             this.addListener(this.$enableSubscription, 'change', 'handleEnableSubscription');
+            this.addListener(this.$enableCheckout, 'change', 'handleEnableCheckout');
             this.addListener(this.$enableSingleCustomAmount, 'change', 'handleEnableSingleCustomAmount');
 
             this.handleRecurringToggle();
@@ -71,6 +74,18 @@
             }
             else{
                 $oneTimeWrapper.addClass('hidden');
+            }
+        },
+
+        handleEnableCheckout: function(option) {
+            var $elementsWrapper = $("#fields-stripe-elements-wrapper");
+            var value = $("input[name='fields[enableCheckout]']").val();
+
+            if (value == 0){
+                $elementsWrapper.removeClass('hidden');
+            }
+            else{
+                $elementsWrapper.addClass('hidden');
             }
         },
 

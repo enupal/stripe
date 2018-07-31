@@ -19,6 +19,7 @@ use craft\fields\Table;
 use craft\helpers\FileHelper;
 use craft\helpers\Json;
 use craft\helpers\UrlHelper;
+use enupal\stripe\enums\PaymentType;
 use enupal\stripe\enums\SubscriptionType;
 use enupal\stripe\web\assets\StripeAsset;
 use enupal\stripe\elements\PaymentForm;
@@ -1133,5 +1134,16 @@ class PaymentForms extends Component
     public function getFieldVariables()
     {
         return static::$fieldVariables;
+    }
+
+    /**
+     * @return array
+     */
+    public function getPaymentTypes()
+    {
+        return [
+            PaymentType::CC => 'Credit Card',
+            PaymentType::IDEAL => 'IDeal'
+        ];
     }
 }
