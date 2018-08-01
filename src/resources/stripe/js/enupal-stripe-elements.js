@@ -108,12 +108,6 @@ var enupalStripe = {};
 
             var that = this;
 
-            // Create an instance of the idealBank Element.
-            //var idealBank = elements.create('idealBank', {style: style});
-
-            // Add an instance of the idealBank Element into the `ideal-bank-element` <div>.
-            //idealBank.mount('#ideal-bank-element-' + enupalStripeData.paymentFormId);
-
             var errorMessage = document.getElementById('error-message-' + enupalStripeData.paymentFormId);
 
             var form = enupalButtonElement[0];
@@ -129,40 +123,7 @@ var enupalStripe = {};
                 enupalButtonElement.find('[name="enupalStripe[amount]"]').val(stripeConfig.amount);
                 enupalButtonElement.find('[name="enupalStripe[testMode]"]').val(enupalStripeDataSubmission.testMode);
 
-                var sourceData = {
-                    type: 'ideal',
-                    amount: stripeConfig.amount,
-                    currency: 'eur',
-                    owner: {
-                        name: enupalButtonElement.find('[name="name"]').val(),
-                    },
-                    statement_descriptor: enupalStripeData.description,
-                    // Specify the URL to which the customer should be redirected
-                    // after paying.
-                    redirect: {
-                        return_url: 'http://craft3.test/pay?message=thank-you',
-                    },
-                };
-
                 enupalButtonElement.submit();
-
-                /*
-
-                // Call `stripe.createSource` with the idealBank Element and additional options.
-                stripe.createSource(idealBank, sourceData).then(function(result) {
-                    if (result.error) {
-                        // Inform the customer that there was an error.
-                        errorMessage.textContent = result.error.message;
-                        errorMessage.classList.add('visible');
-                        //stopLoading();
-                    } else {
-                        // Redirect the customer to the authorization URL.
-                        errorMessage.classList.remove('visible');
-                        console.log(result.source);
-                        $(form).append('<input type="hidden" name="source" value="'+JSON.stringify(result.source, null, 2)+'" />');
-                        //enupalButtonElement.submit();
-                    }
-                });*/
             });
         },
 

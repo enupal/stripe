@@ -1150,4 +1150,21 @@ class PaymentForms extends Component
             PaymentType::IDEAL => 'IDeal'
         ];
     }
+
+    /**
+     * @return array
+     */
+    public function getPaymentTypesAsOptions()
+    {
+        return [
+            [
+                'label' => 'Credit Card',
+                'value' => PaymentType::CC
+            ],
+            [
+                'label' => 'IDeal',
+                'value' => PaymentType::IDEAL
+            ]
+        ];
+    }
 }

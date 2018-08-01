@@ -127,45 +127,65 @@
 
         {# Stripe Elements logic #}
         {% if not paymentForm.enableCheckout %}
-            {% if paymentType == 'card' %}
-                <div class="form-row">
-                    <label for="card-element-{{ paymentForm.id }}">
-                        {{ "Credit or debit card"|t }}
-                    </label>
-                    <div id="card-element-{{ paymentForm.id }}">
-                    </div>
-
-                    <div id="card-errors-{{ paymentForm.id }}" role="alert"></div>
-                </div>
-            {% else  %}
-                <div class="form-row inline">
-                    <div class="col">
-                        <label for="name">
-                            {{ "Name"|t }}
+            {% if paymentTypeIds|length > 1 %}
+                {% set paymentOptions = craft.enupalStripe.getPaymentTypesAsOptions() %}
+                <div class="fields">
+                    <div class="heading">
+                        <label for="paymentMethod-{{ paymentForm.id }}">
+                            {{ "Select a payment method:"|t -}}
                         </label>
-                        <input id="name-{{ paymentForm.id }}" name="name" placeholder="Jenny Rosen" required>
                     </div>
-                    <div class="col">
-                        <label for="email">
-                            {{ "Email Address"|t }}
-                        </label>
-                        <input id="email-{{ paymentForm.id }}" type="email" name="email" placeholder="jenny.rosen@example.com" required>
-                    </div>
-                </div>
-                {#
-                <div class="form-row">
-                    <label for="ideal-bank-element-{{ paymentForm.id }}">
-                        {{ "iDEAL Bank"|t }}
-                    </label>
-                    <div id="ideal-bank-element-{{ paymentForm.id }}">
-                        <!-- A Stripe Element will be inserted here. -->
+                    <div class="input">
+                        <select
+                            name="paymentMethod"
+                            id="paymentMethod-{{ paymentForm.id }}"
+                            class="paymentMethod"
+                            required aria-required="true"
+                        >
+                            {%- for key, option in paymentOptions -%}
+                                <option value="{{ option.value }}"
+                                >{{ option.label }}</option>
+                            {% endfor %}
+                        </select>
                     </div>
                 </div>
-                #}
 
-                <!-- Used to display form errors. -->
-                <div id="error-message-{{ paymentForm.id }}" role="alert"></div>
             {% endif %}
+
+            {% for paymentTypeId in paymentTypeIds %}
+                {# Credit Card #}
+                {% set isHidden = paymentTypeIds|length > 1 ? true : false %}
+                {% if paymentTypeId == 1 %}
+                    <div class="form-row cc-wrapper {% if isHidden %}hidden{% endif %}">
+                        <label for="card-element-{{ paymentForm.id }}">
+                            {{ "Credit or debit card"|t }}
+                        </label>
+                        <div id="card-element-{{ paymentForm.id }}">
+                        </div>
+
+                        <div id="card-errors-{{ paymentForm.id }}" role="alert"></div>
+                    </div>
+                {# IDeal #}
+                {% elseif paymentTypeId == 2 %}
+                    <div class="form-row inline ideal-wrapper {% if isHidden %}hidden{% endif %}">
+                        <div class="col">
+                            <label for="name">
+                                {{ "Name"|t }}
+                            </label>
+                            <input id="name-{{ paymentForm.id }}" name="name" placeholder="Jenny Rosen" required>
+                        </div>
+                        <div class="col">
+                            <label for="email">
+                                {{ "Email Address"|t }}
+                            </label>
+                            <input id="email-{{ paymentForm.id }}" type="email" name="email" placeholder="jenny.rosen@example.com" required>
+                        </div>
+
+                        {# Used to display form errors.#}
+                        <div id="error-message-{{ paymentForm.id }}" role="alert"></div>
+                    </div>
+                {% endif %}
+            {% endfor %}
         {% endif %}
         {# End elements logic #}
 

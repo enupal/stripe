@@ -545,7 +545,6 @@ class PaymentForm extends Element
         $record->returnUrl = $this->returnUrl;
         $record->buttonText = $this->buttonText;
         $record->paymentButtonProcessingText = $this->paymentButtonProcessingText;
-        $record->postData = $this->postData;
 
         $record->save(false);
 

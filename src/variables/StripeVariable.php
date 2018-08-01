@@ -309,5 +309,13 @@ class StripeVariable
 
         return $customerId;
     }
+
+    /**
+     * @return array
+     */
+    public function getPaymentTypesAsOptions()
+    {
+        return Stripe::$app->paymentForms->getPaymentTypesAsOptions();
+    }
 }
 
