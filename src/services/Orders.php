@@ -13,6 +13,7 @@ use craft\db\Query;
 use craft\helpers\Db;
 use craft\helpers\FileHelper;
 use craft\helpers\Json;
+use craft\helpers\UrlHelper;
 use craft\mail\Message;
 use enupal\stripe\elements\Order;
 use enupal\stripe\enums\OrderStatus;
@@ -484,8 +485,6 @@ class Orders extends Component
         $email = $request->getBodyParam('idealEmail') ?? null;
         $formId = $data['formId'] ?? null;
         $data['email'] = $email;
-        #$redirect = $request->getBodyParam('redirect') ?? Craft::alias(Craft::$app->getSites()->getPrimarySite()->baseUrl);
-        $redirect = 'http://craft3.test';
 
         if (empty($name) || empty($email) || empty($formId)){
             Craft::error('Unable to get the Full name, formId or email', __METHOD__);
@@ -505,12 +504,14 @@ class Orders extends Component
         }
 
         $postData = $_POST;
-        //unset($postData['CRS'])
+        unset($postData['CRAFT_CSRF_TOKEN']);
 
         $order = $this->populateOrder($data, true);
         $order->postData = json_encode($postData);
         $order->currency = 'EUR';
         $order->formId = $paymentForm->id;
+
+        $redirect = UrlHelper::siteUrl($paymentForm->returnUrl) ?? Craft::getAlias(Craft::$app->getSites()->getPrimarySite()->baseUrl);
 
         StripePlugin::$app->settings->initializeStripe();
 
@@ -523,15 +524,17 @@ class Orders extends Component
             'metadata' => $this->getStripeMetadata($data)
         ]);
 
-        $order->stripeTransactionId = $source->id;
-        // revert cents
-        $order->totalPrice = $this->convertFromCents($order->totalPrice, $order->currency);
-
         // Finally save the order in Craft CMS
         if (!StripePlugin::$app->orders->saveOrder($order)){
             Craft::error('Something went wrong saving the Stripe Order: '.json_encode($order->getErrors()), __METHOD__);
             return $result;
         }
+
+        $order->stripeTransactionId = $source->id;
+        // revert cents
+        $order->totalPrice = $this->convertFromCents($order->totalPrice, $order->currency);
+
+
 
         $result = [
             'order' => $order,
