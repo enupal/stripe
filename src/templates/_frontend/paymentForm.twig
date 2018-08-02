@@ -1,11 +1,10 @@
-{% set actionUrl = paymentForm.enableCheckout ? 'enupal-stripe/stripe/save-order' :  'enupal-stripe/stripe/charge' %}
 {%- set redirectUri = paymentForm.returnUrl -%}
 {%- do craft.enupalStripe.addVariables(_context) -%}
 {% spaceless %}
     <form class="enupal-stripe-form" id="enupal-stripe-{{ paymentForm.id }}" method="POST">
         {{ csrfInput() }}
         <input type="hidden" aria-hidden="true" name="action"
-               value="{{ actionUrl }}">
+               value="enupal-stripe/stripe/save-order">
         {%- if redirectUri is not empty %}
             {% if redirectUri|slice(0, 1)|lower == '?' %}
                 {%- set redirectUri = craft.request.getUrl()~paymentForm.returnUrl %}
@@ -14,6 +13,8 @@
             <input type="hidden" aria-hidden="true" name="redirect"
                    value="{{ redirectUri|hash }}">
         {% endif %}
+        <input type="hidden" aria-hidden="true" name="enableCheckout"
+               value="{{ paymentForm.enableCheckout }}">
 
         {% namespace 'enupalStripe' %}
             <input type="hidden" name="token" value />
@@ -26,7 +27,7 @@
             <input type="hidden" name="taxAmount" value>
             <input type="hidden" name="amountBeforeTax" value>
             <input type="hidden" name='stripeData' value="{{ paymentForm.getPublicData() }}">
-            <input type="hidden" name='testMode' value=>
+            <input type="hidden" name='testMode' value>
             {% if paymentForm.enableShippingAddress %}
                     <input type="hidden" name="address[name]" value />
                     <input type="hidden" name="address[country]" value />
@@ -106,7 +107,7 @@
             {% else %}
                 {# User select Plan #}
                 {% if paymentForm.enupalMultiplePlans|length %}
-                    <div class="fields">
+                    <div class="form-group">
                         <section class="tab">
                             <div class="heading">
                                 <label for="{{ paymentForm.selectPlanLabel }}">
@@ -127,9 +128,10 @@
 
         {# Stripe Elements logic #}
         {% if not paymentForm.enableCheckout %}
+            <input type="hidden" name='paymentType' value>
             {% if paymentTypeIds|length > 1 %}
                 {% set paymentOptions = craft.enupalStripe.getPaymentTypesAsOptions() %}
-                <div class="fields">
+                <div class="form-group">
                     <div class="heading">
                         <label for="paymentMethod-{{ paymentForm.id }}">
                             {{ "Select a payment method:"|t -}}
@@ -156,7 +158,7 @@
                 {# Credit Card #}
                 {% set isHidden = paymentTypeIds|length > 1 ? true : false %}
                 {% if paymentTypeId == 1 %}
-                    <div class="form-row cc-wrapper {% if isHidden %}hidden{% endif %}">
+                    <div class="form-row cc-wrapper form-group {% if isHidden %}hidden{% endif %}">
                         <label for="card-element-{{ paymentForm.id }}">
                             {{ "Credit or debit card"|t }}
                         </label>
@@ -168,19 +170,29 @@
                 {# IDeal #}
                 {% elseif paymentTypeId == 2 %}
                     <div class="form-row inline ideal-wrapper {% if isHidden %}hidden{% endif %}">
-                        <div class="col">
-                            <label for="name">
-                                {{ "Name"|t }}
-                            </label>
-                            <input id="name-{{ paymentForm.id }}" name="name" placeholder="Jenny Rosen" required>
+                        <label for="name-{{ paymentForm.id }}">
+                            {{ "iDEAL"|t }}
+                        </label>
+                        <div class="col form-group">
+                            <div class="heading">
+                                <label for="name-{{ paymentForm.id }}">
+                                    {{ "Name"|t }}
+                                </label>
+                            </div>
+                            <div class="input">
+                                <input id="name-{{ paymentForm.id }}" name="idealName" placeholder="Jenny Rosen" required>
+                            </div>
                         </div>
-                        <div class="col">
-                            <label for="email">
-                                {{ "Email Address"|t }}
-                            </label>
-                            <input id="email-{{ paymentForm.id }}" type="email" name="email" placeholder="jenny.rosen@example.com" required>
+                        <div class="col form-group">
+                            <div class="heading">
+                                <label for="email-{{ paymentForm.id }}">
+                                    {{ "Email Address"|t }}
+                                </label>
+                            </div>
+                            <div class="input">
+                                <input id="email-{{ paymentForm.id }}" type="email" name="idealEmail" placeholder="jenny@example.com" required>
+                            </div>
                         </div>
-
                         {# Used to display form errors.#}
                         <div id="error-message-{{ paymentForm.id }}" role="alert"></div>
                     </div>

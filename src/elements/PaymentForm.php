@@ -653,6 +653,8 @@ class PaymentForm extends Element
             $applyTax = true;
         }
 
+        $paymentTypeIds = json_decode($this->paymentType, true);
+
         $publicData = [
             'paymentFormId' => $this->id,
             'handle' => $this->handle,
@@ -678,6 +680,7 @@ class PaymentForm extends Element
             'tax' => $this->settings->tax,
             'currencySymbol' => $this->getCurrencySymbol(),
             'taxLabel' => Craft::t('site', 'Tax Amount'),
+            'paymentTypeIds' => $paymentTypeIds,
             'stripe' => [
                 'description' => $this->name,
                 'panelLabel' =>  $this->checkoutButtonText ?? 'Pay {{amount}}',

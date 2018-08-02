@@ -1147,7 +1147,7 @@ class PaymentForms extends Component
     {
         return [
             PaymentType::CC => 'Credit Card',
-            PaymentType::IDEAL => 'IDeal'
+            PaymentType::IDEAL => 'iDEAL'
         ];
     }
 
@@ -1162,7 +1162,7 @@ class PaymentForms extends Component
                 'value' => PaymentType::CC
             ],
             [
-                'label' => 'IDeal',
+                'label' => 'iDEAL',
                 'value' => PaymentType::IDEAL
             ]
         ];

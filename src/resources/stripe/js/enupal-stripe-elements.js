@@ -46,8 +46,49 @@ var enupalStripe = {};
             // Create an instance of Elements.
             var elements = stripe.elements();
 
+            var paymentTypeInput = $(enupalButtonElement).find('[name="paymentType"]');
+
             // Custom styling can be passed to options when creating an Element.
             // (Note that this demo uses a wider set of styles than the guide below.)
+
+            var pTypes = enupalStripeData.paymentTypeIds;
+
+            if (pTypes.length > 1){
+                var ccWrapper = enupalButtonElement.find('.cc-wrapper');
+                var idealWrapper = enupalButtonElement.find('.ideal-wrapper');
+                $("#paymentMethod-"+enupalStripeData.paymentFormId).change(function () {
+                    var paymentType = this.value;
+                    if (paymentType == 1){// Credit Card
+                        paymentTypeInput.val(paymentType);
+                        ccWrapper.removeClass('hidden');
+                        idealWrapper.addClass('hidden');
+                    }else if (paymentType == 2){// iDEAL
+                        idealWrapper.removeClass('hidden');
+                        ccWrapper.addClass('hidden');
+                        paymentTypeInput.val(paymentType);
+                    }
+                });
+            }
+
+            for ( var i = 0, l = pTypes.length; i < l; i++ ) {
+                if (pTypes[i] == 1){// Credit Card
+                    if (i == 0){
+                        enupalButtonElement.find('.cc-wrapper').removeClass('hidden');
+                        paymentTypeInput.val(pTypes[i]);
+                    }
+                    this.createCardElement(stripe, enupalStripeData, elements, enupalButtonElement);
+                }else if (pTypes[i] == 2){// iDEAL
+                    if (i == 0){
+                        enupalButtonElement.find('.ideal-wrapper').removeClass('hidden');
+                        paymentTypeInput.val(pTypes[i]);
+                    }
+                    this.createIdealElement(stripe, enupalStripeData, enupalButtonElement, elements);
+                }
+            }
+
+        },
+
+        createCardElement: function(stripe, enupalStripeData, elements, enupalButtonElement) {
             var style = {
                 base: {
                     color: '#32325d',
@@ -65,11 +106,6 @@ var enupalStripe = {};
                 }
             };
 
-            //this.createCardElement(stripe, enupalStripeData, elements, style);
-            this.createIdealElement(stripe, enupalStripeData, enupalButtonElement, elements, style);
-        },
-
-        createCardElement: function(stripe, enupalStripeData, elements, style) {
             // Create an instance of the card Element.
             var card = elements.create('card', {style: style});
 
@@ -104,7 +140,23 @@ var enupalStripe = {};
             });
         },
 
-        createIdealElement: function(stripe, enupalStripeData, enupalButtonElement, elements, style) {
+        createIdealElement: function(stripe, enupalStripeData, enupalButtonElement, elements) {
+            var style = {
+                base: {
+                    color: '#32325d',
+                    lineHeight: '18px',
+                    fontFamily: '"Helvetica Neue", Helvetica, sans-serif',
+                    fontSmoothing: 'antialiased',
+                    fontSize: '16px',
+                    '::placeholder': {
+                        color: '#aab7c4'
+                    }
+                },
+                invalid: {
+                    color: '#fa755a',
+                    iconColor: '#fa755a'
+                }
+            };
 
             var that = this;
 

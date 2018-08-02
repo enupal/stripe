@@ -480,8 +480,8 @@ class Orders extends Component
         $result = null;
         $request = Craft::$app->getRequest();
         $data = $request->getBodyParam('enupalStripe');
-        $name = $request->getBodyParam('name') ?? null;
-        $email = $request->getBodyParam('email') ?? null;
+        $name = $request->getBodyParam('idealName') ?? null;
+        $email = $request->getBodyParam('idealEmail') ?? null;
         $formId = $data['formId'] ?? null;
         $data['email'] = $email;
         #$redirect = $request->getBodyParam('redirect') ?? Craft::alias(Craft::$app->getSites()->getPrimarySite()->baseUrl);
