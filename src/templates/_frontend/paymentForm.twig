@@ -154,6 +154,17 @@
 
             {% endif %}
 
+            <div class="col form-group">
+                <div class="heading">
+                    <label for="email-{{ paymentForm.id }}">
+                        {{ "Email Address"|t }}
+                    </label>
+                </div>
+                <div class="input">
+                    <input id="email-{{ paymentForm.id }}" type="email" name="stripeElementEmail" placeholder="jenny@example.com" required>
+                </div>
+            </div>
+
             {% for paymentTypeId in paymentTypeIds %}
                 {# Credit Card #}
                 {% set isHidden = paymentTypeIds|length > 1 ? true : false %}
@@ -180,17 +191,7 @@
                                 </label>
                             </div>
                             <div class="input">
-                                <input id="name-{{ paymentForm.id }}" name="idealName" placeholder="Jenny Rosen" required>
-                            </div>
-                        </div>
-                        <div class="col form-group">
-                            <div class="heading">
-                                <label for="email-{{ paymentForm.id }}">
-                                    {{ "Email Address"|t }}
-                                </label>
-                            </div>
-                            <div class="input">
-                                <input id="email-{{ paymentForm.id }}" type="email" name="idealEmail" placeholder="jenny@example.com" required>
+                                <input id="name-{{ paymentForm.id }}" name="idealName" placeholder="Jenny Rosen" >
                             </div>
                         </div>
                         {# Used to display form errors.#}

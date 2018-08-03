@@ -106,6 +106,8 @@ var enupalStripe = {};
                 }
             };
 
+            var paymentFormId = 'stripe-payments-submit-button-'+enupalStripeData.paymentFormId;
+
             // Create an instance of the card Element.
             var card = elements.create('card', {style: style});
 
@@ -123,21 +125,58 @@ var enupalStripe = {};
                 }
             });
 
-            // Handle form submission.
-            enupalButtonElement[0].addEventListener('submit', function(event) {
-                event.preventDefault();
+            var form = enupalButtonElement[0];
+            var that = this;
 
-                stripe.createToken(card).then(function(result) {
-                    if (result.error) {
-                        // Inform the user if there was an error.
-                        var errorElement = document.getElementById('card-errors-' + enupalStripeData.paymentFormId);
-                        errorElement.textContent = result.error.message;
+            // Handle form submission.
+            enupalButtonElement.find('#'+paymentFormId).on('click', function(e) {
+                var paymentType = $(enupalButtonElement).find('[name="paymentType"]').val();
+                if (paymentType != 1){
+                    return true;
+                }
+                var form = enupalButtonElement[0];
+
+                if (!form.checkValidity()) {
+                    if (form.reportValidity) {
+                        form.reportValidity();
                     } else {
-                        // Send the token to your server.
-                        console.log(result.token);
+                        //warn IE users somehow
                     }
-                });
+                }else {
+                    e.preventDefault();
+                    stripe.createToken(card).then(function(result) {
+                        if (result.error) {
+                            // Inform the user if there was an error.
+                            var errorElement = document.getElementById('card-errors-' + enupalStripeData.paymentFormId);
+                            errorElement.textContent = result.error.message;
+                        } else {
+                            // Send the token to your server.
+                            that.submitForm(enupalStripeData, enupalButtonElement, paymentFormId, result.token);
+                        }
+                    });
+                }
             });
+        },
+
+        submitForm: function(enupalStripeData, enupalButtonElement, paymentFormId, token) {
+            var enupalStripeDataSubmission = $.extend(true, {}, enupalStripeData);
+            var stripeConfig = enupalStripeDataSubmission.stripe;
+            stripeConfig.amount = this.convertToCents(this.getFinalAmount(enupalButtonElement, enupalStripeDataSubmission), stripeConfig.currency);
+            enupalButtonElement.find('[name="enupalStripe[amount]"]').val(stripeConfig.amount);
+            enupalButtonElement.find('[name="enupalStripe[testMode]"]').val(enupalStripeDataSubmission.testMode);
+            if (token){
+                enupalButtonElement.find('[name="enupalStripe[token]"]').val(token.id);
+            }
+            // Disable pay button and show a nice UI message
+            enupalButtonElement.find('#'+paymentFormId)
+                .prop('disabled', true)
+                .find('span')
+                .text(enupalStripeData.paymentButtonProcessingText);
+
+            // Unbind original form submit trigger before calling again to "reset" it and submit normally.
+            enupalButtonElement.unbind('submit', [enupalButtonElement, enupalStripeData]);
+
+            enupalButtonElement.submit();
         },
 
         createIdealElement: function(stripe, enupalStripeData, enupalButtonElement, elements) {
@@ -164,18 +203,17 @@ var enupalStripe = {};
 
             var form = enupalButtonElement[0];
 
+            var paymentFormId = 'stripe-payments-submit-button-'+enupalStripeData.paymentFormId;
+
             // Handle form submission.
             form.addEventListener('submit', function(event) {
+                var paymentType = $(enupalButtonElement).find('[name="paymentType"]').val();
+                if (paymentType != 2){
+                    return true;
+                }
                 event.preventDefault();
-                //showLoading();
 
-                var enupalStripeDataSubmission = $.extend(true, {}, enupalStripeData);
-                var stripeConfig = enupalStripeDataSubmission.stripe;
-                stripeConfig.amount = that.convertToCents(that.getFinalAmount(enupalButtonElement, enupalStripeDataSubmission), stripeConfig.currency);
-                enupalButtonElement.find('[name="enupalStripe[amount]"]').val(stripeConfig.amount);
-                enupalButtonElement.find('[name="enupalStripe[testMode]"]').val(enupalStripeDataSubmission.testMode);
-
-                enupalButtonElement.submit();
+                that.submitForm(enupalStripeData, enupalButtonElement, paymentFormId, null);
             });
         },
 

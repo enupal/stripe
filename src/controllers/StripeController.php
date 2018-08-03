@@ -45,10 +45,12 @@ class StripeController extends BaseController
                 $source = $response['source'];
 
                 return $this->redirect($source->redirect->url);
+            }else if($paymentType == PaymentType::CC){
+                $postData['enupalStripe']['email'] = Craft::$app->getRequest()->getBodyParam('stripeElementEmail') ?? null;
             }
         }
 
-        // Stripe Checkout
+        // Stripe Checkout or Stripe Elements CC
         $order = StripePlugin::$app->orders->processPayment($postData);
 
         if (is_null($order)){

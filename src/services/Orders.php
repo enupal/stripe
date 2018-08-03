@@ -485,11 +485,11 @@ class Orders extends Component
         $request = Craft::$app->getRequest();
         $data = $request->getBodyParam('enupalStripe');
         $name = $request->getBodyParam('idealName') ?? null;
-        $email = $request->getBodyParam('idealEmail') ?? null;
+        $email = $request->getBodyParam('stripeElementEmail') ?? null;
         $formId = $data['formId'] ?? null;
         $data['email'] = $email;
 
-        if (empty($name) || empty($email) || empty($formId)){
+        if (empty($email) || empty($formId)){
             Craft::error('Unable to get the Full name, formId or email', __METHOD__);
             return $result;
         }
