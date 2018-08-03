@@ -114,6 +114,7 @@ class Install extends Migration
             'id' => $this->primaryKey(),
             'formId' => $this->integer(),
             'testMode' => $this->boolean()->defaultValue(0),
+            'paymentType' => $this->integer(),
             'number' => $this->string(),
             'currency' => $this->string(),
             'totalPrice' => $this->decimal(14, 4)->defaultValue(0),

@@ -29,6 +29,7 @@ class StripeController extends BaseController
         $this->requirePostRequest();
 
         $enableCheckout = Craft::$app->getRequest()->getBodyParam('enableCheckout') ?? true;
+        $postData = $_POST;
 
         // Stripe Elements
         if (!$enableCheckout){
@@ -48,7 +49,7 @@ class StripeController extends BaseController
         }
 
         // Stripe Checkout
-        $order = StripePlugin::$app->orders->processPayment();
+        $order = StripePlugin::$app->orders->processPayment($postData);
 
         if (is_null($order)){
             throw new NotFoundHttpException("Unable to process the Payment");

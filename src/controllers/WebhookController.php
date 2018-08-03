@@ -56,8 +56,6 @@ class WebhookController extends BaseController
                 break;
         }
 
-        // Do something with $event_json
-
         http_response_code(200); // PHP 5.4 or greater
 
         $return['success'] = true;

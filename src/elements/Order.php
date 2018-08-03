@@ -34,6 +34,8 @@ class Order extends Element
 
     public $testMode;
 
+    public $paymentType;
+
     /**
      * @var string Number
      */
@@ -373,6 +375,7 @@ class Order extends Element
         $record->variants = $this->variants;
         $record->transactionInfo = $this->transactionInfo;
         $record->testMode = $this->testMode;
+        $record->paymentType = $this->paymentType;
         $record->postData = $this->postData;
         $record->save(false);
 
@@ -391,7 +394,7 @@ class Order extends Element
     }
 
     /**
-     * @return \craft\base\ElementInterface|null
+     * @return PaymentForm|null
      */
     public function getPaymentForm()
     {

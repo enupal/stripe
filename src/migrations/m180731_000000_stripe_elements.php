@@ -15,6 +15,7 @@ class m180731_000000_stripe_elements extends Migration
     public function safeUp()
     {
         $table = "{{%enupalstripe_forms}}";
+        $orderTable = "{{%enupalstripe_orders}}";
 
         if (!$this->db->columnExists($table, 'enableCheckout')) {
             $this->addColumn($table, 'enableCheckout', $this->tinyInteger()->after('handle')->defaultValue(1));
@@ -22,6 +23,10 @@ class m180731_000000_stripe_elements extends Migration
 
         if (!$this->db->columnExists($table, 'paymentType')) {
             $this->addColumn($table, 'paymentType', $this->string()->after('handle'));
+        }
+
+        if (!$this->db->columnExists($orderTable, 'paymentType')) {
+            $this->addColumn($orderTable, 'paymentType', $this->integer()->after('testMode'));
         }
 
         if (!$this->db->columnExists("{{%enupalstripe_orders}}", 'postData')) {
