@@ -39,7 +39,7 @@ class WebhookController extends BaseController
         $order = Stripe::$app->orders->getOrderByStripeId($stripeId);
 
         if ($order === null || $stripeId === null) {
-            throw new NotFoundHttpException(Stripe::t('Order not found'));
+            throw new NotFoundHttpException(Stripe::t('Stripe Forms - Order not found'));
         }
 
         switch ($eventJson['type']) {

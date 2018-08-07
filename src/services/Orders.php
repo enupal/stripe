@@ -484,7 +484,6 @@ class Orders extends Component
         $result = null;
         $request = Craft::$app->getRequest();
         $data = $request->getBodyParam('enupalStripe');
-        $name = $request->getBodyParam('idealName') ?? null;
         $email = $request->getBodyParam('stripeElementEmail') ?? null;
         $formId = $data['formId'] ?? null;
         $data['email'] = $email;
@@ -523,7 +522,7 @@ class Orders extends Component
             'type' => 'ideal',
             'amount' => $amount,
             'currency' => 'eur',
-            'owner' => ['email' => $email, 'name' => $name],
+            'owner' => ['email' => $email],
             'redirect' => ['return_url' => $redirect],
             'metadata' => $this->getStripeMetadata($data)
         ]);
