@@ -505,8 +505,8 @@ class Orders extends Component
             throw new \Exception(Craft::t('enupal-stripe','Unable to find the Stripe Button associated to the order'));
         }
 
-        $postData = $_POST;
-        unset($postData['CRAFT_CSRF_TOKEN']);
+        $postData = $this->getPostData();
+        $postData['enupalStripe']['email'] = $email;
 
         $order = $this->populateOrder($data, true);
         $order->paymentType = $request->getBodyParam('paymentType');
@@ -630,7 +630,7 @@ class Orders extends Component
             throw new \Exception(Craft::t('enupal-stripe','Unable to find the Stripe Button associated to the order'));
         }
 
-        if ($paymentType == '2'){//iDEAL
+        if ($paymentType == PaymentType::IDEAL){
             $paymentForm->currency = 'EUR';
         }
 
@@ -643,7 +643,8 @@ class Orders extends Component
         StripePlugin::$app->settings->initializeStripe();
 
         $isNew = false;
-        $customer = $this->getCustomer($data['email'], $token, $isNew, $data['testMode']);
+        $customer = $this->getCustomer($order->email, $token, $isNew, $order->testMode);
+
         $charge = null;
         $stripeId = null;
 
@@ -824,6 +825,9 @@ class Orders extends Component
         if (!$isNew){
             // Add card or payment method to user
             $customer->sources->create(["source" => $token]);
+            // Set as default the new card
+            $customer->default_source = $token;
+            $customer->save();
         }
 
         $chargeSettings = [
@@ -1197,5 +1201,18 @@ class Orders extends Component
         ];
 
         return $shipping;
+    }
+
+    /**
+     * @return mixed
+     */
+    private function getPostData()
+    {
+        $postData = $_POST;
+        unset($postData['CRAFT_CSRF_TOKEN']);
+        unset($postData['action']);
+        unset($postData['redirect']);
+
+        return $postData;
     }
 }
