@@ -704,7 +704,7 @@ class Orders extends Component
             }
 
             if (is_null($stripeId)){
-                $charge = $this->stripeCharge($data, $paymentForm, $customer, $isNew, $token);
+                $charge = $this->stripeCharge($data, $paymentForm, $customer, $isNew, $token, $order);
                 $stripeId = $charge['id'] ?? null;
             }
         }
@@ -814,9 +814,10 @@ class Orders extends Component
      * @param $customer
      * @param $isNew
      * @param $token
+     * @param $order
      * @return null|\Stripe\ApiResource
      */
-    private function stripeCharge($data, $paymentForm, $customer, $isNew, $token)
+    private function stripeCharge($data, $paymentForm, $customer, $isNew, $token, $order)
     {
         $description = Craft::t('enupal-stripe', 'Order from {email}', ['email' => $data['email']]);
         $charge = null;
@@ -825,9 +826,11 @@ class Orders extends Component
         if (!$isNew){
             // Add card or payment method to user
             $customer->sources->create(["source" => $token]);
-            // Set as default the new card
-            $customer->default_source = $token;
-            $customer->save();
+            // Set as default the new chargeable
+            if ($order->paymentType == PaymentType::IDEAL){
+                $customer->default_source = $token;
+                $customer->save();
+            }
         }
 
         $chargeSettings = [
