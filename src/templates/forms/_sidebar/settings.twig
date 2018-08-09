@@ -46,15 +46,23 @@
 
     <div id="stripe-elements-wrapper" class="{% if stripeForm.enableCheckout %} hidden {% endif %}">
         <hr>
+        {% set paymentTypeInput %}
+            <div class="flex">
+                <div class="nowrapper">
+                    {{ forms.checkboxGroup({
+                        name: "paymentType",
+                        options : availablePaymentTypes,
+                        values: paymentTypeIdes
+                    }) }}
+                </div>
+            </div>
+        {% endset %}
+
         {{ forms.field({
+            id: 'paymentType',
             label: "Payment Type <span class='info'>Leave unchecked to apply to all Payment Types.</span>"|t('enupal-stripe'),
-            errors: errors is defined ? errors : null,
-        },
-        forms.checkboxGroup({
-            name: "paymentType",
-            options : availablePaymentTypes,
-            values: paymentTypeIdes
-        })) }}
+            errors: stripeForm.getErrors('paymentType'),
+        }, paymentTypeInput) }}
     </div>
 </div>
 <hr>

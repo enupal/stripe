@@ -558,6 +558,9 @@ class PaymentForm extends Element
     {
         return [
             [['name', 'handle'], 'required'],
+            [['paymentType'], 'required', 'when' => function($model) {
+                return $model->enableCheckout != 1;
+            }],
             [['name', 'handle'], 'string', 'max' => 255],
             [['name', 'handle'], UniqueValidator::class, 'targetClass' => PaymentFormRecord::class],
             [

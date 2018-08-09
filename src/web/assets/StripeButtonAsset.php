@@ -26,6 +26,10 @@ class StripeButtonAsset extends AssetBundle
         // define the dependencies
         // define the relative path to CSS/JS files that should be registered with the page
         // when this asset bundle is registered
+        $this->css = [
+            'css/stripeforms.css'
+        ];
+
         $this->js = [
             'js/enupalstripebutton.js'
         ];
