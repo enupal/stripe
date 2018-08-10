@@ -507,6 +507,12 @@ class Orders extends Component
 
         $postData = $this->getPostData();
         $postData['enupalStripe']['email'] = $email;
+        $options = [];
+
+        if (isset($postData['address'])){
+            $data['address'] = $postData['address'];
+            $options['address'] = $this->getStripeAddress($data['address']);
+        }
 
         $order = $this->populateOrder($data, true);
         $order->paymentType = $request->getBodyParam('paymentType');
@@ -525,7 +531,7 @@ class Orders extends Component
             'owner' => ['email' => $email],
             'redirect' => ['return_url' => $redirect],
             'metadata' => $this->getStripeMetadata($data)
-        ]);
+        ], $options);
 
         $order->stripeTransactionId = $source->id;
         // revert cents
@@ -1204,6 +1210,23 @@ class Orders extends Component
         ];
 
         return $shipping;
+    }
+
+    /**
+     * @param $address
+     * @return array
+     */
+    private function getStripeAddress($address)
+    {
+        $stripeAddress = [];
+
+        $stripeAddress['address_line1'] = $address['line1'];
+        $stripeAddress['address_city'] = $address['city'];
+        $stripeAddress['address_state'] = $address['state'];
+        $stripeAddress['address_zip'] = $address['zip'];
+        $stripeAddress['address_country'] = $address['country'];
+
+        return $stripeAddress;
     }
 
     /**

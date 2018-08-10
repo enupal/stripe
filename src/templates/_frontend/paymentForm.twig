@@ -28,7 +28,7 @@
             <input type="hidden" name="amountBeforeTax" value>
             <input type="hidden" name='stripeData' value="{{ paymentForm.getPublicData() }}">
             <input type="hidden" name='testMode' value>
-            {% if paymentForm.enableShippingAddress %}
+            {% if paymentForm.enableShippingAddress and paymentForm.enableCheckout  %}
                     <input type="hidden" name="address[name]" value />
                     <input type="hidden" name="address[country]" value />
                     <input type="hidden" name="address[zip]" value />
@@ -152,6 +152,64 @@
                     </div>
                 </div>
 
+            {% endif %}
+
+            {# Address #}
+            {% if paymentForm.enableBillingAddress or paymentForm.enableShippingAddress %}
+                <div class="col form-group">
+                    <div class="heading">
+                        <label for="addressLine1-{{ paymentForm.id }}">
+                            {{ "Address"|t }}
+                        </label>
+                    </div>
+                    <div class="input">
+                        <input id="addressLine1-{{ paymentForm.id }}" type="text" name="address[line1]" placeholder="77 Winchester Lane" required>
+                    </div>
+                </div>
+
+                <div class="col form-group">
+                    <div class="heading">
+                        <label for="addressCity-{{ paymentForm.id }}">
+                            {{ "City"|t }}
+                        </label>
+                    </div>
+                    <div class="input">
+                        <input id="addressCity-{{ paymentForm.id }}" type="text" name="address[city]" placeholder="Coachella" required>
+                    </div>
+                </div>
+
+                <div class="col form-group">
+                    <div class="heading">
+                        <label for="addressZip-{{ paymentForm.id }}">
+                            {{ "Zip"|t }}
+                        </label>
+                    </div>
+                    <div class="input">
+                        <input id="addressZip-{{ paymentForm.id }}" type="text" name="address[zip]" placeholder="92236" required>
+                    </div>
+                </div>
+
+                <div class="col form-group">
+                    <div class="heading">
+                        <label for="addressState-{{ paymentForm.id }}">
+                            {{ "State"|t }}
+                        </label>
+                    </div>
+                    <div class="input">
+                        <input id="addressState-{{ paymentForm.id }}" type="text" name="address[state]" placeholder="CA" required>
+                    </div>
+                </div>
+
+                <div class="col form-group">
+                    <div class="heading">
+                        <label for="addressCountry-{{ paymentForm.id }}">
+                            {{ "Country"|t }}
+                        </label>
+                    </div>
+                    <div class="input">
+                        <input id="addressCountry-{{ paymentForm.id }}" type="text" name="address[country]" placeholder="United States" required>
+                    </div>
+                </div>
             {% endif %}
 
             <div class="col form-group">
