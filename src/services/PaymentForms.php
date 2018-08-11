@@ -179,18 +179,29 @@ class PaymentForms extends Component
 
         // Set our defaults
         $templates['paymentForm'] = $defaultTemplate;
-        $templates['fields'] = $defaultTemplate;
+        $templates['fields'] = $defaultTemplate.DIRECTORY_SEPARATOR.'fields';
+        $templates['multipleplans'] = $defaultTemplate.DIRECTORY_SEPARATOR.'multipleplans';
 
         // See if we should override our defaults
         if ($templateFolderOverride) {
 
             $formTemplate = $templateFolderOverride.DIRECTORY_SEPARATOR.'paymentForm';
+            $fieldsFolder = $templateFolderOverride.DIRECTORY_SEPARATOR.'fields';
+            $multiplePlansFolder = $templateFolderOverride.DIRECTORY_SEPARATOR.'multipleplans';
             $basePath = $templateFolderOverride.DIRECTORY_SEPARATOR;
 
             foreach (Craft::$app->getConfig()->getGeneral()->defaultTemplateExtensions as $extension) {
 
                 if (file_exists($formTemplate.'.'.$extension)) {
                     $templates['paymentForm'] = $basePath;
+                }
+
+                if (file_exists($fieldsFolder)) {
+                    $templates['fields'] = $basePath.'fields';
+                }
+
+                if (file_exists($multiplePlansFolder)) {
+                    $templates['multipleplans'] = $basePath.'multipleplans';
                 }
             }
         }

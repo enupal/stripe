@@ -47,7 +47,7 @@
                     </div>
                 {% endif %}
                 <div class="input">
-                    {%- set input = craft.enupalStripe.displayField(block)  %}
+                    {%- set input = craft.enupalStripe.displayField(paymentForm, block)  %}
                     {{ input|raw }}
                 </div>
             </div>
@@ -115,7 +115,7 @@
                                 </label>
                             </div>
                             <div class="input">
-                                {%- set input = craft.enupalStripe.displayMultiSelect(paymentForm.subscriptionStyle, paymentForm.enupalMultiplePlans)  %}
+                                {%- set input = craft.enupalStripe.displayMultiSelect(paymentForm)  %}
                                 {{ input|raw }}
                             </div>
                         </section>
