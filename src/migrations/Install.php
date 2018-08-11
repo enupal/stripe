@@ -104,6 +104,8 @@ class Install extends Migration
             'buttonText' => $this->string(),
             'paymentButtonProcessingText' => $this->string(),
             'checkoutButtonText' => $this->string(),
+            'enableTemplateOverrides' => $this->boolean(),
+            'templateOverridesFolder' => $this->string(),
             //
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),

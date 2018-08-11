@@ -203,7 +203,7 @@ class StripeVariable
         }
 
         $htmlField = $view->renderTemplate(
-            '_layouts/'.strtolower($block->type), [
+            'fields/'.strtolower($block->type), [
                 'block' => $block,
                 'preValue' => $preValue
             ]
@@ -231,7 +231,7 @@ class StripeVariable
         $view->setTemplatesPath($templatePath);
 
         $htmlField = $view->renderTemplate(
-            '_multipleplans/'.strtolower($type), [
+            'multipleplans/'.strtolower($type), [
                 'matrixField' => $matrix
             ]
         );

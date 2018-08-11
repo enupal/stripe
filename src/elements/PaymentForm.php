@@ -126,7 +126,8 @@ class PaymentForm extends Element
     public $recurringPaymentType;
 
     public $buttonClass;
-    public $postData;
+    public $enableTemplateOverrides;
+    public $templateOverridesFolder;
 
     protected $env;
     protected $ipnUrl;
@@ -545,6 +546,9 @@ class PaymentForm extends Element
         $record->returnUrl = $this->returnUrl;
         $record->buttonText = $this->buttonText;
         $record->paymentButtonProcessingText = $this->paymentButtonProcessingText;
+
+        $record->enableTemplateOverrides = $this->enableTemplateOverrides;
+        $record->templateOverridesFolder = $this->templateOverridesFolder;
 
         $record->save(false);
 

@@ -18,6 +18,7 @@
         $enableSubscription: null,
         $enableCheckout: null,
         $enableSingleCustomAmount: null,
+        $enableTemplateOverrides: null,
 
         /**
          * The constructor.
@@ -37,6 +38,7 @@
             this.$enableSubscription = $("#fields-enableSubscriptions");
             this.$enableCheckout = $("#fields-enableCheckout");
             this.$enableSingleCustomAmount = $("#fields-enableCustomPlanAmount");
+            this.$enableTemplateOverrides = $("#fields-enableTemplateOverrides");
 
             this.addListener(this.$unlimitedStock, 'change', 'handleUnlimitedStock');
             this.addListener(this.$subscriptionTypeSelect, 'change', 'handleSubscriptionTypeSelect');
@@ -47,10 +49,13 @@
             this.addListener(this.$enableSubscription, 'change', 'handleEnableSubscription');
             this.addListener(this.$enableCheckout, 'change', 'handleEnableCheckout');
             this.addListener(this.$enableSingleCustomAmount, 'change', 'handleEnableSingleCustomAmount');
+            this.addListener(this.$enableTemplateOverrides, 'change', 'handleEnableTemplateOverrides');
 
             this.handleRecurringToggle();
             this.handleAmountTypeSelect();
             this.handleSubscriptionTypeSelect();
+            this.handleEnableTemplateOverrides();
+            this.handleEnableCheckout();
         },
 
         handleEnableSingleCustomAmount: function(option) {
@@ -78,7 +83,7 @@
         },
 
         handleEnableCheckout: function(option) {
-            var $elementsWrapper = $("#fields-stripe-elements-wrapper");
+            var $elementsWrapper = $("#fields-paymentType-field");
             var value = $("input[name='fields[enableCheckout]']").val();
 
             if (value == 0){
@@ -86,6 +91,18 @@
             }
             else{
                 $elementsWrapper.addClass('hidden');
+            }
+        },
+
+        handleEnableTemplateOverrides: function(option) {
+            var $templateOverridesWrapper = $("#fields-templateOverridesFolder-field");
+            var value = $("input[name='fields[enableTemplateOverrides]']").val();
+
+            if (value == 0){
+                $templateOverridesWrapper.addClass('hidden');
+            }
+            else{
+                $templateOverridesWrapper.removeClass('hidden');
             }
         },
 

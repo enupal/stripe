@@ -53,7 +53,7 @@
             </div>
         {% endfor %}
 
-        {# FIELDS LOGIC #}
+        {# Fields Logic #}
         {% if not paymentForm.enableSubscriptions  %}
             {# One time payment logic #}
             {% if paymentForm.amountType == 1 %}
@@ -128,32 +128,6 @@
 
         {# Stripe Elements logic #}
         {% if not paymentForm.enableCheckout %}
-            <input type="hidden" name='paymentType' value>
-            {% if paymentTypeIds|length > 1 %}
-                {% set paymentOptions = craft.enupalStripe.getPaymentTypesAsOptions() %}
-                <div class="form-group">
-                    <div class="heading">
-                        <label for="paymentMethod-{{ paymentForm.id }}">
-                            {{ "Select a payment method:"|t -}}
-                        </label>
-                    </div>
-                    <div class="input">
-                        <select
-                            name="paymentMethod"
-                            id="paymentMethod-{{ paymentForm.id }}"
-                            class="paymentMethod"
-                            required aria-required="true"
-                        >
-                            {%- for key, option in paymentOptions -%}
-                                <option value="{{ option.value }}"
-                                >{{ option.label }}</option>
-                            {% endfor %}
-                        </select>
-                    </div>
-                </div>
-
-            {% endif %}
-
             {# Address #}
             {% if paymentForm.enableBillingAddress or paymentForm.enableShippingAddress %}
                 <div class="col form-group">
@@ -222,6 +196,34 @@
                     </div>
                 </div>
             {% endif %}
+            {# End address #}
+
+            {# Payment method select #}
+            <input type="hidden" name='paymentType' value>
+            {% if paymentTypeIds|length > 1 %}
+                {% set paymentOptions = craft.enupalStripe.getPaymentTypesAsOptions() %}
+                <div class="form-group">
+                    <div class="heading">
+                        <label for="paymentMethod-{{ paymentForm.id }}">
+                            {{ "Select a payment method:"|t -}}
+                        </label>
+                    </div>
+                    <div class="input">
+                        <select
+                            name="paymentMethod"
+                            id="paymentMethod-{{ paymentForm.id }}"
+                            class="paymentMethod"
+                            required aria-required="true"
+                        >
+                            {%- for key, option in paymentOptions -%}
+                                <option value="{{ option.value }}"
+                                >{{ option.label }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+            {% endif %}
+            {# End payment method select #}
 
             <div class="col form-group">
                 <div class="heading">

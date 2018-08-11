@@ -44,26 +44,23 @@
         on: stripeForm.enableCheckout
     }) }}
 
-    <div id="stripe-elements-wrapper" class="{% if stripeForm.enableCheckout %} hidden {% endif %}">
-        <hr>
-        {% set paymentTypeInput %}
-            <div class="flex">
-                <div class="nowrapper">
-                    {{ forms.checkboxGroup({
-                        name: "paymentType",
-                        options : availablePaymentTypes,
-                        values: paymentTypeIdes
-                    }) }}
-                </div>
+    {% set paymentTypeInput %}
+        <div class="flex">
+            <div class="nowrapper">
+                {{ forms.checkboxGroup({
+                    name: "paymentType",
+                    options : availablePaymentTypes,
+                    values: paymentTypeIdes
+                }) }}
             </div>
-        {% endset %}
+        </div>
+    {% endset %}
 
-        {{ forms.field({
-            id: 'paymentType',
-            label: "Payment Type <span class='info'>Leave unchecked to apply to all Payment Types.</span>"|t('enupal-stripe'),
-            errors: stripeForm.getErrors('paymentType'),
-        }, paymentTypeInput) }}
-    </div>
+    {{ forms.field({
+        id: 'paymentType',
+        label: "Payment Type <span class='info'>Leave unchecked to apply to all Payment Types.</span>"|t('enupal-stripe'),
+        errors: stripeForm.getErrors('paymentType'),
+    }, paymentTypeInput) }}
 </div>
 <hr>
 <div id="one-time-payment-wrapper" class="meta {% if stripeForm.enableSubscriptions %} hidden {% endif %}">
@@ -220,19 +217,6 @@
         name: 'verifyZip',
         on: stripeForm.verifyZip
     }) }}
-    {#
-    {{ forms.textField({
-        first: true,
-        label: "Shipping <span class='info'>Shipping amount, leave empty if is free shipping</span>"|t('enupal-stripe'),
-        id: 'shippingAmount',
-        name: 'shippingAmount',
-        placeholder: 'Enter amount',
-        unit: stripeForm.currency,
-        value: (stripeForm.shippingAmount == '0' ? '0'|number : (stripeForm.shippingAmount ? stripeForm.shippingAmount|number ?: '')),
-        errors: stripeForm.getErrors('shippingAmount'),
-        autofocus: true,
-    }) }}
-    #}
 </div>
 <hr>
 <div class="meta">
@@ -255,5 +239,22 @@
         value: stripeForm.buttonClass,
         autofocus: true,
         errors: stripeForm.getErrors('buttonClass')
+    }) }}
+
+    {{ forms.lightswitchField({
+        label: "Custom Templates <span class='info'>Enable Custom Template Overrides Folder</span>"|t('enupal-stripe'),
+        id: 'enableTemplateOverrides',
+        name: 'enableTemplateOverrides',
+        on: stripeForm.enableTemplateOverrides
+    }) }}
+
+    {{ forms.textField({
+        label: "Templates Folder <span class='info'>The template folder to use for overrides</span>"|t('enupal-stripe'),
+        id: 'templateOverridesFolder',
+        name: 'templateOverridesFolder',
+        placeholder: '_stripe/'~stripeForm.handle,
+        value: stripeForm.templateOverridesFolder,
+        autofocus: true,
+        errors: stripeForm.getErrors('templateOverridesFolder')
     }) }}
 </div>

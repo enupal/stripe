@@ -164,6 +164,54 @@ class PaymentForms extends Component
     /**
      * @param StripeElement $paymentForm
      *
+     * @return array
+     * @throws Exception
+     */
+    public function getFormTemplatePaths(StripeElement $paymentForm)
+    {
+        $templates = [];
+        $templateFolderOverride = '';
+        $defaultTemplate = $this->getEnupalStripePath();
+
+        if ($paymentForm->enableTemplateOverrides && $paymentForm->templateOverridesFolder) {
+           $templateFolderOverride = $this->getSitePath($paymentForm->templateOverridesFolder);
+        }
+
+        // Set our defaults
+        $templates['paymentForm'] = $defaultTemplate;
+        $templates['fields'] = $defaultTemplate;
+
+        // See if we should override our defaults
+        if ($templateFolderOverride) {
+
+            $formTemplate = $templateFolderOverride.DIRECTORY_SEPARATOR.'paymentForm';
+            $basePath = $templateFolderOverride.DIRECTORY_SEPARATOR;
+
+            foreach (Craft::$app->getConfig()->getGeneral()->defaultTemplateExtensions as $extension) {
+
+                if (file_exists($formTemplate.'.'.$extension)) {
+                    $templates['paymentForm'] = $basePath;
+                }
+            }
+        }
+
+        return $templates;
+    }
+
+    /**
+     * @param $path
+     *
+     * @return string
+     * @throws \yii\base\Exception
+     */
+    private function getSitePath($path)
+    {
+        return Craft::$app->path->getSiteTemplatesPath().DIRECTORY_SEPARATOR.$path;
+    }
+
+    /**
+     * @param StripeElement $paymentForm
+     *
      * @return StripeElement
      */
     public function populatePaymentFormFromPost(StripeElement $paymentForm)
@@ -604,7 +652,8 @@ class PaymentForms extends Component
     public function getPaymentFormHtml($handle, array $options = null)
     {
         $paymentForm = StripePlugin::$app->paymentForms->getPaymentFormBySku($handle);
-        $templatePath = StripePlugin::$app->paymentForms->getEnupalStripePath();
+        // Add support for template overrides
+        $templatePaths = StripePlugin::$app->paymentForms->getFormTemplatePaths($paymentForm);
         $paymentFormHtml = null;
         $settings = StripePlugin::$app->settings->getSettings();
 
@@ -620,14 +669,15 @@ class PaymentForms extends Component
 
         if ($paymentForm) {
             if (!$paymentForm->hasUnlimitedStock && (int)$paymentForm->quantity <= 0) {
-                $paymentFormHtml = '<span class="error">Out of Stock</span>';
+                $outOfStockMessage = Craft::t('site', 'Out of Stock');
+                $paymentFormHtml = '<span class="error">'.$outOfStockMessage.'</span>';
 
                 return TemplateHelper::raw($paymentFormHtml);
             }
 
             $view = Craft::$app->getView();
 
-            $view->setTemplatesPath($templatePath);
+            $view->setTemplatesPath($templatePaths['paymentForm']);
 
             if ($paymentForm->enableCheckout){
                 $view->registerJsFile("https://checkout.stripe.com/checkout.js");

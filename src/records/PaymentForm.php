@@ -62,6 +62,8 @@ use craft\records\Element;
  * @property string $buttonText
  * @property string $paymentButtonProcessingText
  * @property string $checkoutButtonText
+ * @property string $enableTemplateOverrides
+ * @property string $templateOverridesFolder
  */
 
 class PaymentForm extends ActiveRecord
