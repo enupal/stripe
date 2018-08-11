@@ -507,12 +507,6 @@ class Orders extends Component
 
         $postData = $this->getPostData();
         $postData['enupalStripe']['email'] = $email;
-        $options = [];
-
-        if (isset($postData['address'])){
-            $data['address'] = $postData['address'];
-            $options['address'] = $this->getStripeAddress($data['address']);
-        }
 
         $order = $this->populateOrder($data, true);
         $order->paymentType = $request->getBodyParam('paymentType');
@@ -531,7 +525,7 @@ class Orders extends Component
             'owner' => ['email' => $email],
             'redirect' => ['return_url' => $redirect],
             'metadata' => $this->getStripeMetadata($data)
-        ], $options);
+        ]);
 
         $order->stripeTransactionId = $source->id;
         // revert cents

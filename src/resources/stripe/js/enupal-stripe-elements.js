@@ -109,7 +109,7 @@ var enupalStripe = {};
             var paymentFormId = 'stripe-payments-submit-button-'+enupalStripeData.paymentFormId;
 
             // Create an instance of the card Element.
-            var card = elements.create('card', {style: style});
+            var card = elements.create('card', {hidePostalCode: true, style: style});
 
             // Add an instance of the card Element into the `card-element` <div>.
             card.mount('#card-element-' + enupalStripeData.paymentFormId);
@@ -144,7 +144,20 @@ var enupalStripe = {};
                     }
                 }else {
                     e.preventDefault();
-                    stripe.createToken(card).then(function(result) {
+                    var options = {};
+
+                    if (enupalStripeData.enableBillingAddress || enupalStripeData.enableShippingAddress){
+                        var options = {
+                            name: $(enupalButtonElement).find('[name="address[name]"]').val(),
+                            address_line1: $(enupalButtonElement).find('[name="address[line1]"]').val(),
+                            address_city: $(enupalButtonElement).find('[name="address[city]"]').val(),
+                            address_state: $(enupalButtonElement).find('[name="address[state]"]').val(),
+                            address_zip: $(enupalButtonElement).find('[name="address[zip]"]').val(),
+                            address_country: $(enupalButtonElement).find('[name="address[country]"]').val(),
+                        };
+                    }
+
+                    stripe.createToken(card, options).then(function(result) {
                         if (result.error) {
                             // Inform the user if there was an error.
                             var errorElement = document.getElementById('card-errors-' + enupalStripeData.paymentFormId);

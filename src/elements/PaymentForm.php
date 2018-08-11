@@ -684,6 +684,8 @@ class PaymentForm extends Element
             'currencySymbol' => $this->getCurrencySymbol(),
             'taxLabel' => Craft::t('site', 'Tax Amount'),
             'paymentTypeIds' => $paymentTypeIds,
+            'enableShippingAddress' => $this->enableShippingAddress,
+            'enableBillingAddress' => $this->enableBillingAddress,
             'stripe' => [
                 'description' => $this->name,
                 'panelLabel' =>  $this->checkoutButtonText ?? 'Pay {{amount}}',
