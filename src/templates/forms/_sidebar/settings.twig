@@ -61,31 +61,18 @@
         label: "Payment Type <span class='info'>Leave unchecked to apply to all Payment Types.</span>"|t('enupal-stripe'),
         errors: stripeForm.getErrors('paymentType'),
     }, paymentTypeInput) }}
+
+    {{ forms.selectField({
+        label: "Currency"|t('enupal-stripe'),
+        id: 'currency',
+        name: 'currency',
+        options: currencyOptions,
+        value: stripeForm.currency
+    }) }}
 </div>
 <hr>
 <div id="one-time-payment-wrapper" class="meta {% if stripeForm.enableSubscriptions %} hidden {% endif %}">
     <h6>{{ 'One Time Payment'|t('sprout-forms') }}</h6>
-    {% set amountInput %}
-    <div class="flex">
-        <div class="textwrapper">
-            {{ forms.text({
-                label: "Amount"|t('enupal-stripe'),
-                id: 'amount',
-                name: 'amount',
-                placeholder: 'Enter amount'|t('enupal-stripe'),
-                value: (stripeForm.amount == '0' ? '0'|number : (stripeForm.amount ? stripeForm.amount|number ?: ''))
-            }) }}
-        </div>
-        <div class="textwrapper">
-            {{ forms.selectField({
-                id: 'currency',
-                name: 'currency',
-                options: currencyOptions,
-                value: stripeForm.currency
-            }) }}
-        </div>
-    </div>
-    {% endset %}
 
     {{ forms.selectField({
         label: "Amount Type"|t('enupal-stripe'),
@@ -117,11 +104,17 @@
         autofocus: true,
     }) }}
 
-    {{ forms.field({
+    {{ forms.textField({
+        first: true,
+        label: "Amount"|t('enupal-stripe'),
         id: 'amount',
-        label: 'Amount <span class="info">- The amount of the product, service, or contribution, not including shipping, handling, or tax.<br>- Default amount if using custom amount.</span>'|t('enupal-stripe'),
-        errors: stripeForm.getErrors('amount')|merge(stripeForm.getErrors('currency')),
-    }, amountInput) }}
+        name: 'amount',
+        placeholder: 'Enter amount',
+        unit: stripeForm.currency,
+        value: (stripeForm.amount == '0' ? '0'|number : (stripeForm.amount ? stripeForm.amount|number ?: '')),
+        errors: stripeForm.getErrors('amount'),
+        autofocus: true,
+    }) }}
 
     {{ forms.lightswitchField({
         label: "Recurring Payment <span class='info'>Let the customer choose if this payment should be recurring.</span>"|t('enupal-stripe'),

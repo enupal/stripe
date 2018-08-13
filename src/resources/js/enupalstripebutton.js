@@ -163,9 +163,11 @@
         handleCurrencySelect: function() {
             var value = this.$currencySelect.val();
             var $shippingDiv = $("#fields-shippingAmount-field").find(".label, .light");
+            var $amountDiv = $("#fields-amount-field").find(".label, .light");
             var $minimumDiv = this.$minimumAmountField.find(".label, .light");
 
             $shippingDiv.text(value);
+            $amountDiv.text(value);
             $minimumDiv.text(value);
         },
 
