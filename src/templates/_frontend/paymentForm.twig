@@ -1,6 +1,7 @@
 {%- set redirectUri = paymentForm.returnUrl -%}
 {%- do craft.enupalStripe.addVariables(_context) -%}
 {% set formClass = paymentForm.enableCheckout ? "enupal-stripe-form" : "enupal-stripe-form-elements" %}
+
 {% spaceless %}
     <form class="{{ formClass }}" id="enupal-stripe-{{ paymentForm.id }}" method="POST">
         {{ csrfInput() }}
@@ -163,7 +164,7 @@
                 </div>
             {% endif %}
             {# End payment method select #}
-
+            {% set currentEmail = settings.currentUserEmail ? currentUser.email ?? '' : '' %}
             <div class="col form-group">
                 <div class="heading">
                     <label for="email-{{ paymentForm.id }}">
@@ -171,7 +172,7 @@
                     </label>
                 </div>
                 <div class="input">
-                    <input id="email-{{ paymentForm.id }}" type="email" name="stripeElementEmail" placeholder="jenny@example.com" required>
+                    <input id="email-{{ paymentForm.id }}" type="email" name="stripeElementEmail" placeholder="jenny@example.com" required value="{{ currentEmail }}">
                 </div>
             </div>
 
