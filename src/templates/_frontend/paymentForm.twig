@@ -24,9 +24,10 @@
             <input type="hidden" name="email" value />
             <input type="hidden" name="formId" value="{{ paymentForm.id }}" />
             <input type="hidden" name="amount" value />
+            <input type="hidden" name="quantity" value="{{ options.quantity ?? 1 }}" />
             <input type="hidden" name="taxAmount" value>
             <input type="hidden" name="amountBeforeTax" value>
-            <input type="hidden" name='stripeData' value="{{ paymentForm.getPublicData() }}">
+            <input type="hidden" name='stripeData' value="{{ paymentForm.getPublicData(options) }}">
             <input type="hidden" name='testMode' value>
             {% if paymentForm.enableShippingAddress and paymentForm.enableCheckout  %}
                 <input type="hidden" name="address[name]" value />

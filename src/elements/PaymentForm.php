@@ -605,11 +605,12 @@ class PaymentForm extends Element
 
 
     /**
+     * @param $options array
      * @return string
      * @throws \yii\web\ServerErrorHttpException
      * @throws \Exception
      */
-    public function getPublicData()
+    public function getPublicData($options = null)
     {
         $info = Craft::$app->getInfo();
         $logoUrl = null;
@@ -619,7 +620,9 @@ class PaymentForm extends Element
             $logoUrl = $logoAsset->getUrl();
         }
 
-        $amount = $this->amount;
+        $quantity = (int)($options['quantity'] ?? 1);
+
+        $amount = $this->amount * $quantity;
         $currency = $this->currency ?? 'USD';
         $multiplePlansAmounts = [];
         $setupFees = [];
