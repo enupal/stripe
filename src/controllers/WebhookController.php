@@ -49,9 +49,11 @@ class WebhookController extends BaseController
 
                 break;
             case 'source.failed':
+                Craft::error('Stripe Payments - Source Failed, order: '.$order->number, __METHOD__);
 
                 break;
             case 'source.canceled':
+                Craft::error('Stripe Payments - Source Canceled,  order: '.$order->number, __METHOD__);
 
                 break;
         }
