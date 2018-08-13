@@ -222,14 +222,14 @@ class StripeVariable
     }
 
     /**
-     * Display plans as dropdown or radio buttons to the user
-     *
-     * @param $paymentForm PaymentForm
-     *
-     * @return \Twig_Markup
-     * @throws \Twig_Error_Loader
-     * @throws \yii\base\Exception
-     */
+ * Display plans as dropdown or radio buttons to the user
+ *
+ * @param $paymentForm PaymentForm
+ *
+ * @return \Twig_Markup
+ * @throws \Twig_Error_Loader
+ * @throws \yii\base\Exception
+ */
     public function displayMultiSelect($paymentForm)
     {
         $type = $paymentForm->subscriptionStyle;
@@ -247,6 +247,35 @@ class StripeVariable
         $htmlField = $view->renderTemplate(
             strtolower($type), [
                 'matrixField' => $matrix
+            ]
+        );
+
+        $view->setTemplatesPath(Craft::$app->path->getSiteTemplatesPath());
+
+        return TemplateHelper::raw($htmlField);
+    }
+
+    /**
+     * Display plans as dropdown or radio buttons to the user
+     *
+     * @param $paymentForm PaymentForm
+     *
+     * @return \Twig_Markup
+     * @throws \Twig_Error_Loader
+     * @throws \yii\base\Exception
+     */
+    public function displayAddress($paymentForm)
+    {
+        $templatePaths = Stripe::$app->paymentForms->getFormTemplatePaths($paymentForm);
+        $view = Craft::$app->getView();
+        $defaultTemplate =  Stripe::$app->paymentForms->getEnupalStripePath().DIRECTORY_SEPARATOR.'fields';
+        $view->setTemplatesPath($defaultTemplate);
+
+        $view->setTemplatesPath($templatePaths['address']);
+
+        $htmlField = $view->renderTemplate(
+            'address', [
+                'paymentForm' => $paymentForm
             ]
         );
 

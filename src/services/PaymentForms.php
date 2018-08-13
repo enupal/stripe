@@ -179,6 +179,7 @@ class PaymentForms extends Component
 
         // Set our defaults
         $templates['paymentForm'] = $defaultTemplate;
+        $templates['address'] = $defaultTemplate;
         $templates['fields'] = $defaultTemplate.DIRECTORY_SEPARATOR.'fields';
         $templates['multipleplans'] = $defaultTemplate.DIRECTORY_SEPARATOR.'multipleplans';
 
@@ -186,6 +187,7 @@ class PaymentForms extends Component
         if ($templateFolderOverride) {
 
             $formTemplate = $templateFolderOverride.DIRECTORY_SEPARATOR.'paymentForm';
+            $addressTemplate = $templateFolderOverride.DIRECTORY_SEPARATOR.'address';
             $fieldsFolder = $templateFolderOverride.DIRECTORY_SEPARATOR.'fields';
             $multiplePlansFolder = $templateFolderOverride.DIRECTORY_SEPARATOR.'multipleplans';
             $basePath = $templateFolderOverride.DIRECTORY_SEPARATOR;
@@ -194,6 +196,10 @@ class PaymentForms extends Component
 
                 if (file_exists($formTemplate.'.'.$extension)) {
                     $templates['paymentForm'] = $basePath;
+                }
+
+                if (file_exists($addressTemplate.'.'.$extension)) {
+                    $templates['address'] = $basePath;
                 }
 
                 if (file_exists($fieldsFolder)) {
