@@ -13,9 +13,11 @@ use craft\db\Query;
 use craft\helpers\Db;
 use craft\helpers\FileHelper;
 use craft\helpers\Json;
+use craft\helpers\UrlHelper;
 use craft\mail\Message;
 use enupal\stripe\elements\Order;
 use enupal\stripe\enums\OrderStatus;
+use enupal\stripe\enums\PaymentType;
 use enupal\stripe\enums\SubscriptionType;
 use enupal\stripe\events\NotificationEvent;
 use enupal\stripe\events\OrderCompleteEvent;
@@ -24,6 +26,7 @@ use Stripe\Customer;
 use Stripe\Error\Card;
 use Stripe\InvoiceItem;
 use Stripe\Plan;
+use Stripe\Source;
 use yii\base\Component;
 use enupal\stripe\Stripe as StripePlugin;
 use enupal\stripe\records\Order as OrderRecord;
@@ -100,6 +103,23 @@ class Orders extends Component
     }
 
     /**
+     * Returns a Order model if one is found in the database by stripe transaction id
+     *
+     * @param string $stripeTransactionId
+     * @param int    $siteId
+     *
+     * @return null|\craft\base\ElementInterface|Order
+     */
+    public function getOrderByStripeId($stripeTransactionId, int $siteId = null)
+    {
+        $query = Order::find();
+        $query->stripeTransactionId($stripeTransactionId);
+        $query->siteId($siteId);
+
+        return $query->one();
+    }
+
+    /**
      * Returns all orders
      *
      * @return null|Order[]
@@ -137,11 +157,13 @@ class Orders extends Component
             if (Craft::$app->elements->saveElement($order)) {
                 $transaction->commit();
 
-                $event = new OrderCompleteEvent([
-                    'order' => $order
-                ]);
+                if ($order->orderStatusId == OrderStatus::NEW){
+                    $event = new OrderCompleteEvent([
+                        'order' => $order
+                    ]);
 
-                $this->trigger(self::EVENT_AFTER_ORDER_COMPLETE, $event);
+                    $this->trigger(self::EVENT_AFTER_ORDER_COMPLETE, $event);
+                }
             }
         } catch (\Exception $e) {
             $transaction->rollback();
@@ -216,6 +238,7 @@ class Orders extends Component
     public function getColorStatuses()
     {
         $colors = [
+            OrderStatus::PENDING => 'white',
             OrderStatus::NEW => 'green',
             OrderStatus::PROCESSED => 'blue',
         ];
@@ -412,14 +435,15 @@ class Orders extends Component
 
     /**
      * @param $data array
+     * @param $isPending bool
      *
      * @return Order
      * @throws \Exception
      */
-    public function populateOrder($data)
+    public function populateOrder($data, $isPending = false)
     {
         $order = new Order();
-        $order->orderStatusId = OrderStatus::NEW;
+        $order->orderStatusId = $isPending ? OrderStatus::PENDING : OrderStatus::NEW;
         $order->number = $this->getRandomStr();
         $order->email = $data['email'];
         $order->totalPrice = $data['amount'];// The amount come in cents, we revert this just before save the order
@@ -449,19 +473,145 @@ class Orders extends Component
     }
 
     /**
-     * Process Stripe Payment Listener
+     * Process Ideal Payment
      *
-     * @return Order|null
-     * @throws \Exception
+     * @return array|null
      * @throws \Throwable
+     * @throws \craft\errors\SiteNotFoundException
      */
-    public function processPayment()
+    public function processIdealPayment()
     {
         $result = null;
         $request = Craft::$app->getRequest();
         $data = $request->getBodyParam('enupalStripe');
+        $email = $request->getBodyParam('stripeElementEmail') ?? null;
+        $formId = $data['formId'] ?? null;
+        $data['email'] = $email;
+
+        if (empty($email) || empty($formId)){
+            Craft::error('Unable to get the Full name, formId or email', __METHOD__);
+            return $result;
+        }
+
+        $amount = $data['amount'] ?? null;
+        if (empty($amount) || $amount == 'NaN'){
+            Craft::error('Unable to get the final amount from the post request', __METHOD__);
+            return $result;
+        }
+
+        $paymentForm = StripePlugin::$app->paymentForms->getPaymentFormById((int)$formId);
+
+        if (is_null($paymentForm)) {
+            throw new \Exception(Craft::t('enupal-stripe','Unable to find the Stripe Button associated to the order'));
+        }
+
+        $postData = $this->getPostData();
+        $postData['enupalStripe']['email'] = $email;
+
+        $order = $this->populateOrder($data, true);
+        $order->paymentType = $request->getBodyParam('paymentType');
+        $order->postData = json_encode($postData);
+        $order->currency = 'EUR';
+        $order->formId = $paymentForm->id;
+
+        $redirect = UrlHelper::siteUrl($paymentForm->returnUrl) ?? Craft::getAlias(Craft::$app->getSites()->getPrimarySite()->baseUrl);
+
+        StripePlugin::$app->settings->initializeStripe();
+
+        $source = Source::create([
+            'type' => 'ideal',
+            'amount' => $amount,
+            'currency' => 'eur',
+            'owner' => ['email' => $email],
+            'redirect' => ['return_url' => $redirect],
+            'metadata' => $this->getStripeMetadata($data)
+        ]);
+
+        $order->stripeTransactionId = $source->id;
+        // revert cents
+        $order->totalPrice = $this->convertFromCents($order->totalPrice, $order->currency);
+
+        // Finally save the order in Craft CMS
+        if (!StripePlugin::$app->orders->saveOrder($order)){
+            Craft::error('Something went wrong saving the Stripe Order: '.json_encode($order->getErrors()), __METHOD__);
+            return $result;
+        }
+
+        $result = [
+            'order' => $order,
+            'source' => $source
+        ];
+
+        return $result;
+    }
+
+    /**
+     * @param $order Order
+     * @param $sourceObject
+     * @return Order|null
+     * @throws \Throwable
+     * @throws \yii\base\Exception
+     * @throws \yii\db\Exception
+     */
+    public function idealCharge($order, $sourceObject)
+    {
+        $token = $order->stripeTransactionId;
+        StripePlugin::$app->settings->initializeStripe();
+        $paymentForm = $order->getPaymentForm();
+        $postData = json_decode($order->postData, true);
+        $data = $postData['enupalStripe'];
+
+        if ($paymentForm->enableSubscriptions || (isset($data['recurringToggle']) && $data['recurringToggle'] == 'on')) {
+            // Override iDEAL source token with SEPA source token for recurring payments
+            $token = $this->getSepaSourceWithIdeal($token);
+        }
+
+        $postData['enupalStripe']['token'] = $token;
+        $postData['enupalStripe']['amount'] = $sourceObject['data']['object']['amount'];
+        $postData['enupalStripe']['currency'] = $sourceObject['data']['object']['currency'];
+
+        $order->orderStatusId = OrderStatus::NEW;
+
+        $order = $this->processPayment($postData, $order);
+
+        return $order;
+    }
+
+    /**
+     * Create Special SEPA Direct Debit Source object to make recurring payments with iDEAL
+     * @param $token
+     * @return string|null
+     */
+    private function getSepaSourceWithIdeal($token)
+    {
+        $source = Source::create(array(
+            "type" => "sepa_debit",
+            "sepa_debit" => array("ideal" => $token),
+            "currency" => "eur",
+            "owner" => array(
+                "name" => "Jenny Rosen",
+            ),
+        ));
+
+        return $source['id'];
+    }
+
+    /**
+     * Process Stripe Payment Listener
+     *
+     * @param $postData array
+     * @param $order Order
+     * @return Order|null
+     * @throws \Exception
+     * @throws \Throwable
+     */
+    public function processPayment($postData, $order = null)
+    {
+        $result = null;
+        $data = $postData['enupalStripe'];
         $token = $data['token'] ?? null;
         $formId = $data['formId'] ?? null;
+        $paymentType = $postData['paymentType'] ?? null;
 
         if (empty($token) || empty($formId)){
             Craft::error('Unable to get the stripe token or formId', __METHOD__);
@@ -480,14 +630,21 @@ class Orders extends Component
             throw new \Exception(Craft::t('enupal-stripe','Unable to find the Stripe Button associated to the order'));
         }
 
-        $order = $this->populateOrder($data);
+        if ($paymentType == PaymentType::IDEAL){
+            $paymentForm->currency = 'EUR';
+        }
+
+        if (is_null($order)){
+            $order = $this->populateOrder($data);
+        }
         $order->currency = $paymentForm->currency;
         $order->formId = $paymentForm->id;
 
         StripePlugin::$app->settings->initializeStripe();
 
         $isNew = false;
-        $customer = $this->getCustomer($data, $token, $isNew);
+        $customer = $this->getCustomer($order->email, $token, $isNew, $order->testMode);
+
         $charge = null;
         $stripeId = null;
 
@@ -498,8 +655,8 @@ class Orders extends Component
                 $plan = Json::decode($paymentForm->singlePlanInfo, true);
                 $planId = $plan['id'];
 
-                // Lets create an invoice item if there is a setup fee
-                if ($paymentForm->singlePlanSetupFee){
+                // Lets create an invoice item if there is a setup fee - @todo support iDEAL with SEPA?
+                if ($paymentForm->singlePlanSetupFee && $paymentForm->enableCheckout){
                     $this->addOneTimeSetupFee($customer, $paymentForm->singlePlanSetupFee, $paymentForm);
                 }
 
@@ -511,7 +668,7 @@ class Orders extends Component
             if ($paymentForm->subscriptionType == SubscriptionType::SINGLE_PLAN && $paymentForm->enableCustomPlanAmount) {
                 if (isset($data['customPlanAmount']) && $data['customPlanAmount'] > 0){
                     // Lets create an invoice item if there is a setup fee
-                    if ($paymentForm->singlePlanSetupFee){
+                    if ($paymentForm->singlePlanSetupFee && $paymentForm->enableCheckout){
                         $this->addOneTimeSetupFee($customer, $paymentForm->singlePlanSetupFee, $paymentForm);
                     }
                     // test what is returning we need a stripe id
@@ -529,7 +686,7 @@ class Orders extends Component
 
                 $setupFee = $this->getSetupFeeFromMatrix($planId, $paymentForm);
 
-                if ($setupFee){
+                if ($setupFee && $paymentForm->enableCheckout){
                     $this->addOneTimeSetupFee($customer, $setupFee, $paymentForm);
                 }
 
@@ -547,7 +704,7 @@ class Orders extends Component
             }
 
             if (is_null($stripeId)){
-                $charge = $this->stripeCharge($data, $paymentForm, $customer, $isNew, $token);
+                $charge = $this->stripeCharge($data, $paymentForm, $customer, $isNew, $token, $order);
                 $stripeId = $charge['id'] ?? null;
             }
         }
@@ -557,16 +714,35 @@ class Orders extends Component
             return $result;
         }
 
+        $order->stripeTransactionId = $stripeId;
+
+        // revert cents
+        if ($paymentType != PaymentType::IDEAL){
+            $order->totalPrice = $this->convertFromCents($order->totalPrice, $paymentForm->currency);
+        }
+
+        $order = $this->finishOrder($order, $paymentForm);
+
+        return $order;
+    }
+
+    /**
+     * @param $order
+     * @param $paymentForm
+     * @return null|Order
+     * @throws \Throwable
+     * @throws \yii\base\Exception
+     * @throws \yii\db\Exception
+     */
+    private function finishOrder($order, $paymentForm)
+    {
+        $result = null;
         // Stock
         $savePaymentForm = false;
         if (!$paymentForm->hasUnlimitedStock && (int)$paymentForm->quantity > 0){
             $paymentForm->quantity -= $order->quantity;
             $savePaymentForm = true;
         }
-
-        $order->stripeTransactionId = $stripeId;
-        // revert cents
-        $order->totalPrice = $this->convertFromCents($order->totalPrice, $paymentForm->currency);
 
         // Finally save the order in Craft CMS
         if (!StripePlugin::$app->orders->saveOrder($order)){
@@ -638,31 +814,51 @@ class Orders extends Component
      * @param $customer
      * @param $isNew
      * @param $token
+     * @param $order
      * @return null|\Stripe\ApiResource
      */
-    private function stripeCharge($data, $paymentForm, $customer, $isNew, $token)
+    private function stripeCharge($data, $paymentForm, $customer, $isNew, $token, $order)
     {
         $description = Craft::t('enupal-stripe', 'Order from {email}', ['email' => $data['email']]);
         $charge = null;
         $addressData = $data['address'] ?? null;
 
-        try {
-            $chargeSettings = [
-                'amount' => $data['amount'], // amount in cents from js
-                'currency' => $paymentForm->currency,
-                'customer' => $customer->id,
-                'description' => $description,
-                'metadata' => $this->getStripeMetadata($data),
-                'shipping' => $addressData ? $this->getShipping($addressData) : []
-            ];
-
-            if (!$isNew){
-                // Add card or payment method to user
-                $customer->sources->create(["source" => $token]);
+        if (!$isNew){
+            // Add card or payment method to user
+            $customer->sources->create(["source" => $token]);
+            // Set as default the new chargeable
+            if ($order->paymentType == PaymentType::IDEAL){
+                $customer->default_source = $token;
+                $customer->save();
             }
+        }
 
-            $charge = Charge::create($chargeSettings);
+        $chargeSettings = [
+            'amount' => $data['amount'], // amount in cents from js
+            'currency' => $paymentForm->currency,
+            'customer' => $customer->id,
+            'description' => $description,
+            'metadata' => $this->getStripeMetadata($data),
+            'shipping' => $addressData ? $this->getShipping($addressData) : []
+        ];
 
+        $charge = $this->charge($chargeSettings);
+
+        return $charge;
+    }
+
+    /**
+     * Stripe Charge given the config array
+     *
+     * @param $settings
+     * @return null|\Stripe\ApiResource
+     */
+    public function charge($settings)
+    {
+        $charge = null;
+
+        try {
+            $charge = Charge::create($settings);
         } catch (Card $e) {
             // Since it's a decline, \Stripe\Error\Card will be caught
             $body = $e->getJsonBody();
@@ -703,7 +899,7 @@ class Orders extends Component
      */
     private function throwException($e)
     {
-        if (Craft::$app->getConfig()->general->devMode){
+        if (Craft::$app->getConfig()->general->devMode) {
             throw $e;
         }
     }
@@ -919,20 +1115,21 @@ class Orders extends Component
         return false;
     }
 
+
     /**
-     * @param $data
+     * @param $email
      * @param $token
      * @param $isNew
-     * @return \Stripe\ApiResource|\Stripe\StripeObject
+     * @param bool $testMode
+     * @return null|\Stripe\ApiResource|\Stripe\StripeObject
      */
-    private function getCustomer($data, $token, &$isNew)
+    private function getCustomer($email, $token, &$isNew, $testMode = true)
     {
-        $email = $data['email'] ?? null;
         $stripeCustomer = null;
         // Check if customer exists
         $customerRecord = CustomerRecord::findOne([
             'email' => $email,
-            'testMode' => $data['testMode']
+            'testMode' => $testMode
         ]);
 
         if ($customerRecord){
@@ -942,14 +1139,14 @@ class Orders extends Component
 
         if (!isset($stripeCustomer->id)){
             $stripeCustomer = Customer::create([
-                'email' => $data['email'],
+                'email' => $email,
                 'card' => $token
             ]);
 
             $customerRecord = new CustomerRecord();
-            $customerRecord->email = $data['email'];
+            $customerRecord->email = $email;
             $customerRecord->stripeId = $stripeCustomer->id;
-            $customerRecord->testMode = $data['testMode'];
+            $customerRecord->testMode = $testMode;
             $customerRecord->save(false);
             $isNew = true;
         }
@@ -1007,5 +1204,35 @@ class Orders extends Component
         ];
 
         return $shipping;
+    }
+
+    /**
+     * @param $address
+     * @return array
+     */
+    private function getStripeAddress($address)
+    {
+        $stripeAddress = [];
+
+        $stripeAddress['address_line1'] = $address['line1'];
+        $stripeAddress['address_city'] = $address['city'];
+        $stripeAddress['address_state'] = $address['state'];
+        $stripeAddress['address_zip'] = $address['zip'];
+        $stripeAddress['address_country'] = $address['country'];
+
+        return $stripeAddress;
+    }
+
+    /**
+     * @return mixed
+     */
+    private function getPostData()
+    {
+        $postData = $_POST;
+        unset($postData['CRAFT_CSRF_TOKEN']);
+        unset($postData['action']);
+        unset($postData['redirect']);
+
+        return $postData;
     }
 }

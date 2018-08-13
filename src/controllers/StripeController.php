@@ -9,7 +9,9 @@
 namespace enupal\stripe\controllers;
 
 use craft\web\Controller as BaseController;
+use enupal\stripe\enums\PaymentType;
 use enupal\stripe\Stripe as StripePlugin;
+use Craft;
 use yii\web\NotFoundHttpException;
 
 class StripeController extends BaseController
@@ -26,7 +28,34 @@ class StripeController extends BaseController
     {
         $this->requirePostRequest();
 
-        $order = StripePlugin::$app->orders->processPayment();
+        $enableCheckout = Craft::$app->getRequest()->getBodyParam('enableCheckout') ?? true;
+        $postData = $_POST;
+
+        if (isset($postData['address'])){
+            $postData['enupalStripe']['address'] = $postData['address'];
+        }
+
+        // Stripe Elements
+        if (!$enableCheckout){
+            $paymentType = Craft::$app->getRequest()->getBodyParam('paymentType');
+
+            if ($paymentType == PaymentType::IDEAL){
+                $response = StripePlugin::$app->orders->processIdealPayment();
+
+                if (is_null($response) || !isset($response['source'])){
+                    throw new NotFoundHttpException("Unable to process the IDeal Payment");
+                }
+
+                $source = $response['source'];
+
+                return $this->redirect($source->redirect->url);
+            }else if($paymentType == PaymentType::CC){
+                $postData['enupalStripe']['email'] = Craft::$app->getRequest()->getBodyParam('stripeElementEmail') ?? null;
+            }
+        }
+
+        // Stripe Checkout or Stripe Elements CC
+        $order = StripePlugin::$app->orders->processPayment($postData);
 
         if (is_null($order)){
             throw new NotFoundHttpException("Unable to process the Payment");

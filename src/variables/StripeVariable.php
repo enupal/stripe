@@ -9,6 +9,7 @@
 namespace enupal\stripe\variables;
 
 use enupal\stripe\elements\Order;
+use enupal\stripe\elements\PaymentForm;
 use enupal\stripe\enums\OrderStatus;
 use enupal\stripe\enums\FrequencyType;
 use enupal\stripe\services\PaymentForms;
@@ -123,6 +124,7 @@ class StripeVariable
         $options = [];
         $options[OrderStatus::NEW] = Stripe::t('New');
         $options[OrderStatus::PROCESSED] = Stripe::t('Processed');
+        $options[OrderStatus::PENDING] = Stripe::t('Pending');
 
         return $options;
     }
@@ -162,6 +164,48 @@ class StripeVariable
     }
 
     /**
+     * @param $paymentForm PaymentForm
+     * @param $block
+     * @return \Twig_Markup
+     * @throws \yii\base\Exception
+     * @throws \yii\base\ExitException
+     */
+    public function displayField($paymentForm, $block)
+    {
+        $templatePaths = Stripe::$app->paymentForms->getFormTemplatePaths($paymentForm);
+        $view = Craft::$app->getView();
+        $defaultTemplate =  Stripe::$app->paymentForms->getEnupalStripePath().DIRECTORY_SEPARATOR.'fields';
+        $view->setTemplatesPath($defaultTemplate);
+        $preValue = '';
+
+        $inputFilePath = $templatePaths['fields'].DIRECTORY_SEPARATOR.strtolower($block->type);
+
+        $this->setTemplateOverride($view, $inputFilePath, $templatePaths['fields']);
+
+        if ($block->type == 'hidden'){
+            if ($block->hiddenValue) {
+                try {
+                    $preValue = Craft::$app->view->renderObjectTemplate($block->hiddenValue, Stripe::$app->paymentForms->getFieldVariables());
+                } catch (\Exception $e) {
+                    Craft::error($e->getMessage(), __METHOD__);
+                }
+            }
+        }
+
+        $htmlField = $view->renderTemplate(
+            strtolower($block->type), [
+                'block' => $block,
+                'preValue' => $preValue
+            ]
+        );
+
+        $view->setTemplatesPath(Craft::$app->path->getSiteTemplatesPath());
+
+        return TemplateHelper::raw($htmlField);
+    }
+
+
+    /**
      * @param $block mixed
      *
      * @return string
@@ -177,34 +221,32 @@ class StripeVariable
         return strtolower($handle);
     }
 
-
     /**
-     * @param $block
-     * @return \Twig_Markup
-     * @throws \yii\base\Exception
-     * @throws \yii\base\ExitException
-     */
-    public function displayField($block)
+ * Display plans as dropdown or radio buttons to the user
+ *
+ * @param $paymentForm PaymentForm
+ *
+ * @return \Twig_Markup
+ * @throws \Twig_Error_Loader
+ * @throws \yii\base\Exception
+ */
+    public function displayMultiSelect($paymentForm)
     {
-        $templatePath = Stripe::$app->paymentForms->getEnupalStripePath();
-        $view = Craft::$app->getView();
-        $view->setTemplatesPath($templatePath);
-        $preValue = '';
+        $type = $paymentForm->subscriptionStyle;
+        $matrix = $paymentForm->enupalMultiplePlans;
 
-        if ($block->type == 'hidden'){
-            if ($block->hiddenValue) {
-                try {
-                    $preValue = Craft::$app->view->renderObjectTemplate($block->hiddenValue, Stripe::$app->paymentForms->getFieldVariables());
-                } catch (\Exception $e) {
-                    Craft::error($e->getMessage(), __METHOD__);
-                }
-            }
-        }
+        $templatePaths = Stripe::$app->paymentForms->getFormTemplatePaths($paymentForm);
+        $view = Craft::$app->getView();
+        $defaultTemplate =  Stripe::$app->paymentForms->getEnupalStripePath().DIRECTORY_SEPARATOR.'fields';
+        $view->setTemplatesPath($defaultTemplate);
+
+        $inputFilePath = $templatePaths['multipleplans'].DIRECTORY_SEPARATOR.strtolower($type);
+
+        $this->setTemplateOverride($view, $inputFilePath, $templatePaths['multipleplans']);
 
         $htmlField = $view->renderTemplate(
-            '_layouts/'.strtolower($block->type), [
-                'block' => $block,
-                'preValue' => $preValue
+            strtolower($type), [
+                'matrixField' => $matrix
             ]
         );
 
@@ -216,22 +258,24 @@ class StripeVariable
     /**
      * Display plans as dropdown or radio buttons to the user
      *
-     * @param $type
-     * @param $matrix
+     * @param $paymentForm PaymentForm
      *
      * @return \Twig_Markup
      * @throws \Twig_Error_Loader
      * @throws \yii\base\Exception
      */
-    public function displayMultiSelect($type, $matrix)
+    public function displayAddress($paymentForm)
     {
-        $templatePath = Stripe::$app->paymentForms->getEnupalStripePath();
+        $templatePaths = Stripe::$app->paymentForms->getFormTemplatePaths($paymentForm);
         $view = Craft::$app->getView();
-        $view->setTemplatesPath($templatePath);
+        $defaultTemplate =  Stripe::$app->paymentForms->getEnupalStripePath().DIRECTORY_SEPARATOR.'fields';
+        $view->setTemplatesPath($defaultTemplate);
+
+        $view->setTemplatesPath($templatePaths['address']);
 
         $htmlField = $view->renderTemplate(
-            '_multipleplans/'.strtolower($type), [
-                'matrixField' => $matrix
+            'address', [
+                'paymentForm' => $paymentForm
             ]
         );
 
@@ -307,6 +351,32 @@ class StripeVariable
         $customerId = Stripe::$app->orders->getCustomerReference($email);
 
         return $customerId;
+    }
+
+    /**
+     * @return array
+     */
+    public function getPaymentTypesAsOptions()
+    {
+        return Stripe::$app->paymentForms->getPaymentTypesAsOptions();
+    }
+
+    /**
+     * @param $view
+     * @param $inputFilePath
+     * @param $templatePath
+     */
+    private function setTemplateOverride($view, $inputFilePath, $templatePath)
+    {
+        // Allow input field templates to be overridden
+        foreach (Craft::$app->getConfig()->getGeneral()->defaultTemplateExtensions as $extension) {
+            if (file_exists($inputFilePath.'.'.$extension)) {
+
+                // Override Field Input template path
+                $view->setTemplatesPath($templatePath);
+                break;
+            }
+        }
     }
 }
 

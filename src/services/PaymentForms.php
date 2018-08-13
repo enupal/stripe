@@ -19,11 +19,13 @@ use craft\fields\Table;
 use craft\helpers\FileHelper;
 use craft\helpers\Json;
 use craft\helpers\UrlHelper;
+use enupal\stripe\enums\PaymentType;
 use enupal\stripe\enums\SubscriptionType;
 use enupal\stripe\web\assets\StripeAsset;
 use enupal\stripe\elements\PaymentForm;
 use enupal\stripe\enums\AmountType;
 use enupal\stripe\enums\DiscountType;
+use enupal\stripe\web\assets\StripeElementsAsset;
 use yii\base\Component;
 use enupal\stripe\Stripe as StripePlugin;
 use enupal\stripe\elements\PaymentForm as StripeElement;
@@ -65,7 +67,7 @@ class PaymentForms extends Component
      * @param string $handle
      * @param int    $siteId
      *
-     * @return null|\craft\base\ElementInterface|array
+     * @return null|StripeElement|array
      */
     public function getPaymentFormBySku($handle, int $siteId = null)
     {
@@ -157,6 +159,71 @@ class PaymentForms extends Component
         $defaultTemplate = Craft::getAlias('@enupal/stripe/templates/_frontend/');
 
         return $defaultTemplate;
+    }
+
+    /**
+     * @param StripeElement $paymentForm
+     *
+     * @return array
+     * @throws Exception
+     */
+    public function getFormTemplatePaths(StripeElement $paymentForm)
+    {
+        $templates = [];
+        $templateFolderOverride = '';
+        $defaultTemplate = $this->getEnupalStripePath();
+
+        if ($paymentForm->enableTemplateOverrides && $paymentForm->templateOverridesFolder) {
+           $templateFolderOverride = $this->getSitePath($paymentForm->templateOverridesFolder);
+        }
+
+        // Set our defaults
+        $templates['paymentForm'] = $defaultTemplate;
+        $templates['address'] = $defaultTemplate;
+        $templates['fields'] = $defaultTemplate.DIRECTORY_SEPARATOR.'fields';
+        $templates['multipleplans'] = $defaultTemplate.DIRECTORY_SEPARATOR.'multipleplans';
+
+        // See if we should override our defaults
+        if ($templateFolderOverride) {
+
+            $formTemplate = $templateFolderOverride.DIRECTORY_SEPARATOR.'paymentForm';
+            $addressTemplate = $templateFolderOverride.DIRECTORY_SEPARATOR.'address';
+            $fieldsFolder = $templateFolderOverride.DIRECTORY_SEPARATOR.'fields';
+            $multiplePlansFolder = $templateFolderOverride.DIRECTORY_SEPARATOR.'multipleplans';
+            $basePath = $templateFolderOverride.DIRECTORY_SEPARATOR;
+
+            foreach (Craft::$app->getConfig()->getGeneral()->defaultTemplateExtensions as $extension) {
+
+                if (file_exists($formTemplate.'.'.$extension)) {
+                    $templates['paymentForm'] = $basePath;
+                }
+
+                if (file_exists($addressTemplate.'.'.$extension)) {
+                    $templates['address'] = $basePath;
+                }
+
+                if (file_exists($fieldsFolder)) {
+                    $templates['fields'] = $basePath.'fields';
+                }
+
+                if (file_exists($multiplePlansFolder)) {
+                    $templates['multipleplans'] = $basePath.'multipleplans';
+                }
+            }
+        }
+
+        return $templates;
+    }
+
+    /**
+     * @param $path
+     *
+     * @return string
+     * @throws \yii\base\Exception
+     */
+    private function getSitePath($path)
+    {
+        return Craft::$app->path->getSiteTemplatesPath().DIRECTORY_SEPARATOR.$path;
     }
 
     /**
@@ -602,7 +669,8 @@ class PaymentForms extends Component
     public function getPaymentFormHtml($handle, array $options = null)
     {
         $paymentForm = StripePlugin::$app->paymentForms->getPaymentFormBySku($handle);
-        $templatePath = StripePlugin::$app->paymentForms->getEnupalStripePath();
+        // Add support for template overrides
+        $templatePaths = StripePlugin::$app->paymentForms->getFormTemplatePaths($paymentForm);
         $paymentFormHtml = null;
         $settings = StripePlugin::$app->settings->getSettings();
 
@@ -618,23 +686,32 @@ class PaymentForms extends Component
 
         if ($paymentForm) {
             if (!$paymentForm->hasUnlimitedStock && (int)$paymentForm->quantity <= 0) {
-                $paymentFormHtml = '<span class="error">Out of Stock</span>';
+                $outOfStockMessage = Craft::t('site', 'Out of Stock');
+                $paymentFormHtml = '<span class="error">'.$outOfStockMessage.'</span>';
 
                 return TemplateHelper::raw($paymentFormHtml);
             }
 
             $view = Craft::$app->getView();
 
-            $view->setTemplatesPath($templatePath);
+            $view->setTemplatesPath($templatePaths['paymentForm']);
 
-            $view->registerJsFile("https://checkout.stripe.com/checkout.js");
-            $view->registerAssetBundle(StripeAsset::class);
+            if ($paymentForm->enableCheckout){
+                $view->registerJsFile("https://checkout.stripe.com/checkout.js");
+                $view->registerAssetBundle(StripeAsset::class);
+            }else{
+                $view->registerJsFile("https://js.stripe.com/v3/");
+                $view->registerAssetBundle(StripeElementsAsset::class);
+            }
+
+            $paymentTypeIds = json_decode($paymentForm->paymentType, true);
 
             $paymentFormHtml = $view->renderTemplate(
                 'paymentForm', [
                     'paymentForm' => $paymentForm,
                     'settings' => $settings,
-                    'options' => $options
+                    'options' => $options,
+                    'paymentTypeIds' => $paymentTypeIds
                 ]
             );
 
@@ -1128,5 +1205,33 @@ class PaymentForms extends Component
     public function getFieldVariables()
     {
         return static::$fieldVariables;
+    }
+
+    /**
+     * @return array
+     */
+    public function getPaymentTypes()
+    {
+        return [
+            PaymentType::CC => 'Credit Card',
+            PaymentType::IDEAL => 'iDEAL'
+        ];
+    }
+
+    /**
+     * @return array
+     */
+    public function getPaymentTypesAsOptions()
+    {
+        return [
+            [
+                'label' => 'Credit Card',
+                'value' => PaymentType::CC
+            ],
+            [
+                'label' => 'iDEAL',
+                'value' => PaymentType::IDEAL
+            ]
+        ];
     }
 }

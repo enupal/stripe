@@ -36,31 +36,43 @@
         name: 'enabled',
         on: stripeForm.enabled
     }) }}
+
+    {{ forms.lightswitchField({
+        label: "Enable Stripe Checkout <span class='info'>Use <a href='https://stripe.com/checkout'>Stripe Checkout</a> if disable the payment form will be powered by <a href='https://stripe.com/elements'>Stripe Elements</a></span>"|t('enupal-stripe'),
+        id: 'enableCheckout',
+        name: 'enableCheckout',
+        on: stripeForm.enableCheckout
+    }) }}
+
+    {% set paymentTypeInput %}
+        <div class="flex">
+            <div class="nowrapper">
+                {{ forms.checkboxGroup({
+                    name: "paymentType",
+                    options : availablePaymentTypes,
+                    values: paymentTypeIdes
+                }) }}
+            </div>
+        </div>
+    {% endset %}
+
+    {{ forms.field({
+        id: 'paymentType',
+        label: "Payment Type <span class='info'>Leave unchecked to apply to all Payment Types.</span>"|t('enupal-stripe'),
+        errors: stripeForm.getErrors('paymentType'),
+    }, paymentTypeInput) }}
+
+    {{ forms.selectField({
+        label: "Currency"|t('enupal-stripe'),
+        id: 'currency',
+        name: 'currency',
+        options: currencyOptions,
+        value: stripeForm.currency
+    }) }}
 </div>
 <hr>
 <div id="one-time-payment-wrapper" class="meta {% if stripeForm.enableSubscriptions %} hidden {% endif %}">
     <h6>{{ 'One Time Payment'|t('sprout-forms') }}</h6>
-    {% set amountInput %}
-    <div class="flex">
-        <div class="textwrapper">
-            {{ forms.text({
-                label: "Amount"|t('enupal-stripe'),
-                id: 'amount',
-                name: 'amount',
-                placeholder: 'Enter amount'|t('enupal-stripe'),
-                value: (stripeForm.amount == '0' ? '0'|number : (stripeForm.amount ? stripeForm.amount|number ?: ''))
-            }) }}
-        </div>
-        <div class="textwrapper">
-            {{ forms.selectField({
-                id: 'currency',
-                name: 'currency',
-                options: currencyOptions,
-                value: stripeForm.currency
-            }) }}
-        </div>
-    </div>
-    {% endset %}
 
     {{ forms.selectField({
         label: "Amount Type"|t('enupal-stripe'),
@@ -92,11 +104,17 @@
         autofocus: true,
     }) }}
 
-    {{ forms.field({
+    {{ forms.textField({
+        first: true,
+        label: "Amount"|t('enupal-stripe'),
         id: 'amount',
-        label: 'Amount <span class="info">- The amount of the product, service, or contribution, not including shipping, handling, or tax.<br>- Default amount if using custom amount.</span>'|t('enupal-stripe'),
-        errors: stripeForm.getErrors('amount')|merge(stripeForm.getErrors('currency')),
-    }, amountInput) }}
+        name: 'amount',
+        placeholder: 'Enter amount',
+        unit: stripeForm.currency,
+        value: (stripeForm.amount == '0' ? '0'|number : (stripeForm.amount ? stripeForm.amount|number ?: '')),
+        errors: stripeForm.getErrors('amount'),
+        autofocus: true,
+    }) }}
 
     {{ forms.lightswitchField({
         label: "Recurring Payment <span class='info'>Let the customer choose if this payment should be recurring.</span>"|t('enupal-stripe'),
@@ -192,19 +210,6 @@
         name: 'verifyZip',
         on: stripeForm.verifyZip
     }) }}
-    {#
-    {{ forms.textField({
-        first: true,
-        label: "Shipping <span class='info'>Shipping amount, leave empty if is free shipping</span>"|t('enupal-stripe'),
-        id: 'shippingAmount',
-        name: 'shippingAmount',
-        placeholder: 'Enter amount',
-        unit: stripeForm.currency,
-        value: (stripeForm.shippingAmount == '0' ? '0'|number : (stripeForm.shippingAmount ? stripeForm.shippingAmount|number ?: '')),
-        errors: stripeForm.getErrors('shippingAmount'),
-        autofocus: true,
-    }) }}
-    #}
 </div>
 <hr>
 <div class="meta">
@@ -227,5 +232,22 @@
         value: stripeForm.buttonClass,
         autofocus: true,
         errors: stripeForm.getErrors('buttonClass')
+    }) }}
+
+    {{ forms.lightswitchField({
+        label: "Custom Templates <span class='info'>Enable Custom Template Overrides Folder</span>"|t('enupal-stripe'),
+        id: 'enableTemplateOverrides',
+        name: 'enableTemplateOverrides',
+        on: stripeForm.enableTemplateOverrides
+    }) }}
+
+    {{ forms.textField({
+        label: "Templates Folder <span class='info'>The template folder to use for overrides</span>"|t('enupal-stripe'),
+        id: 'templateOverridesFolder',
+        name: 'templateOverridesFolder',
+        placeholder: '_stripe/'~stripeForm.handle,
+        value: stripeForm.templateOverridesFolder,
+        autofocus: true,
+        errors: stripeForm.getErrors('templateOverridesFolder')
     }) }}
 </div>

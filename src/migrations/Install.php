@@ -51,6 +51,8 @@ class Install extends Migration
             'companyName' => $this->string(),
             'name' => $this->string()->notNull(),
             'handle' => $this->string()->notNull(),
+            'enableCheckout' => $this->boolean()->defaultValue(1),
+            'paymentType' => $this->string(),
             'currency' => $this->string()->defaultValue('USD'),
             'language' => $this->string()->defaultValue('en'),
             'amountType' => $this->integer(),
@@ -102,6 +104,8 @@ class Install extends Migration
             'buttonText' => $this->string(),
             'paymentButtonProcessingText' => $this->string(),
             'checkoutButtonText' => $this->string(),
+            'enableTemplateOverrides' => $this->boolean(),
+            'templateOverridesFolder' => $this->string(),
             //
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
@@ -112,6 +116,7 @@ class Install extends Migration
             'id' => $this->primaryKey(),
             'formId' => $this->integer(),
             'testMode' => $this->boolean()->defaultValue(0),
+            'paymentType' => $this->integer(),
             'number' => $this->string(),
             'currency' => $this->string(),
             'totalPrice' => $this->decimal(14, 4)->defaultValue(0),
@@ -134,6 +139,7 @@ class Install extends Migration
             'addressStreet' => $this->string(),
             'addressZip' => $this->string(),
             'variants' => $this->text(),
+            'postData' => $this->text(),
             //
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),

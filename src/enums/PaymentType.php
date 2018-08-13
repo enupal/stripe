@@ -9,13 +9,12 @@
 namespace enupal\stripe\enums;
 
 /**
- * Order statuses
+ * Stripe elements Payment Types
  */
-abstract class OrderStatus extends BaseEnum
+abstract class PaymentType extends BaseEnum
 {
     // Constants
     // =========================================================================
-    const NEW = 0;
-    const PROCESSED = 1;
-    const PENDING = 2;
+    const CC = 1;
+    const IDEAL  = 2;
 }

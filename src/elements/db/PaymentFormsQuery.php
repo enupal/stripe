@@ -20,6 +20,8 @@ class PaymentFormsQuery extends ElementQuery
     public $dateCreated;
     public $name;
     public $handle;
+    public $enableCheckout;
+    public $paymentType;
 
     /**
      * @inheritdoc
@@ -35,6 +37,8 @@ class PaymentFormsQuery extends ElementQuery
     public function handle($value)
     {
         $this->handle = $value;
+
+        return $this;
     }
 
     /**
@@ -51,6 +55,8 @@ class PaymentFormsQuery extends ElementQuery
     public function name($value)
     {
         $this->name = $value;
+
+        return $this;
     }
 
     /**
@@ -59,6 +65,42 @@ class PaymentFormsQuery extends ElementQuery
     public function getName()
     {
         return $this->name;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function enableCheckout($value)
+    {
+        $this->enableChackout = $value;
+
+        return $this;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getEnableCheckout()
+    {
+        return $this->enableCheckout;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function paymentType($value)
+    {
+        $this->paymentType = $value;
+
+        return $this;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getPaymentType()
+    {
+        return $this->paymentType;
     }
 
     /**
@@ -88,6 +130,9 @@ class PaymentFormsQuery extends ElementQuery
         $this->query->select([
             'enupalstripe_forms.id',
             'enupalstripe_forms.name',
+            'enupalstripe_forms.handle',
+            'enupalstripe_forms.enableCheckout',
+            'enupalstripe_forms.paymentType',
             'enupalstripe_forms.companyName',
             'enupalstripe_forms.currency',
             'enupalstripe_forms.language',
@@ -101,7 +146,6 @@ class PaymentFormsQuery extends ElementQuery
             'enupalstripe_forms.recurringPaymentType',
             'enupalstripe_forms.selectPlanLabel',
 
-            'enupalstripe_forms.handle',
             'enupalstripe_forms.quantity',
             'enupalstripe_forms.hasUnlimitedStock',
             'enupalstripe_forms.customerQuantity',
@@ -136,6 +180,8 @@ class PaymentFormsQuery extends ElementQuery
             'enupalstripe_forms.paymentButtonProcessingText',
             'enupalstripe_forms.checkoutButtonText',
             'enupalstripe_forms.buttonClass',
+            'enupalstripe_forms.enableTemplateOverrides',
+            'enupalstripe_forms.templateOverridesFolder'
         ]);
 
         if ($this->name) {

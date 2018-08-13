@@ -16,7 +16,9 @@
         $subscriptionTypeSelect: null,
         $refreshPlansButton: null,
         $enableSubscription: null,
+        $enableCheckout: null,
         $enableSingleCustomAmount: null,
+        $enableTemplateOverrides: null,
 
         /**
          * The constructor.
@@ -34,7 +36,9 @@
             this.$recurringToggleField = $("#fields-enableRecurringPayment-field");
             this.$recurringTypeField = $("#fields-recurringPaymentType-field");
             this.$enableSubscription = $("#fields-enableSubscriptions");
+            this.$enableCheckout = $("#fields-enableCheckout");
             this.$enableSingleCustomAmount = $("#fields-enableCustomPlanAmount");
+            this.$enableTemplateOverrides = $("#fields-enableTemplateOverrides");
 
             this.addListener(this.$unlimitedStock, 'change', 'handleUnlimitedStock');
             this.addListener(this.$subscriptionTypeSelect, 'change', 'handleSubscriptionTypeSelect');
@@ -43,11 +47,15 @@
             this.addListener(this.$recurringToggleField, 'change', 'handleRecurringToggle');
             this.addListener(this.$refreshPlansButton, 'click', 'handleRefreshPlans');
             this.addListener(this.$enableSubscription, 'change', 'handleEnableSubscription');
+            this.addListener(this.$enableCheckout, 'change', 'handleEnableCheckout');
             this.addListener(this.$enableSingleCustomAmount, 'change', 'handleEnableSingleCustomAmount');
+            this.addListener(this.$enableTemplateOverrides, 'change', 'handleEnableTemplateOverrides');
 
             this.handleRecurringToggle();
             this.handleAmountTypeSelect();
             this.handleSubscriptionTypeSelect();
+            this.handleEnableTemplateOverrides();
+            this.handleEnableCheckout();
         },
 
         handleEnableSingleCustomAmount: function(option) {
@@ -71,6 +79,30 @@
             }
             else{
                 $oneTimeWrapper.addClass('hidden');
+            }
+        },
+
+        handleEnableCheckout: function(option) {
+            var $elementsWrapper = $("#fields-paymentType-field");
+            var value = $("input[name='fields[enableCheckout]']").val();
+
+            if (value == 0){
+                $elementsWrapper.removeClass('hidden');
+            }
+            else{
+                $elementsWrapper.addClass('hidden');
+            }
+        },
+
+        handleEnableTemplateOverrides: function(option) {
+            var $templateOverridesWrapper = $("#fields-templateOverridesFolder-field");
+            var value = $("input[name='fields[enableTemplateOverrides]']").val();
+
+            if (value == 0){
+                $templateOverridesWrapper.addClass('hidden');
+            }
+            else{
+                $templateOverridesWrapper.removeClass('hidden');
             }
         },
 
@@ -131,9 +163,11 @@
         handleCurrencySelect: function() {
             var value = this.$currencySelect.val();
             var $shippingDiv = $("#fields-shippingAmount-field").find(".label, .light");
+            var $amountDiv = $("#fields-amount-field").find(".label, .light");
             var $minimumDiv = this.$minimumAmountField.find(".label, .light");
 
             $shippingDiv.text(value);
+            $amountDiv.text(value);
             $minimumDiv.text(value);
         },
 
