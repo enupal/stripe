@@ -36,7 +36,7 @@ class Stripe extends Plugin
 
     public $hasCpSection = true;
     public $hasCpSettings = true;
-    public $schemaVersion = '1.1.7';
+    public $schemaVersion = '1.3.0';
 
     public function init()
     {
@@ -46,6 +46,11 @@ class Stripe extends Plugin
 
         Event::on(UrlManager::class, UrlManager::EVENT_REGISTER_CP_URL_RULES, function(RegisterUrlRulesEvent $event) {
             $event->rules = array_merge($event->rules, $this->getCpUrlRules());
+        }
+        );
+
+        Event::on(UrlManager::class, UrlManager::EVENT_REGISTER_SITE_URL_RULES, function(RegisterUrlRulesEvent $event) {
+            $event->rules = array_merge($event->rules, $this->getSiteUrlRules());
         }
         );
 
@@ -153,6 +158,17 @@ class Stripe extends Plugin
 
             'enupal-stripe/orders/edit/<orderId:\d+>' =>
                 'enupal-stripe/orders/edit-order'
+        ];
+    }
+
+    /**
+     * @return array
+     */
+    private function getSiteUrlRules()
+    {
+        return [
+            'enupal/stripe-payments' =>
+                'enupal-stripe/webhook/stripe'
         ];
     }
 }

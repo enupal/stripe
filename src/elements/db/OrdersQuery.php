@@ -18,6 +18,7 @@ class OrdersQuery extends ElementQuery
     public $id;
     public $dateCreated;
     public $number;
+    public $paymentType;
     public $formId;
     public $email;
     public $stripeTransactionId;
@@ -73,6 +74,24 @@ class OrdersQuery extends ElementQuery
     /**
      * @inheritdoc
      */
+    public function paymentType($value)
+    {
+        $this->paymentType = $value;
+
+        return $this;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getPaymentType()
+    {
+        return $this->paymentType;
+    }
+
+    /**
+     * @inheritdoc
+     */
     public function email($value)
     {
         $this->email = $value;
@@ -112,6 +131,8 @@ class OrdersQuery extends ElementQuery
     public function stripeTransactionId($value)
     {
         $this->stripeTransactionId = $value;
+
+        return $this;
     }
 
     /**
@@ -149,6 +170,7 @@ class OrdersQuery extends ElementQuery
         $this->query->select([
             'enupalstripe_orders.id',
             'enupalstripe_orders.testMode',
+            'enupalstripe_orders.paymentType',
             'enupalstripe_orders.number',
             'enupalstripe_orders.currency',
             'enupalstripe_orders.totalPrice',
@@ -171,6 +193,7 @@ class OrdersQuery extends ElementQuery
             'enupalstripe_orders.addressStreet',
             'enupalstripe_orders.addressZip',
             'enupalstripe_orders.variants',
+            'enupalstripe_orders.postData',
             'enupalstripe_orders.dateOrdered'
         ]);
 
@@ -189,6 +212,12 @@ class OrdersQuery extends ElementQuery
         if ($this->email) {
             $this->subQuery->andWhere(Db::parseParam(
                 'enupalstripe_orders.email', $this->email)
+            );
+        }
+
+        if ($this->paymentType) {
+            $this->subQuery->andWhere(Db::parseParam(
+                'enupalstripe_orders.paymentType', $this->paymentType)
             );
         }
 

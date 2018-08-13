@@ -1,5 +1,19 @@
 # Stripe Payments Changelog
 
+## 1.3.0 - 2018.08.13
+### Added
+- Added support for Card powered by Stripe Elements.
+- Added support for iDEAL powered by Stripe Elements.
+- Added template overrides
+- Added support to pass the quantity as options on `paymentForm('handle', options)` (just available for single payments)
+- Added support to pass the amount as options on `paymentForm('handle', options)` (just available for single payments)
+
+### Improved
+- Improved position of currency in Edit payment form.
+
+### Fixed
+- Fixed bug where number fields did not allow decimals in the front-end.
+
 ## 1.2.0 - 2018.07.09
 ### Added
 - Added Taxes to subscriptions and recurring payments.

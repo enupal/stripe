@@ -50,6 +50,16 @@ class PaymentForm extends Element
     public $handle;
 
     /**
+     * @var bool
+     */
+    public $enableCheckout = 1;
+
+    /**
+     * @var string Payment Type
+     */
+    public $paymentType;
+
+    /**
      * @var string Currency
      */
     public $currency;
@@ -116,6 +126,8 @@ class PaymentForm extends Element
     public $recurringPaymentType;
 
     public $buttonClass;
+    public $enableTemplateOverrides;
+    public $templateOverridesFolder;
 
     protected $env;
     protected $ipnUrl;
@@ -487,6 +499,8 @@ class PaymentForm extends Element
         $record->companyName = $this->companyName;
 
         $record->handle = $this->handle;
+        $record->enableCheckout = $this->enableCheckout;
+        $record->paymentType = $this->paymentType;
         $record->currency = $this->currency;
         $record->language = $this->language;
         $record->amountType = $this->amountType;
@@ -533,6 +547,9 @@ class PaymentForm extends Element
         $record->buttonText = $this->buttonText;
         $record->paymentButtonProcessingText = $this->paymentButtonProcessingText;
 
+        $record->enableTemplateOverrides = $this->enableTemplateOverrides;
+        $record->templateOverridesFolder = $this->templateOverridesFolder;
+
         $record->save(false);
 
         parent::afterSave($isNew);
@@ -545,6 +562,9 @@ class PaymentForm extends Element
     {
         return [
             [['name', 'handle'], 'required'],
+            [['paymentType'], 'required', 'when' => function($model) {
+                return $model->enableCheckout != 1;
+            }],
             [['name', 'handle'], 'string', 'max' => 255],
             [['name', 'handle'], UniqueValidator::class, 'targetClass' => PaymentFormRecord::class],
             [
@@ -585,11 +605,12 @@ class PaymentForm extends Element
 
 
     /**
+     * @param $options array
      * @return string
      * @throws \yii\web\ServerErrorHttpException
      * @throws \Exception
      */
-    public function getPublicData()
+    public function getPublicData($options = null)
     {
         $info = Craft::$app->getInfo();
         $logoUrl = null;
@@ -599,7 +620,10 @@ class PaymentForm extends Element
             $logoUrl = $logoAsset->getUrl();
         }
 
-        $amount = $this->amount;
+        $quantity = (int)($options['quantity'] ?? 1);
+
+        $amount = $options['amount'] ?? $this->amount;
+        $amount = $amount * $quantity;
         $currency = $this->currency ?? 'USD';
         $multiplePlansAmounts = [];
         $setupFees = [];
@@ -640,6 +664,8 @@ class PaymentForm extends Element
             $applyTax = true;
         }
 
+        $paymentTypeIds = json_decode($this->paymentType, true);
+
         $publicData = [
             'paymentFormId' => $this->id,
             'handle' => $this->handle,
@@ -665,6 +691,9 @@ class PaymentForm extends Element
             'tax' => $this->settings->tax,
             'currencySymbol' => $this->getCurrencySymbol(),
             'taxLabel' => Craft::t('site', 'Tax Amount'),
+            'paymentTypeIds' => $paymentTypeIds,
+            'enableShippingAddress' => $this->enableShippingAddress,
+            'enableBillingAddress' => $this->enableBillingAddress,
             'stripe' => [
                 'description' => $this->name,
                 'panelLabel' =>  $this->checkoutButtonText ?? 'Pay {{amount}}',
