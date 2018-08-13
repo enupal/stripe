@@ -14,7 +14,8 @@ Stripe Payments allows customers sign up for recurring and one-time payments wit
 ### Start accepting one-time and recurring payments on your Craft CMS site 
 
  * One line of Code: `{{ craft.enupalStripe.paymentForm('handle') }} `
- * Secure Payment Processing powered by [Stripe Checkout](https://stripe.com/checkout)
+ * Secure Payment Processing powered by [Stripe Checkout](https://stripe.com/checkout) and [Stripe Elements](https://stripe.com/elements)
+ * Stripe Elements: Card, iDEAL.
  * Optimized for Mobile
  * Subscriptions Integration: Allow your customers to sign up for recurring payments.
  * Applying Taxes to Subscriptions
@@ -29,6 +30,7 @@ Stripe Payments allows customers sign up for recurring and one-time payments wit
  * Stripe Test and Live accounts
  * Events: After Order Create and Before Send Email
  * Field type
+ * Template Overrides
 
 ## Documentation
 
