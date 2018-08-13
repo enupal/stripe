@@ -25,7 +25,7 @@ class StripeElementsAsset extends AssetBundle
 
         $this->js = [
             'vendor/js/jquery.min.js',
-            'stripe/js/enupal-stripe-elements.js'
+            'stripe/js/enupal-stripe-elements.min.js'
         ];
 
         parent::init();
