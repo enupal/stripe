@@ -622,7 +622,8 @@ class PaymentForm extends Element
 
         $quantity = (int)($options['quantity'] ?? 1);
 
-        $amount = $this->amount * $quantity;
+        $amount = $options['amount'] ?? $this->amount;
+        $amount = $amount * $quantity;
         $currency = $this->currency ?? 'USD';
         $multiplePlansAmounts = [];
         $setupFees = [];
