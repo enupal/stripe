@@ -1,7 +1,8 @@
 {%- set redirectUri = paymentForm.returnUrl -%}
 {%- do craft.enupalStripe.addVariables(_context) -%}
+{% set formClass = paymentForm.enableCheckout ? "enupal-stripe-form" : "enupal-stripe-form-elements" %}
 {% spaceless %}
-    <form class="enupal-stripe-form" id="enupal-stripe-{{ paymentForm.id }}" method="POST">
+    <form class="{{ formClass }}" id="enupal-stripe-{{ paymentForm.id }}" method="POST">
         {{ csrfInput() }}
         <input type="hidden" aria-hidden="true" name="action"
                value="enupal-stripe/stripe/save-order">

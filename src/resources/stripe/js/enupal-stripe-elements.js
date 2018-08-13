@@ -17,7 +17,7 @@ var enupalStripe = {};
         zeroDecimals: {},
 
         init: function() {
-            this.paymentFormsList = $('.enupal-stripe-form');
+            this.paymentFormsList = $('.enupal-stripe-form-elements');
 
             this.zeroDecimals = ['MGA', 'BIF', 'CLP', 'PYG', 'DJF', 'RWF', 'GNF', 'UGX', 'JPY', 'VND', 'VUV', 'XAF', 'KMF', 'KRW', 'XOF', 'XPF'];
 
