@@ -49,6 +49,7 @@ class Settings extends Model
     public $currentUserEmail = 0;
     // Get plans with nickname
     public $plansWithNickname = 1;
+    public $loadJquery = 1;
 
     /**
      * @inheritdoc

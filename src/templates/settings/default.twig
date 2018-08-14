@@ -80,6 +80,19 @@
                 offLabel: "Off"|t('enupal-stripe'),
                 errors: settings.getErrors('plansWithNickname'),
             }) }}
+
+            <hr>
+
+            {{ forms.lightswitchField({
+                label: 'Load Jquery'|t('enupal-stripe'),
+                instructions: 'If disabled it will prevent load Jquery. Please make sure Jquery is load in your site.',
+                id: 'loadJquery',
+                name: 'loadJquery',
+                on: settings.loadJquery,
+                onLabel: "On"|t('enupal-stripe'),
+                offLabel: "Off"|t('enupal-stripe'),
+                errors: settings.getErrors('loadJquery'),
+            }) }}
         {% endnamespace %}
 
     </div>

@@ -44,7 +44,7 @@ var enupalStripe = {};
             var stripe = Stripe(enupalStripeData.pbk);
 
             // Create an instance of Elements.
-            var elements = stripe.elements();
+            var elements = stripe.elements({locale: enupalStripeData.stripe.locale});
 
             var paymentTypeInput = $(enupalButtonElement).find('[name="paymentType"]');
 
