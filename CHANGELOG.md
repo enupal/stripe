@@ -1,5 +1,9 @@
 # Stripe Payments Changelog
 
+## 1.3.3 - 2018.08.17
+### Added
+- Added support to pass `loadAssets` via options to disable load Stripe Payments assets.
+
 ## 1.3.2 - 2018.08.14
 ### Added
 - Added setting to prevent load jquery
