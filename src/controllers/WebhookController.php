@@ -22,7 +22,6 @@ class WebhookController extends BaseController
 
     /**
      * @return \yii\web\Response
-     * @throws NotFoundHttpException
      * @throws \Throwable
      * @throws \yii\base\Exception
      * @throws \yii\db\Exception
@@ -37,9 +36,11 @@ class WebhookController extends BaseController
         $stripeId = $eventJson['data']['object']['id'] ?? null;
 
         $order = Stripe::$app->orders->getOrderByStripeId($stripeId);
+        $return = [];
 
         if ($order === null || $stripeId === null) {
-            throw new NotFoundHttpException(Stripe::t('Stripe Payments - Order not found'));
+            $return['success'] = false;
+            return $this->asJson($return);
         }
 
         switch ($eventJson['type']) {

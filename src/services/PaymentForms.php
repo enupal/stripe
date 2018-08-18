@@ -1218,7 +1218,7 @@ class PaymentForms extends Component
     public function getPaymentTypes()
     {
         return [
-            PaymentType::CC => 'Credit Card',
+            PaymentType::CC => 'Card',
             PaymentType::IDEAL => 'iDEAL'
         ];
     }
@@ -1230,7 +1230,7 @@ class PaymentForms extends Component
     {
         return [
             [
-                'label' => 'Credit Card',
+                'label' => 'Card',
                 'value' => PaymentType::CC
             ],
             [
