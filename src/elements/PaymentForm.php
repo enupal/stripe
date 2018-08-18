@@ -344,14 +344,9 @@ class PaymentForm extends Element
      *
      * @return string
      */
-    /** @noinspection PhpInconsistentReturnPointsInspection */
     public function __toString()
     {
-        try {
-            return $this->name;
-        } catch (\Exception $e) {
-            ErrorHandler::convertExceptionToError($e);
-        }
+        return $this->name;
     }
 
     /**

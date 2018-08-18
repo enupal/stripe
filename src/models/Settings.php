@@ -10,7 +10,7 @@ namespace enupal\stripe\models;
 
 use craft\base\Model;
 use enupal\stripe\enums\DiscountType;
-use enupal\stripe\validators\TaxValidator;
+
 
 class Settings extends Model
 {

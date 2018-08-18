@@ -11,7 +11,7 @@ namespace enupal\stripe\services;
 use Craft;
 use craft\db\Query;
 use craft\helpers\Db;
-use craft\helpers\FileHelper;
+
 use craft\helpers\Json;
 use craft\helpers\UrlHelper;
 use craft\mail\Message;
@@ -266,7 +266,7 @@ class Orders extends Component
      * @param Order $order
      *
      * @return bool
-     * @throws \Twig_Error_Loader
+     * @throws \craft\web\twig\TemplateLoaderException
      * @throws \yii\base\Exception
      */
     public function sendCustomerNotification(Order $order)
@@ -347,7 +347,7 @@ class Orders extends Component
      * @param Order $order
      *
      * @return bool
-     * @throws \Twig_Error_Loader
+     * @throws \craft\web\twig\TemplateLoaderException
      * @throws \yii\base\Exception
      */
     public function sendAdminNotification(Order $order)

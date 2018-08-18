@@ -11,7 +11,7 @@ namespace enupal\stripe\controllers;
 use craft\web\Controller as BaseController;
 use Craft;
 use enupal\stripe\Stripe;
-use yii\web\NotFoundHttpException;
+
 
 class WebhookController extends BaseController
 {

@@ -168,7 +168,6 @@ class StripeVariable
      * @param $block
      * @return \Twig_Markup
      * @throws \yii\base\Exception
-     * @throws \yii\base\ExitException
      */
     public function displayField($paymentForm, $block)
     {
