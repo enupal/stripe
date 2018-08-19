@@ -1,0 +1,40 @@
+{#
+/**
+ * Stripe Payments plugin for Craft CMS 3.x
+ *
+ * @link      https://enupal.com/
+ * @copyright Copyright (c) 2018 Enupal LLC
+ */
+#}
+
+{% extends "enupal-stripe/_layouts/settings" %}
+{% import "_includes/forms" as forms %}
+
+{% set settings = settings is defined ? settings : craft.enupalStripe.getSettings()  %}
+{% set fullPageForm = false %}
+{% set saveShortcutRedirect = 'enupal-stripe/settings/taxes' %}
+{% set discountOptions = craft.enupalStripe.getDiscountOptions() %}
+
+{% set content %}
+
+    <div id="settings-cp">
+
+        {% namespace 'settings' %}
+            {{ forms.field({
+                label: "Webhook"|t('enupal-stripe')|upper,
+                instructions: "Stripe can send webhook events that notify your application any time an event happens on your account. This is especially useful for events—like disputed charges and many recurring billing events—that are not triggered by a direct API request. This mechanism is also useful for services that are not directly responsible for making an API request, but still need to know the response from that request."|t('enupal-stripe'),
+            }, null) }}
+            <hr>
+
+            {% set webhookUrl = siteUrl ~ 'enupal/stripe-payments' %}
+            <p class="code"> {{ "Webhooks are configured in the Dashboard's <a href='https://dashboard.stripe.com/account/webhooks'>Webhooks settings</a> section. Click Add endpoint to reveal a form where you can add the following URL for receiving webhooks."|t('enupal-stripe')|raw}} </p>
+            {{ forms.field({
+                label: "Webhook URL"|t('enupal-backup'),
+                instructions: webhookUrl,
+            }, null) }}
+
+        {% endnamespace %}
+
+    </div>
+
+{% endset %}
