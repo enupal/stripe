@@ -664,7 +664,7 @@ class Orders extends Component
                 }
 
                 // Either single plan or multiple plans the user should select one plan and plan id should be available in the post request
-                $subscription = $this->addPlanToCustomer($customer, $planId, $token, $isNew, $data);
+                $subscription = $this->addPlanToCustomer($customer, $planId, $data);
                 $stripeId = $subscription->id ?? null;
             }
 
@@ -693,7 +693,7 @@ class Orders extends Component
                     $this->addOneTimeSetupFee($customer, $setupFee, $paymentForm);
                 }
 
-                $subscription = $this->addPlanToCustomer($customer, $planId, $token, $isNew, $data);
+                $subscription = $this->addPlanToCustomer($customer, $planId, $data);
                 $stripeId = $subscription->id ?? null;
             }
         }else{
@@ -827,8 +827,6 @@ class Orders extends Component
         $addressData = $data['address'] ?? null;
 
         if (!$isNew){
-            // Add card or payment method to user
-            $customer->sources->create(["source" => $token]);
             // Set as default the new chargeable
             if ($order->paymentType == PaymentType::IDEAL){
                 $customer->default_source = $token;
@@ -912,12 +910,10 @@ class Orders extends Component
      *
      * @param $customer
      * @param $planId
-     * @param $token
-     * @param $isNew
      * @param $data
      * @return mixed
      */
-    private function addPlanToCustomer($customer, $planId, $token, $isNew, $data)
+    private function addPlanToCustomer($customer, $planId, $data)
     {
         $settings = StripePlugin::$app->settings->getSettings();
 
@@ -934,10 +930,6 @@ class Orders extends Component
         // Add tax
         if ($settings->enableTaxes && $settings->tax){
             $subscriptionSettings['tax_percent'] = $settings->tax;
-        }
-
-        if (!$isNew){
-            $subscriptionSettings["source"] = $token;
         }
 
         $subscriptionSettings['metadata'] = $this->getStripeMetadata($data);
@@ -987,10 +979,6 @@ class Orders extends Component
         // Add tax
         if ($settings->enableTaxes && $settings->tax){
             $subscriptionSettings['tax_percent'] = $settings->tax;
-        }
-
-        if (!$isNew){
-            $subscriptionSettings["source"] = $token;
         }
 
         $subscriptionSettings['metadata'] = $this->getStripeMetadata($data);
@@ -1143,7 +1131,7 @@ class Orders extends Component
         if (!isset($stripeCustomer->id)){
             $stripeCustomer = Customer::create([
                 'email' => $email,
-                'card' => $token
+                'source' => $token
             ]);
 
             $customerRecord = new CustomerRecord();
@@ -1152,6 +1140,10 @@ class Orders extends Component
             $customerRecord->testMode = $testMode;
             $customerRecord->save(false);
             $isNew = true;
+        }else{
+            // Add support for Stripe API 2018-07-27
+            $stripeCustomer->source = $token;
+            $stripeCustomer->save();
         }
 
         return $stripeCustomer;
