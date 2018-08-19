@@ -563,7 +563,7 @@ class Orders extends Component
 
         if ($paymentForm->enableSubscriptions || (isset($data['recurringToggle']) && $data['recurringToggle'] == 'on')) {
             // Override iDEAL source token with SEPA source token for recurring payments
-            $token = $this->getSepaSourceWithIdeal($token);
+            $token = $this->getSepaSourceWithIdeal($token, $sourceObject);
         }
 
         $postData['enupalStripe']['token'] = $token;
@@ -580,16 +580,19 @@ class Orders extends Component
     /**
      * Create Special SEPA Direct Debit Source object to make recurring payments with iDEAL
      * @param $token
+     * @param $sourceObject
      * @return string|null
      */
-    private function getSepaSourceWithIdeal($token)
+    private function getSepaSourceWithIdeal($token, $sourceObject)
     {
+        $name = $sourceObject['data']['owner']['verified_name'] ?? $sourceObject['data']['owner']['name'] ?? 'Jenny Rosen';
+
         $source = Source::create(array(
             "type" => "sepa_debit",
             "sepa_debit" => array("ideal" => $token),
             "currency" => "eur",
             "owner" => array(
-                "name" => "Jenny Rosen",
+                "name" => $name,
             ),
         ));
 
@@ -655,8 +658,8 @@ class Orders extends Component
                 $plan = Json::decode($paymentForm->singlePlanInfo, true);
                 $planId = $plan['id'];
 
-                // Lets create an invoice item if there is a setup fee - @todo support iDEAL with SEPA?
-                if ($paymentForm->singlePlanSetupFee && $paymentForm->enableCheckout){
+                // Lets create an invoice item if there is a setup fee
+                if ($paymentForm->singlePlanSetupFee){
                     $this->addOneTimeSetupFee($customer, $paymentForm->singlePlanSetupFee, $paymentForm);
                 }
 
@@ -668,7 +671,7 @@ class Orders extends Component
             if ($paymentForm->subscriptionType == SubscriptionType::SINGLE_PLAN && $paymentForm->enableCustomPlanAmount) {
                 if (isset($data['customPlanAmount']) && $data['customPlanAmount'] > 0){
                     // Lets create an invoice item if there is a setup fee
-                    if ($paymentForm->singlePlanSetupFee && $paymentForm->enableCheckout){
+                    if ($paymentForm->singlePlanSetupFee){
                         $this->addOneTimeSetupFee($customer, $paymentForm->singlePlanSetupFee, $paymentForm);
                     }
                     // test what is returning we need a stripe id
@@ -686,7 +689,7 @@ class Orders extends Component
 
                 $setupFee = $this->getSetupFeeFromMatrix($planId, $paymentForm);
 
-                if ($setupFee && $paymentForm->enableCheckout){
+                if ($setupFee){
                     $this->addOneTimeSetupFee($customer, $setupFee, $paymentForm);
                 }
 
