@@ -154,10 +154,12 @@ class Orders extends Component
 
         try {
             $transaction = Craft::$app->db->beginTransaction();
-            if (Craft::$app->elements->saveElement($order)) {
+            $result = Craft::$app->elements->saveElement($order);
+
+            if ($result) {
                 $transaction->commit();
 
-                if ($order->orderStatusId == OrderStatus::NEW){
+                if ($order->orderStatusId == OrderStatus::NEW && !Craft::$app->getRequest()->getIsCpRequest()){
                     $event = new OrderCompleteEvent([
                         'order' => $order
                     ]);
