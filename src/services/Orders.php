@@ -514,7 +514,7 @@ class Orders extends Component
         $order->currency = 'EUR';
         $order->formId = $paymentForm->id;
 
-        $redirect = UrlHelper::siteUrl($paymentForm->returnUrl) ?? Craft::getAlias(Craft::$app->getSites()->getPrimarySite()->baseUrl);
+        $redirect = $paymentForm->returnUrl != null ? UrlHelper::siteUrl($paymentForm->returnUrl) : Craft::getAlias(Craft::$app->getSites()->getPrimarySite()->baseUrl);
 
         StripePlugin::$app->settings->initializeStripe();
 
