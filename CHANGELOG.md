@@ -1,5 +1,15 @@
 # Stripe Payments Changelog
 
+## 1.4.0 - 2018.08.19
+### Added
+- Added support for Stripe [API 2018-07-27](https://stripe.com/docs/upgrades#api-changelog) `make sure to upgrade your api before` before update the plugin. [Read how upgrade your API](https://stripe.com/docs/upgrades)
+- Added support to one time setup fee for iDEAL payments
+- Added Webhook setting page
+- Added iDEAL bank to the paymentForm template
+
+### Improved
+- Improved Webhook response to don't throw a 404 error
+
 ## 1.3.3 - 2018.08.17
 ### Added
 - Added support to pass `loadAssets` via options to disable load Stripe Payments assets.
