@@ -9,11 +9,13 @@
 namespace enupal\stripe\web\assets;
 
 use craft\web\AssetBundle;
+use enupal\stripe\Stripe;
 
 class StripeAsset extends AssetBundle
 {
     public function init()
     {
+        $settings = Stripe::$app->settings->getSettings();
         // define the path that your publishable resources live
         $this->sourcePath = '@enupal/stripe/resources/';
 
@@ -23,10 +25,11 @@ class StripeAsset extends AssetBundle
             'stripe/css/enupal-button.min.css'
         ];
 
-        $this->js = [
-            'vendor/js/jquery.min.js',
-            'stripe/js/enupal-stripe.min.js'
-        ];
+        if ($settings->loadJquery){
+            $this->js[] = 'vendor/js/jquery.min.js';
+        }
+
+        $this->js[] = 'stripe/js/enupal-stripe.min.js';
 
         parent::init();
     }

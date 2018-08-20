@@ -11,7 +11,7 @@ namespace enupal\stripe\services;
 use Craft;
 use craft\db\Query;
 use craft\helpers\Db;
-use craft\helpers\FileHelper;
+
 use craft\helpers\Json;
 use craft\helpers\UrlHelper;
 use craft\mail\Message;
@@ -266,7 +266,7 @@ class Orders extends Component
      * @param Order $order
      *
      * @return bool
-     * @throws \Twig_Error_Loader
+     * @throws \craft\web\twig\TemplateLoaderException
      * @throws \yii\base\Exception
      */
     public function sendCustomerNotification(Order $order)
@@ -347,7 +347,7 @@ class Orders extends Component
      * @param Order $order
      *
      * @return bool
-     * @throws \Twig_Error_Loader
+     * @throws \craft\web\twig\TemplateLoaderException
      * @throws \yii\base\Exception
      */
     public function sendAdminNotification(Order $order)
@@ -514,18 +514,24 @@ class Orders extends Component
         $order->currency = 'EUR';
         $order->formId = $paymentForm->id;
 
-        $redirect = UrlHelper::siteUrl($paymentForm->returnUrl) ?? Craft::getAlias(Craft::$app->getSites()->getPrimarySite()->baseUrl);
+        $redirect = $paymentForm->returnUrl != null ? UrlHelper::siteUrl($paymentForm->returnUrl) : Craft::getAlias(Craft::$app->getSites()->getPrimarySite()->baseUrl);
 
         StripePlugin::$app->settings->initializeStripe();
 
-        $source = Source::create([
+        $options = [
             'type' => 'ideal',
             'amount' => $amount,
             'currency' => 'eur',
             'owner' => ['email' => $email],
             'redirect' => ['return_url' => $redirect],
             'metadata' => $this->getStripeMetadata($data)
-        ]);
+        ];
+
+        if (isset($postData['idealBank'])){
+            $options['ideal']['bank'] = $postData['idealBank'];
+        }
+
+        $source = Source::create($options);
 
         $order->stripeTransactionId = $source->id;
         // revert cents
@@ -563,7 +569,7 @@ class Orders extends Component
 
         if ($paymentForm->enableSubscriptions || (isset($data['recurringToggle']) && $data['recurringToggle'] == 'on')) {
             // Override iDEAL source token with SEPA source token for recurring payments
-            $token = $this->getSepaSourceWithIdeal($token);
+            $token = $this->getSepaSourceWithIdeal($token, $sourceObject);
         }
 
         $postData['enupalStripe']['token'] = $token;
@@ -580,16 +586,19 @@ class Orders extends Component
     /**
      * Create Special SEPA Direct Debit Source object to make recurring payments with iDEAL
      * @param $token
+     * @param $sourceObject
      * @return string|null
      */
-    private function getSepaSourceWithIdeal($token)
+    private function getSepaSourceWithIdeal($token, $sourceObject)
     {
+        $name = $sourceObject['data']['owner']['verified_name'] ?? $sourceObject['data']['owner']['name'] ?? 'Jenny Rosen';
+
         $source = Source::create(array(
             "type" => "sepa_debit",
             "sepa_debit" => array("ideal" => $token),
             "currency" => "eur",
             "owner" => array(
-                "name" => "Jenny Rosen",
+                "name" => $name,
             ),
         ));
 
@@ -655,20 +664,20 @@ class Orders extends Component
                 $plan = Json::decode($paymentForm->singlePlanInfo, true);
                 $planId = $plan['id'];
 
-                // Lets create an invoice item if there is a setup fee - @todo support iDEAL with SEPA?
-                if ($paymentForm->singlePlanSetupFee && $paymentForm->enableCheckout){
+                // Lets create an invoice item if there is a setup fee
+                if ($paymentForm->singlePlanSetupFee){
                     $this->addOneTimeSetupFee($customer, $paymentForm->singlePlanSetupFee, $paymentForm);
                 }
 
                 // Either single plan or multiple plans the user should select one plan and plan id should be available in the post request
-                $subscription = $this->addPlanToCustomer($customer, $planId, $token, $isNew, $data);
+                $subscription = $this->addPlanToCustomer($customer, $planId, $data);
                 $stripeId = $subscription->id ?? null;
             }
 
             if ($paymentForm->subscriptionType == SubscriptionType::SINGLE_PLAN && $paymentForm->enableCustomPlanAmount) {
                 if (isset($data['customPlanAmount']) && $data['customPlanAmount'] > 0){
                     // Lets create an invoice item if there is a setup fee
-                    if ($paymentForm->singlePlanSetupFee && $paymentForm->enableCheckout){
+                    if ($paymentForm->singlePlanSetupFee){
                         $this->addOneTimeSetupFee($customer, $paymentForm->singlePlanSetupFee, $paymentForm);
                     }
                     // test what is returning we need a stripe id
@@ -686,11 +695,11 @@ class Orders extends Component
 
                 $setupFee = $this->getSetupFeeFromMatrix($planId, $paymentForm);
 
-                if ($setupFee && $paymentForm->enableCheckout){
+                if ($setupFee){
                     $this->addOneTimeSetupFee($customer, $setupFee, $paymentForm);
                 }
 
-                $subscription = $this->addPlanToCustomer($customer, $planId, $token, $isNew, $data);
+                $subscription = $this->addPlanToCustomer($customer, $planId, $data);
                 $stripeId = $subscription->id ?? null;
             }
         }else{
@@ -824,8 +833,6 @@ class Orders extends Component
         $addressData = $data['address'] ?? null;
 
         if (!$isNew){
-            // Add card or payment method to user
-            $customer->sources->create(["source" => $token]);
             // Set as default the new chargeable
             if ($order->paymentType == PaymentType::IDEAL){
                 $customer->default_source = $token;
@@ -909,12 +916,10 @@ class Orders extends Component
      *
      * @param $customer
      * @param $planId
-     * @param $token
-     * @param $isNew
      * @param $data
      * @return mixed
      */
-    private function addPlanToCustomer($customer, $planId, $token, $isNew, $data)
+    private function addPlanToCustomer($customer, $planId, $data)
     {
         $settings = StripePlugin::$app->settings->getSettings();
 
@@ -931,10 +936,6 @@ class Orders extends Component
         // Add tax
         if ($settings->enableTaxes && $settings->tax){
             $subscriptionSettings['tax_percent'] = $settings->tax;
-        }
-
-        if (!$isNew){
-            $subscriptionSettings["source"] = $token;
         }
 
         $subscriptionSettings['metadata'] = $this->getStripeMetadata($data);
@@ -984,10 +985,6 @@ class Orders extends Component
         // Add tax
         if ($settings->enableTaxes && $settings->tax){
             $subscriptionSettings['tax_percent'] = $settings->tax;
-        }
-
-        if (!$isNew){
-            $subscriptionSettings["source"] = $token;
         }
 
         $subscriptionSettings['metadata'] = $this->getStripeMetadata($data);
@@ -1140,7 +1137,7 @@ class Orders extends Component
         if (!isset($stripeCustomer->id)){
             $stripeCustomer = Customer::create([
                 'email' => $email,
-                'card' => $token
+                'source' => $token
             ]);
 
             $customerRecord = new CustomerRecord();
@@ -1149,6 +1146,10 @@ class Orders extends Component
             $customerRecord->testMode = $testMode;
             $customerRecord->save(false);
             $isNew = true;
+        }else{
+            // Add support for Stripe API 2018-07-27
+            $stripeCustomer->source = $token;
+            $stripeCustomer->save();
         }
 
         return $stripeCustomer;

@@ -53,6 +53,7 @@ class Plans extends Component
      *
      * @return array|bool
      * @throws \yii\base\InvalidConfigException
+     * @throws \Exception
      */
     public function getMultiplePlansFromButton()
     {

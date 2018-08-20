@@ -10,7 +10,7 @@ namespace enupal\stripe\models;
 
 use craft\base\Model;
 use enupal\stripe\enums\DiscountType;
-use enupal\stripe\validators\TaxValidator;
+
 
 class Settings extends Model
 {
@@ -49,6 +49,7 @@ class Settings extends Model
     public $currentUserEmail = 0;
     // Get plans with nickname
     public $plansWithNickname = 1;
+    public $loadJquery = 1;
 
     /**
      * @inheritdoc

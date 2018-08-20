@@ -44,7 +44,7 @@ var enupalStripe = {};
             var stripe = Stripe(enupalStripeData.pbk);
 
             // Create an instance of Elements.
-            var elements = stripe.elements();
+            var elements = stripe.elements({locale: enupalStripeData.stripe.locale});
 
             var paymentTypeInput = $(enupalButtonElement).find('[name="paymentType"]');
 
@@ -217,6 +217,16 @@ var enupalStripe = {};
             var form = enupalButtonElement[0];
 
             var paymentFormId = 'stripe-payments-submit-button-'+enupalStripeData.paymentFormId;
+
+            // Create an instance of the idealBank Element.
+            var idealBank = elements.create('idealBank', {style: style});
+            // Add an instance of the idealBank Element into the `ideal-bank-element` <div>.
+            idealBank.mount('#ideal-bank-element-'+enupalStripeData.paymentFormId);
+
+            idealBank.on('change', function(event) {
+                var bank = event.value;
+                enupalButtonElement.find('[name="idealBank"]').val(bank);
+            });
 
             // Handle form submission.
             form.addEventListener('submit', function(event) {

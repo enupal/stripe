@@ -153,11 +153,7 @@ class Order extends Element
     /** @noinspection PhpInconsistentReturnPointsInspection */
     public function __toString()
     {
-        try {
-            return $this->number;
-        } catch (\Exception $e) {
-            ErrorHandler::convertExceptionToError($e);
-        }
+        return $this->number;
     }
 
     /**
@@ -185,6 +181,7 @@ class Order extends Element
 
     /**
      * @inheritdoc
+     * @throws \ReflectionException
      */
     protected static function defineSources(string $context = null): array
     {
@@ -296,6 +293,8 @@ class Order extends Element
 
     /**
      * @inheritdoc
+     * @throws \yii\base\InvalidConfigException
+     * @throws \yii\base\InvalidConfigException
      */
     protected function tableAttributeHtml(string $attribute): string
     {
@@ -336,6 +335,7 @@ class Order extends Element
 
     /**
      * @inheritdoc
+     * @throws \Exception
      */
     public function afterSave(bool $isNew)
     {
@@ -415,6 +415,7 @@ class Order extends Element
 
     /**
      * @return string
+     * @throws \ReflectionException
      */
     public function getStatusName()
     {

@@ -191,12 +191,17 @@
                     </div>
                 {# IDeal #}
                 {% elseif paymentTypeId == 2 %}
+                    <input type="hidden" name='idealBank' value>
                     <div class="form-row inline ideal-wrapper {% if isHidden %}hidden{% endif %}">
-                        <label for="name-{{ paymentForm.id }}">
-                            {{ "iDEAL"|t }}
-                        </label>
+                        <div class="form-row">
+                            <label for="ideal-bank-element-{{ paymentForm.id }}">
+                                {{ "iDEAL Bank"|t }}
+                            </label>
+                            <div id="ideal-bank-element-{{ paymentForm.id }}">
+                            </div>
+                        </div>
                         {# Used to display form errors.#}
-                        <div id="error-message-{{ paymentForm.id }}" role="alert"></div>
+                        <div id="ideal-error-message-{{ paymentForm.id }}" role="alert"></div>
                     </div>
                 {% endif %}
             {% endfor %}

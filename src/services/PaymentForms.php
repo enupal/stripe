@@ -695,13 +695,18 @@ class PaymentForms extends Component
             $view = Craft::$app->getView();
 
             $view->setTemplatesPath($templatePaths['paymentForm']);
+            $loadAssets = isset($options['loadAssets']) ? $options['loadAssets'] : true;
 
             if ($paymentForm->enableCheckout){
                 $view->registerJsFile("https://checkout.stripe.com/checkout.js");
-                $view->registerAssetBundle(StripeAsset::class);
+                if ($loadAssets){
+                    $view->registerAssetBundle(StripeAsset::class);
+                }
             }else{
                 $view->registerJsFile("https://js.stripe.com/v3/");
-                $view->registerAssetBundle(StripeElementsAsset::class);
+                if ($loadAssets){
+                    $view->registerAssetBundle(StripeElementsAsset::class);
+                }
             }
 
             $paymentTypeIds = json_decode($paymentForm->paymentType, true);
@@ -1213,7 +1218,7 @@ class PaymentForms extends Component
     public function getPaymentTypes()
     {
         return [
-            PaymentType::CC => 'Credit Card',
+            PaymentType::CC => 'Card',
             PaymentType::IDEAL => 'iDEAL'
         ];
     }
@@ -1225,7 +1230,7 @@ class PaymentForms extends Component
     {
         return [
             [
-                'label' => 'Credit Card',
+                'label' => 'Card',
                 'value' => PaymentType::CC
             ],
             [

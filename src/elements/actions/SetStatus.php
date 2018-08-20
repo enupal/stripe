@@ -28,6 +28,7 @@ class SetStatus extends ElementAction
 
     /**
      * @inheritdoc
+     * @throws \yii\base\Exception
      */
     public function getTriggerHtml(): string
     {
