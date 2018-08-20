@@ -218,6 +218,16 @@ var enupalStripe = {};
 
             var paymentFormId = 'stripe-payments-submit-button-'+enupalStripeData.paymentFormId;
 
+            // Create an instance of the idealBank Element.
+            var idealBank = elements.create('idealBank', {style: style});
+            // Add an instance of the idealBank Element into the `ideal-bank-element` <div>.
+            idealBank.mount('#ideal-bank-element-'+enupalStripeData.paymentFormId);
+
+            idealBank.on('change', function(event) {
+                var bank = event.value;
+                enupalButtonElement.find('[name="idealBank"]').val(bank);
+            });
+
             // Handle form submission.
             form.addEventListener('submit', function(event) {
                 var paymentType = $(enupalButtonElement).find('[name="paymentType"]').val();

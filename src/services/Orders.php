@@ -518,14 +518,20 @@ class Orders extends Component
 
         StripePlugin::$app->settings->initializeStripe();
 
-        $source = Source::create([
+        $options = [
             'type' => 'ideal',
             'amount' => $amount,
             'currency' => 'eur',
             'owner' => ['email' => $email],
             'redirect' => ['return_url' => $redirect],
             'metadata' => $this->getStripeMetadata($data)
-        ]);
+        ];
+
+        if (isset($postData['idealBank'])){
+            $options['ideal']['bank'] = $postData['idealBank'];
+        }
+
+        $source = Source::create($options);
 
         $order->stripeTransactionId = $source->id;
         // revert cents
