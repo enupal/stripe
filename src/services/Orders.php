@@ -21,6 +21,7 @@ use enupal\stripe\enums\PaymentType;
 use enupal\stripe\enums\SubscriptionType;
 use enupal\stripe\events\NotificationEvent;
 use enupal\stripe\events\OrderCompleteEvent;
+use enupal\stripe\events\WebhookEvent;
 use Stripe\Charge;
 use Stripe\Customer;
 use Stripe\Error\Card;
@@ -69,6 +70,25 @@ class Orders extends Component
      * ```
      */
     const EVENT_BEFORE_SEND_NOTIFICATION_EMAIL = 'beforeSendNotificationEmail';
+
+    /**
+     * @event NotificationEvent The event that is triggered before a notification is send
+     *
+     * Plugins can get notified before a notification email is send
+     *
+     * ```php
+     * use enupal\stripe\events\WebhookEvent;
+     * use enupal\stripe\services\Orders;
+     * use yii\base\Event;
+     *
+     * Event::on(Orders::class, Orders::EVENT_AFTER_PROCESS_WEBHOOK, function(WebhookEvent $e) {
+     *      // https://stripe.com/docs/api#event_types
+     *      $data = $e->stripeData;
+     *     // Do something
+     * });
+     * ```
+     */
+    const EVENT_AFTER_PROCESS_WEBHOOK = 'afterProcessWebhook';
 
     /**
      * Returns a Order model if one is found in the database by id
@@ -804,6 +824,20 @@ class Orders extends Component
             ->one();
 
         return $customer['stripeId'] ?? null;
+    }
+
+    /**
+     * @param $eventJson
+     */
+    public function triggerWebhookEvent($eventJson)
+    {
+        Craft::info("Triggering Webhook event", __METHOD__);
+
+        $event = new WebhookEvent([
+            'stripeData' => $eventJson
+        ]);
+
+        $this->trigger(self::EVENT_AFTER_PROCESS_WEBHOOK, $event);
     }
 
     /**
