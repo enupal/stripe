@@ -127,6 +127,10 @@ class PaymentFormsQuery extends ElementQuery
     {
         $this->joinElementTable('enupalstripe_forms');
 
+        if (is_null($this->query)){
+            return false;
+        }
+
         $this->query->select([
             'enupalstripe_forms.id',
             'enupalstripe_forms.name',

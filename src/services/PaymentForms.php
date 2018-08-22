@@ -52,7 +52,7 @@ class PaymentForms extends Component
      * @param int $id
      * @param int $siteId
      *
-     * @return null|PaymentForm|\craft\base\ElementInterface
+     * @return null|PaymentForm
      */
     public function getPaymentFormById(int $id, int $siteId = null)
     {
@@ -67,7 +67,7 @@ class PaymentForms extends Component
      * @param string $handle
      * @param int    $siteId
      *
-     * @return null|StripeElement|array
+     * @return null|StripeElement
      */
     public function getPaymentFormBySku($handle, int $siteId = null)
     {
@@ -162,7 +162,7 @@ class PaymentForms extends Component
     }
 
     /**
-     * @param StripeElement $paymentForm
+     * @param $paymentForm
      *
      * @return array
      * @throws Exception

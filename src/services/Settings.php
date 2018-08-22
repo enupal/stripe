@@ -20,12 +20,12 @@ class Settings extends Component
     /**
      * Saves Settings
      *
-     * @param string $scenario
-     * @param SettingsModel  $settings
+     * @param $scenario
+     * @param $settings SettingsModel
      *
      * @return bool
      */
-    public function saveSettings(SettingsModel $settings, string $scenario = null): bool
+    public function saveSettings(SettingsModel $settings, $scenario = null): bool
     {
         $plugin = $this->getPlugin();
 

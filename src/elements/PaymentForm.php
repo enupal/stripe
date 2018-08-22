@@ -29,6 +29,9 @@ use craft\validators\UniqueValidator;
 
 /**
  * PaymentForm represents a entry element.
+ *
+ * @property $enupalMultiplePlans
+ * @property $singlePlanInfo
  */
 class PaymentForm extends Element
 {

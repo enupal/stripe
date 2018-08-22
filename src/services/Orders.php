@@ -76,7 +76,7 @@ class Orders extends Component
      * @param int $id
      * @param int $siteId
      *
-     * @return null|\craft\base\ElementInterface
+     * @return null|Order
      */
     public function getOrderById(int $id, int $siteId = null)
     {
@@ -91,7 +91,7 @@ class Orders extends Component
      * @param string $number
      * @param int    $siteId
      *
-     * @return array|\craft\base\ElementInterface
+     * @return array|Order
      */
     public function getOrderByNumber($number, int $siteId = null)
     {
@@ -108,7 +108,7 @@ class Orders extends Component
      * @param string $stripeTransactionId
      * @param int    $siteId
      *
-     * @return null|\craft\base\ElementInterface|Order
+     * @return null|Order
      */
     public function getOrderByStripeId($stripeTransactionId, int $siteId = null)
     {
@@ -154,10 +154,12 @@ class Orders extends Component
 
         try {
             $transaction = Craft::$app->db->beginTransaction();
-            if (Craft::$app->elements->saveElement($order)) {
+            $result = Craft::$app->elements->saveElement($order);
+
+            if ($result) {
                 $transaction->commit();
 
-                if ($order->orderStatusId == OrderStatus::NEW){
+                if ($order->orderStatusId == OrderStatus::NEW && !Craft::$app->getRequest()->getIsCpRequest()){
                     $event = new OrderCompleteEvent([
                         'order' => $order
                     ]);
@@ -424,7 +426,7 @@ class Orders extends Component
     }
 
     /**
-     * @return bool|string
+     * @return string
      */
     public function getEmailsPath()
     {
@@ -653,8 +655,6 @@ class Orders extends Component
 
         $isNew = false;
         $customer = $this->getCustomer($order->email, $token, $isNew, $order->testMode);
-
-        $charge = null;
         $stripeId = null;
 
         if ($paymentForm->enableSubscriptions){
@@ -707,7 +707,7 @@ class Orders extends Component
             if (isset($data['recurringToggle']) && $data['recurringToggle'] == 'on'){
                 if (isset($data['customAmount']) && $data['customAmount'] > 0){
                     // test what is returning we need a stripe id
-                    $subscription = $this->addRecurringPayment($customer, $data, $paymentForm, $token, $isNew);
+                    $subscription = $this->addRecurringPayment($customer, $data, $paymentForm);
                     $stripeId = $subscription->id ?? null;
                 }
             }
@@ -804,17 +804,6 @@ class Orders extends Component
             ->one();
 
         return $customer['stripeId'] ?? null;
-    }
-
-    /**
-     * @param $tax
-     * @param $price
-     * @return float|int
-     */
-    private function getTax($tax, $price)
-    {
-        $total = ($tax / 100) * $price;
-        return number_format((float)$total, 2, '.', '');
     }
 
     /**
@@ -953,7 +942,7 @@ class Orders extends Component
      * @param $isNew
      * @return mixed
      */
-    private function addRecurringPayment($customer, $data, $paymentForm, $token, $isNew)
+    private function addRecurringPayment($customer, $data, $paymentForm)
     {
         $currentTime = time();
         $planName = strval($currentTime);

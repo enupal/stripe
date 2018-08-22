@@ -167,6 +167,10 @@ class OrdersQuery extends ElementQuery
     {
         $this->joinElementTable('enupalstripe_orders');
 
+        if (is_null($this->query)){
+            return false;
+        }
+
         $this->query->select([
             'enupalstripe_orders.id',
             'enupalstripe_orders.testMode',

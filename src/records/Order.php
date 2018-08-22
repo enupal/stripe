@@ -14,6 +14,33 @@ use craft\records\Element;
 
 /**
  * Class Order record.
+ * @property $id
+ * @property $dateOrdered
+ * @property $number
+ * @property $orderStatusId
+ * @property $currency
+ * @property $totalPrice
+ * @property $formId
+ * @property $quantity
+ * @property $stripeTransactionId
+ * @property $email
+ * @property $firstName
+ * @property $lastName
+ * @property $shipping
+ * @property $tax
+ * @property $discount
+ * @property $addressCity
+ * @property $addressCountry
+ * @property $addressState
+ * @property $addressCountryCode
+ * @property $addressName
+ * @property $addressStreet
+ * @property $addressZip
+ * @property $variants
+ * @property $transactionInfo
+ * @property $testMode
+ * @property $paymentType
+ * @property $postData
  */
 class Order extends ActiveRecord
 {

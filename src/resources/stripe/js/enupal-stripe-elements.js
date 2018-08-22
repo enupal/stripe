@@ -35,8 +35,11 @@ var enupalStripe = {};
             // get the form ID
             var enupalStripeData = $.parseJSON($(enupalButtonElement).find('[name="enupalStripe[stripeData]"]').val());
 
-            // reset our values
-            $(enupalButtonElement).find('[name="enupalStripe[stripeData]"]').val('');
+            //  Firefox is cached for some reason when we empty the hidden input.
+            if (navigator.userAgent.indexOf("Firefox") < 0) {
+                // reset our values
+                $(enupalButtonElement).find('[name="enupalStripe[stripeData]"]').val('');
+            }
 
             this.finalData.finalAmount = enupalStripeData.stripe.amount;
 
@@ -147,7 +150,7 @@ var enupalStripe = {};
                     var options = {};
 
                     if (enupalStripeData.enableBillingAddress || enupalStripeData.enableShippingAddress){
-                        var options = {
+                        options = {
                             name: $(enupalButtonElement).find('[name="address[name]"]').val(),
                             address_line1: $(enupalButtonElement).find('[name="address[line1]"]').val(),
                             address_city: $(enupalButtonElement).find('[name="address[city]"]').val(),
@@ -212,8 +215,6 @@ var enupalStripe = {};
 
             var that = this;
 
-            var errorMessage = document.getElementById('error-message-' + enupalStripeData.paymentFormId);
-
             var form = enupalButtonElement[0];
 
             var paymentFormId = 'stripe-payments-submit-button-'+enupalStripeData.paymentFormId;
@@ -259,6 +260,7 @@ var enupalStripe = {};
             } else {
                 // Subscriptions!
                 var subscriptionType = enupalStripeData.subscriptionType;
+                var customPlanAmount = null;
 
                 if (subscriptionType == 0) {
 
@@ -268,7 +270,7 @@ var enupalStripe = {};
                     // single plan
                     if (enupalStripeData.enableCustomPlanAmount) {
                         // Custom plan
-                        var customPlanAmount = enupalButtonElement.find('[name="enupalStripe[customPlanAmount]"]').val();
+                        customPlanAmount = enupalButtonElement.find('[name="enupalStripe[customPlanAmount]"]').val();
 
                         if (('undefined' !== customPlanAmount) && (customPlanAmount > 0)) {
                             finalAmount = customPlanAmount;
@@ -282,7 +284,7 @@ var enupalStripe = {};
                     } else {
                         customPlanAmountId = enupalButtonElement.find('[name="enupalStripe[enupalMultiPlan]"]').val();
                     }
-                    var customPlanAmount = null;
+                    customPlanAmount = null;
 
                     if (customPlanAmountId in enupalStripeData.multiplePlansAmounts) {
                         customPlanAmount = enupalStripeData.multiplePlansAmounts[customPlanAmountId]['amount'];
