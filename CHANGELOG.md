@@ -1,5 +1,9 @@
 # Stripe Payments Changelog
 
+## 1.4.2 - 2018.08.22
+### Added
+- Added `afterProcessWebhook` event
+
 ## 1.4.1 - 2018.08.22
 ### Fixed
 - Fixed bug in Firefox browsers
