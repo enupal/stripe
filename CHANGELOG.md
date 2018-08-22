@@ -1,5 +1,12 @@
 # Stripe Payments Changelog
 
+## 1.4.1 - 2018.08.22
+### Fixed
+- Fixed bug in Firefox browsers
+
+### Improved
+- Improved code inspections
+
 ## 1.4.0 - 2018.08.19
 ### Added
 - Added support for Stripe [API 2018-07-27](https://stripe.com/docs/upgrades#api-changelog) `make sure to upgrade your api before` before update the plugin. [Read how upgrade your API](https://stripe.com/docs/upgrades)
