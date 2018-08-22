@@ -35,8 +35,11 @@ var enupalStripe = {};
             // get the form ID
             var enupalStripeData = $.parseJSON($(enupalButtonElement).find('[name="enupalStripe[stripeData]"]').val());
 
-            // reset our values
-            $(enupalButtonElement).find('[name="enupalStripe[stripeData]"]').val('');
+            //  Firefox is cached for some reason when we empty the hidden input.
+            if (navigator.userAgent.indexOf("Firefox") < 0) {
+                // reset our values
+                $(enupalButtonElement).find('[name="enupalStripe[stripeData]"]').val('');
+            }
 
             this.finalData.finalAmount = enupalStripeData.stripe.amount;
 
