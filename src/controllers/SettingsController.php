@@ -59,6 +59,7 @@ class SettingsController extends BaseController
     public function actionUpdatePlans()
     {
         $result = null;
+
         try {
             $this->requirePostRequest();
 
@@ -67,6 +68,7 @@ class SettingsController extends BaseController
         } catch (\Throwable $e) {
             Craft::error($e->getMessage(), __METHOD__);
         }
+
         if (!$result){
             Craft::$app->getSession()->setError(Stripe::t('No plans were found in stripe. Check your Stripe Keys'));
         }

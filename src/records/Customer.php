@@ -13,6 +13,9 @@ use craft\db\ActiveRecord;
 
 /**
  * Class Customer record.
+ * @property $stripeId
+ * @property $email
+ * @property $testMode
  */
 class Customer extends ActiveRecord
 {

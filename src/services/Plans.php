@@ -20,6 +20,7 @@ class Plans extends Component
      * Updates plans under Select Plan dropdown within matrix field
      * @throws \Throwable
      * @throws \yii\base\InvalidConfigException
+     * @return bool
      */
     public function getUpdatePlans()
     {
