@@ -10,6 +10,8 @@ namespace enupal\stripe\controllers;
 
 use craft\web\Controller as BaseController;
 use Craft;
+use enupal\stripe\events\WebhookEvent;
+use enupal\stripe\services\Orders;
 use enupal\stripe\Stripe;
 
 
@@ -39,6 +41,7 @@ class WebhookController extends BaseController
         $return = [];
 
         if ($order === null || $stripeId === null) {
+            Stripe::$app->orders->triggerWebhookEvent($eventJson);
             $return['success'] = false;
             return $this->asJson($return);
         }
@@ -58,6 +61,8 @@ class WebhookController extends BaseController
 
                 break;
         }
+
+        Stripe::$app->orders->triggerWebhookEvent($eventJson);
 
         http_response_code(200); // PHP 5.4 or greater
 
