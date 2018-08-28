@@ -279,8 +279,8 @@ class Order extends Element
     {
         $attributes['number'] = ['label' => StripePaymentsPlugin::t('Order Number')];
         $attributes['totalPrice'] = ['label' => StripePaymentsPlugin::t('Total')];
-        $attributes['firstName'] = ['label' => StripePaymentsPlugin::t('Amount')];
-        $attributes['lastName'] = ['label' => StripePaymentsPlugin::t('Amount')];
+        $attributes['isCompleted'] = ['label' => StripePaymentsPlugin::t('Is completed')];
+        $attributes['user'] = ['label' => StripePaymentsPlugin::t('User')];
         $attributes['address'] = ['label' => StripePaymentsPlugin::t('Shipping Address')];
         $attributes['email'] = ['label' => StripePaymentsPlugin::t('Customer Email')];
         $attributes['itemName'] = ['label' => StripePaymentsPlugin::t('Item Name')];
@@ -304,7 +304,7 @@ class Order extends Element
 
     protected static function defineDefaultTableAttributes(string $source): array
     {
-        $attributes = ['number', 'itemName', 'itemSku', 'totalPrice', 'email', 'dateOrdered'];
+        $attributes = ['number', 'itemName', 'itemSku', 'totalPrice', 'email', 'user', 'isCompleted', 'dateOrdered'];
 
         return $attributes;
     }
@@ -328,6 +328,20 @@ class Order extends Element
             case 'address':
                 {
                     return $this->getShippingAddress();
+                }
+            case 'isCompleted':
+                {
+                    $html = null;
+                    if ($this->isCompleted){
+                        $html = "<span class='status green'></span> ".Craft::t('site','True');
+                    }else{
+                        $html = "<span class='status white'></span> ".Craft::t('site','False');
+                    }
+                    return $html;
+                }
+            case 'user':
+                {
+                    return $this->getUserHtml();
                 }
             case 'email':
                 {
@@ -432,6 +446,23 @@ class Order extends Element
         $price = $this->totalPrice - $this->tax - $this->shipping;
 
         return $price;
+    }
+
+    /**
+     * @return string
+     */
+    public function getUserHtml()
+    {
+        $html = Craft::t("enupal-stripe","Guest");
+        if ($this->userId) {
+            $user = Craft::$app->getUsers()->getUserById($this->userId);
+
+            if ($user) {
+                $html = "<a href='".UrlHelper::cpUrl('users/'.$user->id)."'>".$user->username."</a>";
+            }
+        }
+
+        return $html;
     }
 
     /**

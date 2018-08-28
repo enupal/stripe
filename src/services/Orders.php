@@ -155,12 +155,13 @@ class Orders extends Component
 
     /**
      * @param $order Order
+     * @param $triggerEvent boolean
      *
      * @throws \Exception
      * @return bool
      * @throws \Throwable
      */
-    public function saveOrder(Order $order)
+    public function saveOrder(Order $order, $triggerEvent = true)
     {
         if ($order->id) {
             $orderRecord = OrderRecord::findOne($order->id);
@@ -181,7 +182,7 @@ class Orders extends Component
             if ($result) {
                 $transaction->commit();
 
-                if ($order->isCompleted && !Craft::$app->getRequest()->getIsCpRequest()){
+                if ($order->isCompleted && !Craft::$app->getRequest()->getIsCpRequest() && $triggerEvent){
                     $event = new OrderCompleteEvent([
                         'order' => $order
                     ]);
@@ -452,10 +453,12 @@ class Orders extends Component
      */
     public function populateOrder($data, $isPending = false)
     {
+        $currentUser = Craft::$app->getUser();
         $order = new Order();
         $order->orderStatusId = $this->getDefaultOrderStatusId();
         $order->isCompleted = $isPending ? false : true;
         $order->number = $this->getRandomStr();
+        $order->userId = $currentUser ? $currentUser->getId() : null;
         $order->email = $data['email'];
         $order->totalPrice = $data['amount'];// The amount come in cents, we revert this just before save the order
         $order->quantity = $data['quantity'] ?? 1;
@@ -1272,6 +1275,17 @@ class Orders extends Component
         }
 
         return $orderStatusRecord;
+    }
+
+    /**
+     * @param $order
+     * @param $message
+     * @throws \Throwable
+     */
+    public function addMessageToOrder($order, $message)
+    {
+        $order->message .= " - ".$message;
+        $this->saveOrder($order, false);
     }
 
     /**

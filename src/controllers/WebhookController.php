@@ -10,10 +10,7 @@ namespace enupal\stripe\controllers;
 
 use craft\web\Controller as BaseController;
 use Craft;
-use enupal\stripe\events\WebhookEvent;
-use enupal\stripe\services\Orders;
 use enupal\stripe\Stripe;
-
 
 class WebhookController extends BaseController
 {
@@ -54,11 +51,11 @@ class WebhookController extends BaseController
                 break;
             case 'source.failed':
                 Craft::error('Stripe Payments - Source Failed, order: '.$order->number, __METHOD__);
-
+                Stripe::$app->orders->addMessageToOrder($order, "source.failed");
                 break;
             case 'source.canceled':
                 Craft::error('Stripe Payments - Source Canceled,  order: '.$order->number, __METHOD__);
-
+                Stripe::$app->orders->addMessageToOrder($order, "source.canceled");
                 break;
         }
 
