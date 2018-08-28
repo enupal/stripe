@@ -38,7 +38,7 @@ class WebhookController extends BaseController
         $return = [];
 
         if ($order === null || $stripeId === null) {
-            Stripe::$app->orders->triggerWebhookEvent($eventJson);
+            Stripe::$app->orders->triggerWebhookEvent($eventJson, $order);
             $return['success'] = false;
             return $this->asJson($return);
         }
@@ -59,7 +59,7 @@ class WebhookController extends BaseController
                 break;
         }
 
-        Stripe::$app->orders->triggerWebhookEvent($eventJson);
+        Stripe::$app->orders->triggerWebhookEvent($eventJson, $order);
 
         http_response_code(200); // PHP 5.4 or greater
 

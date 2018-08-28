@@ -9,8 +9,8 @@
 namespace enupal\stripe\events;
 
 
+use enupal\stripe\elements\Order;
 use yii\base\Event;
-use craft\mail\Message;
 
 /**
  * WebhookEvent class.
@@ -24,4 +24,9 @@ class WebhookEvent extends Event
      * @var mixed
      */
     public $stripeData;
+
+    /**
+     * @var Order
+     */
+    public $order;
 }

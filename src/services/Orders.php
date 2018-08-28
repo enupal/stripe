@@ -86,6 +86,7 @@ class Orders extends Component
      * Event::on(Orders::class, Orders::EVENT_AFTER_PROCESS_WEBHOOK, function(WebhookEvent $e) {
      *      // https://stripe.com/docs/api#event_types
      *      $data = $e->stripeData;
+     *      $order = $e->order;
      *     // Do something
      * });
      * ```
@@ -820,13 +821,15 @@ class Orders extends Component
 
     /**
      * @param $eventJson
+     * @param $order
      */
-    public function triggerWebhookEvent($eventJson)
+    public function triggerWebhookEvent($eventJson, $order)
     {
         Craft::info("Triggering Webhook event", __METHOD__);
 
         $event = new WebhookEvent([
-            'stripeData' => $eventJson
+            'stripeData' => $eventJson,
+            'order' => $order
         ]);
 
         $this->trigger(self::EVENT_AFTER_PROCESS_WEBHOOK, $event);
