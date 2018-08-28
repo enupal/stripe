@@ -278,7 +278,7 @@ class OrdersQuery extends ElementQuery
             );
         }
 
-        if (is_integer($this->orderStatusId)) {
+        if (is_integer($this->orderStatusId) || $this->orderStatusId === 0) {
             $this->subQuery->andWhere(Db::parseParam(
                 'enupalstripe_orders.orderStatusId', $this->orderStatusId)
             );

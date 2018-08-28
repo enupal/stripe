@@ -157,7 +157,13 @@ class Stripe extends Plugin
                 'enupal-stripe/payment-forms/edit-form',
 
             'enupal-stripe/orders/edit/<orderId:\d+>' =>
-                'enupal-stripe/orders/edit-order'
+                'enupal-stripe/orders/edit-order',
+
+            'enupal-stripe/settings/order-statuses/new' =>
+                'enupal-stripe/order-statuses/edit',
+
+            'enupal-stripe/settings/order-statuses/<orderStatusId:\d+>' =>
+                'enupal-stripe/order-statuses/edit',
         ];
     }
 
