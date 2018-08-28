@@ -1,6 +1,11 @@
 {% extends "enupal-stripe/_layouts/settings" %}
 {% set title = "Order Statuses"|t('enupal-stripe') %}
 {% set orderStatuses = craft.enupalStripe.getAllOrderStatuses() %}
+
+{% block actionButton %}
+    {% include "enupal-stripe/settings/order-statuses/_actionStatusButton" %}
+{% endblock %}
+
 {% set content %}
     {% if orderStatuses|length %}
         <table id="orderStatuses" class="data fullwidth collapsible">

@@ -1230,9 +1230,9 @@ class Orders extends Component
     {
         $statuses = $this->getAllOrderStatuses();
 
-        $entry = Order::find()->where(['statusId' => $id])->one();
+        $order = Order::find()->orderStatusId($id)->one();
 
-        if ($entry) {
+        if ($order) {
             return false;
         }
 
@@ -1246,6 +1246,32 @@ class Orders extends Component
         }
 
         return false;
+    }
+
+    /**
+     * Gets an Order Status's record.
+     *
+     * @param null $orderStatusHandle
+     *
+     * @return OrderStatusRecord|null
+     * @throws \Exception
+     */
+    public function getOrderStatusRecordByHandle($orderStatusHandle = null)
+    {
+        $orderStatusRecord = null ;
+
+        if ($orderStatusHandle) {
+            $orderStatusRecord = OrderStatusRecord::findOne(['handle' => $orderStatusHandle]);
+
+            if (!$orderStatusRecord) {
+                throw new \Exception(Craft::t('enupal-stripe', 'No Order Status exists with the ID “{id}”.',
+                    ['id' => $orderStatusHandle]
+                )
+                );
+            }
+        }
+
+        return $orderStatusRecord;
     }
 
     /**

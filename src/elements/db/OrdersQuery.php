@@ -10,6 +10,8 @@ namespace enupal\stripe\elements\db;
 
 use craft\elements\db\ElementQuery;
 use craft\helpers\Db;
+use Craft;
+use enupal\stripe\Stripe;
 
 class OrdersQuery extends ElementQuery
 {
@@ -28,6 +30,7 @@ class OrdersQuery extends ElementQuery
     public $dateOrdered;
     public $isCompleted;
     public $userId;
+    public $orderStatusHandle;
 
     /**
      * @inheritdoc
@@ -143,6 +146,42 @@ class OrdersQuery extends ElementQuery
     public function getIsCompleted()
     {
         return $this->isCompleted;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function orderStatusId($value)
+    {
+        $this->orderStatusId = $value;
+
+        return $this;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getOrderStatusId()
+    {
+        return $this->orderStatusId;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function orderStatusHandle($value)
+    {
+        $this->orderStatusHandle = $value;
+
+        return $this;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getOrderStatusHandle()
+    {
+        return $this->orderStatusHandle;
     }
 
     /**
@@ -278,7 +317,14 @@ class OrdersQuery extends ElementQuery
             );
         }
 
-        if (is_integer($this->orderStatusId) || $this->orderStatusId === 0) {
+        if ($this->orderStatusHandle) {
+            $orderStatus = Stripe::$app->orders->getOrderStatusRecordByHandle($this->orderStatusHandle);
+            if ($orderStatus){
+                $this->orderStatusId = $orderStatus->id;
+            }
+        }
+
+        if ($this->orderStatusId) {
             $this->subQuery->andWhere(Db::parseParam(
                 'enupalstripe_orders.orderStatusId', $this->orderStatusId)
             );

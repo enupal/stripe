@@ -222,7 +222,7 @@ class Order extends Element
                 'status' => $status->color,
                 'key' => $key,
                 'label' => ucwords(strtolower($status->name)),
-                'criteria' => ['orderStatusId' => $status->id]
+                'criteria' => ['orderStatusHandle' => $status->handle]
             ];
         }
 

@@ -37,7 +37,7 @@ class OrderStatusesController extends BaseController
             }
         }
 
-        return $this->renderTemplate('enupal-stripe/settings/orderstatuses/_edit', [
+        return $this->renderTemplate('enupal-stripe/settings/order-statuses/_edit', [
             'orderStatus' => $orderStatus,
             'orderStatusId' => $orderStatusId
         ]);
@@ -53,7 +53,7 @@ class OrderStatusesController extends BaseController
     {
         $this->requirePostRequest();
 
-        $id = Craft::$app->request->getBodyParam('entryStatusId');
+        $id = Craft::$app->request->getBodyParam('orderStatusId');
         $orderStatus = Stripe::$app->orders->getOrderStatusById($id);
 
         $orderStatus->name = Craft::$app->request->getBodyParam('name');
@@ -65,13 +65,13 @@ class OrderStatusesController extends BaseController
             Craft::$app->session->setError(Craft::t('enupal-stripe', 'Could not save Order Status.'));
 
             Craft::$app->getUrlManager()->setRouteParams([
-                'entryStatus' => $orderStatus
+                'orderStatus' => $orderStatus
             ]);
 
             return null;
         }
 
-        Craft::$app->session->setNotice(Craft::t('enupal-stripe', 'Entry Status saved.'));
+        Craft::$app->session->setNotice(Craft::t('enupal-stripe', 'Order Status saved.'));
 
         return $this->redirectToPostedUrl();
     }
@@ -95,7 +95,7 @@ class OrderStatusesController extends BaseController
     }
 
     /**
-     * @return \yii\web\Response
+     * @return \yii\web\Response|null
      * @throws \Exception
      * @throws \Throwable
      * @throws \yii\db\StaleObjectException
@@ -108,7 +108,7 @@ class OrderStatusesController extends BaseController
         $orderStatusId = Craft::$app->request->getRequiredBodyParam('id');
 
         if (!Stripe::$app->orders->deleteOrderStatusById($orderStatusId)) {
-            $this->asJson(['success' => false]);
+            return $this->asJson(null);
         }
 
         return $this->asJson(['success' => true]);

@@ -56,6 +56,13 @@ class m180828_100000_new_order_columns extends Migration
             ->all();
 
         foreach ($orders as $order) {
+            $newStatus = $order['orderStatusId'] + 1;
+            $this->update($table, [
+                'orderStatusId' => $newStatus
+            ], [
+                'id' => $order['id']
+            ], [], false);
+
             if ($order['orderStatusId'] != 2){
                 $this->update($table, [
                     'isCompleted' => true

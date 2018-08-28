@@ -10,6 +10,8 @@ namespace enupal\stripe\models;
 
 use craft\base\Model;
 use Craft;
+use craft\validators\UniqueValidator;
+use enupal\stripe\records\OrderStatus as OrderStatusRecord;
 
 class OrderStatus extends Model
 {
@@ -77,7 +79,8 @@ class OrderStatus extends Model
     {
         return [
             [['name', 'handle'], 'required'],
-            [['name', 'handle'], 'string', 'max' => 255]
+            [['name', 'handle'], 'string', 'max' => 255],
+            [['handle'], UniqueValidator::class, 'targetClass' => OrderStatusRecord::class],
         ];
     }
 }
