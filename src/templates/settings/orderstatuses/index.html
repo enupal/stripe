@@ -1,0 +1,57 @@
+{% set title = "Order Statuses"|t('enupal-stripe') %}
+{% set orderStatuses = craft.enupalStripe.getAllOrderStatuses() %}
+{% if orderStatuses|length %}
+    <table id="orderStatuses" class="data fullwidth collapsible">
+        <thead>
+        <tr>
+            <th scope="col">{{ "Name"|t('enupal-stripe') }}</th>
+            <th scope="col">{{ "Handle"|t('enupal-stripe') }}</th>
+            <th scope="col">{{ "Default Status"|t('enupal-stripe') }}
+            <td class="thin"></td>
+            <td class="thin"></td>
+        </tr>
+        </thead>
+        <tbody>
+        {% for orderStatus in orderStatuses %}
+            <tr data-id="{{ orderStatus.id }}"
+                data-name="{{ orderStatus.name|t('enupal-stripe') }}">
+                <th scope="row" data-title="{{ 'Name'|t('enupal-stripe') }}"><a
+                            href="{{ url('enupal-stripe/settings/entry-statuses/' ~ orderStatus.id) }}">{{ orderStatus.htmlLabel|raw }}</a>
+                </th>
+                <td data-title="{{ 'Handle'|t('enupal-stripe') }}"
+                    class="code">{{ orderStatus.handle }}</td>
+                <td>{% if orderStatus.isDefault %}<span data-icon="check"
+                                                        title="{{ 'Yes'|t('enupal-stripe') }}"></span>{% endif %}
+                </td>
+                <td>
+                <td class="thin"><a class="move icon"
+                                    title="{{ 'Reorder'|t('enupal-stripe') }}"
+                                    role="button"></a></td>
+                <td class="thin">
+                    {% if orderStatus.id not in [1,2] %}
+                        <a class="delete icon"
+                           title="{{ 'Delete'|t('enupal-stripe') }}"
+                           role="button"></a>
+                    {% endif %}
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+{% endif %}
+
+{% js %}
+    new Craft.AdminTable({
+    tableSelector: '#settings-orderStatuses',
+    newObjectBtnSelector: '#newentrystatus',
+    deleteAction: 'enupal-stripe/entry-statuses/delete',
+    minObjects: 1,
+    sortable: true,
+    reorderAction: 'enupal-stripe/entry-statuses/reorder',
+    reorderSuccessMessage: Craft.t('Order statuses reordered.'),
+    reorderFailMessage:    Craft.t("Couldn’t reorder statuses.."),
+    confirmDeleteMessage: '{{ "Are you sure you want to delete the Order Status “{name}”?"|t('enupal-stripe') }}',
+    deleteFailMessage: '{{ "Unable to delete status. Please remove this status from all Form Entries first."|t('enupal-stripe') }}'
+    });
+{% endjs %}
+

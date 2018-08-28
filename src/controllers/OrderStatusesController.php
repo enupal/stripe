@@ -1,0 +1,116 @@
+<?php
+/**
+ * Stripe Payments plugin for Craft CMS 3.x
+ *
+ * @link      https://enupal.com/
+ * @copyright Copyright (c) 2018 Enupal LLC
+ */
+
+namespace enupal\stripe\controllers;
+
+use Craft;
+use enupal\stripe\Stripe;
+use enupal\stripe\models\OrderStatus;
+use craft\web\Controller as BaseController;
+use yii\web\NotFoundHttpException;
+
+class OrderStatusesController extends BaseController
+{
+    /**
+     * @param int|null         $orderStatusId
+     * @param OrderStatus|null $orderStatus
+     *
+     * @return \yii\web\Response
+     * @throws NotFoundHttpException
+     */
+    public function actionEdit(int $orderStatusId = null, OrderStatus $orderStatus = null)
+    {
+        if (!$orderStatus) {
+            if ($orderStatusId) {
+                $orderStatus = Stripe::$app->orders->getOrderStatusById($orderStatusId);
+
+                if (!$orderStatus->id) {
+                    throw new NotFoundHttpException(Craft::t('enupal-stripe', 'Order Status not found'));
+                }
+            } else {
+                $orderStatus = new OrderStatus();
+            }
+        }
+
+        return $this->renderTemplate('enupal-stripe/settings/orderstatuses/_edit', [
+            'orderStatus' => $orderStatus,
+            'orderStatusId' => $orderStatusId
+        ]);
+    }
+
+    /**
+     * @return null|\yii\web\Response
+     * @throws \yii\base\Exception
+     * @throws \yii\db\Exception
+     * @throws \yii\web\BadRequestHttpException
+     */
+    public function actionSave()
+    {
+        $this->requirePostRequest();
+
+        $id = Craft::$app->request->getBodyParam('entryStatusId');
+        $orderStatus = Stripe::$app->orders->getOrderStatusById($id);
+
+        $orderStatus->name = Craft::$app->request->getBodyParam('name');
+        $orderStatus->handle = Craft::$app->request->getBodyParam('handle');
+        $orderStatus->color = Craft::$app->request->getBodyParam('color');
+        $orderStatus->isDefault = Craft::$app->request->getBodyParam('isDefault');
+
+        if (!Stripe::$app->orders->saveOrderStatus($orderStatus)) {
+            Craft::$app->session->setError(Craft::t('enupal-stripe', 'Could not save Order Status.'));
+
+            Craft::$app->getUrlManager()->setRouteParams([
+                'entryStatus' => $orderStatus
+            ]);
+
+            return null;
+        }
+
+        Craft::$app->session->setNotice(Craft::t('enupal-stripe', 'Entry Status saved.'));
+
+        return $this->redirectToPostedUrl();
+    }
+
+    /**
+     * @return \yii\web\Response
+     * @throws \Exception
+     * @throws \yii\web\BadRequestHttpException
+     */
+    public function actionReorder()
+    {
+        $this->requirePostRequest();
+
+        $ids = json_decode(Craft::$app->request->getRequiredBodyParam('ids'), true);
+
+        if ($success = Stripe::$app->orders->reorderOrderStatuses($ids)) {
+            return $this->asJson(['success' => $success]);
+        }
+
+        return $this->asJson(['error' => Craft::t('enupal-stripe', "Couldn't reorder Order Statuses.")]);
+    }
+
+    /**
+     * @return \yii\web\Response
+     * @throws \Exception
+     * @throws \Throwable
+     * @throws \yii\db\StaleObjectException
+     * @throws \yii\web\BadRequestHttpException
+     */
+    public function actionDelete()
+    {
+        $this->requirePostRequest();
+
+        $orderStatusId = Craft::$app->request->getRequiredBodyParam('id');
+
+        if (!Stripe::$app->orders->deleteOrderStatusById($orderStatusId)) {
+            $this->asJson(['success' => false]);
+        }
+
+        return $this->asJson(['success' => true]);
+    }
+}

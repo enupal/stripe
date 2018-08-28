@@ -361,6 +361,14 @@ class StripeVariable
     }
 
     /**
+     * @return array
+     */
+    public function getAllOrderStatuses()
+    {
+        return Stripe::$app->orders->getAllOrderStatuses();
+    }
+
+    /**
      * @param $view
      * @param $inputFilePath
      * @param $templatePath
