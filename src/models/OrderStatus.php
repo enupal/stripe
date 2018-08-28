@@ -31,7 +31,7 @@ class OrderStatus extends Model
     /**
      * @var string
      */
-    public $color = 'blue';
+    public $color = 'green';
 
     /**
      * @var int

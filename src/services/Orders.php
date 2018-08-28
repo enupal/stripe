@@ -16,12 +16,12 @@ use craft\helpers\Json;
 use craft\helpers\UrlHelper;
 use craft\mail\Message;
 use enupal\stripe\elements\Order;
-use enupal\stripe\enums\OrderStatus;
 use enupal\stripe\enums\PaymentType;
 use enupal\stripe\enums\SubscriptionType;
 use enupal\stripe\events\NotificationEvent;
 use enupal\stripe\events\OrderCompleteEvent;
 use enupal\stripe\events\WebhookEvent;
+use enupal\stripe\Stripe;
 use Stripe\Charge;
 use Stripe\Customer;
 use Stripe\Error\Card;
@@ -181,7 +181,7 @@ class Orders extends Component
             if ($result) {
                 $transaction->commit();
 
-                if ($order->orderStatusId == OrderStatus::NEW && !Craft::$app->getRequest()->getIsCpRequest()){
+                if ($order->isCompleted && !Craft::$app->getRequest()->getIsCpRequest()){
                     $event = new OrderCompleteEvent([
                         'order' => $order
                     ]);
@@ -254,20 +254,6 @@ class Orders extends Component
             $str .= $keyspace[random_int(0, $max)];
         }
         return $str;
-    }
-
-    /**
-     * @return array
-     */
-    public function getColorStatuses()
-    {
-        $colors = [
-            OrderStatus::PENDING => 'white',
-            OrderStatus::NEW => 'green',
-            OrderStatus::PROCESSED => 'blue',
-        ];
-
-        return $colors;
     }
 
     /**
@@ -467,7 +453,8 @@ class Orders extends Component
     public function populateOrder($data, $isPending = false)
     {
         $order = new Order();
-        $order->orderStatusId = $isPending ? OrderStatus::PENDING : OrderStatus::NEW;
+        $order->orderStatusId = $this->getDefaultOrderStatusId();
+        $order->isCompleted = $isPending ? false : true;
         $order->number = $this->getRandomStr();
         $order->email = $data['email'];
         $order->totalPrice = $data['amount'];// The amount come in cents, we revert this just before save the order
@@ -600,7 +587,7 @@ class Orders extends Component
         $postData['enupalStripe']['amount'] = $sourceObject['data']['object']['amount'];
         $postData['enupalStripe']['currency'] = $sourceObject['data']['object']['currency'];
 
-        $order->orderStatusId = OrderStatus::NEW;
+        $order->isCompleted = true;
 
         $order = $this->processPayment($postData, $order);
 
@@ -1175,6 +1162,18 @@ class Orders extends Component
         }
 
         return false;
+    }
+
+    /**
+     * @return mixed|null
+     */
+    public function getDefaultOrderStatusId()
+    {
+        $entryStatus = OrderStatusRecord::find()
+            ->orderBy(['isDefault' => SORT_DESC])
+            ->one();
+
+        return $entryStatus != null ? $entryStatus->id : null;
     }
 
     /**

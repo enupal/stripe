@@ -18,11 +18,15 @@ class m180828_100000_new_order_columns extends Migration
         $table = "{{%enupalstripe_orders}}";
 
         if (!$this->db->columnExists($table, 'userId')) {
-            $this->addColumn($table, 'userId', $this->tinyInteger()->after('formId'));
+            $this->addColumn($table, 'userId', $this->integer()->after('formId'));
         }
 
         if (!$this->db->columnExists($table, 'isCompleted')) {
-            $this->addColumn($table, 'isCompleted', $this->tinyInteger()->after('email'));
+            $this->addColumn($table, 'isCompleted', $this->boolean()->after('email'));
+        }
+
+        if (!$this->db->columnExists($table, 'message')) {
+            $this->addColumn($table, 'message', $this->text()->after('postData'));
         }
 
         $users = (new Query())

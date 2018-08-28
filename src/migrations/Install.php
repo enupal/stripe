@@ -144,6 +144,7 @@ class Install extends Migration
             'addressZip' => $this->string(),
             'variants' => $this->text(),
             'postData' => $this->text(),
+            'message' => $this->text(),
             //
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),

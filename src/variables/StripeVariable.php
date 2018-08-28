@@ -10,7 +10,6 @@ namespace enupal\stripe\variables;
 
 use enupal\stripe\elements\Order;
 use enupal\stripe\elements\PaymentForm;
-use enupal\stripe\enums\OrderStatus;
 use enupal\stripe\enums\FrequencyType;
 use enupal\stripe\services\PaymentForms;
 use enupal\stripe\Stripe;
@@ -121,10 +120,11 @@ class StripeVariable
      */
     public function getOrderStatuses()
     {
+        $statuses = Stripe::$app->orders->getAllOrderStatuses();
         $options = [];
-        $options[OrderStatus::NEW] = Stripe::t('New');
-        $options[OrderStatus::PROCESSED] = Stripe::t('Processed');
-        $options[OrderStatus::PENDING] = Stripe::t('Pending');
+        foreach ($statuses as $status) {
+            $options[$status->id] = Stripe::t($status->name);
+        }
 
         return $options;
     }

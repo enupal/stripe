@@ -16,6 +16,7 @@ use craft\records\Element;
  * Class Order record.
  * @property $id
  * @property $dateOrdered
+ * @property $userId
  * @property $number
  * @property $orderStatusId
  * @property $currency
@@ -24,6 +25,7 @@ use craft\records\Element;
  * @property $quantity
  * @property $stripeTransactionId
  * @property $email
+ * @property $isCompleted
  * @property $firstName
  * @property $lastName
  * @property $shipping
@@ -41,6 +43,7 @@ use craft\records\Element;
  * @property $testMode
  * @property $paymentType
  * @property $postData
+ * @property $message
  */
 class Order extends ActiveRecord
 {

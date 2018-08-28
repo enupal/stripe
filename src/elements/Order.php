@@ -13,13 +13,11 @@ use craft\base\Element;
 use craft\elements\db\ElementQueryInterface;
 use craft\helpers\Db;
 use enupal\stripe\elements\actions\SetStatus;
-use yii\base\ErrorHandler;
 use craft\helpers\UrlHelper;
 use craft\elements\actions\Delete;
 
 use enupal\stripe\elements\db\OrdersQuery;
 use enupal\stripe\records\Order as OrderRecord;
-use enupal\stripe\enums\OrderStatus;
 use enupal\stripe\Stripe as StripePaymentsPlugin;
 use craft\validators\UniqueValidator;
 
@@ -33,6 +31,8 @@ class Order extends Element
     public $id;
 
     public $testMode;
+
+    public $userId;
 
     public $paymentType;
 
@@ -59,7 +59,7 @@ class Order extends Element
     /**
      * @var int Order Status Id
      */
-    public $orderStatusId = OrderStatus::NEW;
+    public $orderStatusId;
 
     public $formId;
     public $currency;
@@ -67,6 +67,7 @@ class Order extends Element
     public $shipping;
     public $tax;
     public $discount;
+    public $isCompleted;
     public $email;
     public $firstName;
     public $lastName;
@@ -81,6 +82,7 @@ class Order extends Element
     // variants
     public $variants;
     public $postData;
+    public $message;
 
     public $dateCreated;
     public $dateOrdered;
@@ -167,16 +169,34 @@ class Order extends Element
     }
 
     /**
+     * Returns a list of statuses for this element type
+     *
+     * @return array
+     */
+    public static function statuses(): array
+    {
+        $statuses = StripePaymentsPlugin::$app->orders->getAllOrderStatuses();
+        $statusArray = [];
+
+        foreach ($statuses as $status) {
+            $key = $status['handle'].' '.$status['color'];
+            $statusArray[$key] = $status['name'];
+        }
+
+        return $statusArray;
+    }
+
+    /**
      *
      * @return string|null
      */
     public function getStatus()
     {
-        $statusId = $this->orderStatusId ?? OrderStatus::NEW;
+        $statusId = $this->orderStatusId;
 
-        $colors = StripePaymentsPlugin::$app->orders->getColorStatuses();
+        $status = StripePaymentsPlugin::$app->orders->getOrderStatusById($statusId);
 
-        return $colors[$statusId];
+        return $status->color;
     }
 
     /**
@@ -192,19 +212,17 @@ class Order extends Element
             ]
         ];
 
-        $statuses = OrderStatus::getConstants();
-
-        $colors = StripePaymentsPlugin::$app->orders->getColorStatuses();
+        $statuses = StripePaymentsPlugin::$app->orders->getAllOrderStatuses();
 
         $sources[] = ['heading' => StripePaymentsPlugin::t("Order Status")];
 
-        foreach ($statuses as $code => $status) {
-            $key = 'orderStatusId:'.$status;
+        foreach ($statuses as $status) {
+            $key = 'orderStatusId:'.$status->id;
             $sources[] = [
-                'status' => $colors[$status],
+                'status' => $status->color,
                 'key' => $key,
-                'label' => ucwords(strtolower($code)),
-                'criteria' => ['orderStatusId' => $status]
+                'label' => ucwords(strtolower($status->name)),
+                'criteria' => ['orderStatusId' => $status->id]
             ];
         }
 
@@ -353,6 +371,7 @@ class Order extends Element
 
         $record->dateOrdered = Db::prepareDateForDb(new \DateTime());
         $record->number = $this->number;
+        $record->userId = $this->userId;
         $record->orderStatusId = $this->orderStatusId;
         $record->currency = $this->currency;
         $record->totalPrice = $this->totalPrice;
@@ -360,6 +379,7 @@ class Order extends Element
         $record->quantity = $this->quantity;
         $record->stripeTransactionId = $this->stripeTransactionId;
         $record->email = $this->email;
+        $record->isCompleted = $this->isCompleted;
         $record->firstName = $this->firstName;
         $record->lastName = $this->lastName;
         $record->shipping = $this->shipping;
@@ -377,6 +397,7 @@ class Order extends Element
         $record->testMode = $this->testMode;
         $record->paymentType = $this->paymentType;
         $record->postData = $this->postData;
+        $record->message = $this->message;
         $record->save(false);
 
         parent::afterSave($isNew);
@@ -411,19 +432,6 @@ class Order extends Element
         $price = $this->totalPrice - $this->tax - $this->shipping;
 
         return $price;
-    }
-
-    /**
-     * @return string
-     * @throws \ReflectionException
-     */
-    public function getStatusName()
-    {
-        $statuses = OrderStatus::getConstants();
-
-        $statuses = array_flip($statuses);
-
-        return ucwords(strtolower($statuses[$this->orderStatusId]));
     }
 
     /**
