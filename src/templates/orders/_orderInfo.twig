@@ -21,6 +21,13 @@
                 </td>
             </tr>
             <tr>
+                <td><strong>{{ "User"|t('enupal-stripe') }}</strong>
+                </td>
+                <td>
+                    {{ order.getUserHtml()|raw }}
+                </td>
+            </tr>
+            <tr>
                 <td>
                     <strong>{{ "Order Date"|t('enupal-stripe') }}</strong>
                 </td>
@@ -72,5 +79,7 @@
             value: order.orderStatusId,
             errors: order.getErrors('orderStatusId')
         }) }}
+        <label for="notes">Messages</label>
+        <textarea name="notes" id="notes" disabled class="text fullwidth">{{ order.message|raw }}</textarea>
     </div>
 </div>

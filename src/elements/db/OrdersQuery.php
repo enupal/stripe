@@ -10,6 +10,8 @@ namespace enupal\stripe\elements\db;
 
 use craft\elements\db\ElementQuery;
 use craft\helpers\Db;
+use Craft;
+use enupal\stripe\Stripe;
 
 class OrdersQuery extends ElementQuery
 {
@@ -26,6 +28,9 @@ class OrdersQuery extends ElementQuery
     public $totalPrice;
     public $tax;
     public $dateOrdered;
+    public $isCompleted;
+    public $userId;
+    public $orderStatusHandle;
 
     /**
      * @inheritdoc
@@ -92,6 +97,24 @@ class OrdersQuery extends ElementQuery
     /**
      * @inheritdoc
      */
+    public function userId($value)
+    {
+        $this->userId = $value;
+
+        return $this;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getUserId()
+    {
+        return $this->userId;
+    }
+
+    /**
+     * @inheritdoc
+     */
     public function email($value)
     {
         $this->email = $value;
@@ -105,6 +128,60 @@ class OrdersQuery extends ElementQuery
     public function getEmail()
     {
         return $this->email;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function isCompleted($value)
+    {
+        $this->isCompleted = $value;
+
+        return $this;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getIsCompleted()
+    {
+        return $this->isCompleted;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function orderStatusId($value)
+    {
+        $this->orderStatusId = $value;
+
+        return $this;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getOrderStatusId()
+    {
+        return $this->orderStatusId;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function orderStatusHandle($value)
+    {
+        $this->orderStatusHandle = $value;
+
+        return $this;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getOrderStatusHandle()
+    {
+        return $this->orderStatusHandle;
     }
 
     /**
@@ -174,6 +251,7 @@ class OrdersQuery extends ElementQuery
         $this->query->select([
             'enupalstripe_orders.id',
             'enupalstripe_orders.testMode',
+            'enupalstripe_orders.userId',
             'enupalstripe_orders.paymentType',
             'enupalstripe_orders.number',
             'enupalstripe_orders.currency',
@@ -185,6 +263,7 @@ class OrdersQuery extends ElementQuery
             'enupalstripe_orders.quantity',
             'enupalstripe_orders.stripeTransactionId',
             'enupalstripe_orders.transactionInfo',
+            'enupalstripe_orders.isCompleted',
             'enupalstripe_orders.email',
             'enupalstripe_orders.firstName',
             'enupalstripe_orders.lastName',
@@ -198,6 +277,7 @@ class OrdersQuery extends ElementQuery
             'enupalstripe_orders.addressZip',
             'enupalstripe_orders.variants',
             'enupalstripe_orders.postData',
+            'enupalstripe_orders.message',
             'enupalstripe_orders.dateOrdered'
         ]);
 
@@ -231,9 +311,28 @@ class OrdersQuery extends ElementQuery
             );
         }
 
-        if (is_integer($this->orderStatusId)) {
+        if (is_integer($this->isCompleted)) {
+            $this->subQuery->andWhere(Db::parseParam(
+                'enupalstripe_orders.isCompleted', $this->isCompleted)
+            );
+        }
+
+        if ($this->orderStatusHandle) {
+            $orderStatus = Stripe::$app->orders->getOrderStatusRecordByHandle($this->orderStatusHandle);
+            if ($orderStatus){
+                $this->orderStatusId = $orderStatus->id;
+            }
+        }
+
+        if ($this->orderStatusId) {
             $this->subQuery->andWhere(Db::parseParam(
                 'enupalstripe_orders.orderStatusId', $this->orderStatusId)
+            );
+        }
+
+        if ($this->userId) {
+            $this->subQuery->andWhere(Db::parseParam(
+                'enupalstripe_orders.userId', $this->userId)
             );
         }
 

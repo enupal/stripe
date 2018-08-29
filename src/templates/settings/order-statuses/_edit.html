@@ -1,0 +1,107 @@
+{% extends "enupal-stripe/_layouts/base" %}
+{% import "_includes/forms" as forms %}
+
+{% set crumbs    = [
+    { label: "Settings"|t('enupal-stripe'), url: url('enupal-stripe/settings') },
+    { label: "Order Statuses"|t('enupal-stripe'), url: url('enupal-stripe/settings/order-statuses') }
+] %}
+
+{% set title = orderStatus.name ?? 'Create New Order Status'|t('enupal-stripe') %}
+
+{% set fullPageForm = true %}
+
+{% block actionButton %}
+
+    <div class="buttons">
+        <input type="submit" class="btn submit" value="{{ 'Save'|t('enupal-stripe') }}">
+    </div>
+
+{% endblock %}
+
+{% block content %}
+
+    <input type="hidden" name="action" value="enupal-stripe/order-statuses/save">
+    {{ redirectInput('enupal-stripe/settings/order-statuses') }}
+
+    {% if orderStatus.id %}
+        <input type="hidden" name="orderStatusId" value="{{ orderStatus.id }}">
+    {% endif %}
+
+    {{ forms.textField({
+        id: "name",
+        name: "name",
+        label: "Name"|t('enupal-stripe'),
+        value: orderStatus.name,
+        instructions: "What this product type will be called in the CP."|t('enupal-stripe'),
+        first: true,
+        autofocus: true,
+        required: true,
+        translatable: true,
+        errors: orderStatus.getErrors("name")
+    }) }}
+
+    {{ forms.textField({
+        id: "handle",
+        name: "handle",
+        label: "Handle"|t('enupal-stripe'),
+        class: "code",
+        value: orderStatus.handle,
+        instructions: "How you’ll refer to this order status type in your templates."|t('enupal-stripe'),
+        required: true,
+        errors: orderStatus.getErrors("handle")
+    }) }}
+
+    {{ forms.hidden({
+        id: 'color',
+        name: 'color',
+        value: orderStatus.color
+    }) }}
+    {% set colorField %}
+        <div>
+            <a id="color-menu-btn" class="btn menubtn" href="#"><span
+                        class="status {{ orderStatus.color }}"></span>{{ orderStatus.color|t|title }}
+            </a>
+            <div class="menu">
+                <ul class="padded">
+                    {% for color in ['green','orange', 'red', 'blue', 'yellow', 'pink', 'purple', 'turquoise', 'light', 'grey', 'black'] %}
+                        <li><a data-val="{{ color }}"
+                               {% if orderStatus.color == color %}class="sel"{% endif %}
+                               href="#"><span
+                                        class="status {{ color }}"></span>{{ color|t|title }}
+                            </a></li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    {% endset %}
+    {{ forms.field({
+        label: 'Color'|t('enupal-stripe'),
+        instructions: 'Choose a color for the order status'|t('enupal-stripe')
+    },colorField) }}
+
+    {{ forms.lightswitchField({
+        label: "Default Order Status"|t('enupal-stripe'),
+        instructions: "Use this Order Status as the default when a form is submitted."|t('enupal-stripe'),
+        name: 'isDefault',
+        on:   orderStatus.isDefault
+    }) }}
+
+{% endblock %}
+
+{% js %}
+    {% if not orderStatus.handle %}new Craft.HandleGenerator('#name', '#handle');{% endif %}
+
+    $(function () {
+
+        $colorSelect = $('#color-menu-btn');
+
+        new Garnish.MenuBtn($colorSelect, {
+            onOptionSelect: function(data){
+                var val = $(data).data('val');
+                $('#color').val(val);
+                var html = "<span class='status "+val+"'></span>"+Craft.uppercaseFirst(val);
+                    $colorSelect.html(html);
+                }
+            });
+    })();
+{% endjs %}

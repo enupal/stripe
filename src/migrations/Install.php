@@ -23,6 +23,7 @@ class Install extends Migration
         $this->createTables();
         $this->createIndexes();
         $this->addForeignKeys();
+        $this->insertDefaultData();
 
         return true;
     }
@@ -35,6 +36,7 @@ class Install extends Migration
         $this->dropTableIfExists('{{%enupalstripe_orders}}');
         $this->dropTableIfExists('{{%enupalstripe_forms}}');
         $this->dropTableIfExists('{{%enupalstripe_customers}}');
+        $this->dropTableIfExists('{{%enupalstripe_orderstatuses}}');
 
         return true;
     }
@@ -115,6 +117,7 @@ class Install extends Migration
         $this->createTable('{{%enupalstripe_orders}}', [
             'id' => $this->primaryKey(),
             'formId' => $this->integer(),
+            'userId' => $this->integer(),
             'testMode' => $this->boolean()->defaultValue(0),
             'paymentType' => $this->integer(),
             'number' => $this->string(),
@@ -129,6 +132,7 @@ class Install extends Migration
             'stripeTransactionId' => $this->string(),
             'transactionInfo' => $this->text(),
             'email' => $this->string(),
+            'isCompleted' => $this->boolean(),
             'firstName' => $this->string(),
             'lastName' => $this->string(),
             'addressCity' => $this->string(),
@@ -140,6 +144,7 @@ class Install extends Migration
             'addressZip' => $this->string(),
             'variants' => $this->text(),
             'postData' => $this->text(),
+            'message' => $this->text(),
             //
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
@@ -155,6 +160,24 @@ class Install extends Migration
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
             'uid' => $this->uid()
+        ]);
+
+        $this->createTable('{{%enupalstripe_orderstatuses}}', [
+            'id' => $this->primaryKey(),
+            'name' => $this->string()->notNull(),
+            'handle' => $this->string()->notNull(),
+            'color' => $this->enum('color',
+                [
+                    'green', 'orange', 'red', 'blue',
+                    'yellow', 'pink', 'purple', 'turquoise',
+                    'light', 'grey', 'black'
+                ])
+                ->notNull()->defaultValue('blue'),
+            'sortOrder' => $this->smallInteger()->unsigned(),
+            'isDefault' => $this->boolean(),
+            'dateCreated' => $this->dateTime()->notNull(),
+            'dateUpdated' => $this->dateTime()->notNull(),
+            'uid' => $this->uid(),
         ]);
     }
 
@@ -207,5 +230,42 @@ class Install extends Migration
             '{{%enupalstripe_orders}}', 'formId',
             '{{%enupalstripe_forms}}', 'id', 'CASCADE', null
         );
+    }
+
+    /**
+     * Populates the DB with the default data.
+     *
+     * @throws \ReflectionException
+     * @throws \yii\db\Exception
+     */
+    protected function insertDefaultData()
+    {
+        // populate default Order Statuses
+        $defaultEntryStatuses = [
+            0 => [
+                'name' => 'New',
+                'handle' => 'new',
+                'color' => 'green',
+                'sortOrder' => 1,
+                'isDefault' => 1
+            ],
+            1 => [
+                'name' => 'Processed',
+                'handle' => 'processed',
+                'color' => 'blue',
+                'sortOrder' => 2,
+                'isDefault' => 0
+            ]
+        ];
+
+        foreach ($defaultEntryStatuses as $entryStatus) {
+            $this->db->createCommand()->insert('{{%enupalstripe_orderstatuses}}', [
+                'name' => $entryStatus['name'],
+                'handle' => $entryStatus['handle'],
+                'color' => $entryStatus['color'],
+                'sortOrder' => $entryStatus['sortOrder'],
+                'isDefault' => $entryStatus['isDefault']
+            ])->execute();
+        }
     }
 }

@@ -16,12 +16,12 @@ use craft\helpers\Json;
 use craft\helpers\UrlHelper;
 use craft\mail\Message;
 use enupal\stripe\elements\Order;
-use enupal\stripe\enums\OrderStatus;
 use enupal\stripe\enums\PaymentType;
 use enupal\stripe\enums\SubscriptionType;
 use enupal\stripe\events\NotificationEvent;
 use enupal\stripe\events\OrderCompleteEvent;
 use enupal\stripe\events\WebhookEvent;
+use enupal\stripe\Stripe;
 use Stripe\Charge;
 use Stripe\Customer;
 use Stripe\Error\Card;
@@ -32,6 +32,8 @@ use yii\base\Component;
 use enupal\stripe\Stripe as StripePlugin;
 use enupal\stripe\records\Order as OrderRecord;
 use enupal\stripe\records\Customer as CustomerRecord;
+use enupal\stripe\models\OrderStatus as OrderStatusModel;
+use enupal\stripe\records\OrderStatus as OrderStatusRecord;
 
 class Orders extends Component
 {
@@ -84,6 +86,7 @@ class Orders extends Component
      * Event::on(Orders::class, Orders::EVENT_AFTER_PROCESS_WEBHOOK, function(WebhookEvent $e) {
      *      // https://stripe.com/docs/api#event_types
      *      $data = $e->stripeData;
+     *      $order = $e->order;
      *     // Do something
      * });
      * ```
@@ -153,12 +156,13 @@ class Orders extends Component
 
     /**
      * @param $order Order
+     * @param $triggerEvent boolean
      *
      * @throws \Exception
      * @return bool
      * @throws \Throwable
      */
-    public function saveOrder(Order $order)
+    public function saveOrder(Order $order, $triggerEvent = true)
     {
         if ($order->id) {
             $orderRecord = OrderRecord::findOne($order->id);
@@ -179,7 +183,7 @@ class Orders extends Component
             if ($result) {
                 $transaction->commit();
 
-                if ($order->orderStatusId == OrderStatus::NEW && !Craft::$app->getRequest()->getIsCpRequest()){
+                if ($order->isCompleted && !Craft::$app->getRequest()->getIsCpRequest() && $triggerEvent){
                     $event = new OrderCompleteEvent([
                         'order' => $order
                     ]);
@@ -252,20 +256,6 @@ class Orders extends Component
             $str .= $keyspace[random_int(0, $max)];
         }
         return $str;
-    }
-
-    /**
-     * @return array
-     */
-    public function getColorStatuses()
-    {
-        $colors = [
-            OrderStatus::PENDING => 'white',
-            OrderStatus::NEW => 'green',
-            OrderStatus::PROCESSED => 'blue',
-        ];
-
-        return $colors;
     }
 
     /**
@@ -464,9 +454,12 @@ class Orders extends Component
      */
     public function populateOrder($data, $isPending = false)
     {
+        $currentUser = Craft::$app->getUser();
         $order = new Order();
-        $order->orderStatusId = $isPending ? OrderStatus::PENDING : OrderStatus::NEW;
+        $order->orderStatusId = $this->getDefaultOrderStatusId();
+        $order->isCompleted = $isPending ? false : true;
         $order->number = $this->getRandomStr();
+        $order->userId = $currentUser ? $currentUser->getId() : null;
         $order->email = $data['email'];
         $order->totalPrice = $data['amount'];// The amount come in cents, we revert this just before save the order
         $order->quantity = $data['quantity'] ?? 1;
@@ -598,7 +591,7 @@ class Orders extends Component
         $postData['enupalStripe']['amount'] = $sourceObject['data']['object']['amount'];
         $postData['enupalStripe']['currency'] = $sourceObject['data']['object']['currency'];
 
-        $order->orderStatusId = OrderStatus::NEW;
+        $order->isCompleted = true;
 
         $order = $this->processPayment($postData, $order);
 
@@ -828,13 +821,15 @@ class Orders extends Component
 
     /**
      * @param $eventJson
+     * @param $order
      */
-    public function triggerWebhookEvent($eventJson)
+    public function triggerWebhookEvent($eventJson, $order)
     {
         Craft::info("Triggering Webhook event", __METHOD__);
 
         $event = new WebhookEvent([
-            'stripeData' => $eventJson
+            'stripeData' => $eventJson,
+            'order' => $order
         ]);
 
         $this->trigger(self::EVENT_AFTER_PROCESS_WEBHOOK, $event);
@@ -1099,6 +1094,227 @@ class Orders extends Component
         }
 
         return $amount / 100;
+    }
+
+    /**
+     * @param $orderStatusId
+     *
+     * @return OrderStatusModel
+     */
+    public function getOrderStatusById($orderStatusId)
+    {
+        $orderStatus = OrderStatusRecord::find()
+            ->where(['id' => $orderStatusId])
+            ->one();
+
+        $orderStatusesModel = new OrderStatusModel;
+
+        if ($orderStatus) {
+            $orderStatusesModel->setAttributes($orderStatus->getAttributes(), false);
+        }
+
+        return $orderStatusesModel;
+    }
+
+    /**
+     * @param $orderStatus OrderStatusModel
+     *
+     * @return bool
+     * @throws \Exception
+     * @throws \yii\db\Exception
+     */
+    public function saveOrderStatus(OrderStatusModel $orderStatus): bool
+    {
+        $record = new OrderStatusRecord;
+
+        if ($orderStatus->id) {
+            $record = OrderStatusRecord::findOne($orderStatus->id);
+
+            if (!$record) {
+                throw new \Exception(Craft::t('enupal-stripe', 'No Order Status exists with the id of “{id}”', [
+                    'id' => $orderStatus->id
+                ]));
+            }
+        }
+
+        $record->setAttributes($orderStatus->getAttributes(), false);
+
+        $record->sortOrder = $orderStatus->sortOrder ?: 999;
+
+        $orderStatus->validate();
+
+        if (!$orderStatus->hasErrors()) {
+            $transaction = Craft::$app->db->beginTransaction();
+
+            try {
+                if ($record->isDefault) {
+                    OrderStatusRecord::updateAll(['isDefault' => 0]);
+                }
+
+                $record->save(false);
+
+                if (!$orderStatus->id) {
+                    $orderStatus->id = $record->id;
+                }
+
+                $transaction->commit();
+            } catch (\Exception $e) {
+                $transaction->rollback();
+
+                throw $e;
+            }
+
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * @return mixed|null
+     */
+    public function getDefaultOrderStatusId()
+    {
+        $entryStatus = OrderStatusRecord::find()
+            ->orderBy(['isDefault' => SORT_DESC])
+            ->one();
+
+        return $entryStatus != null ? $entryStatus->id : null;
+    }
+
+    /**
+     * Reorders Order Statuses
+     *
+     * @param $orderStatusIds
+     *
+     * @return bool
+     * @throws \Exception
+     * @throws \yii\db\Exception
+     */
+    public function reorderOrderStatuses($orderStatusIds)
+    {
+        $transaction = Craft::$app->db->beginTransaction();
+
+        try {
+            foreach ($orderStatusIds as $orderStatus => $orderStatusId) {
+                $orderStatusRecord = $this->getOrderStatusRecordById($orderStatusId);
+                $orderStatusRecord->sortOrder = $orderStatus + 1;
+                $orderStatusRecord->save();
+            }
+
+            $transaction->commit();
+        } catch (\Exception $e) {
+            $transaction->rollBack();
+
+            throw $e;
+        }
+
+        return true;
+    }
+
+    /**
+     * @return array
+     */
+    public function getAllOrderStatuses()
+    {
+        $entryStatuses = OrderStatusRecord::find()
+            ->orderBy(['sortOrder' => 'asc'])
+            ->all();
+
+        return $entryStatuses;
+    }
+
+    /**
+     * @param $id
+     *
+     * @return bool
+     * @throws \Exception
+     * @throws \Throwable
+     * @throws \yii\db\StaleObjectException
+     */
+    public function deleteOrderStatusById($id)
+    {
+        $statuses = $this->getAllOrderStatuses();
+
+        $order = Order::find()->orderStatusId($id)->one();
+
+        if ($order) {
+            return false;
+        }
+
+        if (count($statuses) >= 2) {
+            $orderStatus = OrderStatusRecord::findOne($id);
+
+            if ($orderStatus) {
+                $orderStatus->delete();
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Gets an Order Status's record.
+     *
+     * @param null $orderStatusHandle
+     *
+     * @return OrderStatusRecord|null
+     * @throws \Exception
+     */
+    public function getOrderStatusRecordByHandle($orderStatusHandle = null)
+    {
+        $orderStatusRecord = null ;
+
+        if ($orderStatusHandle) {
+            $orderStatusRecord = OrderStatusRecord::findOne(['handle' => $orderStatusHandle]);
+
+            if (!$orderStatusRecord) {
+                throw new \Exception(Craft::t('enupal-stripe', 'No Order Status exists with the ID “{id}”.',
+                    ['id' => $orderStatusHandle]
+                )
+                );
+            }
+        }
+
+        return $orderStatusRecord;
+    }
+
+    /**
+     * @param $order
+     * @param $message
+     * @throws \Throwable
+     */
+    public function addMessageToOrder($order, $message)
+    {
+        $order->message .= " - ".$message;
+        $this->saveOrder($order, false);
+    }
+
+    /**
+     * Gets an Order Status's record.
+     *
+     * @param null $orderStatusId
+     *
+     * @return OrderStatusRecord|null|static
+     * @throws \Exception
+     */
+    private function getOrderStatusRecordById($orderStatusId = null)
+    {
+        if ($orderStatusId) {
+            $orderStatusRecord = OrderStatusRecord::findOne($orderStatusId);
+
+            if (!$orderStatusRecord) {
+                throw new \Exception(Craft::t('enupal-stripe', 'No Order Status exists with the ID “{id}”.',
+                    ['id' => $orderStatusId]
+                )
+                );
+            }
+        } else {
+            $orderStatusRecord = new OrderStatusRecord();
+        }
+
+        return $orderStatusRecord;
     }
 
     /**

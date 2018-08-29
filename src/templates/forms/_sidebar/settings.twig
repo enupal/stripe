@@ -9,7 +9,7 @@
 
 {% import "_includes/forms" as forms %}
 <div class="meta">
-    <h6>{{ 'General'|t('sprout-forms') }}</h6>
+    <h6>{{ 'General'|t('enupal-stripe') }}</h6>
 
     {{ forms.textField({
         first: true,
@@ -72,7 +72,7 @@
 </div>
 <hr>
 <div id="one-time-payment-wrapper" class="meta {% if stripeForm.enableSubscriptions %} hidden {% endif %}">
-    <h6>{{ 'One Time Payment'|t('sprout-forms') }}</h6>
+    <h6>{{ 'One Time Payment'|t('enupal-stripe') }}</h6>
 
     {{ forms.selectField({
         label: "Amount Type"|t('enupal-stripe'),
@@ -133,7 +133,7 @@
 </div>
 <hr>
 <div class="meta">
-    <h6>{{ 'Inventory'|t('sprout-forms') }}</h6>
+    <h6>{{ 'Inventory'|t('enupal-stripe') }}</h6>
     {% set stockInput %}
         <div class="flex">
             <div class="textwrapper">
@@ -166,7 +166,7 @@
 {# Disable discounts for now
 <hr>
 <div class="meta">
-    <h6>{{ 'Discount'|t('sprout-forms') }}</h6>
+    <h6>{{ 'Discount'|t('enupal-stripe') }}</h6>
     {{ forms.selectField({
         label: "Discount Type <span class='info'>Reduce the price by a percentage or amount, of the original price.</span>"|t('enupal-stripe'),
         id: 'discountType',
@@ -188,7 +188,7 @@
 #}
 <hr>
 <div class="meta">
-    <h6>{{ 'Shipping'|t('sprout-forms') }}</h6>
+    <h6>{{ 'Shipping'|t('enupal-stripe') }}</h6>
 
     {{ forms.lightswitchField({
         label: "Shipping Address <span class='info'>Enables buyers to specify the Shipping Address</span>"|t('enupal-stripe'),
@@ -213,7 +213,7 @@
 </div>
 <hr>
 <div class="meta">
-    <h6>{{ 'Advanced'|t('sprout-forms') }}</h6>
+    <h6>{{ 'Advanced'|t('enupal-stripe') }}</h6>
 
     {{ forms.textField({
         label: "Return URL <span class='info'>Redirect buyers' to this URL after they complete their payments</span>"|t('enupal-stripe'),
