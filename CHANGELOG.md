@@ -1,5 +1,13 @@
 # Stripe Payments Changelog
 
+## 1.5.0 - 2018.08.28
+### Added
+- Added Order Statuses
+- Added user to orders, if no user is logged in will show a "Guest" message.
+- Added `isCompleted` property to orders
+- Added `messages` property to orders 
+- Added `order` to `afterProcessWebhook` event
+
 ## 1.4.2 - 2018.08.22
 ### Added
 - Added `afterProcessWebhook` event
