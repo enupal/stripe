@@ -333,9 +333,9 @@ class Order extends Element
                 {
                     $html = null;
                     if ($this->isCompleted){
-                        $html = "<span class='status green'></span> ".Craft::t('site','True');
+                        $html = "<span class='status green'> </span><i class='fa fa-check' aria-hidden='true'></i> ";
                     }else{
-                        $html = "<span class='status white'></span> ".Craft::t('site','False');
+                        $html = "<span class='status white'></span> ";
                     }
                     return $html;
                 }

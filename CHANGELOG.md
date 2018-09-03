@@ -1,5 +1,12 @@
 # Stripe Payments Changelog
 
+## 1.5.1 - 2018.09.03
+### Fixed
+- Fixed error for when a customer is deleted in Stripe
+
+### Improved
+- Improved the `isCompleted` icon in the orders index page
+
 ## 1.5.0 - 2018.08.28
 ### Added
 - Added Order Statuses
