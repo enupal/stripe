@@ -1351,13 +1351,14 @@ class Orders extends Component
         return false;
     }
 
-
     /**
      * @param $email
      * @param $token
      * @param $isNew
      * @param bool $testMode
      * @return null|\Stripe\ApiResource|\Stripe\StripeObject
+     * @throws \Throwable
+     * @throws \yii\db\StaleObjectException
      */
     private function getCustomer($email, $token, &$isNew, $testMode = true)
     {
@@ -1371,6 +1372,12 @@ class Orders extends Component
         if ($customerRecord){
             $customerId = $customerRecord->stripeId;
             $stripeCustomer = Customer::retrieve($customerId);
+
+            if (isset($stripeCustomer->deleted) && $stripeCustomer->deleted){
+                Craft::info("Deleting customer: ".$customerRecord->id, __METHOD__);
+                $stripeCustomer = null;
+                $customerRecord->delete();
+            }
         }
 
         if (!isset($stripeCustomer->id)){
@@ -1394,6 +1401,10 @@ class Orders extends Component
         return $stripeCustomer;
     }
 
+    /**
+     * @param $data
+     * @return array
+     */
     private function getStripeMetadata($data)
     {
         $metadata = [];

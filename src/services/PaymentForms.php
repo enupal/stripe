@@ -669,8 +669,6 @@ class PaymentForms extends Component
     public function getPaymentFormHtml($handle, array $options = null)
     {
         $paymentForm = StripePlugin::$app->paymentForms->getPaymentFormBySku($handle);
-        // Add support for template overrides
-        $templatePaths = StripePlugin::$app->paymentForms->getFormTemplatePaths($paymentForm);
         $paymentFormHtml = null;
         $settings = StripePlugin::$app->settings->getSettings();
 
@@ -685,6 +683,9 @@ class PaymentForms extends Component
         }
 
         if ($paymentForm) {
+            // Add support for template overrides
+            $templatePaths = StripePlugin::$app->paymentForms->getFormTemplatePaths($paymentForm);
+
             if (!$paymentForm->hasUnlimitedStock && (int)$paymentForm->quantity <= 0) {
                 $outOfStockMessage = Craft::t('site', 'Out of Stock');
                 $paymentFormHtml = '<span class="error">'.$outOfStockMessage.'</span>';
