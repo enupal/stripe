@@ -1,5 +1,9 @@
 # Stripe Payments Changelog
 
+## 1.5.2 - 2018.09.08
+### Fixed
+- Fixed issue when retrieving customer deleted in the Stripe dashboard
+
 ## 1.5.1 - 2018.09.03
 ### Fixed
 - Fixed error for when a customer is deleted in Stripe
