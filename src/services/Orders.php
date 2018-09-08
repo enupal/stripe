@@ -1371,9 +1371,15 @@ class Orders extends Component
 
         if ($customerRecord){
             $customerId = $customerRecord->stripeId;
-            $stripeCustomer = Customer::retrieve($customerId);
+            try{
+                $stripeCustomer = Customer::retrieve($customerId);
+            }
+            catch (\Exception $e){
+                $stripeCustomer = null;
+                Craft::info($e->getMessage(). " - Creating a new customer");
+            }
 
-            if (isset($stripeCustomer->deleted) && $stripeCustomer->deleted){
+            if ((isset($stripeCustomer->deleted) && $stripeCustomer->deleted) || is_null($stripeCustomer)){
                 Craft::info("Deleting customer: ".$customerRecord->id, __METHOD__);
                 $stripeCustomer = null;
                 $customerRecord->delete();
