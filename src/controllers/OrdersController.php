@@ -36,6 +36,8 @@ class OrdersController extends BaseController
 
         $orderId = $request->getBodyParam('orderId');
 
+        $triggerEvent = $request->getBodyParam('triggerEvent') ?? false;
+
         if ($orderId) {
             $order = Stripe::$app->orders->getOrderById($orderId);
         }
@@ -47,7 +49,7 @@ class OrdersController extends BaseController
         $order = Stripe::$app->orders->populatePaymentFormFromPost($order);
 
         // Save it
-        if (!Stripe::$app->orders->saveOrder($order)) {
+        if (!Stripe::$app->orders->saveOrder($order, $triggerEvent)) {
             Craft::$app->getSession()->setError(Stripe::t('Couldn’t save Order.'));
 
             Craft::$app->getUrlManager()->setRouteParams([
