@@ -1,5 +1,9 @@
 # Stripe Payments Changelog
 
+## 1.5.3 - 2018.09.19
+### Added
+- Adds support to save orders via the front-end
+
 ## 1.5.2 - 2018.09.08
 ### Fixed
 - Fixed issue when retrieving customer deleted in the Stripe dashboard
