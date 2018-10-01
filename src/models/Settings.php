@@ -60,13 +60,25 @@ class Settings extends Model
             [
                 ['livePublishableKey', 'liveSecretKey'],
                 'required', 'on' => 'general', 'when' => function($model) {
-                    return !$model->testMode;
-                }
+                return !$model->testMode;
+            }
             ],
             [
                 ['testPublishableKey', 'testSecretKey'],
                 'required', 'on' => 'general', 'when' => function($model) {
                 return $model->testMode;
+            }
+            ],
+            [
+                ['adminNotificationRecipients', 'adminNotificationSenderName', 'adminNotificationSubject', 'adminNotificationSenderEmail', 'adminNotificationReplyToEmail'],
+                'required', 'when' => function($model) {
+                return $model->enableAdminNotification;
+            }
+            ],
+            [
+                ['customerNotificationSubject', 'customerNotificationSenderName', 'customerNotificationSenderEmail', 'customerNotificationReplyToEmail', 'customerNotificationReplyToEmail'],
+                'required', 'when' => function($model) {
+                return $model->enableCustomerNotification;
             }
             ],
             [

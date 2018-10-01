@@ -1,5 +1,12 @@
 # Stripe Payments Changelog
 
+## 1.5.4 - 2018.10.01
+### Added
+- Added validations to customer and admin email settings
+
+### Fixed
+- Fixed issue in default admin email template
+
 ## 1.5.3 - 2018.09.19
 ### Added
 - Adds support to save orders via the front-end
