@@ -1067,10 +1067,6 @@ class Orders extends Component
             $subscriptionSettings['tax_percent'] = $settings->tax;
         }
 
-        if (!$isNew){
-            $subscriptionSettings["source"] = $token;
-        }
-
         $subscriptionSettings['metadata'] = $this->getStripeMetadata($data);
 
         $subscription = $customer->subscriptions->create($subscriptionSettings);
