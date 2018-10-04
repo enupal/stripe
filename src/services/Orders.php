@@ -694,7 +694,7 @@ class Orders extends Component
                         $this->addOneTimeSetupFee($customer, $paymentForm->singlePlanSetupFee, $paymentForm);
                     }
                     // test what is returning we need a stripe id
-                    $subscription = $this->addCustomPlan($customer, $data, $paymentForm, $token, $isNew);
+                    $subscription = $this->addCustomPlan($customer, $data, $paymentForm);
                     $stripeId = $subscription->id ?? null;
                 }
             }
@@ -1020,7 +1020,7 @@ class Orders extends Component
      * @param $isNew
      * @return mixed
      */
-    private function addCustomPlan($customer, $data, $paymentForm, $token, $isNew)
+    private function addCustomPlan($customer, $data, $paymentForm)
     {
         $currentTime = time();
         $planName = strval($currentTime);
