@@ -1,5 +1,9 @@
 # Stripe Payments Changelog
 
+## 1.5.5 - 2018.10.03
+### Fixed
+- Fixed error `Received unknown parameter: source` on custom plans 
+
 ## 1.5.4 - 2018.10.01
 ### Added
 - Added validations to customer and admin email settings
