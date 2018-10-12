@@ -1,5 +1,9 @@
 # Stripe Payments Changelog
 
+## 1.5.6 - 2018.10.12
+### Fixed
+- Fixed bug where the postal code was not saved in shipping address
+
 ## 1.5.5 - 2018.10.03
 ### Fixed
 - Fixed error `Received unknown parameter: source` on custom plans 
