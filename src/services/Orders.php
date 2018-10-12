@@ -1449,7 +1449,7 @@ class Orders extends Component
                 "city" => $postData['city'] ?? '',
                 "country" => $postData['country'] ?? '',
                 "line1" => $postData['line1'] ?? '',
-                "postal_code" => $postData['postal_code'] ?? '',
+                "postal_code" => $postData['zip'] ?? '',
                 "state" => $postData['state'] ?? '',
             ],
             "carrier" => "", // could also be updated later https://stripe.com/docs/api/php#update_charge
