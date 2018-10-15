@@ -15,8 +15,30 @@ var enupalStripe = {};
         paymentFormsList: {},
         finalData: {},
         zeroDecimals: {},
+        globalStyle: {},
 
-        init: function() {
+        init: function(style) {
+            this.globalStyle = {
+                base: {
+                    color: '#32325d',
+                    lineHeight: '18px',
+                    fontFamily: '"Helvetica Neue", Helvetica, sans-serif',
+                    fontSmoothing: 'antialiased',
+                    fontSize: '16px',
+                    '::placeholder': {
+                        color: '#aab7c4'
+                    }
+                },
+                invalid: {
+                    color: '#fa755a',
+                    iconColor: '#fa755a'
+                }
+            };
+            // Overrides styles
+            if (style){
+                this.globalStyle = style;
+            }
+
             this.paymentFormsList = $('.enupal-stripe-form-elements');
 
             this.zeroDecimals = ['MGA', 'BIF', 'CLP', 'PYG', 'DJF', 'RWF', 'GNF', 'UGX', 'JPY', 'VND', 'VUV', 'XAF', 'KMF', 'KRW', 'XOF', 'XPF'];
@@ -92,27 +114,10 @@ var enupalStripe = {};
         },
 
         createCardElement: function(stripe, enupalStripeData, elements, enupalButtonElement) {
-            var style = {
-                base: {
-                    color: '#32325d',
-                    lineHeight: '18px',
-                    fontFamily: '"Helvetica Neue", Helvetica, sans-serif',
-                    fontSmoothing: 'antialiased',
-                    fontSize: '16px',
-                    '::placeholder': {
-                        color: '#aab7c4'
-                    }
-                },
-                invalid: {
-                    color: '#fa755a',
-                    iconColor: '#fa755a'
-                }
-            };
-
             var paymentFormId = 'stripe-payments-submit-button-'+enupalStripeData.paymentFormId;
 
             // Create an instance of the card Element.
-            var card = elements.create('card', {hidePostalCode: true, style: style});
+            var card = elements.create('card', {hidePostalCode: true, style: this.globalStyle});
 
             // Add an instance of the card Element into the `card-element` <div>.
             card.mount('#card-element-' + enupalStripeData.paymentFormId);
@@ -196,23 +201,6 @@ var enupalStripe = {};
         },
 
         createIdealElement: function(stripe, enupalStripeData, enupalButtonElement, elements) {
-            var style = {
-                base: {
-                    color: '#32325d',
-                    lineHeight: '18px',
-                    fontFamily: '"Helvetica Neue", Helvetica, sans-serif',
-                    fontSmoothing: 'antialiased',
-                    fontSize: '16px',
-                    '::placeholder': {
-                        color: '#aab7c4'
-                    }
-                },
-                invalid: {
-                    color: '#fa755a',
-                    iconColor: '#fa755a'
-                }
-            };
-
             var that = this;
 
             var form = enupalButtonElement[0];
@@ -220,7 +208,7 @@ var enupalStripe = {};
             var paymentFormId = 'stripe-payments-submit-button-'+enupalStripeData.paymentFormId;
 
             // Create an instance of the idealBank Element.
-            var idealBank = elements.create('idealBank', {style: style});
+            var idealBank = elements.create('idealBank', {style: this.globalStyle});
             // Add an instance of the idealBank Element into the `ideal-bank-element` <div>.
             idealBank.mount('#ideal-bank-element-'+enupalStripeData.paymentFormId);
 
@@ -347,6 +335,10 @@ var enupalStripe = {};
     };
 
     $(document).ready(function($) {
-        enupalStripe.init();
+        var globalStyle = null;
+        if (typeof enupalStyleOverrides !== 'undefined'){
+            globalStyle = enupalStyleOverrides;
+        }
+        enupalStripe.init(globalStyle);
     });
 })(jQuery);

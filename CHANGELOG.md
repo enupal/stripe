@@ -1,5 +1,9 @@
 # Stripe Payments Changelog
 
+## 1.5.7 - 2018.10.15
+### Added
+- Added support to override default stripe element styles
+
 ## 1.5.6 - 2018.10.12
 ### Fixed
 - Fixed bug where the postal code was not saved in shipping address

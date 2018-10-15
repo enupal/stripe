@@ -216,4 +216,26 @@
         {% endif %}
         <button id="{{ buttonId }}" class="{{ paymentForm.buttonClass }}"><span>{{ paymentForm.getPaymentFormText() }}</span></button>
     </form>
+
+ {% js %}
+    {# Overrides your stripe elements styles #}
+    {#
+    var enupalStyleOverrides = {
+        base: {
+            color: '#366888',
+            lineHeight: '12px',
+            fontFamily: '"Helvetica Neue", Helvetica, sans-serif',
+            fontSmoothing: 'antialiased',
+            fontSize: '12px',
+                '::placeholder': {
+                color: '#aab7c4'
+            }
+        },
+        invalid: {
+            color: '#fa755a',
+            iconColor: '#fa755a'
+        }
+    };
+    #}
+ {% endjs %}
 {% endspaceless %}
