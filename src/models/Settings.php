@@ -10,6 +10,7 @@ namespace enupal\stripe\models;
 
 use craft\base\Model;
 use enupal\stripe\enums\DiscountType;
+use enupal\stripe\Stripe;
 
 
 class Settings extends Model
@@ -60,13 +61,15 @@ class Settings extends Model
             [
                 ['livePublishableKey', 'liveSecretKey'],
                 'required', 'on' => 'general', 'when' => function($model) {
-                return !$model->testMode;
+                    $settings = Stripe::$app->settings->getSettings();
+                    return !$model->testMode && !$settings->livePublishableKey && !$settings->liveSecretKey;
             }
             ],
             [
                 ['testPublishableKey', 'testSecretKey'],
                 'required', 'on' => 'general', 'when' => function($model) {
-                return $model->testMode;
+                    $settings = Stripe::$app->settings->getSettings();
+                    return $model->testMode && !$settings->testSecretKey && !$settings->testPublishableKey;
             }
             ],
             [
