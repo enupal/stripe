@@ -1,5 +1,12 @@
 # Stripe Payments Changelog
 
+## 1.5.8 - 2018.10.17
+### Added
+- Added support to add Stripe API keys via config file
+
+### Fixed
+- Fixed bug where billing address was not saved with the order locally if shipping address is disabled
+
 ## 1.5.7 - 2018.10.15
 ### Added
 - Added support to override default stripe element styles
