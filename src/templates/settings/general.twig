@@ -45,6 +45,7 @@
                 onLabel: "On"|t('enupal-stripe'),
                 offLabel: "Off"|t('enupal-stripe'),
                 errors: settings.getErrors('testMode'),
+                disabled: configSettings.testMode is defined
             }) }}
 
             <hr>
