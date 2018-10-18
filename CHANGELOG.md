@@ -1,5 +1,9 @@
 # Stripe Payments Changelog
 
+## 1.5.9 - 2018.10.17
+### Added
+- Added support to `testMode` setting in config file
+
 ## 1.5.8 - 2018.10.17
 ### Added
 - Added support to add Stripe API keys via config file
