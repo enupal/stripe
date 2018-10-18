@@ -60,8 +60,10 @@ class Settings extends Component
 
         $configSettings = $this->getConfigSettings();
         // Overrides config settings
-        $settings->testSecretKey = $configSettings['testSecretKey'] ?? $settings->testSecretKey;
+        $settings->livePublishableKey = $configSettings['livePublishableKey'] ?? $settings->livePublishableKey;
         $settings->liveSecretKey = $configSettings['liveSecretKey'] ?? $settings->liveSecretKey;
+        $settings->testSecretKey = $configSettings['testSecretKey'] ?? $settings->testSecretKey;
+        $settings->testPublishableKey = $configSettings['testPublishableKey'] ?? $settings->testPublishableKey;
 
         return $settings;
     }
@@ -116,7 +118,7 @@ class Settings extends Component
     /**
      * @return array|null
      */
-    private function getConfigSettings()
+    public function getConfigSettings()
     {
         return Craft::$app->config->getGeneral()->stripePayments ?? null;
     }

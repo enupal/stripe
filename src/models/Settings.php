@@ -61,15 +61,33 @@ class Settings extends Model
             [
                 ['livePublishableKey', 'liveSecretKey'],
                 'required', 'on' => 'general', 'when' => function($model) {
-                    $settings = Stripe::$app->settings->getSettings();
-                    return !$model->testMode && !$settings->livePublishableKey && !$settings->liveSecretKey;
+                    $configSettings = Stripe::$app->settings->getConfigSettings();
+                    $isRequired = isset($configSettings['livePublishableKey']) ? false : true;
+                    return !$model->testMode &&  $isRequired;
+                }
+            ],
+            [
+                ['liveSecretKey'],
+                'required', 'on' => 'general', 'when' => function($model) {
+                $configSettings = Stripe::$app->settings->getConfigSettings();
+                $isRequired = isset($configSettings['liveSecretKey']) ? false : true;
+                return !$model->testMode &&  $isRequired;
             }
             ],
             [
-                ['testPublishableKey', 'testSecretKey'],
+                ['testPublishableKey'],
                 'required', 'on' => 'general', 'when' => function($model) {
-                    $settings = Stripe::$app->settings->getSettings();
-                    return $model->testMode && !$settings->testSecretKey && !$settings->testPublishableKey;
+                    $configSettings = Stripe::$app->settings->getConfigSettings();
+                    $isRequired = isset($configSettings['testPublishableKey']) ? false : true;
+                    return $model->testMode && $isRequired;
+                }
+            ],
+            [
+                ['testSecretKey'],
+                'required', 'on' => 'general', 'when' => function($model) {
+                $configSettings = Stripe::$app->settings->getConfigSettings();
+                $isRequired = isset($configSettings['testSecretKey']) ? false : true;
+                return $model->testMode && $isRequired;
             }
             ],
             [
