@@ -96,29 +96,30 @@ var enupalStripe = {};
         },
 
         addValuesToForm: function(enupalButtonElement, args, enupalStripeData) {
-            if (enupalStripeData.stripe.shippingAddress){
-                if (args.shipping_name) {
-                    enupalButtonElement.find('[name="enupalStripe[address][name]"]').val(args.shipping_name);
+            if (enupalStripeData.stripe.shippingAddress || enupalStripeData.stripe.billingAddress){
+                var suffix = enupalStripeData.stripe.shippingAddress ? 'shipping' : 'billing';
+                if (args[suffix+'_name']) {
+                    enupalButtonElement.find('[name="enupalStripe[address][name]"]').val(args[suffix+'_name']);
                 }
 
-                if (args.shipping_address_country) {
-                    enupalButtonElement.find('[name="enupalStripe[address][country]"]').val(args.shipping_address_country);
+                if (args[suffix+'_address_country']) {
+                    enupalButtonElement.find('[name="enupalStripe[address][country]"]').val(args[suffix+'_address_country']);
                 }
 
-                if (args.shipping_address_zip) {
-                    enupalButtonElement.find('[name="enupalStripe[address][zip]"]').val(args.shipping_address_zip);
+                if (args[suffix+'_address_zip']) {
+                    enupalButtonElement.find('[name="enupalStripe[address][zip]"]').val(args[suffix+'_address_zip']);
                 }
 
-                if (args.shipping_address_state) {
-                    enupalButtonElement.find('[name="enupalStripe[address][state]"]').val(args.shipping_address_state);
+                if (args[suffix+'_address_state']) {
+                    enupalButtonElement.find('[name="enupalStripe[address][state]"]').val(args[suffix+'_address_state']);
                 }
 
-                if (args.shipping_address_line1) {
-                    enupalButtonElement.find('[name="enupalStripe[address][line1]"]').val(args.shipping_address_line1);
+                if (args[suffix+'_address_line1']) {
+                    enupalButtonElement.find('[name="enupalStripe[address][line1]"]').val(args[suffix+'_address_line1']);
                 }
 
-                if (args.shipping_address_city) {
-                    enupalButtonElement.find('[name="enupalStripe[address][city]"]').val(args.shipping_address_city);
+                if (args[suffix+'_address_city']) {
+                    enupalButtonElement.find('[name="enupalStripe[address][city]"]').val(args[suffix+'_address_city']);
                 }
             }
         },

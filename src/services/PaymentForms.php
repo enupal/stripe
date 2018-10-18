@@ -674,11 +674,11 @@ class PaymentForms extends Component
 
         if ($settings->testMode){
             if (!$settings->testPublishableKey || !$settings->testSecretKey) {
-                return StripePlugin::t("Please add a valid Stripe account in the plugin settings");
+                return StripePlugin::t("Please add the Stripe API keys in the plugin settings for TEST mode");
             }
         }else{
             if (!$settings->livePublishableKey || !$settings->liveSecretKey) {
-                return StripePlugin::t("Please add a valid Stripe account in the plugin settings");
+                return StripePlugin::t("Please add the Stripe API keys in the plugin settings for LIVE mode");
             }
         }
 

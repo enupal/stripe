@@ -136,7 +136,7 @@
 
 {% if order.addressCity %}
     <br>
-    <h3>{{ 'Shipping Address'|t('enupal-stripe') }}</h3>
+    <h3>{{ 'Shipping/Billing Address'|t('enupal-stripe') }}</h3>
     {{ order.getShippingAddress()|raw }}
 {% endif %}
 

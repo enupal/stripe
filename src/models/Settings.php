@@ -10,6 +10,7 @@ namespace enupal\stripe\models;
 
 use craft\base\Model;
 use enupal\stripe\enums\DiscountType;
+use enupal\stripe\Stripe;
 
 
 class Settings extends Model
@@ -60,13 +61,33 @@ class Settings extends Model
             [
                 ['livePublishableKey', 'liveSecretKey'],
                 'required', 'on' => 'general', 'when' => function($model) {
-                return !$model->testMode;
+                    $configSettings = Stripe::$app->settings->getConfigSettings();
+                    $isRequired = isset($configSettings['livePublishableKey']) ? false : true;
+                    return !$model->testMode &&  $isRequired;
+                }
+            ],
+            [
+                ['liveSecretKey'],
+                'required', 'on' => 'general', 'when' => function($model) {
+                $configSettings = Stripe::$app->settings->getConfigSettings();
+                $isRequired = isset($configSettings['liveSecretKey']) ? false : true;
+                return !$model->testMode &&  $isRequired;
             }
             ],
             [
-                ['testPublishableKey', 'testSecretKey'],
+                ['testPublishableKey'],
                 'required', 'on' => 'general', 'when' => function($model) {
-                return $model->testMode;
+                    $configSettings = Stripe::$app->settings->getConfigSettings();
+                    $isRequired = isset($configSettings['testPublishableKey']) ? false : true;
+                    return $model->testMode && $isRequired;
+                }
+            ],
+            [
+                ['testSecretKey'],
+                'required', 'on' => 'general', 'when' => function($model) {
+                $configSettings = Stripe::$app->settings->getConfigSettings();
+                $isRequired = isset($configSettings['testSecretKey']) ? false : true;
+                return $model->testMode && $isRequired;
             }
             ],
             [
