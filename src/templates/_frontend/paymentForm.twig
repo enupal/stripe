@@ -31,7 +31,7 @@
             <input type="hidden" name="amountBeforeTax" value>
             <input type="hidden" name='stripeData' value="{{ paymentForm.getPublicData(options) }}">
             <input type="hidden" name='testMode' value>
-            {% if paymentForm.enableShippingAddress and paymentForm.enableCheckout  %}
+            {% if (paymentForm.enableShippingAddress or paymentForm.enableBillingAddress) and paymentForm.enableCheckout  %}
                 <input type="hidden" name="address[name]" value />
                 <input type="hidden" name="address[country]" value />
                 <input type="hidden" name="address[zip]" value />
