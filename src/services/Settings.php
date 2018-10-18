@@ -64,6 +64,7 @@ class Settings extends Component
         $settings->liveSecretKey = $configSettings['liveSecretKey'] ?? $settings->liveSecretKey;
         $settings->testSecretKey = $configSettings['testSecretKey'] ?? $settings->testSecretKey;
         $settings->testPublishableKey = $configSettings['testPublishableKey'] ?? $settings->testPublishableKey;
+        $settings->testMode = $configSettings['testMode'] ?? $settings->testMode;
 
         return $settings;
     }
