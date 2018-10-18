@@ -10,7 +10,8 @@
 {% extends "enupal-stripe/_layouts/settings" %}
 {% import "_includes/forms" as forms %}
 
-{% set settings = settings is defined ? settings : craft.enupalStripe.getSettings()  %}
+{% set settings = settings is defined ? settings : craft.enupalStripe.getSettings() %}
+{% set configSettings = craft.enupalStripe.configSettings() %}
 {% set fullPageForm = true %}
 {% set saveShortcutRedirect = 'enupal-stripe/settings/general' %}
 
@@ -33,10 +34,11 @@
                 instructions : 'Retrieve your Stripe <a href="https://enupal.com/craft-plugins/stripe-payments/docs/getting-started/saving-your-stripe-api-keys">API keys.</a>'
             }, null) }}
             <hr>
+            {% set mode = settings.testMode ? 'test' : 'live' %}
 
             {{ forms.lightswitchField({
                 label: 'Test Mode'|t('enupal-stripe'),
-                instructions: 'Make sure test mode is enabled in your Stripe dashboard to view your test transactions.',
+                instructions: 'Make sure that <span class="code">'~mode~'</span> mode is enabled in your Stripe dashboard to view your '~mode~' transactions.',
                 id: 'testMode',
                 name: 'testMode',
                 on: settings.testMode,
@@ -47,46 +49,61 @@
 
             <hr>
             <div id="testKeys" class="{% if not settings.testMode %} hidden {% endif %}">
-            {{ forms.textField({
-                label: "Test Publishable Key"|t('enupal-stripe'),
-                instructions: "This key starts with <strong>pk_test</strong>"|t('enupal-stripe'),
-                id: 'testPublishableKey',
-                name: 'testPublishableKey',
-                value: settings.testPublishableKey,
-                autofocus: true,
-                errors: settings.getErrors('testPublishableKey')
-            }) }}
+            {% if not configSettings.testPublishableKey is defined %}
+                {{ forms.textField({
+                    label: "Test Publishable Key"|t('enupal-stripe'),
+                    instructions: "This key starts with <strong>pk_test</strong>"|t('enupal-stripe'),
+                    id: 'testPublishableKey',
+                    name: 'testPublishableKey',
+                    value: settings.testPublishableKey,
+                    autofocus: true,
+                    errors: settings.getErrors('testPublishableKey')
+                }) }}
+            {% else %}
+                <div class="instructions"><p><b>Test Publishable Key</b> was successfully loaded from config file</p></div>
+            {% endif %}
 
-            {{ forms.passwordField({
-                label: "Test Secret Key"|t('enupal-stripe'),
-                instructions: "This key starts with <strong>sk_test</strong>"|t('enupal-stripe'),
-                id: 'testSecretKey',
-                name: 'testSecretKey',
-                value: settings.testSecretKey,
-                autofocus: true,
-                errors: settings.getErrors('testSecretKey')
-            }) }}
+            {% if not configSettings.testPublishableKey is defined %}
+                {{ forms.passwordField({
+                    label: "Test Secret Key"|t('enupal-stripe'),
+                    instructions: "This key starts with <strong>sk_test</strong>"|t('enupal-stripe'),
+                    id: 'testSecretKey',
+                    name: 'testSecretKey',
+                    value: settings.testSecretKey,
+                    autofocus: true,
+                    errors: settings.getErrors('testSecretKey')
+                }) }}
+            {% else %}
+                <div class="instructions"><p><b>Test Secret Key</b> was successfully loaded from config file</p></div>
+            {% endif %}
             </div>
             <div id="liveKeys" class="{%  if settings.testMode %} hidden {% endif %}">
-            {{ forms.textField({
-                label: "Live Publishable Key"|t('enupal-stripe'),
-                instructions: "This key starts with <strong>pk_live</strong>"|t('enupal-stripe'),
-                id: 'livePublishableKey',
-                name: 'livePublishableKey',
-                value: settings.livePublishableKey,
-                autofocus: true,
-                errors: settings.getErrors('livePublishableKey')
-            }) }}
-
-            {{ forms.passwordField({
-                label: "Live Secret Key"|t('enupal-stripe'),
-                instructions: "This key starts with <strong>sk_live</strong>"|t('enupal-stripe'),
-                id: 'liveSecretKey',
-                name: 'liveSecretKey',
-                value: settings.liveSecretKey,
-                autofocus: true,
-                errors: settings.getErrors('liveSecretKey')
-            }) }}
+            {% if not configSettings.livePublishableKey is defined %}
+                {{ forms.textField({
+                    label: "Live Publishable Key"|t('enupal-stripe'),
+                    instructions: "This key starts with <strong>pk_live</strong>"|t('enupal-stripe'),
+                    id: 'livePublishableKey',
+                    name: 'livePublishableKey',
+                    value: settings.livePublishableKey,
+                    autofocus: true,
+                    errors: settings.getErrors('livePublishableKey')
+                }) }}
+            {% else %}
+                <div class="instructions"><p><b>Live Publishable Key</b> was successfully loaded from config file</p></div>
+            {% endif %}
+            {% if not configSettings.liveSecretKey is defined %}
+                {{ forms.passwordField({
+                    label: "Live Secret Key"|t('enupal-stripe'),
+                    instructions: "This key starts with <strong>sk_live</strong>"|t('enupal-stripe'),
+                    id: 'liveSecretKey',
+                    name: 'liveSecretKey',
+                    value: settings.liveSecretKey,
+                    autofocus: true,
+                    errors: settings.getErrors('liveSecretKey')
+                }) }}
+            {% else %}
+                <div class="instructions"><p><b>Live Secret Key</b> was successfully loaded from config file</p></div>
+            {% endif %}
             </div>
 
         {% endnamespace %}

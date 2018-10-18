@@ -61,6 +61,14 @@ class StripeVariable
     }
 
     /**
+     * @return array|null
+     */
+    public function getConfigSettings()
+    {
+        return Stripe::$app->settings->getConfigSettings();
+    }
+
+    /**
      * Returns a complete Payment Form for display in template
      *
      * @param string     $handle

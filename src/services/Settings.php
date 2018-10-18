@@ -58,6 +58,13 @@ class Settings extends Component
 
         $settings->setAttributes(json_decode($pluginSettings['settings'], true), false);
 
+        $configSettings = $this->getConfigSettings();
+        // Overrides config settings
+        $settings->livePublishableKey = $configSettings['livePublishableKey'] ?? $settings->livePublishableKey;
+        $settings->liveSecretKey = $configSettings['liveSecretKey'] ?? $settings->liveSecretKey;
+        $settings->testSecretKey = $configSettings['testSecretKey'] ?? $settings->testSecretKey;
+        $settings->testPublishableKey = $configSettings['testPublishableKey'] ?? $settings->testPublishableKey;
+
         return $settings;
     }
 
@@ -86,6 +93,7 @@ class Settings extends Component
     public function getPrivateKey()
     {
         $settings = $this->getSettings();
+
         $secretKey = $settings->testMode ? $settings->testSecretKey : $settings->liveSecretKey;
 
         return $secretKey;
@@ -105,5 +113,13 @@ class Settings extends Component
         else{
             throw new \Exception(Craft::t('enupal-stripe','Unable to get the stripe keys.'));
         }
+    }
+
+    /**
+     * @return array|null
+     */
+    public function getConfigSettings()
+    {
+        return Craft::$app->config->getGeneral()->stripePayments ?? null;
     }
 }
