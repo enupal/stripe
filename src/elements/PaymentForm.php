@@ -162,8 +162,6 @@ class PaymentForm extends Element
             $this->settings = StripePlugin::$app->settings->getSettings();
         }
 
-        $this->env =  $this->settings->testMode ? 'www.sandbox' : 'www';
-
         $this->returnUrl = $this->returnUrl ? $this->returnUrl : $this->settings->returnUrl;
         $this->currency = $this->currency ? $this->currency : $this->settings->defaultCurrency;
     }
