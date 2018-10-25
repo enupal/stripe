@@ -18,14 +18,13 @@ use enupal\stripe\elements\PaymentForm as StripeElement;
 
 class OrdersController extends BaseController
 {
+
     /**
      * Save an Order
-     *
+     * 
      * @return null|\yii\web\Response
-     * @throws NotFoundHttpException
-     * @throws \Exception
      * @throws \Throwable
-     * @throws \yii\web\BadRequestHttpException
+     * @throws \craft\errors\MissingComponentException
      */
     public function actionSaveOrder()
     {
@@ -52,12 +51,26 @@ class OrdersController extends BaseController
         if (!Stripe::$app->orders->saveOrder($order, $triggerEvent)) {
             Craft::$app->getSession()->setError(Stripe::t('Couldn’t save Order.'));
 
+            // Respond to ajax requests with JSON
+            if (Craft::$app->getRequest()->getAcceptsJson()) {
+                return $this->asJson([
+                    'success' => false,
+                    'errors' => $order->getErrors(),
+                ]);
+            }
+
             Craft::$app->getUrlManager()->setRouteParams([
                     'order' => $order
                 ]
             );
 
             return null;
+        }
+
+        if (Craft::$app->getRequest()->getAcceptsJson()) {
+            return $this->asJson([
+                'success' => true
+            ]);
         }
 
         Craft::$app->getSession()->setNotice(Stripe::t('Order saved.'));

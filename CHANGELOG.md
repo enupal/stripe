@@ -1,5 +1,9 @@
 # Stripe Payments Changelog
 
+## 1.5.10 - 2018.10.25
+### Added
+- Added ajax support to the `saveOrder` action - Orders Controller
+
 ## 1.5.9 - 2018.10.17
 ### Added
 - Added support to `testMode` setting in config file
