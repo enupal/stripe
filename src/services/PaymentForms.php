@@ -1220,7 +1220,8 @@ class PaymentForms extends Component
     {
         return [
             PaymentType::CC => 'Card',
-            PaymentType::IDEAL => 'iDEAL'
+            PaymentType::IDEAL => 'iDEAL',
+            PaymentType::SOFORT => 'SOFORT',
         ];
     }
 
@@ -1237,7 +1238,11 @@ class PaymentForms extends Component
             [
                 'label' => 'iDEAL',
                 'value' => PaymentType::IDEAL
-            ]
+            ],
+            [
+                'label' => 'SOFORT',
+                'value' => PaymentType::SOFORT
+            ],
         ];
     }
 }

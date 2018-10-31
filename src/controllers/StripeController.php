@@ -49,6 +49,16 @@ class StripeController extends BaseController
                 $source = $response['source'];
 
                 return $this->redirect($source->redirect->url);
+            }else if ($paymentType == PaymentType::SOFORT) {
+                $response = StripePlugin::$app->orders->processIdealPayment();
+
+                if (is_null($response) || !isset($response['source'])) {
+                    throw new NotFoundHttpException("Unable to process the IDeal Payment");
+                }
+
+                $source = $response['source'];
+
+                return $this->redirect($source->redirect->url);
             }else if($paymentType == PaymentType::CC){
                 $postData['enupalStripe']['email'] = Craft::$app->getRequest()->getBodyParam('stripeElementEmail') ?? null;
             }
