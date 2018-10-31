@@ -201,7 +201,8 @@ class Order extends Element
 
     /**
      * @inheritdoc
-     * @throws \ReflectionException
+     * @param string|null $context
+     * @return array
      */
     protected static function defineSources(string $context = null): array
     {

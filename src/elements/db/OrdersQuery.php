@@ -239,6 +239,7 @@ class OrdersQuery extends ElementQuery
 
     /**
      * @inheritdoc
+     * @throws \Exception
      */
     protected function beforePrepare(): bool
     {
