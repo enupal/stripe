@@ -278,7 +278,6 @@ class Orders extends Component
      * @param Order $order
      *
      * @return bool
-     * @throws \craft\web\twig\TemplateLoaderException
      * @throws \yii\base\Exception
      */
     public function sendCustomerNotification(Order $order)
@@ -359,7 +358,6 @@ class Orders extends Component
      * @param Order $order
      *
      * @return bool
-     * @throws \craft\web\twig\TemplateLoaderException
      * @throws \yii\base\Exception
      */
     public function sendAdminNotification(Order $order)
@@ -571,8 +569,6 @@ class Orders extends Component
      * @param $sourceObject
      * @return Order|null
      * @throws \Throwable
-     * @throws \yii\base\Exception
-     * @throws \yii\db\Exception
      */
     public function idealCharge($order, $sourceObject)
     {
@@ -967,8 +963,6 @@ class Orders extends Component
      * @param $customer
      * @param $data
      * @param $paymentForm
-     * @param $token
-     * @param $isNew
      * @return mixed
      */
     private function addRecurringPayment($customer, $data, $paymentForm)
@@ -1016,8 +1010,6 @@ class Orders extends Component
      * @param $customer
      * @param $data
      * @param $paymentForm
-     * @param $token
-     * @param $isNew
      * @return mixed
      */
     private function addCustomPlan($customer, $data, $paymentForm)

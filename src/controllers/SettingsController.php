@@ -18,6 +18,7 @@ class SettingsController extends BaseController
      * Save Plugin Settings
      *
      * @return \yii\web\Response
+     * @throws \craft\errors\MissingComponentException
      * @throws \yii\web\BadRequestHttpException
      */
     public function actionSaveSettings()
@@ -54,6 +55,7 @@ class SettingsController extends BaseController
      * Updates all stripe plans as options for dropdown select field within matrix field
      *
      * @return \yii\web\Response
+     * @throws \craft\errors\MissingComponentException
      * @throws \yii\web\BadRequestHttpException
      */
     public function actionUpdatePlans()

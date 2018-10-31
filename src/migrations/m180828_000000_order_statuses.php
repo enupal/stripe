@@ -11,6 +11,7 @@ class m180828_000000_order_statuses extends Migration
 {
     /**
      * @inheritdoc
+     * @throws \yii\db\Exception
      */
     public function safeUp()
     {

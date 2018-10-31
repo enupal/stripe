@@ -11,6 +11,10 @@ class m180731_000000_stripe_elements extends Migration
 {
     /**
      * @inheritdoc
+     * @throws \yii\base\NotSupportedException
+     * @throws \yii\base\NotSupportedException
+     * @throws \yii\base\NotSupportedException
+     * @throws \yii\base\NotSupportedException
      */
     public function safeUp()
     {
