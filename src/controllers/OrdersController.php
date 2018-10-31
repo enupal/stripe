@@ -31,17 +31,14 @@ class OrdersController extends BaseController
         $this->requirePostRequest();
 
         $request = Craft::$app->getRequest();
-        $order = new StripeElement;
 
         $orderId = $request->getBodyParam('orderId');
 
         $triggerEvent = $request->getBodyParam('triggerEvent') ?? false;
 
-        if ($orderId) {
-            $order = Stripe::$app->orders->getOrderById($orderId);
-        }
+        $order = Stripe::$app->orders->getOrderById($orderId);
 
-        if (!$order) {
+        if (is_null($order)) {
             throw new NotFoundHttpException(Stripe::t('Order not found'));
         }
 
