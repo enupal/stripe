@@ -1228,6 +1228,17 @@ class PaymentForms extends Component
     /**
      * @return array
      */
+    public function getAsynchronousPaymentTypes()
+    {
+        $paymentTypes = $this->getPaymentTypes();
+        unset($paymentTypes[PaymentType::CC]);
+
+        return $paymentTypes;
+    }
+
+    /**
+     * @return array
+     */
     public function getPaymentTypesAsOptions()
     {
         return [
@@ -1243,6 +1254,39 @@ class PaymentForms extends Component
                 'label' => 'SOFORT',
                 'value' => PaymentType::SOFORT
             ],
+        ];
+    }
+
+    /**
+     * @return array
+     */
+    public function getSofortCountriesAsOptions()
+    {
+        return [
+            [
+                'label' => Craft::t('site','Austria'),
+                'value' => 'AT'
+            ],
+            [
+                'label' => Craft::t('site','Belgium'),
+                'value' => 'BE'
+            ],
+            [
+                'label' => Craft::t('site','Germany'),
+                'value' => 'DE'
+            ],
+            [
+                'label' => Craft::t('site','Italy'),
+                'value' => 'IT'
+            ],
+            [
+                'label' => Craft::t('site','Netherlands'),
+                'value' => 'NL'
+            ],
+            [
+                'label' => Craft::t('site','Spain'),
+                'value' => 'ES'
+            ]
         ];
     }
 }

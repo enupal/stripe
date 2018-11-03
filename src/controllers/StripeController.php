@@ -39,21 +39,11 @@ class StripeController extends BaseController
         if (!$enableCheckout){
             $paymentType = Craft::$app->getRequest()->getBodyParam('paymentType');
 
-            if ($paymentType == PaymentType::IDEAL){
-                $response = StripePlugin::$app->orders->processIdealPayment();
+            if ($paymentType == PaymentType::IDEAL || $paymentType == PaymentType::SOFORT){
+                $response = StripePlugin::$app->orders->processAsynchronousPayment();
 
                 if (is_null($response) || !isset($response['source'])){
-                    throw new NotFoundHttpException("Unable to process the IDeal Payment");
-                }
-
-                $source = $response['source'];
-
-                return $this->redirect($source->redirect->url);
-            }else if ($paymentType == PaymentType::SOFORT) {
-                $response = StripePlugin::$app->orders->processIdealPayment();
-
-                if (is_null($response) || !isset($response['source'])) {
-                    throw new NotFoundHttpException("Unable to process the IDeal Payment");
+                    throw new NotFoundHttpException("Unable to process the Asynchronous Payment");
                 }
 
                 $source = $response['source'];

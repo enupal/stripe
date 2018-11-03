@@ -203,6 +203,29 @@
                         {# Used to display form errors.#}
                         <div id="ideal-error-message-{{ paymentForm.id }}" role="alert"></div>
                     </div>
+                {# SOFORT #}
+                {% elseif paymentTypeId == 3 %}
+                    {% set sofortCountries = craft.enupalStripe.getSofortCountriesAsOptions() %}
+                    <div class="form-group">
+                        <div class="heading">
+                            <label for="sofortCountry-{{ paymentForm.id }}">
+                                {{ "Select a country:"|t -}}
+                            </label>
+                        </div>
+                        <div class="input">
+                            <select
+                                    name="sofortCountry"
+                                    id="sofortCountry-{{ paymentForm.id }}"
+                                    class="sofortCountry"
+                                    required aria-required="true"
+                            >
+                                {%- for key, option in sofortCountries -%}
+                                    <option value="{{ option.value }}"
+                                    >{{ option.label }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
                 {% endif %}
             {% endfor %}
         {% endif %}

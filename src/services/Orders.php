@@ -486,13 +486,17 @@ class Orders extends Component
     }
 
     /**
-     * Process Ideal Payment
+     * Process Asynchronous Payment
+     * iDEAL and SOFORT
+     * For asynchronous payment methods, it can take up to several days to confirm whether the payment has been successful.
+     * The status of the payment’s Charge object is initially set to pending,
+     * until the payment has been confirmed as successful or failed via webhook
      *
      * @return array|null
      * @throws \Throwable
      * @throws \craft\errors\SiteNotFoundException
      */
-    public function processIdealPayment()
+    public function processAsynchronousPayment()
     {
         $result = null;
         $request = Craft::$app->getRequest();
@@ -500,9 +504,11 @@ class Orders extends Component
         $email = $request->getBodyParam('stripeElementEmail') ?? null;
         $formId = $data['formId'] ?? null;
         $data['email'] = $email;
+        $paymentType = $request->getBodyParam('paymentType');
+        $paymentOptions = Stripe::$app->paymentForms->getAsynchronousPaymentTypes();
 
-        if (empty($email) || empty($formId)){
-            Craft::error('Unable to get the Full name, formId or email', __METHOD__);
+        if (empty($email) || empty($formId) || !isset($paymentOptions[$paymentType])){
+            Craft::error('Unable to get the formId, paymentType or email', __METHOD__);
             return $result;
         }
 
@@ -532,7 +538,7 @@ class Orders extends Component
         StripePlugin::$app->settings->initializeStripe();
 
         $options = [
-            'type' => 'ideal',
+            'type' => strtolower($paymentOptions[$paymentType]),
             'amount' => $amount,
             'currency' => 'eur',
             'owner' => ['email' => $email],
@@ -540,8 +546,12 @@ class Orders extends Component
             'metadata' => $this->getStripeMetadata($data)
         ];
 
-        if (isset($postData['idealBank'])){
+        if (isset($postData['idealBank']) && $postData['idealBank']){
             $options['ideal']['bank'] = $postData['idealBank'];
+        }
+
+        if (isset($postData['sofortCountry']) && $postData['sofortCountry']){
+            $options['sofort']['country'] = $postData['sofortCountry'];
         }
 
         $source = Source::create($options);

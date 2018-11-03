@@ -372,6 +372,14 @@ class StripeVariable
     /**
      * @return array
      */
+    public function getSofortCountriesAsOptions()
+    {
+        return Stripe::$app->paymentForms->getSofortCountriesAsOptions();
+    }
+
+    /**
+     * @return array
+     */
     public function getAllOrderStatuses()
     {
         return Stripe::$app->orders->getAllOrderStatuses();

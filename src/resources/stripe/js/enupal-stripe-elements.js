@@ -91,6 +91,10 @@ var enupalStripe = {};
                         idealWrapper.removeClass('hidden');
                         ccWrapper.addClass('hidden');
                         paymentTypeInput.val(paymentType);
+                    }else if (paymentType == 3){// SOFORT
+                        idealWrapper.addClass('hidden');
+                        ccWrapper.addClass('hidden');
+                        paymentTypeInput.val(paymentType);
                     }
                 });
             }
@@ -108,6 +112,14 @@ var enupalStripe = {};
                         paymentTypeInput.val(pTypes[i]);
                     }
                     this.createIdealElement(stripe, enupalStripeData, enupalButtonElement, elements);
+                }else if (pTypes[i] == 3){// SOFORT
+                    if (i == 0){
+                        enupalButtonElement.find('.ideal-wrapper').removeClass('hidden');
+                        enupalButtonElement.find('.cc-wrapper').removeClass('hidden');
+                        paymentTypeInput.val(pTypes[i]);
+                    }
+
+                    this.createSofortElement(stripe, enupalStripeData, enupalButtonElement, elements);
                 }
             }
 
@@ -221,6 +233,25 @@ var enupalStripe = {};
             form.addEventListener('submit', function(event) {
                 var paymentType = $(enupalButtonElement).find('[name="paymentType"]').val();
                 if (paymentType != 2){
+                    return true;
+                }
+                event.preventDefault();
+
+                that.submitForm(enupalStripeData, enupalButtonElement, paymentFormId, null);
+            });
+        },
+
+        createSofortElement: function(stripe, enupalStripeData, enupalButtonElement, elements) {
+            var that = this;
+
+            var form = enupalButtonElement[0];
+
+            var paymentFormId = 'stripe-payments-submit-button-'+enupalStripeData.paymentFormId;
+
+            // Handle form submission.
+            form.addEventListener('submit', function(event) {
+                var paymentType = $(enupalButtonElement).find('[name="paymentType"]').val();
+                if (paymentType != 3){
                     return true;
                 }
                 event.preventDefault();
