@@ -64,7 +64,8 @@
                 {% set currencySymbol = paymentForm.getCurrencySymbol() %}
                 {% set customId = 'customAmount-'~paymentForm.id %}
                 {% set recurringId = 'recurringToggle-'~paymentForm.id %}
-                {% set interval = paymentForm.recurringPaymentType == 'month' ? 'monthly' : 'yearly'  %}
+                {# English only #}
+                {% set interval = paymentForm.recurringPaymentType ~ 'ly'  %}
                 {% set recurringLabel = 'Make this a '~interval~' payment' %}
                 {% set minimumAmount = paymentForm.amount ? "%.2f"|format(paymentForm.amount) : paymentForm.minimumAmount ? "%.2f"|format(paymentForm.minimumAmount) : '' %}
                 <div class="form-group">

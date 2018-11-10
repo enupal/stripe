@@ -502,11 +502,16 @@ class Orders extends Component
         $result = null;
         $request = Craft::$app->getRequest();
         $data = $request->getBodyParam('enupalStripe');
+        $address = $request->getBodyParam('address') ?? null;
         $email = $request->getBodyParam('stripeElementEmail') ?? null;
         $formId = $data['formId'] ?? null;
         $data['email'] = $email;
         $paymentType = $request->getBodyParam('paymentType');
         $paymentOptions = Stripe::$app->paymentForms->getAsynchronousPaymentTypes();
+
+        if ($address){
+            $data['address'] = $address;
+        }
 
         if (empty($email) || empty($formId) || !isset($paymentOptions[$paymentType])){
             Craft::error('Unable to get the formId, paymentType or email', __METHOD__);
@@ -576,7 +581,7 @@ class Orders extends Component
     }
 
     /**
-     * @param $order
+     * @param $order Order
      * @param $sourceObject
      * @param $type
      * @return Order|null
@@ -593,6 +598,9 @@ class Orders extends Component
         if ($paymentForm->enableSubscriptions || (isset($data['recurringToggle']) && $data['recurringToggle'] == 'on')) {
             // Override source token with SEPA source token for recurring payments
             $token = $this->getSepaSource($token, $sourceObject, $type);
+            // Let's mark this as complete if no error comes up from the sepa transaction
+            // Users can check more info via webhooks
+            $order->isCompleted = true;
         }
 
         $postData['enupalStripe']['token'] = $token;
