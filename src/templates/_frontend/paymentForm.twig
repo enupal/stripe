@@ -139,9 +139,9 @@
             {# End address #}
 
             {# Payment method select #}
-            <input type="hidden" name='paymentType' value>
+            <input type="hidden" name='paymentType' value="{{ paymentForm.getDefaultPaymentMethod() }}">
             {% if paymentTypeIds|length > 1 %}
-                {% set paymentOptions = craft.enupalStripe.getPaymentTypesAsOptions() %}
+                {% set paymentOptions = craft.enupalStripe.getPaymentTypesAsOptions(paymentForm.paymentType) %}
                 <div class="form-group">
                     <div class="heading">
                         <label for="paymentMethod-{{ paymentForm.id }}">

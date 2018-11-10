@@ -1226,6 +1226,17 @@ class PaymentForms extends Component
     }
 
     /**
+     * @param $paymentType
+     * @return mixed|null
+     */
+    public function getPaymentTypeName($paymentType)
+    {
+        $paymentTypes = $this->getPaymentTypes();
+
+        return $paymentTypes[$paymentType] ?? null;
+    }
+
+    /**
      * @return array
      */
     public function getAsynchronousPaymentTypes()
@@ -1237,24 +1248,22 @@ class PaymentForms extends Component
     }
 
     /**
+     * @param $paymentTypeOptions
      * @return array
      */
-    public function getPaymentTypesAsOptions()
+    public function getPaymentTypesAsOptions($paymentTypeOptions)
     {
-        return [
-            [
-                'label' => 'Card',
-                'value' => PaymentType::CC
-            ],
-            [
-                'label' => 'iDEAL',
-                'value' => PaymentType::IDEAL
-            ],
-            [
-                'label' => 'SOFORT',
-                'value' => PaymentType::SOFORT
-            ],
-        ];
+        $optionsEnabled = json_decode($paymentTypeOptions, true);
+        $paymentOptions = [];
+
+        foreach ($optionsEnabled as $optionEnabled) {
+            $paymentOptions[] = [
+                'label' => $this->getPaymentTypeName($optionEnabled),
+                'value' => $optionEnabled
+            ];
+        }
+
+        return $paymentOptions;
     }
 
     /**

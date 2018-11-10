@@ -16,6 +16,7 @@ use craft\helpers\Json;
 use craft\helpers\UrlHelper;
 use craft\mail\Message;
 use enupal\stripe\elements\Order;
+use enupal\stripe\elements\PaymentForm;
 use enupal\stripe\enums\PaymentType;
 use enupal\stripe\enums\SubscriptionType;
 use enupal\stripe\events\NotificationEvent;
@@ -546,11 +547,11 @@ class Orders extends Component
             'metadata' => $this->getStripeMetadata($data)
         ];
 
-        if (isset($postData['idealBank']) && $postData['idealBank']){
+        if (isset($postData['idealBank']) && $postData['idealBank'] && $order->paymentType == PaymentType::IDEAL){
             $options['ideal']['bank'] = $postData['idealBank'];
         }
 
-        if (isset($postData['sofortCountry']) && $postData['sofortCountry']){
+        if (isset($postData['sofortCountry']) && $postData['sofortCountry'] && $order->paymentType == PaymentType::SOFORT){
             $options['sofort']['country'] = $postData['sofortCountry'];
         }
 
@@ -604,30 +605,6 @@ class Orders extends Component
     }
 
     /**
-     * Create Special SEPA Direct Debit Source object to make recurring payments with asynchronous sources
-     *
-     * @param $token
-     * @param $sourceObject
-     * @param $type
-     * @return mixed|null
-     */
-    private function getSepaSource($token, $sourceObject, $type)
-    {
-        $name = $sourceObject['data']['owner']['verified_name'] ?? $sourceObject['data']['owner']['name'] ?? 'Jenny Rosen';
-
-        $source = Source::create(array(
-            "type" => "sepa_debit",
-            "sepa_debit" => array($type => $token),
-            "currency" => "eur",
-            "owner" => array(
-                "name" => $name,
-            ),
-        ));
-
-        return $source['id'];
-    }
-
-    /**
      * Process Stripe Payment Listener
      *
      * @param $postData array
@@ -668,6 +645,12 @@ class Orders extends Component
         if (is_null($order)){
             $order = $this->populateOrder($data);
         }
+
+        if ($paymentType != null){
+            // Possible card element
+            $order->paymentType = $paymentType;
+        }
+
         $order->currency = $paymentForm->currency;
         $order->formId = $paymentForm->id;
 
@@ -678,64 +661,9 @@ class Orders extends Component
         $stripeId = null;
 
         if ($paymentForm->enableSubscriptions){
-            $planId = null;
-
-            if ($paymentForm->subscriptionType == SubscriptionType::SINGLE_PLAN && !$paymentForm->enableCustomPlanAmount){
-                $plan = Json::decode($paymentForm->singlePlanInfo, true);
-                $planId = $plan['id'];
-
-                // Lets create an invoice item if there is a setup fee
-                if ($paymentForm->singlePlanSetupFee){
-                    $this->addOneTimeSetupFee($customer, $paymentForm->singlePlanSetupFee, $paymentForm);
-                }
-
-                // Either single plan or multiple plans the user should select one plan and plan id should be available in the post request
-                $subscription = $this->addPlanToCustomer($customer, $planId, $data);
-                $stripeId = $subscription->id ?? null;
-            }
-
-            if ($paymentForm->subscriptionType == SubscriptionType::SINGLE_PLAN && $paymentForm->enableCustomPlanAmount) {
-                if (isset($data['customPlanAmount']) && $data['customPlanAmount'] > 0){
-                    // Lets create an invoice item if there is a setup fee
-                    if ($paymentForm->singlePlanSetupFee){
-                        $this->addOneTimeSetupFee($customer, $paymentForm->singlePlanSetupFee, $paymentForm);
-                    }
-                    // test what is returning we need a stripe id
-                    $subscription = $this->addCustomPlan($customer, $data, $paymentForm);
-                    $stripeId = $subscription->id ?? null;
-                }
-            }
-
-            if ($paymentForm->subscriptionType == SubscriptionType::MULTIPLE_PLANS) {
-                $planId = $data['enupalMultiPlan'] ?? null;
-
-                if (is_null($planId) || empty($planId)){
-                    throw new \Exception(Craft::t('enupal-stripe','Plan Id is required'));
-                }
-
-                $setupFee = $this->getSetupFeeFromMatrix($planId, $paymentForm);
-
-                if ($setupFee){
-                    $this->addOneTimeSetupFee($customer, $setupFee, $paymentForm);
-                }
-
-                $subscription = $this->addPlanToCustomer($customer, $planId, $data);
-                $stripeId = $subscription->id ?? null;
-            }
+            $stripeId = $this->handleSubscription($paymentForm, $customer, $data);
         }else{
-            // One time payment could be a subscription
-            if (isset($data['recurringToggle']) && $data['recurringToggle'] == 'on'){
-                if (isset($data['customAmount']) && $data['customAmount'] > 0){
-                    // test what is returning we need a stripe id
-                    $subscription = $this->addRecurringPayment($customer, $data, $paymentForm);
-                    $stripeId = $subscription->id ?? null;
-                }
-            }
-
-            if (is_null($stripeId)){
-                $charge = $this->stripeCharge($data, $paymentForm, $customer, $isNew, $token, $order);
-                $stripeId = $charge['id'] ?? null;
-            }
+            $stripeId = $this->handleOneTimePayment($paymentForm, $customer, $data, $token, $isNew, $order);
         }
 
         if (is_null($stripeId)){
@@ -745,52 +673,14 @@ class Orders extends Component
 
         $order->stripeTransactionId = $stripeId;
 
-        // revert cents
-        if ($paymentType == PaymentType::CC){
+        // revert cents - Async charges already make this conversion - On Checkout $paymentType is null
+        if ($paymentType == PaymentType::CC || is_null($paymentType)){
             $order->totalPrice = $this->convertFromCents($order->totalPrice, $paymentForm->currency);
         }
 
         $order = $this->finishOrder($order, $paymentForm);
 
         return $order;
-    }
-
-    /**
-     * @param $order
-     * @param $paymentForm
-     * @return null|Order
-     * @throws \Throwable
-     * @throws \yii\base\Exception
-     * @throws \yii\db\Exception
-     */
-    private function finishOrder($order, $paymentForm)
-    {
-        $result = null;
-        // Stock
-        $savePaymentForm = false;
-        if (!$paymentForm->hasUnlimitedStock && (int)$paymentForm->quantity > 0){
-            $paymentForm->quantity -= $order->quantity;
-            $savePaymentForm = true;
-        }
-
-        // Finally save the order in Craft CMS
-        if (!StripePlugin::$app->orders->saveOrder($order)){
-            Craft::error('Something went wrong saving the Stripe Order: '.json_encode($order->getErrors()), __METHOD__);
-            return $result;
-        }
-
-        // Let's update the stock
-        if ($savePaymentForm){
-            if (!StripePlugin::$app->paymentForms->savePaymentForm($paymentForm, false)){
-                Craft::error('Something went wrong updating the payment form stock: '.json_encode($paymentForm->getErrors()), __METHOD__);
-                return $result;
-            }
-        }
-
-        Craft::info('Enupal Stripe - Order Created: './** @scrutinizer ignore-type */ $order->number);
-        $result = $order;
-
-        return $result;
     }
 
     /**
@@ -843,43 +733,6 @@ class Orders extends Component
     }
 
     /**
-     * @param $data
-     * @param $paymentForm
-     * @param $customer
-     * @param $isNew
-     * @param $token
-     * @param $order
-     * @return null|\Stripe\ApiResource
-     */
-    private function stripeCharge($data, $paymentForm, $customer, $isNew, $token, $order)
-    {
-        $description = Craft::t('enupal-stripe', 'Order from {email}', ['email' => $data['email']]);
-        $charge = null;
-        $addressData = $data['address'] ?? null;
-
-        if (!$isNew){
-            // Set as default the new chargeable
-            if ($order->paymentType == PaymentType::IDEAL){
-                $customer->default_source = $token;
-                $customer->save();
-            }
-        }
-
-        $chargeSettings = [
-            'amount' => $data['amount'], // amount in cents from js
-            'currency' => $paymentForm->currency,
-            'customer' => $customer->id,
-            'description' => $description,
-            'metadata' => $this->getStripeMetadata($data),
-            'shipping' => $addressData ? $this->getShipping($addressData) : []
-        ];
-
-        $charge = $this->charge($chargeSettings);
-
-        return $charge;
-    }
-
-    /**
      * Stripe Charge given the config array
      *
      * @param $settings
@@ -923,158 +776,6 @@ class Orders extends Component
         }
 
         return $charge;
-    }
-
-    /**
-     * We should throw exceptions only if dev mode is enabled, when the site is live check error logs.
-     * @param $e
-     */
-    private function throwException($e)
-    {
-        if (Craft::$app->getConfig()->general->devMode) {
-            throw $e;
-        }
-    }
-
-    /**
-     * Add a plan to a customer
-     *
-     * @param $customer
-     * @param $planId
-     * @param $data
-     * @return mixed
-     */
-    private function addPlanToCustomer($customer, $planId, $data)
-    {
-        $settings = StripePlugin::$app->settings->getSettings();
-
-        //Get the plan from stripe it would trow an exception if the plan does not exists
-        Plan::retrieve([
-            "id" => $planId
-        ]);
-
-        // Add the plan to the customer
-        $subscriptionSettings = [
-            "plan" => $planId
-        ];
-
-        // Add tax
-        if ($settings->enableTaxes && $settings->tax){
-            $subscriptionSettings['tax_percent'] = $settings->tax;
-        }
-
-        $subscriptionSettings['metadata'] = $this->getStripeMetadata($data);
-
-        $subscription = $customer->subscriptions->create($subscriptionSettings);
-
-        return $subscription;
-    }
-
-    /**
-     * @param $customer
-     * @param $data
-     * @param $paymentForm
-     * @return mixed
-     */
-    private function addRecurringPayment($customer, $data, $paymentForm)
-    {
-        $currentTime = time();
-        $planName = strval($currentTime);
-        $settings = StripePlugin::$app->settings->getSettings();
-
-        // Remove tax from amount
-        if ($settings->enableTaxes && $settings->tax){
-            $currentAmount = $this->convertFromCents($data['amount'], $paymentForm->currency);
-            $beforeTax = $currentAmount - $data['taxAmount'];
-            $data['amount'] = $this->convertToCents($beforeTax, $paymentForm->currency);
-        }
-
-        //Create new plan for this customer:
-        Plan::create([
-            "amount" => $data['amount'],
-            "interval" => $paymentForm->recurringPaymentType,
-            "product" => [
-                "name" => "Plan for recurring payment from: " . $data['email'],
-            ],
-            "currency" => $paymentForm->currency,
-            "id" => $planName
-        ]);
-
-        // Add the plan to the customer
-        $subscriptionSettings = [
-            "plan" => $planName
-        ];
-
-        // Add tax
-        if ($settings->enableTaxes && $settings->tax){
-            $subscriptionSettings['tax_percent'] = $settings->tax;
-        }
-
-        $subscriptionSettings['metadata'] = $this->getStripeMetadata($data);
-
-        $subscription = $customer->subscriptions->create($subscriptionSettings);
-
-        return $subscription;
-    }
-
-    /**
-     * @param $customer
-     * @param $data
-     * @param $paymentForm
-     * @return mixed
-     */
-    private function addCustomPlan($customer, $data, $paymentForm)
-    {
-        $currentTime = time();
-        $planName = strval($currentTime);
-        $settings = StripePlugin::$app->settings->getSettings();
-
-        // Remove tax from amount
-        if ($settings->enableTaxes && $settings->tax){
-            $currentAmount = $this->convertFromCents($data['amount'], $paymentForm->currency);
-            $beforeTax = $currentAmount - $data['taxAmount'];
-            $data['amount'] = $this->convertToCents($beforeTax, $paymentForm->currency);
-        }
-
-        if ($paymentForm->singlePlanSetupFee){
-            $currentAmount = $this->convertFromCents($data['amount'], $paymentForm->currency);
-            $beforeFee = $currentAmount - $paymentForm->singlePlanSetupFee;
-            $data['amount'] = $this->convertToCents($beforeFee, $paymentForm->currency);
-        }
-
-        $data = [
-            "amount" => $data['amount'],
-            "interval" => $paymentForm->customPlanFrequency,
-            "interval_count" => $paymentForm->customPlanInterval,
-            "product" => [
-                "name" => "Custom Plan from: " . $data['email'],
-            ],
-            "currency" => $paymentForm->currency,
-            "id" => $planName
-        ];
-
-        if ($paymentForm->singlePlanTrialPeriod){
-            $data['trial_period_days'] = $paymentForm->singlePlanTrialPeriod;
-        }
-
-        //Create new plan for this customer:
-        Plan::create($data);
-
-        // Add the plan to the customer
-        $subscriptionSettings = [
-            "plan" => $planName
-        ];
-
-        // Add tax
-        if ($settings->enableTaxes && $settings->tax){
-            $subscriptionSettings['tax_percent'] = $settings->tax;
-        }
-
-        $subscriptionSettings['metadata'] = $this->getStripeMetadata($data);
-
-        $subscription = $customer->subscriptions->create($subscriptionSettings);
-
-        return $subscription;
     }
 
     public function convertToCents($amount, $currency)
@@ -1291,6 +992,219 @@ class Orders extends Component
     }
 
     /**
+     * Create Special SEPA Direct Debit Source object to make recurring payments with asynchronous sources
+     *
+     * @param $token
+     * @param $sourceObject
+     * @param $type
+     * @return mixed|null
+     */
+    private function getSepaSource($token, $sourceObject, $type)
+    {
+        $name = $sourceObject['data']['owner']['verified_name'] ?? $sourceObject['data']['owner']['name'] ?? 'Jenny Rosen';
+
+        $source = Source::create(array(
+            "type" => "sepa_debit",
+            "sepa_debit" => array($type => $token),
+            "currency" => "eur",
+            "owner" => array(
+                "name" => $name,
+            ),
+        ));
+
+        return $source['id'];
+    }
+
+    /**
+     * @param $data
+     * @param $paymentForm
+     * @param $customer
+     * @param $isNew
+     * @param $token
+     * @param $order
+     * @return null|\Stripe\ApiResource
+     */
+    private function stripeCharge($data, $paymentForm, $customer, $isNew, $token, $order)
+    {
+        $description = Craft::t('enupal-stripe', 'Order from {email}', ['email' => $data['email']]);
+        $charge = null;
+        $addressData = $data['address'] ?? null;
+
+        if (!$isNew){
+            // Set as default the new chargeable
+            if ($order->paymentType == PaymentType::IDEAL || $order->paymentType == PaymentType::SOFORT){
+                $customer->default_source = $token;
+                $customer->save();
+            }
+        }
+
+        $chargeSettings = [
+            'amount' => $data['amount'], // amount in cents from js
+            'currency' => $paymentForm->currency,
+            'customer' => $customer->id,
+            'description' => $description,
+            'metadata' => $this->getStripeMetadata($data),
+            'shipping' => $addressData ? $this->getShipping($addressData) : []
+        ];
+
+        $charge = $this->charge($chargeSettings);
+
+        return $charge;
+    }
+
+    /**
+     * We should throw exceptions only if dev mode is enabled, when the site is live check error logs.
+     * @param $e
+     */
+    private function throwException($e)
+    {
+        if (Craft::$app->getConfig()->general->devMode) {
+            throw $e;
+        }
+    }
+
+    /**
+     * Add a plan to a customer
+     *
+     * @param $customer
+     * @param $planId
+     * @param $data
+     * @return mixed
+     */
+    private function addPlanToCustomer($customer, $planId, $data)
+    {
+        $settings = StripePlugin::$app->settings->getSettings();
+
+        //Get the plan from stripe it would trow an exception if the plan does not exists
+        Plan::retrieve([
+            "id" => $planId
+        ]);
+
+        // Add the plan to the customer
+        $subscriptionSettings = [
+            "plan" => $planId
+        ];
+
+        // Add tax
+        if ($settings->enableTaxes && $settings->tax){
+            $subscriptionSettings['tax_percent'] = $settings->tax;
+        }
+
+        $subscriptionSettings['metadata'] = $this->getStripeMetadata($data);
+
+        $subscription = $customer->subscriptions->create($subscriptionSettings);
+
+        return $subscription;
+    }
+
+    /**
+     * @param $customer
+     * @param $data
+     * @param $paymentForm
+     * @return mixed
+     */
+    private function addRecurringPayment($customer, $data, $paymentForm)
+    {
+        $currentTime = time();
+        $planName = strval($currentTime);
+        $settings = StripePlugin::$app->settings->getSettings();
+
+        // Remove tax from amount
+        if ($settings->enableTaxes && $settings->tax){
+            $currentAmount = $this->convertFromCents($data['amount'], $paymentForm->currency);
+            $beforeTax = $currentAmount - $data['taxAmount'];
+            $data['amount'] = $this->convertToCents($beforeTax, $paymentForm->currency);
+        }
+
+        //Create new plan for this customer:
+        Plan::create([
+            "amount" => $data['amount'],
+            "interval" => $paymentForm->recurringPaymentType,
+            "product" => [
+                "name" => "Plan for recurring payment from: " . $data['email'],
+            ],
+            "currency" => $paymentForm->currency,
+            "id" => $planName
+        ]);
+
+        // Add the plan to the customer
+        $subscriptionSettings = [
+            "plan" => $planName
+        ];
+
+        // Add tax
+        if ($settings->enableTaxes && $settings->tax){
+            $subscriptionSettings['tax_percent'] = $settings->tax;
+        }
+
+        $subscriptionSettings['metadata'] = $this->getStripeMetadata($data);
+
+        $subscription = $customer->subscriptions->create($subscriptionSettings);
+
+        return $subscription;
+    }
+
+    /**
+     * @param $customer
+     * @param $data
+     * @param $paymentForm
+     * @return mixed
+     */
+    private function addCustomPlan($customer, $data, $paymentForm)
+    {
+        $currentTime = time();
+        $planName = strval($currentTime);
+        $settings = StripePlugin::$app->settings->getSettings();
+
+        // Remove tax from amount
+        if ($settings->enableTaxes && $settings->tax){
+            $currentAmount = $this->convertFromCents($data['amount'], $paymentForm->currency);
+            $beforeTax = $currentAmount - $data['taxAmount'];
+            $data['amount'] = $this->convertToCents($beforeTax, $paymentForm->currency);
+        }
+
+        if ($paymentForm->singlePlanSetupFee){
+            $currentAmount = $this->convertFromCents($data['amount'], $paymentForm->currency);
+            $beforeFee = $currentAmount - $paymentForm->singlePlanSetupFee;
+            $data['amount'] = $this->convertToCents($beforeFee, $paymentForm->currency);
+        }
+
+        $data = [
+            "amount" => $data['amount'],
+            "interval" => $paymentForm->customPlanFrequency,
+            "interval_count" => $paymentForm->customPlanInterval,
+            "product" => [
+                "name" => "Custom Plan from: " . $data['email'],
+            ],
+            "currency" => $paymentForm->currency,
+            "id" => $planName
+        ];
+
+        if ($paymentForm->singlePlanTrialPeriod){
+            $data['trial_period_days'] = $paymentForm->singlePlanTrialPeriod;
+        }
+
+        //Create new plan for this customer:
+        Plan::create($data);
+
+        // Add the plan to the customer
+        $subscriptionSettings = [
+            "plan" => $planName
+        ];
+
+        // Add tax
+        if ($settings->enableTaxes && $settings->tax){
+            $subscriptionSettings['tax_percent'] = $settings->tax;
+        }
+
+        $subscriptionSettings['metadata'] = $this->getStripeMetadata($data);
+
+        $subscription = $customer->subscriptions->create($subscriptionSettings);
+
+        return $subscription;
+    }
+
+    /**
      * Gets an Order Status's record.
      *
      * @param null $orderStatusId
@@ -1460,6 +1374,131 @@ class Orders extends Component
         ];
 
         return $shipping;
+    }
+
+    /**
+     * @param $paymentForm PaymentForm
+     * @param $customer
+     * @param $data
+     * @param $token
+     * @param $isNew
+     * @param $order Order
+     * @return mixed|null
+     */
+    private function handleOneTimePayment($paymentForm, $customer, $data, $token, $isNew, $order)
+    {
+        $stripeId = null;
+        // One time payment could be a subscription
+        if (isset($data['recurringToggle']) && $data['recurringToggle'] == 'on'){
+            if (isset($data['customAmount']) && $data['customAmount'] > 0){
+                // test what is returning we need a stripe id
+                $subscription = $this->addRecurringPayment($customer, $data, $paymentForm);
+                $stripeId = $subscription->id ?? null;
+            }
+        }
+
+        if (is_null($stripeId)){
+            $charge = $this->stripeCharge($data, $paymentForm, $customer, $isNew, $token, $order);
+            $stripeId = $charge['id'] ?? null;
+        }
+
+        return $stripeId;
+    }
+
+    /**
+     * @param $paymentForm
+     * @param $customer
+     * @param $data
+     * @return null
+     * @throws \Exception
+     */
+    private function handleSubscription($paymentForm, $customer, $data)
+    {
+        $planId = null;
+        $stripeId = null;
+
+        if ($paymentForm->subscriptionType == SubscriptionType::SINGLE_PLAN && !$paymentForm->enableCustomPlanAmount){
+            $plan = Json::decode($paymentForm->singlePlanInfo, true);
+            $planId = $plan['id'];
+
+            // Lets create an invoice item if there is a setup fee
+            if ($paymentForm->singlePlanSetupFee){
+                $this->addOneTimeSetupFee($customer, $paymentForm->singlePlanSetupFee, $paymentForm);
+            }
+
+            // Either single plan or multiple plans the user should select one plan and plan id should be available in the post request
+            $subscription = $this->addPlanToCustomer($customer, $planId, $data);
+            $stripeId = $subscription->id ?? null;
+        }
+
+        if ($paymentForm->subscriptionType == SubscriptionType::SINGLE_PLAN && $paymentForm->enableCustomPlanAmount) {
+            if (isset($data['customPlanAmount']) && $data['customPlanAmount'] > 0){
+                // Lets create an invoice item if there is a setup fee
+                if ($paymentForm->singlePlanSetupFee){
+                    $this->addOneTimeSetupFee($customer, $paymentForm->singlePlanSetupFee, $paymentForm);
+                }
+                // test what is returning we need a stripe id
+                $subscription = $this->addCustomPlan($customer, $data, $paymentForm);
+                $stripeId = $subscription->id ?? null;
+            }
+        }
+
+        if ($paymentForm->subscriptionType == SubscriptionType::MULTIPLE_PLANS) {
+            $planId = $data['enupalMultiPlan'] ?? null;
+
+            if (is_null($planId) || empty($planId)){
+                throw new \Exception(Craft::t('enupal-stripe','Plan Id is required'));
+            }
+
+            $setupFee = $this->getSetupFeeFromMatrix($planId, $paymentForm);
+
+            if ($setupFee){
+                $this->addOneTimeSetupFee($customer, $setupFee, $paymentForm);
+            }
+
+            $subscription = $this->addPlanToCustomer($customer, $planId, $data);
+            $stripeId = $subscription->id ?? null;
+        }
+
+        return $stripeId;
+    }
+
+    /**
+     * @param $order
+     * @param $paymentForm
+     * @return null|Order
+     * @throws \Throwable
+     * @throws \yii\base\Exception
+     * @throws \yii\db\Exception
+     */
+    private function finishOrder($order, $paymentForm)
+    {
+        $result = null;
+        // Stock
+        $savePaymentForm = false;
+        if (!$paymentForm->hasUnlimitedStock && (int)$paymentForm->quantity > 0){
+            $paymentForm->quantity -= $order->quantity;
+            $savePaymentForm = true;
+        }
+
+        // Finally save the order in Craft CMS
+        if (!StripePlugin::$app->orders->saveOrder($order)){
+            Craft::error('Something went wrong saving the Stripe Order: '.json_encode($order->getErrors()), __METHOD__);
+            return $result;
+        }
+
+        // Let's update the stock
+        if ($savePaymentForm){
+            if (!StripePlugin::$app->paymentForms->savePaymentForm($paymentForm, false)){
+                Craft::error('Something went wrong updating the payment form stock: '.json_encode($paymentForm->getErrors()), __METHOD__);
+                return $result;
+            }
+        }
+
+        Craft::info('Enupal Stripe - Order Created: './** @scrutinizer ignore-type */ $order->number);
+        $result = $order;
+
+        return $result;
     }
 
     /**

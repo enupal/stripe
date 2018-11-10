@@ -334,9 +334,9 @@ class Order extends Element
                 {
                     $html = null;
                     if ($this->isCompleted){
-                        $html = "<span class='status green'> </span><i class='fa fa-check' aria-hidden='true'></i> ";
+                        $html = "<span class='status green'> </span><i class='fa fa-check' aria-hidden='true'></i>";
                     }else{
-                        $html = "<span class='status white'></span> ";
+                        $html = "<span class='status white'> </span>".$this->getPaymentStatus();
                     }
                     return $html;
                 }
@@ -519,6 +519,27 @@ class Order extends Element
         }
 
         return $type;
+    }
+
+    /**
+     * @return string
+     */
+    public function getPaymentMethod()
+    {
+        $paymentMethod = 'Card';
+        if ($this->paymentType != null){
+            $paymentMethod = StripePaymentsPlugin::$app->paymentForms->getPaymentTypeName($this->paymentType);
+        }
+
+        return $paymentMethod;
+    }
+
+    /**
+     * @return string
+     */
+    public function getPaymentStatus()
+    {
+        return $this->isCompleted ? Craft::t('site', 'succeeded') : Craft::t('site', 'pending');
     }
 
     /**

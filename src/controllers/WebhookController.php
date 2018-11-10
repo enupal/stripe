@@ -69,6 +69,7 @@ class WebhookController extends BaseController
                     $order->isCompleted = true;
                     Stripe::$app->orders->saveOrder($order);
                 }
+                Stripe::$app->orders->addMessageToOrder($order, "charge succeeded");
                 break;
             case 'charge.failed':
                 // Finalize the order and trigger order complete event to send a confirmation to the customer over email.

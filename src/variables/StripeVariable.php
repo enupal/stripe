@@ -362,11 +362,12 @@ class StripeVariable
     }
 
     /**
+     * @param $paymentTypeOptions
      * @return array
      */
-    public function getPaymentTypesAsOptions()
+    public function getPaymentTypesAsOptions($paymentTypeOptions)
     {
-        return Stripe::$app->paymentForms->getPaymentTypesAsOptions();
+        return Stripe::$app->paymentForms->getPaymentTypesAsOptions($paymentTypeOptions);
     }
 
     /**
