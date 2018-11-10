@@ -45,8 +45,9 @@ class WebhookController extends BaseController
 
         switch ($eventJson['type']) {
             case 'source.chargeable':
-
-                $order = Stripe::$app->orders->idealCharge($order, $eventJson);
+                // iDEAL or SOFORT
+                $type = $eventJson['data']['object']['type'];
+                $order = Stripe::$app->orders->asynchronousCharge($order, $eventJson, $type);
 
                 break;
             case 'source.failed':
@@ -56,6 +57,23 @@ class WebhookController extends BaseController
             case 'source.canceled':
                 Craft::error('Stripe Payments - Source Canceled,  order: '.$order->number, __METHOD__);
                 Stripe::$app->orders->addMessageToOrder($order, "source canceled");
+                break;
+            case 'charge.pending':
+                // Sofort may require days for the funds to be confirmed and the charge to succeed.
+                // Let's update the order message
+                Stripe::$app->orders->addMessageToOrder($order, "charge pending");
+                break;
+            case 'charge.succeeded':
+                // Finalize the order and trigger order complete event to send a confirmation to the customer over email.
+                if (!$order->isCompleted){
+                    $order->isCompleted = true;
+                    Stripe::$app->orders->saveOrder($order);
+                }
+                break;
+            case 'charge.failed':
+                // Finalize the order and trigger order complete event to send a confirmation to the customer over email.
+                Craft::error('Stripe Payments - Charge Failed,  order: '.$order->number, __METHOD__);
+                Stripe::$app->orders->addMessageToOrder($order, "charge failed");
                 break;
         }
 

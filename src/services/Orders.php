@@ -487,7 +487,7 @@ class Orders extends Component
 
     /**
      * Process Asynchronous Payment
-     * iDEAL and SOFORT
+     * iDEAL or SOFORT
      * For asynchronous payment methods, it can take up to several days to confirm whether the payment has been successful.
      * The status of the payment’s Charge object is initially set to pending,
      * until the payment has been confirmed as successful or failed via webhook
@@ -575,12 +575,13 @@ class Orders extends Component
     }
 
     /**
-     * @param $order Order
+     * @param $order
      * @param $sourceObject
+     * @param $type
      * @return Order|null
      * @throws \Throwable
      */
-    public function idealCharge($order, $sourceObject)
+    public function asynchronousCharge($order, $sourceObject, $type)
     {
         $token = $order->stripeTransactionId;
         StripePlugin::$app->settings->initializeStripe();
@@ -589,15 +590,13 @@ class Orders extends Component
         $data = $postData['enupalStripe'];
 
         if ($paymentForm->enableSubscriptions || (isset($data['recurringToggle']) && $data['recurringToggle'] == 'on')) {
-            // Override iDEAL source token with SEPA source token for recurring payments
-            $token = $this->getSepaSourceWithIdeal($token, $sourceObject);
+            // Override source token with SEPA source token for recurring payments
+            $token = $this->getSepaSource($token, $sourceObject, $type);
         }
 
         $postData['enupalStripe']['token'] = $token;
         $postData['enupalStripe']['amount'] = $sourceObject['data']['object']['amount'];
         $postData['enupalStripe']['currency'] = $sourceObject['data']['object']['currency'];
-
-        $order->isCompleted = true;
 
         $order = $this->processPayment($postData, $order);
 
@@ -605,18 +604,20 @@ class Orders extends Component
     }
 
     /**
-     * Create Special SEPA Direct Debit Source object to make recurring payments with iDEAL
+     * Create Special SEPA Direct Debit Source object to make recurring payments with asynchronous sources
+     *
      * @param $token
      * @param $sourceObject
-     * @return string|null
+     * @param $type
+     * @return mixed|null
      */
-    private function getSepaSourceWithIdeal($token, $sourceObject)
+    private function getSepaSource($token, $sourceObject, $type)
     {
         $name = $sourceObject['data']['owner']['verified_name'] ?? $sourceObject['data']['owner']['name'] ?? 'Jenny Rosen';
 
         $source = Source::create(array(
             "type" => "sepa_debit",
-            "sepa_debit" => array("ideal" => $token),
+            "sepa_debit" => array($type => $token),
             "currency" => "eur",
             "owner" => array(
                 "name" => $name,
@@ -660,7 +661,7 @@ class Orders extends Component
             throw new \Exception(Craft::t('enupal-stripe','Unable to find the Stripe Button associated to the order'));
         }
 
-        if ($paymentType == PaymentType::IDEAL){
+        if ($paymentType == PaymentType::IDEAL || $paymentType == PaymentType::SOFORT){
             $paymentForm->currency = 'EUR';
         }
 
@@ -745,7 +746,7 @@ class Orders extends Component
         $order->stripeTransactionId = $stripeId;
 
         // revert cents
-        if ($paymentType != PaymentType::IDEAL){
+        if ($paymentType == PaymentType::CC){
             $order->totalPrice = $this->convertFromCents($order->totalPrice, $paymentForm->currency);
         }
 

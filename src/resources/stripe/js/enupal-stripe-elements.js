@@ -81,17 +81,21 @@ var enupalStripe = {};
             if (pTypes.length > 1){
                 var ccWrapper = enupalButtonElement.find('.cc-wrapper');
                 var idealWrapper = enupalButtonElement.find('.ideal-wrapper');
+                var sofortWrapper = enupalButtonElement.find('.sofort-wrapper');
                 $("#paymentMethod-"+enupalStripeData.paymentFormId).change(function () {
                     var paymentType = this.value;
                     if (paymentType == 1){// Credit Card
                         paymentTypeInput.val(paymentType);
                         ccWrapper.removeClass('hidden');
                         idealWrapper.addClass('hidden');
+                        sofortWrapper.addClass('hidden');
                     }else if (paymentType == 2){// iDEAL
                         idealWrapper.removeClass('hidden');
                         ccWrapper.addClass('hidden');
+                        sofortWrapper.addClass('hidden');
                         paymentTypeInput.val(paymentType);
                     }else if (paymentType == 3){// SOFORT
+                        sofortWrapper.removeClass('hidden');
                         idealWrapper.addClass('hidden');
                         ccWrapper.addClass('hidden');
                         paymentTypeInput.val(paymentType);
