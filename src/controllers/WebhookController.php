@@ -22,8 +22,6 @@ class WebhookController extends BaseController
     /**
      * @return \yii\web\Response
      * @throws \Throwable
-     * @throws \yii\base\Exception
-     * @throws \yii\db\Exception
      */
     public function actionStripe()
     {
