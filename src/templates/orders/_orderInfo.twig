@@ -1,10 +1,38 @@
 {% import "_includes/forms" as forms %}
-<div class="order-info">
-
+<div class="order-info meta">
     <div class="order-info-box">
         <table class="fullwidth data borderless">
             <tr>
-                <td><strong>{{ "Reference"|t('enupal-stripe') }}</strong>
+                <td>
+                    <strong>{{ "Payment Status"|t('enupal-stripe') }}</strong>
+                </td>
+                <td>
+                    <div id="order-completion">
+                        {{ order.getPaymentStatus() }}
+                        {% if order.isCompleted %}
+                            <span class='status green'> </span>
+                        {% else %}
+                            <span class='status white'> </span><span class="info"> {{ "Certain asynchronous payment methods (e.g., SOFORT) may require days for the funds to be confirmed and the charge to succeed, requiring the use of webhooks to know when to confirm and eventually fulfill your orders."|t('stripe-payments') }}</span>
+                        {% endif %}
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td><strong>{{ "Method"|t('enupal-stripe') }}</strong>
+                </td>
+                <td>
+                    <span id="order-number-short">{{ order.getPaymentMethod() }}</span>
+                </td>
+            </tr>
+            <tr>
+                <td><strong>{{ "Type"|t('enupal-stripe') }}</strong>
+                </td>
+                <td>
+                    <span id="order-number-short">{{ order.getPaymentType() }}</span>
+                </td>
+            </tr>
+            <tr>
+                <td><strong>{{ "Order Number"|t('enupal-stripe') }}</strong>
                 </td>
                 <td>
                     <span id="order-number-short">{{ order.number }}</span>
@@ -27,17 +55,6 @@
                     {{ order.getUserHtml()|raw }}
                 </td>
             </tr>
-            <tr>
-                <td>
-                    <strong>{{ "Order Date"|t('enupal-stripe') }}</strong>
-                </td>
-                <td>
-                    <div id="order-completion">
-                        <span title="{{ order.dateOrdered|date('r') }}">{{ order.dateOrdered|date('D jS M Y') }}</span>
-                    </div>
-                </td>
-            </tr>
-
             <tr>
                 <td><strong>{{ "Total Price"|t('enupal-stripe') }}</strong>
                 </td>
@@ -69,6 +86,8 @@
             </tr>
         </table>
     </div>
+</div>
+<div class="details">
     <div class="meta">
         {% set orderStatusOptions = craft.enupalStripe.getOrderStatuses() %}
         {{ forms.selectField({
@@ -79,7 +98,20 @@
             value: order.orderStatusId,
             errors: order.getErrors('orderStatusId')
         }) }}
-        <label for="notes">Messages</label>
-        <textarea name="notes" id="notes" disabled class="text fullwidth">{{ order.message|raw }}</textarea>
     </div>
+    <div class="meta read-only">
+        <div class="data">
+            <h5 class="heading">{{ "Order Date"|t('app') }}</h5>
+            <div class="value">{{ order.dateCreated|datetime('short') }}</div>
+        </div>
+        <div class="data">
+            <h5 class="heading">{{ "Updated at"|t('app') }}</h5>
+            <div class="value">{{ order.dateUpdated|datetime('short') }}</div>
+        </div>
+    </div>
+</div>
+
+<div class="meta">
+    <label for="notes">Messages</label>
+    <textarea rows="5" name="notes" id="notes" disabled class="text fullwidth">{{ order.message|raw }}</textarea>
 </div>

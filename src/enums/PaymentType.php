@@ -17,4 +17,5 @@ abstract class PaymentType extends BaseEnum
     // =========================================================================
     const CC = 1;
     const IDEAL  = 2;
+    const SOFORT  = 3;
 }

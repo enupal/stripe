@@ -64,7 +64,8 @@
                 {% set currencySymbol = paymentForm.getCurrencySymbol() %}
                 {% set customId = 'customAmount-'~paymentForm.id %}
                 {% set recurringId = 'recurringToggle-'~paymentForm.id %}
-                {% set interval = paymentForm.recurringPaymentType == 'month' ? 'monthly' : 'yearly'  %}
+                {# English only #}
+                {% set interval = paymentForm.recurringPaymentType ~ 'ly'  %}
                 {% set recurringLabel = 'Make this a '~interval~' payment' %}
                 {% set minimumAmount = paymentForm.amount ? "%.2f"|format(paymentForm.amount) : paymentForm.minimumAmount ? "%.2f"|format(paymentForm.minimumAmount) : '' %}
                 <div class="form-group">
@@ -139,9 +140,9 @@
             {# End address #}
 
             {# Payment method select #}
-            <input type="hidden" name='paymentType' value>
+            <input type="hidden" name='paymentType' value="{{ paymentForm.getDefaultPaymentMethod() }}">
             {% if paymentTypeIds|length > 1 %}
-                {% set paymentOptions = craft.enupalStripe.getPaymentTypesAsOptions() %}
+                {% set paymentOptions = craft.enupalStripe.getPaymentTypesAsOptions(paymentForm.paymentType) %}
                 <div class="form-group">
                     <div class="heading">
                         <label for="paymentMethod-{{ paymentForm.id }}">
@@ -202,6 +203,31 @@
                         </div>
                         {# Used to display form errors.#}
                         <div id="ideal-error-message-{{ paymentForm.id }}" role="alert"></div>
+                    </div>
+                {# SOFORT #}
+                {% elseif paymentTypeId == 3 %}
+                    {% set sofortCountries = craft.enupalStripe.getSofortCountriesAsOptions() %}
+                    <div class="form-row inline sofort-wrapper {% if isHidden %}hidden{% endif %}">
+                        <div class="form-group">
+                            <div class="heading">
+                                <label for="sofortCountry-{{ paymentForm.id }}">
+                                    {{ "Select a country:"|t -}}
+                                </label>
+                            </div>
+                            <div class="input">
+                                <select
+                                        name="sofortCountry"
+                                        id="sofortCountry-{{ paymentForm.id }}"
+                                        class="sofortCountry"
+                                        required aria-required="true"
+                                >
+                                    {%- for key, option in sofortCountries -%}
+                                        <option value="{{ option.value }}"
+                                        >{{ option.label }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
                     </div>
                 {% endif %}
             {% endfor %}

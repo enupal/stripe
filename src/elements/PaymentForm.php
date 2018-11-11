@@ -18,7 +18,6 @@ use enupal\stripe\enums\DiscountType;
 use enupal\stripe\enums\SubscriptionType;
 use enupal\stripe\Stripe;
 use enupal\stripe\validators\DiscountValidator;
-use yii\base\ErrorHandler;
 use craft\helpers\UrlHelper;
 use craft\elements\actions\Delete;
 
@@ -839,5 +838,15 @@ class PaymentForm extends Element
         }
 
         return $singlePlan;
+    }
+
+    /**
+     * @return string
+     */
+    public function getDefaultPaymentMethod()
+    {
+        $methods = json_decode($this->paymentType, true);
+
+        return $methods[0] ?? '';
     }
 }

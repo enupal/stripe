@@ -58,7 +58,7 @@
 
     {{ forms.field({
         id: 'paymentType',
-        label: "Payment Type <span class='info'>Leave unchecked to apply to all Payment Types.</span>"|t('enupal-stripe'),
+        label: "Payment Method <span class='info'>Powered by Stripe Elements</span>"|t('enupal-stripe'),
         errors: stripeForm.getErrors('paymentType'),
     }, paymentTypeInput) }}
 
