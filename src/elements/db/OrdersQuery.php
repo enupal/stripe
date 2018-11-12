@@ -27,6 +27,7 @@ class OrdersQuery extends ElementQuery
     public $orderStatusId;
     public $totalPrice;
     public $tax;
+    public $currency;
     public $dateOrdered;
     public $isCompleted;
     public $userId;
@@ -205,6 +206,24 @@ class OrdersQuery extends ElementQuery
     /**
      * @inheritdoc
      */
+    public function currency($value)
+    {
+        $this->currency = $value;
+
+        return $this;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getCurrency()
+    {
+        return $this->currency;
+    }
+
+    /**
+     * @inheritdoc
+     */
     public function stripeTransactionId($value)
     {
         $this->stripeTransactionId = $value;
@@ -297,6 +316,12 @@ class OrdersQuery extends ElementQuery
         if ($this->email) {
             $this->subQuery->andWhere(Db::parseParam(
                 'enupalstripe_orders.email', $this->email)
+            );
+        }
+
+        if ($this->currency) {
+            $this->subQuery->andWhere(Db::parseParam(
+                'enupalstripe_orders.currency', $this->currency)
             );
         }
 
