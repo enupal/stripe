@@ -256,7 +256,7 @@ class Order extends Element
      */
     protected static function defineSearchableAttributes(): array
     {
-        return ['number', 'stripeTransactionId'];
+        return ['number', 'stripeTransactionId', 'currency', 'email'];
     }
 
     /**
@@ -289,6 +289,7 @@ class Order extends Element
         $attributes['stripeTransactionId'] = ['label' => StripePaymentsPlugin::t('Stripe Transaction Id')];
         $attributes['dateOrdered'] = ['label' => StripePaymentsPlugin::t('Date Ordered')];
         $attributes['paymentType'] = ['label' => StripePaymentsPlugin::t('Payment Type')];
+        $attributes['currency'] = ['label' => StripePaymentsPlugin::t('Currency')];
 
         return $attributes;
     }
