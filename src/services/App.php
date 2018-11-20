@@ -9,6 +9,7 @@
 namespace enupal\stripe\services;
 
 use craft\base\Component;
+use craft\commerce\errors\SubscriptionException;
 
 class App extends Component
 {
@@ -28,6 +29,11 @@ class App extends Component
     public $orders;
 
     /**
+     * @var Subscriptions
+     */
+    public $subscriptions;
+
+    /**
      * @var Plans
      */
     public $plans;
@@ -38,5 +44,6 @@ class App extends Component
         $this->paymentForms = new PaymentForms();
         $this->orders = new Orders();
         $this->plans = new Plans();
+        $this->subscriptions = new Subscriptions();
     }
 }

@@ -145,6 +145,10 @@ class Install extends Migration
             'variants' => $this->text(),
             'postData' => $this->text(),
             'message' => $this->text(),
+            'subscriptionStatus' => $this->string(),
+            'refunded' => $this->boolean()->defaultValue(false),
+            'dateRefunded' => $this->dateTime(),
+            'isSubscription' => $this->boolean()->defaultValue(false),
             //
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),

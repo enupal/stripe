@@ -12,7 +12,7 @@
                         {% if order.isCompleted %}
                             <span class='status green'> </span>
                         {% else %}
-                            <span class='status white'> </span><span class="info"> {{ "Certain asynchronous payment methods (e.g., SOFORT) may require days for the funds to be confirmed and the charge to succeed, requiring the use of webhooks to know when to confirm and eventually fulfill your orders."|t('stripe-payments') }}</span>
+                            <span class='status white'> </span><span class="info"> {{ "Certain asynchronous payment methods (e.g., SOFORT) may require days for the funds to be confirmed and the charge to succeed, requiring the use of webhooks to know when to confirm and eventually fulfill your orders."|t('enupal-stripe') }}</span>
                         {% endif %}
                     </div>
                 </td>

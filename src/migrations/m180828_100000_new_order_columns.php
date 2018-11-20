@@ -12,9 +12,6 @@ class m180828_100000_new_order_columns extends Migration
 {
     /**
      * @inheritdoc
-     * @throws \yii\base\NotSupportedException
-     * @throws \yii\base\NotSupportedException
-     * @throws \yii\base\NotSupportedException
      */
     public function safeUp()
     {

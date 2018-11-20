@@ -83,6 +83,12 @@ class Order extends Element
     public $variants;
     public $postData;
     public $message;
+    // refund
+    public $refunded;
+    public $dateRefunded;
+    // subscriptions
+    public $subscriptionStatus;
+    public $isSubscription;
 
     public $dateCreated;
     public $dateOrdered;
@@ -226,6 +232,20 @@ class Order extends Element
                 'criteria' => ['orderStatusHandle' => $status->handle]
             ];
         }
+
+        $sources[] = ['heading' => StripePaymentsPlugin::t("Payment Type")];
+
+        $sources[] = [
+            'key' => 'oneTime:1',
+            'label' => Craft::t('enupal-stripe', 'One-Time'),
+            'criteria' => ['isSubscription' => false]
+        ];
+
+        $sources[] = [
+            'key' => 'subscriptions:1',
+            'label' => Craft::t('enupal-stripe', 'Subscriptions'),
+            'criteria' => ['isSubscription' => true]
+        ];
 
         return $sources;
     }
@@ -414,6 +434,10 @@ class Order extends Element
         $record->paymentType = $this->paymentType;
         $record->postData = $this->postData;
         $record->message = $this->message;
+        $record->subscriptionStatus = $this->subscriptionStatus;
+        $record->refunded = $this->refunded;
+        $record->dateRefunded = $this->dateRefunded;
+        $record->isSubscription = $this->isSubscription;
         $record->save(false);
 
         parent::afterSave($isNew);
