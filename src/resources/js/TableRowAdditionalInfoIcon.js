@@ -23,20 +23,12 @@ Craft.StripeButton.TableRowAdditionalInfoIcon = Garnish.Base.extend(
 
                 var info = item.data('info');
                 console.log(info.data.object);
-
-                for (var key in info.data.object) {
-                    var object = info.data.object;
-
-                    var $tr = $('<tr />').appendTo($tbody);
-                    var $label = $('<td><strong>' + Craft.t('enupal-stripe', key) + '</strong></td><td>').appendTo($tr);
-
-                    var value = object[key];
-                    var $value;
-
-                    $value = $('<td>'+value+'</td>');
-
-                    $value.appendTo($tr);
-                }
+                var value = info;
+                value = '<code class="language-json">'+JSON.stringify(value, undefined, 4)+'</code>';
+                var $tr = $('<tr />').appendTo($tbody);
+                var $label = $('<td><strong>' + Craft.t('enupal-stripe', 'All info') + '</strong></td><td>').appendTo($tr);
+                $value = $('<td>'+value+'</td>');
+                $value.appendTo($tr);
 
                 this.hud = new Garnish.HUD(this.$icon, $hudBody, {
                     hudClass: 'hud'
