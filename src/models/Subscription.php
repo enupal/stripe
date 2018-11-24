@@ -22,6 +22,7 @@ class Subscription extends Model
     public $data;
     public $quantity;
     public $interval;
+    public $status;
 
     public function __construct($subscription = [])
     {
@@ -31,6 +32,7 @@ class Subscription extends Model
         $this->planNickName = $subscription['plan']['nickname'] ?? null ;
         $this->quantity = $subscription['quantity'] ?? null ;
         $this->interval = $subscription['plan']['interval'] ?? null ;
+        $this->status = $subscription['status'] ?? null ;
         $this->data = $subscription;
     }
 }

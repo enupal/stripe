@@ -46,6 +46,7 @@
                         $("#subs-start").text(subscription.startDate);
                         $("#subs-end").text(subscription.endDate);
                         $("#subs-interval").text(subscription.interval);
+                        $("#subs-status").text(subscription.status);
                         $("#subs-quantity").text(subscription.quantity);
                     }else{
                         Craft.cp.displayError(Craft.t('enupal-stripe', 'Unable to get subscription info'));

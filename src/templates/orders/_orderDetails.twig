@@ -96,12 +96,13 @@
     {% if order.isSubscription %}
         <input type="hidden" id="subscriptionId" value="{{ order.stripeTransactionId }}">
         <hr>
-        <h3>{{ "Subscriptions"|t('enupal-stripe') }}</h3>
+        <h3>{{ "Subscription"|t('enupal-stripe') }}</h3>
         <div class="order-details pane">
             <table id="" class="data fullwidth collapsible">
                 <thead>
                 <tr>
                     <th scope="col">{{ 'Plan nickname'|t('enupal-stripe') }}</th>
+                    <th scope="col">{{ 'Status'|t('enupal-stripe') }}</th>
                     <th scope="col">{{ 'Interval'|t('enupal-stripe') }}</th>
                     <th scope="col">{{ 'Period Start'|t('enupal-stripe') }}</th>
                     <th scope="col">{{ 'Period end'|t('enupal-stripe') }}</th>
@@ -111,6 +112,9 @@
                 </thead>
                 <tbody>
                 <td id="subs-nickname">
+
+                </td>
+                <td id="subs-status">
 
                 </td>
                 <td id="subs-interval">
