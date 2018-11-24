@@ -989,17 +989,6 @@ class Orders extends Component
     }
 
     /**
-     * @param $order
-     * @param $message
-     * @throws \Throwable
-     */
-    public function addMessageToOrder($order, $message)
-    {
-        $order->message .= " - ".$message;
-        $this->saveOrder($order, false);
-    }
-
-    /**
      * Create Special SEPA Direct Debit Source object to make recurring payments with asynchronous sources
      *
      * @param $token

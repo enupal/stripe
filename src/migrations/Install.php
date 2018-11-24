@@ -183,6 +183,16 @@ class Install extends Migration
             'dateUpdated' => $this->dateTime()->notNull(),
             'uid' => $this->uid(),
         ]);
+
+        $this->createTable('{{%enupalstripe_messages}}', [
+            'id' => $this->primaryKey(),
+            'orderId' => $this->integer()->notNull(),
+            'message' => $this->text(),
+            'details' => $this->text(),
+            'dateCreated' => $this->dateTime()->notNull(),
+            'dateUpdated' => $this->dateTime()->notNull(),
+            'uid' => $this->uid(),
+        ]);
     }
 
     /**
@@ -200,6 +210,17 @@ class Install extends Migration
             ),
             '{{%enupalstripe_orders}}',
             'formId',
+            false
+        );
+
+        $this->createIndex(
+            $this->db->getIndexName(
+                '{{%enupalstripe_messages}}',
+                'orderId',
+                false, true
+            ),
+            '{{%enupalstripe_messages}}',
+            'orderId',
             false
         );
     }
@@ -233,6 +254,14 @@ class Install extends Migration
             ),
             '{{%enupalstripe_orders}}', 'formId',
             '{{%enupalstripe_forms}}', 'id', 'CASCADE', null
+        );
+
+        $this->addForeignKey(
+            $this->db->getForeignKeyName(
+                '{{%enupalstripe_messages}}', 'orderId'
+            ),
+            '{{%enupalstripe_messages}}', 'orderId',
+            '{{%enupalstripe_orders}}', 'id', 'CASCADE', null
         );
     }
 

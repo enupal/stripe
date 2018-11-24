@@ -1,5 +1,5 @@
 {% set form = order.getPaymentForm() %}
-<div class="order-details pane">
+<div id="order-details" class="order-details pane">
     <table id="" class="data fullwidth collapsible">
         <thead>
         <tr>
@@ -92,12 +92,12 @@
         </tr>
         </tbody>
     </table>
-</div>
-{% for key, variant in order.getFormFields() %}
-    {% if loop.first %}
-        <br>
-        <h3>{{ "Form Fields"|t('enupal-stripe') }}</h3>
-        <div class="order-details pane">
+    <hr>
+    {% for key, variant in order.getFormFields() %}
+        {% if loop.first %}
+            <br>
+            <h3>{{ "Form Fields"|t('enupal-stripe') }}</h3>
+            <div class="order-details pane">
             <table id="" class="data fullwidth collapsible">
             <thead>
             <tr>
@@ -107,8 +107,8 @@
                 <th scope="col"></th>
             </tr>
             </thead>
-        <tbody>
-    {% endif %}
+            <tbody>
+        {% endif %}
         <tr class="infoRow">
             <td>
                 {{ key }}
@@ -127,16 +127,18 @@
             <td>
             </td>
         </tr>
-    {% if loop.last %}
-          </tbody>
-        </table>
-    </div>
-    {% endif %}
-{% endfor %}
+        {% if loop.last %}
+            </tbody>
+            </table>
+            </div>
+        {% endif %}
+    {% endfor %}
 
-{% if order.addressCity %}
-    <br>
-    <h3>{{ 'Shipping/Billing Address'|t('enupal-stripe') }}</h3>
-    {{ order.getShippingAddress()|raw }}
-{% endif %}
+    {% if order.addressCity %}
+        <hr>
+        <h3>{{ 'Shipping/Billing Address'|t('enupal-stripe') }}</h3>
+        {{ order.getShippingAddress()|raw }}
+    {% endif %}
+
+</div>
 
