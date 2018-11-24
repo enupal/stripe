@@ -680,6 +680,7 @@ class Orders extends Component
         }
 
         $order->stripeTransactionId = $stripeId;
+        $order->isSubscription = StripePlugin::$app->subscriptions->getIsSubscription($order->stripeTransactionId);
 
         // revert cents - Async charges already make this conversion - On Checkout $paymentType is null
         if ($paymentType == PaymentType::CC || is_null($paymentType)){

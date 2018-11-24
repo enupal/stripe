@@ -58,4 +58,19 @@ class Subscriptions extends Component
 
         return $response;
     }
+
+    /**
+     * @param $stripeTransactionId
+     * @return bool
+     */
+    public function getIsSubscription($stripeTransactionId)
+    {
+        $transactionId = substr($stripeTransactionId, 0, 3);
+
+        if ($transactionId != 'sub'){
+            return false;
+        }
+
+        return true;
+    }
 }
