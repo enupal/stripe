@@ -18,6 +18,25 @@
                 </td>
             </tr>
             <tr>
+                <td><strong>{{ "Order Number"|t('enupal-stripe') }}</strong>
+                </td>
+                <td>
+                    <span id="order-number-short">{{ order.number }}</span>
+                </td>
+            </tr>
+            <tr>
+                <td><strong>{{ "Total Price"|t('enupal-stripe') }}</strong>
+                </td>
+                <td>{{ order.totalPrice|currency(order.currency) }}</td>
+            </tr>
+
+            <tr>
+                <td>
+                    <strong>{{ "Order Currency"|t('enupal-stripe') }} </strong>
+                </td>
+                <td>{{ order.currency }}</td>
+            </tr>
+            <tr>
                 <td><strong>{{ "Method"|t('enupal-stripe') }}</strong>
                 </td>
                 <td>
@@ -29,13 +48,6 @@
                 </td>
                 <td>
                     <span id="order-number-short">{{ order.getPaymentType() }}</span>
-                </td>
-            </tr>
-            <tr>
-                <td><strong>{{ "Order Number"|t('enupal-stripe') }}</strong>
-                </td>
-                <td>
-                    <span id="order-number-short">{{ order.number }}</span>
                 </td>
             </tr>
             <tr>
@@ -55,11 +67,7 @@
                     {{ order.getUserHtml()|raw }}
                 </td>
             </tr>
-            <tr>
-                <td><strong>{{ "Total Price"|t('enupal-stripe') }}</strong>
-                </td>
-                <td>{{ order.totalPrice|currency(order.currency) }}</td>
-            </tr>
+
             <tr>
                 <td>
                     <strong>{{ "Stripe Reference"|t('enupal-stripe') }} </strong>
@@ -77,12 +85,6 @@
                 <td>
                     <a href="https://dashboard.stripe.com/test/customers/{{ customerId }}">{{ customerId }}</a>
                 </td>
-            </tr>
-            <tr>
-                <td>
-                    <strong>{{ "Order Currency"|t('enupal-stripe') }} </strong>
-                </td>
-                <td>{{ order.currency }}</td>
             </tr>
         </table>
     </div>

@@ -104,8 +104,10 @@
 {% js %}
     $(document).ready(function () {
         $.each($('.tableRowInfo'), function () {
-        new Craft.StripeButton.TableRowAdditionalInfoIcon(this);
+            new Craft.StripeButton.TableRowAdditionalInfoIcon(this);
         });
+
+        new EnupalStripeEditOrder();
     });
 {% endjs %}
 

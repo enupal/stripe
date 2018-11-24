@@ -92,10 +92,50 @@
         </tr>
         </tbody>
     </table>
-    <hr>
+
+    {% if order.isSubscription %}
+        <input type="hidden" id="subscriptionId" value="{{ order.stripeTransactionId }}">
+        <hr>
+        <h3>{{ "Subscriptions"|t('enupal-stripe') }}</h3>
+        <div class="order-details pane">
+            <table id="" class="data fullwidth collapsible">
+                <thead>
+                <tr>
+                    <th scope="col">{{ 'Plan nickname'|t('enupal-stripe') }}</th>
+                    <th scope="col">{{ 'Interval'|t('enupal-stripe') }}</th>
+                    <th scope="col">{{ 'Period Start'|t('enupal-stripe') }}</th>
+                    <th scope="col">{{ 'Period end'|t('enupal-stripe') }}</th>
+                    <th scope="col">{{ 'Quantity'|t('enupal-stripe') }}</th>
+                    <th scope="col"></th>
+                </tr>
+                </thead>
+                <tbody>
+                <td id="subs-nickname">
+
+                </td>
+                <td id="subs-interval">
+
+                </td>
+                <td id="subs-start">
+
+                </td>
+                <td id="subs-end">
+
+                </td>
+                <td id="subs-quantity">
+
+                </td>
+                <td id="subs-load">
+                    <div id="refresh-subscriptions" class="btn">{{ "Refresh"|t('enupal-stripe') }} </div><div class="spinner hidden"></div>
+                </td>
+                </tbody>
+            </table>
+        </div>
+    {% endif %}
+
     {% for key, variant in order.getFormFields() %}
         {% if loop.first %}
-            <br>
+            <hr>
             <h3>{{ "Form Fields"|t('enupal-stripe') }}</h3>
             <div class="order-details pane">
             <table id="" class="data fullwidth collapsible">

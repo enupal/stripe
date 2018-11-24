@@ -24,7 +24,8 @@ class EditOrderAsset extends AssetBundle
         ];
 
         $this->js = [
-            'js/TableRowAdditionalInfoIcon.js'
+            'js/TableRowAdditionalInfoIcon.js',
+            'js/enupalstripeeditorder.js'
         ];
 
         parent::init();
