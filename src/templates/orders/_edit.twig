@@ -106,8 +106,11 @@
         $.each($('.tableRowInfo'), function () {
             new Craft.StripeButton.TableRowAdditionalInfoIcon(this);
         });
-
-        new EnupalStripeEditOrder();
+        var isSubscription = false;
+        {% if order.isSubscription %}
+            isSubscription = true;
+        {% endif %}
+        new EnupalStripeEditOrder(isSubscription);
     });
 {% endjs %}
 

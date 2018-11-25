@@ -78,8 +78,10 @@
             <td></td>
             <td>
                 <div class="isPaid">
-                    {% if order.isCompleted  %}
+                    {% if order.isCompleted and not order.refunded  %}
                         <span>{{ 'PAID'|t('enupal-stripe') }}</span>
+                    {% elseif order.refunded %}
+                        <span>{{ 'Refunded'|t('enupal-stripe') }}</span>
                     {% endif %}
                 </div>
             </td>
@@ -132,10 +134,10 @@
 
                 </td>
                 <td style="width:10%;" id="subs-cancel">
-                    <div id="cancel-subscription" class="btn">{{ "Cancel"|t('enupal-stripe') }} </div><div class="spinner hidden"></div>
+                    <div id="cancel-subscription" class="btn small">{{ "Cancel"|t('enupal-stripe') }} </div><div class="spinner hidden"></div>
                 </td>
                 <td style="width:10%;" id="subs-load">
-                    <div id="refresh-subscription" class="btn">{{ "Refresh"|t('enupal-stripe') }} </div><div class="spinner hidden"></div>
+                    <div id="refresh-subscription" class="btn small">{{ "Refresh"|t('enupal-stripe') }} </div><div class="spinner hidden"></div>
                 </td>
                 </tbody>
             </table>

@@ -17,7 +17,7 @@ class Messages extends Component
     /**
      * @param $orderId
      * @param $message
-     * $param $details null|string
+     * @param null|string|array $details
      * @return bool
      */
     public function addMessage($orderId, $message, $details = null)

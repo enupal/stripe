@@ -300,7 +300,7 @@ class Order extends Element
     {
         $attributes['number'] = ['label' => StripePaymentsPlugin::t('Order Number')];
         $attributes['totalPrice'] = ['label' => StripePaymentsPlugin::t('Total')];
-        $attributes['isCompleted'] = ['label' => StripePaymentsPlugin::t('Is completed')];
+        $attributes['paymentStatus'] = ['label' => StripePaymentsPlugin::t('Payment Status')];
         $attributes['user'] = ['label' => StripePaymentsPlugin::t('User')];
         $attributes['address'] = ['label' => StripePaymentsPlugin::t('Shipping Address')];
         $attributes['email'] = ['label' => StripePaymentsPlugin::t('Customer Email')];
@@ -326,7 +326,7 @@ class Order extends Element
 
     protected static function defineDefaultTableAttributes(string $source): array
     {
-        $attributes = ['number', 'itemName', 'itemSku', 'totalPrice', 'email', 'user', 'isCompleted', 'dateOrdered'];
+        $attributes = ['number', 'itemName', 'itemSku', 'totalPrice', 'email', 'user', 'paymentStatus', 'dateOrdered'];
 
         return $attributes;
     }
@@ -351,15 +351,9 @@ class Order extends Element
                 {
                     return $this->getShippingAddress();
                 }
-            case 'isCompleted':
+            case 'paymentStatus':
                 {
-                    $html = null;
-                    if ($this->isCompleted){
-                        $html = "<span class='status green'> </span><i class='fa fa-check' aria-hidden='true'></i>";
-                    }else{
-                        $html = "<span class='status white'> </span>".$this->getPaymentStatus();
-                    }
-                    return $html;
+                    return $this->getPaymentStatusHtml();
                 }
             case 'user':
                 {
@@ -564,7 +558,32 @@ class Order extends Element
      */
     public function getPaymentStatus()
     {
-        return $this->isCompleted ? Craft::t('site', 'succeeded') : Craft::t('site', 'pending');
+        $status = $this->isCompleted ? 'succeeded' : 'pending';
+
+        if ($this->refunded){
+            $status = 'refunded';
+        }
+
+        return $status;
+    }
+
+    /**
+     * @return string
+     */
+    public function getPaymentStatusHtml()
+    {
+        $statuses = [
+            'succeeded' => 'green',
+            'pending' => 'white',
+            'refunded' => 'black',
+        ];
+
+        $status = $this->getPaymentStatus();
+        $color = $statuses[$status] ?? '';
+
+        $html = "<span class='status ".$color."'> </span>".$status;
+
+        return $html;
     }
 
     /**

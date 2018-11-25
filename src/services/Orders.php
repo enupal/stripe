@@ -26,8 +26,10 @@ use enupal\stripe\Stripe;
 use Stripe\Charge;
 use Stripe\Customer;
 use Stripe\Error\Card;
+use Stripe\Invoice;
 use Stripe\InvoiceItem;
 use Stripe\Plan;
+use Stripe\Refund;
 use Stripe\Source;
 use yii\base\Component;
 use enupal\stripe\Stripe as StripePlugin;
@@ -987,6 +989,53 @@ class Orders extends Component
         }
 
         return $orderStatusRecord;
+    }
+
+    /**
+     * @param $order Order
+     * @return bool
+     * @throws \Throwable
+     */
+    public function refundOrder(Order $order)
+    {
+        $result = false;
+
+        if (!$order->refunded) {
+            try {
+                StripePlugin::$app->settings->initializeStripe();
+                $stripeId = $order->stripeTransactionId;
+
+                if ($order->isSubscription()){
+                    $invoices = Invoice::all(['subscription' => $stripeId]);
+                    if (isset($invoices['data'][0])){
+                        // Let's refund the first invoice for subscriptions
+                        $firstInvoice = $invoices['data'][0];
+
+                        $stripeId = $firstInvoice['charge'];
+                    }
+                }
+
+                $refund = Refund::create([
+                    'charge' => $stripeId
+                ]);
+
+                if ($refund['status'] == 'succeeded') {
+                    $order->refunded = true;
+                    $now = Db::prepareDateForDb(new \DateTime());
+                    $order->dateRefunded = $now;
+                    $this->saveOrder($order, false);
+                    Stripe::$app->messages->addMessage($order->id,'Control Panel - Payment Refunded', $refund);
+
+                    $result = true;
+                }
+            } catch (\Exception $e) {
+                Stripe::$app->messages->addMessage($order->id,'Control Panel - Failed to refund payment', ['error' => $e->getMessage()]);
+            }
+        }else{
+            Stripe::$app->messages->addMessage($order->id, "Control Panel - Payment was already refunded", []);
+        }
+
+        return $result;
     }
 
     /**

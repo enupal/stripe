@@ -6,19 +6,23 @@
 
         $refreshSubscriptionButton: null,
         $cancelSubscriptionButton: null,
+        $refundButton: null,
 
         /**
          * The constructor.
          */
-        init: function() {
+        init: function(isSubscription) {
             // init method
-            this.$refreshSubscriptionButton = $('#refresh-subscription');
-            this.$cancelSubscriptionButton = $('#cancel-subscription');
+            if (isSubscription){
+                this.$refreshSubscriptionButton = $('#refresh-subscription');
+                this.$cancelSubscriptionButton = $('#cancel-subscription');
+                this.addListener(this.$refreshSubscriptionButton, 'click', 'handleRefreshSubscription');
+                this.addListener(this.$cancelSubscriptionButton, 'click', 'handleCancelSubscription');
+                this.handleRefreshSubscription();
+            }
 
-            this.addListener(this.$refreshSubscriptionButton, 'click', 'handleRefreshSubscription');
-            this.addListener(this.$cancelSubscriptionButton, 'click', 'handleCancelSubscription');
-
-            this.handleRefreshSubscription();
+            this.$refundButton = $('#fields-refund-payment');
+            this.addListener(this.$refundButton, 'click', 'handleRefundPayment');
         },
 
         handleRefreshSubscription: function(option) {
@@ -93,6 +97,41 @@
                         that.handleRefreshSubscription();
                     }else{
                         Craft.cp.displayError(Craft.t('enupal-stripe', 'Unable to cancel subscription'));
+                    }
+                }
+            });
+        },
+
+        handleRefundPayment: function(option) {
+            if (!confirm(Craft.t('enupal-stripe', 'Are you sure you want to refund this payment?'))) {
+                return true;
+            }
+
+            if (this.$refundButton.hasClass('disabled')) {
+                return;
+            }
+
+            var that = this;
+
+            this.$refundButton.addClass('disabled').siblings('.spinner').removeClass('hidden');
+
+            var data = {
+                'orderNumber' : $("#fields-order-number-short").text()
+            };
+
+            Craft.postActionRequest('enupal-stripe/orders/refund-payment', data, function(response, textStatus) {
+                that.$refundButton.removeClass('disabled').siblings('.spinner').addClass('hidden');
+                if (textStatus === 'success') {
+                    if ("error" in response ){
+                        Craft.cp.displayError(Craft.t('enupal-stripe', response.error));
+                        location.reload();
+                    }
+                    else if (response.success) {
+                        Craft.cp.displayNotice(Craft.t('enupal-stripe', 'Payment Refunded - Check your messages tab'));
+                        location.reload();
+                    }else{
+                        Craft.cp.displayError(Craft.t('enupal-stripe', 'Unable to refund payment - Check your messages tab'));
+                        location.reload();
                     }
                 }
             });

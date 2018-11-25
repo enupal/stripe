@@ -13,7 +13,6 @@ Craft.StripeButton.TableRowAdditionalInfoIcon = Garnish.Base.extend(
         },
 
         showHud: function() {
-                console.log("ASS1");
                 var item = this.$icon.closest('.infoRow');
 
                 var $hudBody = $("<div />");
@@ -22,7 +21,6 @@ Craft.StripeButton.TableRowAdditionalInfoIcon = Garnish.Base.extend(
                 var $tbody = $table.find('tbody');
 
                 var info = item.data('info');
-                console.log(info.data.object);
                 var value = info;
                 value = '<code class="language-json">'+JSON.stringify(value, undefined, 4)+'</code>';
                 var $tr = $('<tr />').appendTo($tbody);
