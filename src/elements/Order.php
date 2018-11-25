@@ -580,4 +580,34 @@ class Order extends Element
 
         return true;
     }
+
+    /**
+     * @return bool
+     */
+    public function getSubscriptionStatusHtml()
+    {
+        $html = '';
+
+        if ($this->isSubscription()){
+            $subscription = $this->getSubscription();
+            $status = $subscription->status;
+            $html = StripePaymentsPlugin::$app->subscriptions->getSubscriptionStatusHtml($status);
+        }
+
+        return $html;
+    }
+
+    /**
+     * @return \enupal\stripe\models\Subscription|null
+     */
+    public function getSubscription()
+    {
+        $subscription = null;
+
+        if ($this->isSubscription()){
+            $subscription = StripePaymentsPlugin::$app->subscriptions->getSubscriptionModel($this->stripeTransactionId);
+        }
+
+        return $subscription;
+    }
 }

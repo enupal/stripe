@@ -107,6 +107,7 @@
                     <th scope="col">{{ 'Period Start'|t('enupal-stripe') }}</th>
                     <th scope="col">{{ 'Period end'|t('enupal-stripe') }}</th>
                     <th scope="col">{{ 'Quantity'|t('enupal-stripe') }}</th>
+                    <th id="cancel-title" scope="col"></th>
                     <th scope="col"></th>
                 </tr>
                 </thead>
@@ -129,8 +130,11 @@
                 <td id="subs-quantity">
 
                 </td>
-                <td id="subs-load">
-                    <div id="refresh-subscriptions" class="btn">{{ "Refresh"|t('enupal-stripe') }} </div><div class="spinner hidden"></div>
+                <td style="width:10%;" id="subs-cancel">
+                    <div id="cancel-subscription" class="btn">{{ "Cancel"|t('enupal-stripe') }} </div><div class="spinner hidden"></div>
+                </td>
+                <td style="width:10%;" id="subs-load">
+                    <div id="refresh-subscription" class="btn">{{ "Refresh"|t('enupal-stripe') }} </div><div class="spinner hidden"></div>
                 </td>
                 </tbody>
             </table>

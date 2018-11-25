@@ -18,8 +18,6 @@ use enupal\stripe\elements\PaymentForm as StripeElement;
 
 class OrdersController extends BaseController
 {
-    protected $allowAnonymous = ['actionRefreshSubscription'];
-
     /**
      * Save an Order
      * 
@@ -128,26 +126,5 @@ class OrdersController extends BaseController
         Stripe::$app->orders->deleteOrder($order);
 
         return $this->redirectToPostedUrl($order);
-    }
-
-    /**
-     * Get Subscription via ajax
-     *
-     * @return \yii\web\Response
-     * @throws \yii\web\BadRequestHttpException
-     */
-    public function actionRefreshSubscription()
-    {
-        $this->requireAcceptsJson();
-        $request = Craft::$app->getRequest();
-        $subscriptionId = $request->getRequiredBodyParam('subscriptionId');
-
-        try {
-            $subscription = Stripe::$app->subscriptions->getStripeSubscription($subscriptionId);
-        } catch (\Throwable $e) {
-            return $this->asErrorJson($e->getMessage());
-        }
-
-        return $this->asJson(['success'=> true, 'subscription' => $subscription]);
     }
 }
