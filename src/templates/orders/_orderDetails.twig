@@ -1,6 +1,7 @@
 {% set form = order.getPaymentForm() %}
 <div id="order-details" class="order-details pane">
-    <table id="" class="data fullwidth collapsible">
+    <h3>Details</h3>
+    <table id="" class="data fullwidth collapsible pane">
         <thead>
         <tr>
             <th scope="col">{{ 'Payment Form'|t('enupal-stripe') }}</th>
@@ -185,7 +186,9 @@
     {% if order.addressCity %}
         <hr>
         <h3>{{ 'Shipping/Billing Address'|t('enupal-stripe') }}</h3>
+        <div class="pane">
         {{ order.getShippingAddress()|raw }}
+        </div>
     {% endif %}
 
 </div>
