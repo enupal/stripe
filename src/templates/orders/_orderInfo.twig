@@ -8,14 +8,43 @@
                 </td>
                 <td>
                     <div id="order-completion">
-                        {{ order.getPaymentStatus() }}
-                        {% if order.isCompleted %}
-                            <span class='status green'> </span>
-                        {% else %}
-                            <span class='status white'> </span><span class="info"> {{ "Certain asynchronous payment methods (e.g., SOFORT) may require days for the funds to be confirmed and the charge to succeed, requiring the use of webhooks to know when to confirm and eventually fulfill your orders."|t('stripe-payments') }}</span>
+                        {{ order.getPaymentStatusHtml()|raw }}
+                        {% if not order.isCompleted %}
+                            <span class="info"> {{ "Certain asynchronous payment methods (e.g., SOFORT) may require days for the funds to be confirmed and the charge to succeed, requiring the use of webhooks to know when to confirm and eventually fulfill your orders."|t('enupal-stripe') }}</span>
                         {% endif %}
                     </div>
                 </td>
+            </tr>
+            <tr>
+                <td><strong>{{ "Order Number"|t('enupal-stripe') }}</strong>
+                </td>
+                <td>
+                    <span id="order-number-short">{{ order.number }}</span>
+                </td>
+            </tr>
+            <tr>
+                <td><strong>{{ "Total Price"|t('enupal-stripe') }}</strong>
+                </td>
+                <td>{{ order.totalPrice|currency(order.currency) }}
+                    {% if not order.refunded and order.isCompleted %}
+                        <div id="refund-payment" class="btn small right">{{ "Refund"|t('enupal-stripe') }} </div><div class="spinner hidden"></div>
+                    {% endif %}
+                </td>
+            </tr>
+            {% if order.refunded %}
+                <tr>
+                    <td><strong>{{ "Refunded at"|t('enupal-stripe') }}</strong>
+                    </td>
+                    <td>
+                        {{ order.dateRefunded|datetime('short') }}
+                    </td>
+                </tr>
+            {% endif %}
+            <tr>
+                <td>
+                    <strong>{{ "Order Currency"|t('enupal-stripe') }} </strong>
+                </td>
+                <td>{{ order.currency }}</td>
             </tr>
             <tr>
                 <td><strong>{{ "Method"|t('enupal-stripe') }}</strong>
@@ -29,13 +58,6 @@
                 </td>
                 <td>
                     <span id="order-number-short">{{ order.getPaymentType() }}</span>
-                </td>
-            </tr>
-            <tr>
-                <td><strong>{{ "Order Number"|t('enupal-stripe') }}</strong>
-                </td>
-                <td>
-                    <span id="order-number-short">{{ order.number }}</span>
                 </td>
             </tr>
             <tr>
@@ -55,11 +77,7 @@
                     {{ order.getUserHtml()|raw }}
                 </td>
             </tr>
-            <tr>
-                <td><strong>{{ "Total Price"|t('enupal-stripe') }}</strong>
-                </td>
-                <td>{{ order.totalPrice|currency(order.currency) }}</td>
-            </tr>
+
             <tr>
                 <td>
                     <strong>{{ "Stripe Reference"|t('enupal-stripe') }} </strong>
@@ -77,12 +95,6 @@
                 <td>
                     <a href="https://dashboard.stripe.com/test/customers/{{ customerId }}">{{ customerId }}</a>
                 </td>
-            </tr>
-            <tr>
-                <td>
-                    <strong>{{ "Order Currency"|t('enupal-stripe') }} </strong>
-                </td>
-                <td>{{ order.currency }}</td>
             </tr>
         </table>
     </div>
@@ -109,9 +121,4 @@
             <div class="value">{{ order.dateUpdated|datetime('short') }}</div>
         </div>
     </div>
-</div>
-
-<div class="meta">
-    <label for="notes">Messages</label>
-    <textarea rows="5" name="notes" id="notes" disabled class="text fullwidth">{{ order.message|raw }}</textarea>
 </div>

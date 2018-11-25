@@ -83,6 +83,12 @@ class Order extends Element
     public $variants;
     public $postData;
     public $message;
+    // refund
+    public $refunded;
+    public $dateRefunded;
+    // subscriptions
+    public $subscriptionStatus;
+    public $isSubscription;
 
     public $dateCreated;
     public $dateOrdered;
@@ -227,6 +233,20 @@ class Order extends Element
             ];
         }
 
+        $sources[] = ['heading' => StripePaymentsPlugin::t("Payment Type")];
+
+        $sources[] = [
+            'key' => 'oneTime:1',
+            'label' => Craft::t('enupal-stripe', 'One-Time'),
+            'criteria' => ['isSubscription' => false]
+        ];
+
+        $sources[] = [
+            'key' => 'subscriptions:1',
+            'label' => Craft::t('enupal-stripe', 'Subscriptions'),
+            'criteria' => ['isSubscription' => true]
+        ];
+
         return $sources;
     }
 
@@ -280,7 +300,7 @@ class Order extends Element
     {
         $attributes['number'] = ['label' => StripePaymentsPlugin::t('Order Number')];
         $attributes['totalPrice'] = ['label' => StripePaymentsPlugin::t('Total')];
-        $attributes['isCompleted'] = ['label' => StripePaymentsPlugin::t('Is completed')];
+        $attributes['paymentStatus'] = ['label' => StripePaymentsPlugin::t('Payment Status')];
         $attributes['user'] = ['label' => StripePaymentsPlugin::t('User')];
         $attributes['address'] = ['label' => StripePaymentsPlugin::t('Shipping Address')];
         $attributes['email'] = ['label' => StripePaymentsPlugin::t('Customer Email')];
@@ -306,7 +326,7 @@ class Order extends Element
 
     protected static function defineDefaultTableAttributes(string $source): array
     {
-        $attributes = ['number', 'itemName', 'itemSku', 'totalPrice', 'email', 'user', 'isCompleted', 'dateOrdered'];
+        $attributes = ['number', 'itemName', 'itemSku', 'totalPrice', 'email', 'user', 'paymentStatus', 'dateOrdered'];
 
         return $attributes;
     }
@@ -331,15 +351,9 @@ class Order extends Element
                 {
                     return $this->getShippingAddress();
                 }
-            case 'isCompleted':
+            case 'paymentStatus':
                 {
-                    $html = null;
-                    if ($this->isCompleted){
-                        $html = "<span class='status green'> </span><i class='fa fa-check' aria-hidden='true'></i>";
-                    }else{
-                        $html = "<span class='status white'> </span>".$this->getPaymentStatus();
-                    }
-                    return $html;
+                    return $this->getPaymentStatusHtml();
                 }
             case 'user':
                 {
@@ -414,6 +428,10 @@ class Order extends Element
         $record->paymentType = $this->paymentType;
         $record->postData = $this->postData;
         $record->message = $this->message;
+        $record->subscriptionStatus = $this->subscriptionStatus;
+        $record->refunded = $this->refunded;
+        $record->dateRefunded = $this->dateRefunded;
+        $record->isSubscription = $this->isSubscription;
         $record->save(false);
 
         parent::afterSave($isNew);
@@ -540,7 +558,32 @@ class Order extends Element
      */
     public function getPaymentStatus()
     {
-        return $this->isCompleted ? Craft::t('site', 'succeeded') : Craft::t('site', 'pending');
+        $status = $this->isCompleted ? 'succeeded' : 'pending';
+
+        if ($this->refunded){
+            $status = 'refunded';
+        }
+
+        return $status;
+    }
+
+    /**
+     * @return string
+     */
+    public function getPaymentStatusHtml()
+    {
+        $statuses = [
+            'succeeded' => 'green',
+            'pending' => 'white',
+            'refunded' => 'black',
+        ];
+
+        $status = $this->getPaymentStatus();
+        $color = $statuses[$status] ?? '';
+
+        $html = "<span class='status ".$color."'> </span>".$status;
+
+        return $html;
     }
 
     /**
@@ -555,5 +598,35 @@ class Order extends Element
         }
 
         return true;
+    }
+
+    /**
+     * @return bool
+     */
+    public function getSubscriptionStatusHtml()
+    {
+        $html = '';
+
+        if ($this->isSubscription()){
+            $subscription = $this->getSubscription();
+            $status = $subscription->status;
+            $html = StripePaymentsPlugin::$app->subscriptions->getSubscriptionStatusHtml($status);
+        }
+
+        return $html;
+    }
+
+    /**
+     * @return \enupal\stripe\models\Subscription|null
+     */
+    public function getSubscription()
+    {
+        $subscription = null;
+
+        if ($this->isSubscription()){
+            $subscription = StripePaymentsPlugin::$app->subscriptions->getSubscriptionModel($this->stripeTransactionId);
+        }
+
+        return $subscription;
     }
 }

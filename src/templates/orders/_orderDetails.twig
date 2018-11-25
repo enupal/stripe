@@ -1,6 +1,7 @@
 {% set form = order.getPaymentForm() %}
-<div class="order-details pane">
-    <table id="" class="data fullwidth collapsible">
+<div id="order-details" class="order-details pane">
+    <h3>Details</h3>
+    <table id="" class="data fullwidth collapsible pane">
         <thead>
         <tr>
             <th scope="col">{{ 'Payment Form'|t('enupal-stripe') }}</th>
@@ -77,8 +78,10 @@
             <td></td>
             <td>
                 <div class="isPaid">
-                    {% if order.isCompleted  %}
+                    {% if order.isCompleted and not order.refunded  %}
                         <span>{{ 'PAID'|t('enupal-stripe') }}</span>
+                    {% elseif order.refunded %}
+                        <span>{{ 'Refunded'|t('enupal-stripe') }}</span>
                     {% endif %}
                 </div>
             </td>
@@ -92,12 +95,60 @@
         </tr>
         </tbody>
     </table>
-</div>
-{% for key, variant in order.getFormFields() %}
-    {% if loop.first %}
-        <br>
-        <h3>{{ "Form Fields"|t('enupal-stripe') }}</h3>
+
+    {% if order.isSubscription %}
+        <input type="hidden" id="subscriptionId" value="{{ order.stripeTransactionId }}">
+        <hr>
+        <h3>{{ "Subscription"|t('enupal-stripe') }}</h3>
         <div class="order-details pane">
+            <table id="" class="data fullwidth collapsible">
+                <thead>
+                <tr>
+                    <th scope="col">{{ 'Plan nickname'|t('enupal-stripe') }}</th>
+                    <th scope="col">{{ 'Status'|t('enupal-stripe') }}</th>
+                    <th scope="col">{{ 'Interval'|t('enupal-stripe') }}</th>
+                    <th scope="col">{{ 'Period Start'|t('enupal-stripe') }}</th>
+                    <th scope="col">{{ 'Period end'|t('enupal-stripe') }}</th>
+                    <th scope="col">{{ 'Quantity'|t('enupal-stripe') }}</th>
+                    <th id="cancel-title" scope="col"></th>
+                    <th scope="col"></th>
+                </tr>
+                </thead>
+                <tbody>
+                <td id="subs-nickname">
+
+                </td>
+                <td id="subs-status">
+
+                </td>
+                <td id="subs-interval">
+
+                </td>
+                <td id="subs-start">
+
+                </td>
+                <td id="subs-end">
+
+                </td>
+                <td id="subs-quantity">
+
+                </td>
+                <td style="width:10%;" id="subs-cancel">
+                    <div id="cancel-subscription" class="btn small">{{ "Cancel"|t('enupal-stripe') }} </div><div class="spinner hidden"></div>
+                </td>
+                <td style="width:10%;" id="subs-load">
+                    <div id="refresh-subscription" class="btn small">{{ "Refresh"|t('enupal-stripe') }} </div><div class="spinner hidden"></div>
+                </td>
+                </tbody>
+            </table>
+        </div>
+    {% endif %}
+
+    {% for key, variant in order.getFormFields() %}
+        {% if loop.first %}
+            <hr>
+            <h3>{{ "Form Fields"|t('enupal-stripe') }}</h3>
+            <div class="order-details pane">
             <table id="" class="data fullwidth collapsible">
             <thead>
             <tr>
@@ -107,8 +158,8 @@
                 <th scope="col"></th>
             </tr>
             </thead>
-        <tbody>
-    {% endif %}
+            <tbody>
+        {% endif %}
         <tr class="infoRow">
             <td>
                 {{ key }}
@@ -127,16 +178,20 @@
             <td>
             </td>
         </tr>
-    {% if loop.last %}
-          </tbody>
-        </table>
-    </div>
-    {% endif %}
-{% endfor %}
+        {% if loop.last %}
+            </tbody>
+            </table>
+            </div>
+        {% endif %}
+    {% endfor %}
 
-{% if order.addressCity %}
-    <br>
-    <h3>{{ 'Shipping/Billing Address'|t('enupal-stripe') }}</h3>
-    {{ order.getShippingAddress()|raw }}
-{% endif %}
+    {% if order.addressCity %}
+        <hr>
+        <h3>{{ 'Shipping/Billing Address'|t('enupal-stripe') }}</h3>
+        <div class="pane">
+        {{ order.getShippingAddress()|raw }}
+        </div>
+    {% endif %}
+
+</div>
 

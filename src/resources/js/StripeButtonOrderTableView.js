@@ -52,7 +52,7 @@ Craft.StripeButton.OrderTableView = Craft.TableElementIndexView.extend({
                 $endDateContainer = $('<div class="datewrapper"></div>').appendTo($dateRange),
                 $currencyTo = $('<span class="to light"> - </span>').appendTo($dateRange),
                 $total = $('<div class="total"></div>').appendTo($chartHeader),
-                $totalLabel = $('<div class="total-label light">' + Craft.t('stripe-payments', 'Total Revenue') + '</div>').appendTo($total),
+                $totalLabel = $('<div class="total-label light">' + Craft.t('enupal-stripe', 'Total Revenue') + '</div>').appendTo($total),
                 $totalValueWrapper = $('<div class="total-value-wrapper"></div>').appendTo($total),
                 $totalValue = $('<span class="total-value">&nbsp;</span>').appendTo($totalValueWrapper);
 
@@ -193,7 +193,7 @@ Craft.StripeButton.OrderTableView = Craft.TableElementIndexView.extend({
                     this.$totalValue.html(response.totalHtml);
                 }
                 else {
-                    var msg = Craft.t('stripe-payments', 'An unknown error occurred.');
+                    var msg = Craft.t('enupal-stripe', 'An unknown error occurred.');
 
                     if (typeof(response) !== 'undefined' && response && typeof(response.error) !== 'undefined') {
                         msg = response.error;

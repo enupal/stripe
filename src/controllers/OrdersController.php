@@ -18,7 +18,6 @@ use enupal\stripe\elements\PaymentForm as StripeElement;
 
 class OrdersController extends BaseController
 {
-
     /**
      * Save an Order
      * 
@@ -127,5 +126,33 @@ class OrdersController extends BaseController
         Stripe::$app->orders->deleteOrder($order);
 
         return $this->redirectToPostedUrl($order);
+    }
+
+    /**
+     * Refund payment via ajax
+     *
+     * @return \yii\web\Response
+     * @throws \Throwable
+     * @throws \yii\web\BadRequestHttpException
+     */
+    public function actionRefundPayment()
+    {
+        $this->requireAcceptsJson();
+        $request = Craft::$app->getRequest();
+        $orderNumber = $request->getRequiredBodyParam('orderNumber');
+        $order = Stripe::$app->orders->getOrderByNumber($orderNumber);
+        $result = false;
+
+        if ($order){
+            $result = Stripe::$app->orders->refundOrder($order);
+        }else{
+            return $this->asErrorJson("Order not found: ".$orderNumber);
+        }
+
+        if (!$result){
+            return $this->asErrorJson("Unable to refund payment, please check messages tab.");
+        }
+
+        return $this->asJson(['success'=> true]);
     }
 }

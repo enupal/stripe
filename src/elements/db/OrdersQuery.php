@@ -32,6 +32,7 @@ class OrdersQuery extends ElementQuery
     public $isCompleted;
     public $userId;
     public $orderStatusHandle;
+    public $isSubscription;
 
     /**
      * @inheritdoc
@@ -75,6 +76,24 @@ class OrdersQuery extends ElementQuery
     public function getTotalPrice()
     {
         return $this->totalPrice;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function isSubscription($value)
+    {
+        $this->isSubscription = $value;
+
+        return $this;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getIsSubscription()
+    {
+        return $this->isSubscription;
     }
 
     /**
@@ -298,6 +317,10 @@ class OrdersQuery extends ElementQuery
             'enupalstripe_orders.variants',
             'enupalstripe_orders.postData',
             'enupalstripe_orders.message',
+            'enupalstripe_orders.subscriptionStatus',
+            'enupalstripe_orders.refunded',
+            'enupalstripe_orders.dateRefunded',
+            'enupalstripe_orders.isSubscription',
             'enupalstripe_orders.dateOrdered'
         ]);
 
@@ -328,6 +351,12 @@ class OrdersQuery extends ElementQuery
         if ($this->paymentType) {
             $this->subQuery->andWhere(Db::parseParam(
                 'enupalstripe_orders.paymentType', $this->paymentType)
+            );
+        }
+
+        if ($this->isSubscription !== null) {
+            $this->subQuery->andWhere(Db::parseParam(
+                'enupalstripe_orders.isSubscription', $this->isSubscription)
             );
         }
 

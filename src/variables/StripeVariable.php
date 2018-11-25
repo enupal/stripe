@@ -387,6 +387,15 @@ class StripeVariable
     }
 
     /**
+     * @param $orderId
+     * @return array|\enupal\stripe\records\Message[]|null
+     */
+    public function getAllMessages($orderId)
+    {
+        return Stripe::$app->messages->getAllMessages($orderId);
+    }
+
+    /**
      * @param $view
      * @param $inputFilePath
      * @param $templatePath
