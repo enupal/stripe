@@ -247,6 +247,26 @@ class Order extends Element
             'criteria' => ['isSubscription' => true]
         ];
 
+        $sources[] = ['heading' => StripePaymentsPlugin::t("Payment Status")];
+
+        $sources[] = [
+            'key' => 'paymentStatus:1',
+            'label' => Craft::t('enupal-stripe', 'Succeeded'),
+            'criteria' => ['isCompleted' => true, 'refunded' => false]
+        ];
+
+        $sources[] = [
+            'key' => 'paymentStatus:2',
+            'label' => Craft::t('enupal-stripe', 'Pending'),
+            'criteria' => ['isCompleted' => false]
+        ];
+
+        $sources[] = [
+            'key' => 'paymentStatus:3',
+            'label' => Craft::t('enupal-stripe', 'Refunded'),
+            'criteria' => ['refunded' => true]
+        ];
+
         return $sources;
     }
 

@@ -33,6 +33,7 @@ class OrdersQuery extends ElementQuery
     public $userId;
     public $orderStatusHandle;
     public $isSubscription;
+    public $refunded;
 
     /**
      * @inheritdoc
@@ -76,6 +77,24 @@ class OrdersQuery extends ElementQuery
     public function getTotalPrice()
     {
         return $this->totalPrice;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function refunded($value)
+    {
+        $this->refunded = $value;
+
+        return $this;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getRefunded()
+    {
+        return $this->refunded;
     }
 
     /**
@@ -366,9 +385,15 @@ class OrdersQuery extends ElementQuery
             );
         }
 
-        if (is_integer($this->isCompleted)) {
+        if (is_integer($this->isCompleted) || is_bool($this->isCompleted)) {
             $this->subQuery->andWhere(Db::parseParam(
                 'enupalstripe_orders.isCompleted', $this->isCompleted)
+            );
+        }
+
+        if (is_integer($this->refunded) || is_bool($this->refunded)) {
+            $this->subQuery->andWhere(Db::parseParam(
+                'enupalstripe_orders.refunded', $this->refunded)
             );
         }
 
