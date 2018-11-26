@@ -40,7 +40,7 @@ class Messages extends Component
     public function getAllMessages($orderId)
     {
         $messages = MessageRecord::find()->where(['orderId' => $orderId])->orderBy([
-            'dateCreated' => SORT_DESC
+            'dateCreated' => SORT_ASC
         ])->all();
 
         return $messages;

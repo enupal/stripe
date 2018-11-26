@@ -21,6 +21,7 @@ use enupal\stripe\enums\PaymentType;
 use enupal\stripe\enums\SubscriptionType;
 use enupal\stripe\events\NotificationEvent;
 use enupal\stripe\events\OrderCompleteEvent;
+use enupal\stripe\events\OrderRefundEvent;
 use enupal\stripe\events\WebhookEvent;
 use enupal\stripe\Stripe;
 use Stripe\Charge;
@@ -77,9 +78,9 @@ class Orders extends Component
     const EVENT_BEFORE_SEND_NOTIFICATION_EMAIL = 'beforeSendNotificationEmail';
 
     /**
-     * @event NotificationEvent The event that is triggered before a notification is send
+     * @event WebhookEvent The event that is triggered before a notification is send
      *
-     * Plugins can get notified before a notification email is send
+     * Plugins can get notified after process the webhook from Stripe
      *
      * ```php
      * use enupal\stripe\events\WebhookEvent;
@@ -95,6 +96,24 @@ class Orders extends Component
      * ```
      */
     const EVENT_AFTER_PROCESS_WEBHOOK = 'afterProcessWebhook';
+
+    /**
+     * @event OrderRefundEvent The event that is triggered after a order is refunded
+     *
+     * Plugins can get notified after a order is refunded in the Control panel
+     *
+     * ```php
+     * use enupal\stripe\events\OrderRefundEvent;
+     * use enupal\stripe\services\Orders;
+     * use yii\base\Event;
+     *
+     * Event::on(Orders::class, Orders::EVENT_AFTER_REFUND_ORDER, function(OrderRefundEvent $e) {
+     *      $order = $e->order;
+     *     // Do something
+     * });
+     * ```
+     */
+    const EVENT_AFTER_REFUND_ORDER = 'afterRefundOrder';
 
     /**
      * Returns a Order model if one is found in the database by id
@@ -629,7 +648,7 @@ class Orders extends Component
         $data = $postData['enupalStripe'];
         $token = $data['token'] ?? null;
         $formId = $data['formId'] ?? null;
-        $paymentType = $postData['paymentType'] ?? null;
+        $paymentType = $postData['paymentType'] ?? PaymentType::CC;
 
         if (empty($token) || empty($formId)){
             Craft::error('Unable to get the stripe token or formId', __METHOD__);
@@ -741,6 +760,20 @@ class Orders extends Component
         ]);
 
         $this->trigger(self::EVENT_AFTER_PROCESS_WEBHOOK, $event);
+    }
+
+    /**
+     * @param $order
+     */
+    public function triggerOrderRefundEvent($order)
+    {
+        Craft::info("Triggering order refund event", __METHOD__);
+
+        $event = new OrderRefundEvent([
+            'order' => $order
+        ]);
+
+        $this->trigger(self::EVENT_AFTER_REFUND_ORDER, $event);
     }
 
     /**
@@ -1004,6 +1037,7 @@ class Orders extends Component
             try {
                 StripePlugin::$app->settings->initializeStripe();
                 $stripeId = $order->stripeTransactionId;
+                $options = [];
 
                 if ($order->isSubscription()){
                     $invoices = Invoice::all(['subscription' => $stripeId]);
@@ -1013,20 +1047,30 @@ class Orders extends Component
 
                         $stripeId = $firstInvoice['charge'];
                     }
+                }else{
+                    // Async transactions have py_ (payment) as stripeId and an amount is required
+                    if ($order->paymentType == PaymentType::IDEAL || $order->paymentType == PaymentType::SOFORT){
+                        $options['amount'] = $this->convertToCents($order->totalPrice, $order->currency);
+                    }
                 }
 
-                $refund = Refund::create([
+                $options = [
                     'charge' => $stripeId
-                ]);
+                ];
 
-                if ($refund['status'] == 'succeeded') {
+                $refund = Refund::create($options);
+
+                if ($refund['status'] == 'succeeded' || $refund['status'] == 'pending') {
                     $order->refunded = true;
                     $now = Db::prepareDateForDb(new \DateTime());
                     $order->dateRefunded = $now;
                     $this->saveOrder($order, false);
                     Stripe::$app->messages->addMessage($order->id,'Control Panel - Payment Refunded', $refund);
 
+                    $this->triggerOrderRefundEvent($order);
                     $result = true;
+                }else{
+                    Stripe::$app->messages->addMessage($order->id,'Control Panel - Something went wrong on Refund process', $refund);
                 }
             } catch (\Exception $e) {
                 Stripe::$app->messages->addMessage($order->id,'Control Panel - Failed to refund payment', ['error' => $e->getMessage()]);

@@ -33,6 +33,7 @@ class Install extends Migration
      */
     public function safeDown()
     {
+        $this->dropTableIfExists('{{%enupalstripe_messages}}');
         $this->dropTableIfExists('{{%enupalstripe_orders}}');
         $this->dropTableIfExists('{{%enupalstripe_forms}}');
         $this->dropTableIfExists('{{%enupalstripe_customers}}');
