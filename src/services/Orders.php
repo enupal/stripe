@@ -165,6 +165,20 @@ class Orders extends Component
     }
 
     /**
+     * Return the currency Orders as Distinct strings
+     * @return false|string
+     * @throws \yii\db\Exception
+     */
+    public function getOrderCurrencies()
+    {
+        $tableName = Craft::$app->db->quoteTableName('{{%enupalstripe_orders}}');
+        $sql = 'SELECT DISTINCT(currency) currency from '.$tableName;
+        $results = Craft::$app->db->createCommand($sql)->queryAll();
+
+        return $results ? json_encode($results) : '';
+    }
+
+    /**
      * Returns all orders
      *
      * @return null|Order[]

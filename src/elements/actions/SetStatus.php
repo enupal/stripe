@@ -49,7 +49,7 @@ class SetStatus extends ElementAction
         $ids = $query->ids();
 
         Craft::$app->db->createCommand()->update(
-            'enupalstripe_orders',
+            '{{%enupalstripe_orders}}',
             ['orderStatusId' => $status],
             ['in', 'id', $ids]
         )->execute();

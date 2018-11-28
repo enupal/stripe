@@ -396,6 +396,15 @@ class StripeVariable
     }
 
     /**
+     * @return string
+     * @throws \yii\db\Exception
+     */
+    public function getOrderCurrencies()
+    {
+        return Stripe::$app->orders->getOrderCurrencies();
+    }
+
+    /**
      * @param $view
      * @param $inputFilePath
      * @param $templatePath
