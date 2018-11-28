@@ -31,15 +31,6 @@
                     {% endif %}
                 </td>
             </tr>
-            {% if order.refunded %}
-                <tr>
-                    <td><strong>{{ "Refunded at"|t('enupal-stripe') }}</strong>
-                    </td>
-                    <td>
-                        {{ order.dateRefunded|datetime('short') }}
-                    </td>
-                </tr>
-            {% endif %}
             <tr>
                 <td>
                     <strong>{{ "Order Currency"|t('enupal-stripe') }} </strong>
@@ -120,5 +111,12 @@
             <h5 class="heading">{{ "Updated at"|t('app') }}</h5>
             <div class="value">{{ order.dateUpdated|datetime('short') }}</div>
         </div>
+
+        {% if order.refunded %}
+            <div class="data">
+                <h5 class="heading">{{ "Refunded at"|t('app') }}</h5>
+                <div class="value">{{ order.dateRefunded|datetime('short') }}</div>
+            </div>
+        {% endif %}
     </div>
 </div>
