@@ -11,6 +11,8 @@ class m180811_000000_template_overrides extends Migration
 {
     /**
      * @inheritdoc
+     * @throws \yii\base\NotSupportedException
+     * @throws \yii\base\NotSupportedException
      */
     public function safeUp()
     {

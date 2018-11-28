@@ -12,6 +12,17 @@
 
 {% hook "cp.enupal-stripe.order.edit" %}
 
+{% set tabs = {
+    general:  {
+        label: "General"|t,
+        url: '#order-details',
+    },
+    messages:  {
+        label: "Messages"|t,
+        url: '#order-messages'
+    }
+} %}
+
 {% block actionButton %}
     {# @todo add integration with EnupalSanpshot to download pdf #}
     {% hook "cp.enupal-stripe.order.actionbutton" %}
@@ -48,9 +59,9 @@
 
 {% block details %}
     {% namespace 'fields' %}
-    <div class="meta">
-        {% include 'enupal-stripe/orders/_orderInfo' %}
-    </div>
+
+    {% include 'enupal-stripe/orders/_orderInfo' %}
+
     {% endnamespace %}
 {% endblock %}
 
@@ -59,6 +70,7 @@
         <span class="testMode">Test Mode</span>
     {% endif %}
     {% include 'enupal-stripe/orders/_orderDetails' %}
+    {% include 'enupal-stripe/orders/_messages' %}
 
 {% endblock %}
 
@@ -88,3 +100,19 @@
     line-height: 26px;
     }
 {% endcss %}
+
+{% js %}
+    $(document).ready(function () {
+        $.each($('.tableRowInfo'), function () {
+            new Craft.StripeButton.TableRowAdditionalInfoIcon(this);
+        });
+        var isSubscription = false;
+        {% if order.isSubscription %}
+            isSubscription = true;
+        {% endif %}
+        new EnupalStripeEditOrder(isSubscription);
+    });
+{% endjs %}
+
+{% do view.registerAssetBundle("enupal\\stripe\\web\\assets\\EditOrderAsset") %}
+{% do view.registerAssetBundle("craft\\web\\assets\\prismjs\\PrismJsAsset") %}

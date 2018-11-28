@@ -15,6 +15,7 @@ class m180621_000000_add_handle_to_basic_fields extends Migration
 {
     /**
      * @inheritdoc
+     * @throws \Throwable
      */
     public function safeUp()
     {

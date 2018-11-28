@@ -27,10 +27,13 @@ class OrdersQuery extends ElementQuery
     public $orderStatusId;
     public $totalPrice;
     public $tax;
+    public $currency;
     public $dateOrdered;
     public $isCompleted;
     public $userId;
     public $orderStatusHandle;
+    public $isSubscription;
+    public $refunded;
 
     /**
      * @inheritdoc
@@ -74,6 +77,42 @@ class OrdersQuery extends ElementQuery
     public function getTotalPrice()
     {
         return $this->totalPrice;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function refunded($value)
+    {
+        $this->refunded = $value;
+
+        return $this;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getRefunded()
+    {
+        return $this->refunded;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function isSubscription($value)
+    {
+        $this->isSubscription = $value;
+
+        return $this;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getIsSubscription()
+    {
+        return $this->isSubscription;
     }
 
     /**
@@ -205,6 +244,24 @@ class OrdersQuery extends ElementQuery
     /**
      * @inheritdoc
      */
+    public function currency($value)
+    {
+        $this->currency = $value;
+
+        return $this;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getCurrency()
+    {
+        return $this->currency;
+    }
+
+    /**
+     * @inheritdoc
+     */
     public function stripeTransactionId($value)
     {
         $this->stripeTransactionId = $value;
@@ -239,6 +296,7 @@ class OrdersQuery extends ElementQuery
 
     /**
      * @inheritdoc
+     * @throws \Exception
      */
     protected function beforePrepare(): bool
     {
@@ -278,6 +336,10 @@ class OrdersQuery extends ElementQuery
             'enupalstripe_orders.variants',
             'enupalstripe_orders.postData',
             'enupalstripe_orders.message',
+            'enupalstripe_orders.subscriptionStatus',
+            'enupalstripe_orders.refunded',
+            'enupalstripe_orders.dateRefunded',
+            'enupalstripe_orders.isSubscription',
             'enupalstripe_orders.dateOrdered'
         ]);
 
@@ -299,9 +361,21 @@ class OrdersQuery extends ElementQuery
             );
         }
 
+        if ($this->currency) {
+            $this->subQuery->andWhere(Db::parseParam(
+                'enupalstripe_orders.currency', $this->currency)
+            );
+        }
+
         if ($this->paymentType) {
             $this->subQuery->andWhere(Db::parseParam(
                 'enupalstripe_orders.paymentType', $this->paymentType)
+            );
+        }
+
+        if ($this->isSubscription !== null) {
+            $this->subQuery->andWhere(Db::parseParam(
+                'enupalstripe_orders.isSubscription', $this->isSubscription)
             );
         }
 
@@ -311,9 +385,15 @@ class OrdersQuery extends ElementQuery
             );
         }
 
-        if (is_integer($this->isCompleted)) {
+        if (is_integer($this->isCompleted) || is_bool($this->isCompleted)) {
             $this->subQuery->andWhere(Db::parseParam(
                 'enupalstripe_orders.isCompleted', $this->isCompleted)
+            );
+        }
+
+        if (is_integer($this->refunded) || is_bool($this->refunded)) {
+            $this->subQuery->andWhere(Db::parseParam(
+                'enupalstripe_orders.refunded', $this->refunded)
             );
         }
 

@@ -9,6 +9,7 @@ Craft.StripeButton.OrderTableView = Craft.TableElementIndexView.extend({
 
         startDate: null,
         endDate: null,
+        currency: null,
 
         startDatepicker: null,
         endDatepicker: null,
@@ -21,9 +22,14 @@ Craft.StripeButton.OrderTableView = Craft.TableElementIndexView.extend({
         $chart: null,
         $startDate: null,
         $endDate: null,
+        $currency: null,
+        $currencyField: null,
+        $currencies: null,
 
         afterInit: function() {
             this.$explorerContainer = $('<div class="chart-explorer-container"></div>').prependTo(this.$container);
+
+            this.$currencies = jQuery.parseJSON($("#currencies").val());
 
             this.createChartExplorer();
 
@@ -42,12 +48,14 @@ Craft.StripeButton.OrderTableView = Craft.TableElementIndexView.extend({
             // chart explorer
             var $chartExplorer = $('<div class="chart-explorer"></div>').appendTo(this.$explorerContainer),
                 $chartHeader = $('<div class="chart-header"></div>').appendTo($chartExplorer),
+                $currencyContainer = $('<div class="date-range" />').appendTo($chartHeader),
                 $dateRange = $('<div class="date-range" />').appendTo($chartHeader),
                 $startDateContainer = $('<div class="datewrapper"></div>').appendTo($dateRange),
                 $to = $('<span class="to light">to</span>').appendTo($dateRange),
                 $endDateContainer = $('<div class="datewrapper"></div>').appendTo($dateRange),
+                $currencyTo = $('<span class="to light"> - </span>').appendTo($dateRange),
                 $total = $('<div class="total"></div>').appendTo($chartHeader),
-                $totalLabel = $('<div class="total-label light">' + Craft.t('commerce', 'Total Revenue') + '</div>').appendTo($total),
+                $totalLabel = $('<div class="total-label light">' + Craft.t('enupal-stripe', 'Total Revenue') + '</div>').appendTo($total),
                 $totalValueWrapper = $('<div class="total-value-wrapper"></div>').appendTo($total),
                 $totalValue = $('<span class="total-value">&nbsp;</span>').appendTo($totalValueWrapper);
 
@@ -60,7 +68,16 @@ Craft.StripeButton.OrderTableView = Craft.TableElementIndexView.extend({
 
             this.$startDate = $('<input type="text" class="text" size="20" autocomplete="off" />').appendTo($startDateContainer);
             this.$endDate = $('<input type="text" class="text" size="20" autocomplete="off" />').appendTo($endDateContainer);
-
+            if (this.$currencies.length > 1){
+                var currencySelect = '<select title = "Currency" id="fields-currency" class="text" name="fields[currency]">';
+                currencySelect += '<option value="">All</option>';
+                $.each( this.$currencies, function( key, value ) {
+                    currencySelect += '<option value="'+value.currency+'">'+value.currency+'</option>';
+                });
+                currencySelect += '</select>';
+                this.$currency = $(currencySelect).appendTo($currencyContainer);
+            }
+            this.$currencyField = $("#fields-currency");
             this.$startDate.datepicker($.extend({
                 onSelect: $.proxy(this, 'handleStartDateChange')
             }, Craft.datepickerOptions));
@@ -74,6 +91,7 @@ Craft.StripeButton.OrderTableView = Craft.TableElementIndexView.extend({
 
             this.addListener(this.$startDate, 'keyup', 'handleStartDateChange');
             this.addListener(this.$endDate, 'keyup', 'handleEndDateChange');
+            this.addListener(this.$currencyField, 'change', 'handleCurrencyChange');
 
             // Set the start/end dates
             var startTime = this.getStorage('startTime') || ((new Date()).getTime() - (60 * 60 * 24 * 7 * 1000)),
@@ -81,6 +99,7 @@ Craft.StripeButton.OrderTableView = Craft.TableElementIndexView.extend({
 
             this.setStartDate(new Date(startTime));
             this.setEndDate(new Date(endTime));
+            this.setCurrency(this.$currencyField.val());
 
             // Load the report
             this.loadReport();
@@ -97,6 +116,25 @@ Craft.StripeButton.OrderTableView = Craft.TableElementIndexView.extend({
                 this.loadReport();
             }
         },
+
+        handleCurrencyChange: function() {
+            if (this.setCurrency(this.$currencyField.val())) {
+                this.loadReport();
+            }
+        },
+
+        setCurrency: function(currency) {
+            // Make sure it has actually changed
+            if (this.currency && currency === this.currency) {
+                return false;
+            }
+
+            this.currency = currency;
+            this.setStorage('currency', this.currency);
+
+            return true;
+        },
+
 
         setStartDate: function(date) {
             // Make sure it has actually changed
@@ -139,6 +177,7 @@ Craft.StripeButton.OrderTableView = Craft.TableElementIndexView.extend({
 
             requestData.startDate = Craft.StripeButton.OrderTableView.getDateValue(this.startDate);
             requestData.endDate = Craft.StripeButton.OrderTableView.getDateValue(this.endDate);
+            requestData.currency = this.currency;
 
             this.$spinner.removeClass('hidden');
             this.$error.addClass('hidden');
@@ -165,7 +204,7 @@ Craft.StripeButton.OrderTableView = Craft.TableElementIndexView.extend({
                     this.$totalValue.html(response.totalHtml);
                 }
                 else {
-                    var msg = Craft.t('commerce', 'An unknown error occurred.');
+                    var msg = Craft.t('enupal-stripe', 'An unknown error occurred.');
 
                     if (typeof(response) !== 'undefined' && response && typeof(response.error) !== 'undefined') {
                         msg = response.error;

@@ -1,0 +1,29 @@
+<div id="order-messages" class="pane hidden">
+    <h3>{{ "Order Messages"|t('enupal-stripe') }}</h3>
+    <table class="data fullwidth">
+        <thead>
+        <tr>
+            <th scope="col">{{ '#'|t('enupal-stripe') }}</th>
+            <th scope="col">{{ 'Message'|t('enupal-stripe') }}</th>
+            <th scope="col">{{ 'Date'|t('enupal-stripe') }}</th>
+            <th scope="col">{{ 'Details'|t('enupal-stripe') }}</th>
+            <th></th>
+        </tr>
+        </thead>
+        <tbody>
+        {% set messages = craft.enupalstripe.getAllMessages(order.id) %}
+        {% for message in messages %}
+            <tr class="infoRow"  data-info="{{ message.details }}">
+                <td>{{ loop.index }}</td>
+                <td>{{ message.message }}</td>
+                <td class="">
+                    {{ message.dateCreated|datetime('short') }}
+                </td>
+                <td>
+                    <span class="tableRowInfo" data-icon="info" href="#"></span>
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>

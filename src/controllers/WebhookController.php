@@ -22,8 +22,6 @@ class WebhookController extends BaseController
     /**
      * @return \yii\web\Response
      * @throws \Throwable
-     * @throws \yii\base\Exception
-     * @throws \yii\db\Exception
      */
     public function actionStripe()
     {
@@ -42,20 +40,36 @@ class WebhookController extends BaseController
             $return['success'] = false;
             return $this->asJson($return);
         }
+        // Let's add a message to the order
+        Stripe::$app->messages->addMessage($order->id, $eventJson['type'], $eventJson);
 
         switch ($eventJson['type']) {
             case 'source.chargeable':
-
-                $order = Stripe::$app->orders->idealCharge($order, $eventJson);
+                // iDEAL or SOFORT
+                $type = $eventJson['data']['object']['type'];
+                $order = Stripe::$app->orders->asynchronousCharge($order, $eventJson, $type);
 
                 break;
             case 'source.failed':
                 Craft::error('Stripe Payments - Source Failed, order: '.$order->number, __METHOD__);
-                Stripe::$app->orders->addMessageToOrder($order, "source failed");
                 break;
             case 'source.canceled':
                 Craft::error('Stripe Payments - Source Canceled,  order: '.$order->number, __METHOD__);
-                Stripe::$app->orders->addMessageToOrder($order, "source canceled");
+                break;
+            case 'charge.pending':
+                // Sofort may require days for the funds to be confirmed and the charge to succeed.
+                // Let's update the order message
+                break;
+            case 'charge.succeeded':
+                // Finalize the order and trigger order complete event to send a confirmation to the customer over email.
+                if (!$order->isCompleted){
+                    $order->isCompleted = true;
+                    Stripe::$app->orders->saveOrder($order);
+                }
+                break;
+            case 'charge.failed':
+                // Finalize the order and trigger order complete event to send a confirmation to the customer over email.
+                Craft::error('Stripe Payments - Charge Failed,  order: '.$order->number, __METHOD__);
                 break;
         }
 

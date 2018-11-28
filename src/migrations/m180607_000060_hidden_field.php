@@ -15,6 +15,7 @@ class m180607_000060_hidden_field extends Migration
 {
     /**
      * @inheritdoc
+     * @throws \Throwable
      */
     public function safeUp()
     {

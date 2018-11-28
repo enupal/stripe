@@ -33,6 +33,7 @@ class Install extends Migration
      */
     public function safeDown()
     {
+        $this->dropTableIfExists('{{%enupalstripe_messages}}');
         $this->dropTableIfExists('{{%enupalstripe_orders}}');
         $this->dropTableIfExists('{{%enupalstripe_forms}}');
         $this->dropTableIfExists('{{%enupalstripe_customers}}');
@@ -145,6 +146,10 @@ class Install extends Migration
             'variants' => $this->text(),
             'postData' => $this->text(),
             'message' => $this->text(),
+            'subscriptionStatus' => $this->string(),
+            'refunded' => $this->boolean()->defaultValue(false),
+            'dateRefunded' => $this->dateTime(),
+            'isSubscription' => $this->boolean()->defaultValue(false),
             //
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
@@ -179,6 +184,16 @@ class Install extends Migration
             'dateUpdated' => $this->dateTime()->notNull(),
             'uid' => $this->uid(),
         ]);
+
+        $this->createTable('{{%enupalstripe_messages}}', [
+            'id' => $this->primaryKey(),
+            'orderId' => $this->integer()->notNull(),
+            'message' => $this->text(),
+            'details' => $this->text(),
+            'dateCreated' => $this->dateTime()->notNull(),
+            'dateUpdated' => $this->dateTime()->notNull(),
+            'uid' => $this->uid(),
+        ]);
     }
 
     /**
@@ -196,6 +211,17 @@ class Install extends Migration
             ),
             '{{%enupalstripe_orders}}',
             'formId',
+            false
+        );
+
+        $this->createIndex(
+            $this->db->getIndexName(
+                '{{%enupalstripe_messages}}',
+                'orderId',
+                false, true
+            ),
+            '{{%enupalstripe_messages}}',
+            'orderId',
             false
         );
     }
@@ -230,12 +256,19 @@ class Install extends Migration
             '{{%enupalstripe_orders}}', 'formId',
             '{{%enupalstripe_forms}}', 'id', 'CASCADE', null
         );
+
+        $this->addForeignKey(
+            $this->db->getForeignKeyName(
+                '{{%enupalstripe_messages}}', 'orderId'
+            ),
+            '{{%enupalstripe_messages}}', 'orderId',
+            '{{%enupalstripe_orders}}', 'id', 'CASCADE', null
+        );
     }
 
     /**
      * Populates the DB with the default data.
      *
-     * @throws \ReflectionException
      * @throws \yii\db\Exception
      */
     protected function insertDefaultData()

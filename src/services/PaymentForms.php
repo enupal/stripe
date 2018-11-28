@@ -663,7 +663,6 @@ class PaymentForms extends Component
      * @param array|null $options
      *
      * @return string
-     * @throws \Twig_Error_Loader
      * @throws \yii\base\Exception
      */
     public function getPaymentFormHtml($handle, array $options = null)
@@ -1220,23 +1219,81 @@ class PaymentForms extends Component
     {
         return [
             PaymentType::CC => 'Card',
-            PaymentType::IDEAL => 'iDEAL'
+            PaymentType::IDEAL => 'iDEAL',
+            PaymentType::SOFORT => 'SOFORT',
         ];
+    }
+
+    /**
+     * @param $paymentType
+     * @return mixed|null
+     */
+    public function getPaymentTypeName($paymentType)
+    {
+        $paymentTypes = $this->getPaymentTypes();
+
+        return $paymentTypes[$paymentType] ?? null;
     }
 
     /**
      * @return array
      */
-    public function getPaymentTypesAsOptions()
+    public function getAsynchronousPaymentTypes()
+    {
+        $paymentTypes = $this->getPaymentTypes();
+        unset($paymentTypes[PaymentType::CC]);
+
+        return $paymentTypes;
+    }
+
+    /**
+     * @param $paymentTypeOptions
+     * @return array
+     */
+    public function getPaymentTypesAsOptions($paymentTypeOptions)
+    {
+        $optionsEnabled = json_decode($paymentTypeOptions, true);
+        $paymentOptions = [];
+
+        foreach ($optionsEnabled as $optionEnabled) {
+            $paymentOptions[] = [
+                'label' => $this->getPaymentTypeName($optionEnabled),
+                'value' => $optionEnabled
+            ];
+        }
+
+        return $paymentOptions;
+    }
+
+    /**
+     * @return array
+     */
+    public function getSofortCountriesAsOptions()
     {
         return [
             [
-                'label' => 'Card',
-                'value' => PaymentType::CC
+                'label' => Craft::t('site','Austria'),
+                'value' => 'AT'
             ],
             [
-                'label' => 'iDEAL',
-                'value' => PaymentType::IDEAL
+                'label' => Craft::t('site','Belgium'),
+                'value' => 'BE'
+            ],
+            [
+                'label' => Craft::t('site','Germany'),
+                'value' => 'DE'
+            ],
+            [
+                'label' => Craft::t('site','Italy'),
+                'value' => 'IT'
+            ],
+            [
+                'label' => Craft::t('site','Netherlands'),
+                'value' => 'NL'
+            ],
+            [
+                'label' => Craft::t('site','Spain'),
+                'value' => 'ES'
             ]
         ];
     }

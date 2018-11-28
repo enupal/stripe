@@ -175,6 +175,7 @@ class StripeVariable
      * @param $paymentForm PaymentForm
      * @param $block
      * @return \Twig_Markup
+     * @throws \Throwable
      * @throws \yii\base\Exception
      */
     public function displayField($paymentForm, $block)
@@ -361,11 +362,20 @@ class StripeVariable
     }
 
     /**
+     * @param $paymentTypeOptions
      * @return array
      */
-    public function getPaymentTypesAsOptions()
+    public function getPaymentTypesAsOptions($paymentTypeOptions)
     {
-        return Stripe::$app->paymentForms->getPaymentTypesAsOptions();
+        return Stripe::$app->paymentForms->getPaymentTypesAsOptions($paymentTypeOptions);
+    }
+
+    /**
+     * @return array
+     */
+    public function getSofortCountriesAsOptions()
+    {
+        return Stripe::$app->paymentForms->getSofortCountriesAsOptions();
     }
 
     /**
@@ -374,6 +384,24 @@ class StripeVariable
     public function getAllOrderStatuses()
     {
         return Stripe::$app->orders->getAllOrderStatuses();
+    }
+
+    /**
+     * @param $orderId
+     * @return array|\enupal\stripe\records\Message[]|null
+     */
+    public function getAllMessages($orderId)
+    {
+        return Stripe::$app->messages->getAllMessages($orderId);
+    }
+
+    /**
+     * @return string
+     * @throws \yii\db\Exception
+     */
+    public function getOrderCurrencies()
+    {
+        return Stripe::$app->orders->getOrderCurrencies();
     }
 
     /**

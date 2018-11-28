@@ -28,9 +28,19 @@ class App extends Component
     public $orders;
 
     /**
+     * @var Subscriptions
+     */
+    public $subscriptions;
+
+    /**
      * @var Plans
      */
     public $plans;
+
+    /**
+     * @var Messages
+     */
+    public $messages;
 
     public function init()
     {
@@ -38,5 +48,7 @@ class App extends Component
         $this->paymentForms = new PaymentForms();
         $this->orders = new Orders();
         $this->plans = new Plans();
+        $this->subscriptions = new Subscriptions();
+        $this->messages = new Messages();
     }
 }

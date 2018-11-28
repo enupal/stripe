@@ -33,7 +33,7 @@ class ChartsController extends ElementIndexesController
     {
         $startDateParam = Craft::$app->getRequest()->getRequiredParam('startDate');
         $endDateParam = Craft::$app->getRequest()->getRequiredParam('endDate');
-
+        $currency = Craft::$app->getRequest()->getRequiredParam('currency');
         $startDate = DateTimeHelper::toDateTime($startDateParam);
         $endDate = DateTimeHelper::toDateTime($endDateParam);
         $endDate->modify('+1 day');
@@ -42,6 +42,13 @@ class ChartsController extends ElementIndexesController
 
         $query = clone $this->getElementQuery()
             ->limit(null);
+
+        $useDefault = true;
+
+        if ($currency && $currency != '*'){
+            $query->currency = $currency;
+            $useDefault = false;
+        }
 
         // Get the chart data table
         $dataTable = ChartHelper::getRunChartDataFromQuery($query, $startDate, $endDate, 'elements.dateCreated', 'sum', '[[enupalstripe_orders.totalPrice]]', [
@@ -59,8 +66,8 @@ class ChartsController extends ElementIndexesController
 
         // Return everything
         $settings = Stripe::$app->settings->getSettings();
-        $currency = $settings->defaultCurrency;
-        $totalHtml = Craft::$app->getFormatter()->asCurrency($total, strtoupper($currency));
+        $finalCurrency = $useDefault ? $settings->defaultCurrency : $currency;
+        $totalHtml = Craft::$app->getFormatter()->asCurrency($total, strtoupper($finalCurrency));
 
         return $this->asJson([
             'dataTable' => $dataTable,

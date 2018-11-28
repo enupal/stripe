@@ -1,5 +1,22 @@
 # Stripe Payments Changelog
 
+## 1.6.0 - 2018.11.28
+### Added
+- Added support for [SOFORT](https://stripe.com/docs/sources/sofort) payment method, available in: Austria, Belgium, Germany, Italy, Netherlands and Spain
+- Added a `Cancel` subscription button in the edit Order page
+- Added a `Refund` button in the edit Order page
+- Added a currency filter to the chart in the Orders index page
+- Added support for tiered plans
+- Added new Order filters: One-Time, Subscriptions, Succeeded, Pending and Refunded
+- Added `afterRefundOrder` event
+- Added `getSubscription()` method to the Order element
+
+### Improved
+- Improved Edit Order UI
+
+### Fixed
+- Fixed bug where address were not saved on asynchronous payment methods (iDEAL, SOFORT) 
+
 ## 1.5.10 - 2018.10.25
 ### Added
 - Added ajax support to the `saveOrder` action - Orders Controller

@@ -44,6 +44,10 @@ use craft\records\Element;
  * @property $paymentType
  * @property $postData
  * @property $message
+ * @property $subscriptionStatus
+ * @property $refunded
+ * @property $dateRefunded
+ * @property $isSubscription
  */
 class Order extends ActiveRecord
 {
