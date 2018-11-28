@@ -149,7 +149,7 @@ class Plans extends Component
         $nickname = $plan['nickname'] != '' ? $plan['nickname'] : $plan['id'] ;
         $intervalCount = $plan['interval_count'];
         $interval = $intervalCount > 1 ? $intervalCount.' '.$plan['interval'].'s' : $plan['interval'];
-        $amount = $plan['amount'] ?? $plan['tiers'][0]['amount'] ?? 0;
+        $amount = $plan['amount'] ?? $plan['tiers'][0]['unit_amount'] ?? 0;
         $currency= strtoupper($plan['currency']);
         $amount = StripePlugin::$app->orders->convertFromCents($amount, $currency);
         $amount = Craft::$app->getFormatter()->asCurrency($amount, $currency);
