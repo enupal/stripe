@@ -1,5 +1,10 @@
 # Stripe Payments Changelog
 
+## 1.6.1 - 2018.11.28
+### Fixed
+- Fixed issue on Orders chart.
+
+
 ## 1.6.0 - 2018.11.28
 ### Added
 - Added support for [SOFORT](https://stripe.com/docs/sources/sofort) payment method, available in: Austria, Belgium, Germany, Italy, Netherlands and Spain
