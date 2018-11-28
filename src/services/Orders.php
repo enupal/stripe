@@ -1161,20 +1161,24 @@ class Orders extends Component
      * @param $planId
      * @param $data
      * @return mixed
+     * @throws \Exception
      */
     private function addPlanToCustomer($customer, $planId, $data)
     {
         $settings = StripePlugin::$app->settings->getSettings();
 
         //Get the plan from stripe it would trow an exception if the plan does not exists
-        Plan::retrieve([
-            "id" => $planId
-        ]);
+        StripePlugin::$app->plans->getStripePlan($planId);
 
         // Add the plan to the customer
         $subscriptionSettings = [
             "plan" => $planId
         ];
+
+        // Add support for tiers
+        if (isset($data['quantity']) && $data['quantity']){
+            $subscriptionSettings['quantity'] = $data['quantity'];
+        }
 
         // Add tax
         if ($settings->enableTaxes && $settings->tax){

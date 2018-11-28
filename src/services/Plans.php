@@ -172,4 +172,41 @@ class Plans extends Component
 
         return $plan;
     }
+
+    /**
+     * @param $plan \Stripe\StripeObject
+     * @param $quantity
+     * @return float|int
+     */
+    public function getPlanAmount($plan, $quantity)
+    {
+        $amount = $plan['amount'];
+
+        if (isset($plan['billing_scheme']) && $plan['billing_scheme'] == 'tiered'){
+            foreach ($plan['tiers'] as $pos => $tier) {
+                // last tier
+                if ($tier['up_to'] === null){
+                    if ($quantity > $plan['tiers'][$pos-1]['up_to']){
+                        $amount = $tier['unit_amount'];
+                    }
+                }else{
+                    if ($quantity <= $tier['up_to']){
+                        if ($pos > 0){
+                            if ($quantity > $plan['tiers'][$pos-1]['up_to']){
+                                $amount = $tier['unit_amount'];
+                            }
+                        }else{
+                            $amount = $tier['unit_amount'];
+                        }
+                    }
+                }
+            }
+        }else if (isset($plan['billing_scheme']) && $plan['billing_scheme'] == 'per_unit'){
+            $amount = $amount * $quantity;
+        }
+
+        $amount = StripePlugin::$app->orders->convertFromCents($amount, strtoupper($plan['currency']));
+
+        return $amount;
+    }
 }

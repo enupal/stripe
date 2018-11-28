@@ -663,7 +663,6 @@ class PaymentForms extends Component
      * @param array|null $options
      *
      * @return string
-     * @throws \Twig_Error_Loader
      * @throws \yii\base\Exception
      */
     public function getPaymentFormHtml($handle, array $options = null)

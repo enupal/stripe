@@ -628,7 +628,7 @@ class PaymentForm extends Element
                 if (!$this->enableCustomPlanAmount){
                     $plan = Json::decode($this->singlePlanInfo, true);
                     $currency = strtoupper($plan['currency']);
-                    $amount = StripePlugin::$app->orders->convertFromCents($plan['amount'], $currency);
+                    $amount = StripePlugin::$app->plans->getPlanAmount($plan, $quantity);
                 }
             }else{
                 // Multiple plans
@@ -636,7 +636,7 @@ class PaymentForm extends Element
                     if ($item->selectPlan->value){
                         $plan = StripePlugin::$app->plans->getStripePlan($item->selectPlan->value);
                         if ($plan){
-                            $multiplePlansAmounts[$plan->id]['amount'] = StripePlugin::$app->orders->convertFromCents($plan['amount'], strtoupper($plan['currency']));
+                            $multiplePlansAmounts[$plan->id]['amount'] = StripePlugin::$app->plans->getPlanAmount($plan, $quantity);
                             $multiplePlansAmounts[$plan->id]['currency'] = $plan['currency'];
                             $setupFee = StripePlugin::$app->orders->getSetupFeeFromMatrix($plan->id, $this);
                             $setupFees[$plan->id] = $setupFee;
