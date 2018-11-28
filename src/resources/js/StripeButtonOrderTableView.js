@@ -53,7 +53,6 @@ Craft.StripeButton.OrderTableView = Craft.TableElementIndexView.extend({
                 $startDateContainer = $('<div class="datewrapper"></div>').appendTo($dateRange),
                 $to = $('<span class="to light">to</span>').appendTo($dateRange),
                 $endDateContainer = $('<div class="datewrapper"></div>').appendTo($dateRange),
-                $currencyTo = $('<span class="to light"> - </span>').appendTo($dateRange),
                 $total = $('<div class="total"></div>').appendTo($chartHeader),
                 $totalLabel = $('<div class="total-label light">' + Craft.t('enupal-stripe', 'Total Revenue') + '</div>').appendTo($total),
                 $totalValueWrapper = $('<div class="total-value-wrapper"></div>').appendTo($total),
@@ -69,8 +68,10 @@ Craft.StripeButton.OrderTableView = Craft.TableElementIndexView.extend({
             this.$startDate = $('<input type="text" class="text" size="20" autocomplete="off" />').appendTo($startDateContainer);
             this.$endDate = $('<input type="text" class="text" size="20" autocomplete="off" />').appendTo($endDateContainer);
             if (this.$currencies.length > 1){
+
+                $currencyTo = $('<span class="to light"> - </span>').appendTo($dateRange);
                 var currencySelect = '<select title = "Currency" id="fields-currency" class="text" name="fields[currency]">';
-                currencySelect += '<option value="">All</option>';
+                currencySelect += '<option value="*">All</option>';
                 $.each( this.$currencies, function( key, value ) {
                     currencySelect += '<option value="'+value.currency+'">'+value.currency+'</option>';
                 });
