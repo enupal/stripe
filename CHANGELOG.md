@@ -1,9 +1,12 @@
 # Stripe Payments Changelog
 
+## 1.6.2 - 2018.11.30
+### Added
+- Added `getPaymentForm` to the variable class
+
 ## 1.6.1 - 2018.11.28
 ### Fixed
 - Fixed issue on Orders chart.
-
 
 ## 1.6.0 - 2018.11.28
 ### Added
