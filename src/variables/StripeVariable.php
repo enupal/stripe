@@ -405,6 +405,15 @@ class StripeVariable
     }
 
     /**
+     * @param $handle
+     * @return PaymentForm|null
+     */
+    public function getPaymentForm($handle)
+    {
+        return Stripe::$app->paymentForms->getPaymentFormBySku($handle);
+    }
+
+    /**
      * @param $view
      * @param $inputFilePath
      * @param $templatePath
