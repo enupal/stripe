@@ -15,9 +15,11 @@ Stripe Payments allows customers sign up for recurring and one-time payments wit
 
  * One line of Code: `{{ craft.enupalStripe.paymentForm('handle') }} `
  * Secure Payment Processing powered by [Stripe Checkout](https://stripe.com/checkout) and [Stripe Elements](https://stripe.com/elements)
- * Stripe Elements: Card, iDEAL.
+ * Stripe Elements: Card, iDEAL and SOFORT.
  * Optimized for Mobile
  * Subscriptions Integration: Allow your customers to sign up for recurring payments.
+ * Cancel Subscription via CP `new`
+ * Refund button in the CP `new`
  * Applying Taxes to Subscriptions
  * Basic Payment Form Builder: Add field types to capture more data to store with each Stripe Order record: Single Line, Paragraph, numbers, Dropdowns, checkboxes.
  * Custom Amounts: Allow your customers to pay what they want by entering an amount. Perfect for single and recurring donation or any custom payment form.
@@ -28,7 +30,7 @@ Stripe Payments allows customers sign up for recurring and one-time payments wit
  * Send out email notifications for admins and customers
  * Inventory management for each Payment Form
  * Stripe Test and Live accounts
- * Events: After Order Create and Before Send Email
+ * Events: After Order Create, Before Send Email, After Refund Order and After Process Webhook
  * Field type
  * Template Overrides
 

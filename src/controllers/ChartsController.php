@@ -33,7 +33,7 @@ class ChartsController extends ElementIndexesController
     {
         $startDateParam = Craft::$app->getRequest()->getRequiredParam('startDate');
         $endDateParam = Craft::$app->getRequest()->getRequiredParam('endDate');
-        $currency = Craft::$app->getRequest()->getRequiredParam('currency');
+        $currency = Craft::$app->getRequest()->getBodyParam('currency');
         $startDate = DateTimeHelper::toDateTime($startDateParam);
         $endDate = DateTimeHelper::toDateTime($endDateParam);
         $endDate->modify('+1 day');
