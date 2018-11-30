@@ -1,5 +1,9 @@
 # Stripe Payments Changelog
 
+## 1.6.3 - 2018.11.30
+### Added
+- Added `calculateFinalAmount` setting to options on `paymentForm`
+
 ## 1.6.2 - 2018.11.30
 ### Added
 - Added `getPaymentForm` to the variable class
