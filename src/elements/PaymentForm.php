@@ -610,6 +610,7 @@ class PaymentForm extends Element
         $info = Craft::$app->getInfo();
         $logoUrl = null;
         $logoAsset = $this->getLogoAsset();
+        $calculateFinalAmount = $options['calculateFinalAmount'] ?? true;
 
         if ($logoAsset){
             $logoUrl = $logoAsset->getUrl();
@@ -618,7 +619,9 @@ class PaymentForm extends Element
         $quantity = (int)($options['quantity'] ?? 1);
 
         $amount = $options['amount'] ?? $this->amount;
-        $amount = $amount * $quantity;
+        if ($calculateFinalAmount){
+            $amount = $amount * $quantity;
+        }
         $currency = $this->currency ?? 'USD';
         $multiplePlansAmounts = [];
         $setupFees = [];
