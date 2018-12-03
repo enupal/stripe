@@ -1,0 +1,34 @@
+{#
+/**
+ * Stripe Payments plugin for Craft CMS 3.x
+ *
+ * @link      https://enupal.com/
+ * @copyright Copyright (c) 2018 Enupal LLC
+ */
+#}
+
+{% extends "enupal-stripe/_layouts/settings" %}
+{% import "_includes/forms" as forms %}
+
+{% set settings = settings is defined ? settings : craft.enupalStripe.getSettings()  %}
+{% set fullPageForm = false %}
+
+{% set content %}
+    {{ forms.field({
+        label: "Sync your One-Time payments from Stripe"|t('enupal-stripe')|upper,
+        instructions : 'This process will fetch Payments in Stripe and create new orders if the payment does not exist in the plugin.'|t('enupal-stripe')
+    }, null) }}
+    <hr>
+
+    <form method="POST">
+        {{ csrfInput() }}
+        <input type="hidden" name="action"
+               value="enupal-stripe/settings/update-plans">
+        <input type="hidden" aria-hidden="true" name="redirect"
+               value="{{ 'enupal-stripe/settings/subscriptions'|hash }}">
+        <div class="buttons">
+            <input class="btn submit" type="submit" value="{{ 'Refresh Plans'|t('enupal-stripe') }}">
+        </div>
+    </form>
+
+{% endset %}

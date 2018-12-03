@@ -10,6 +10,7 @@ namespace enupal\stripe\controllers;
 
 use Craft;
 use craft\web\Controller as BaseController;
+use enupal\stripe\jobs\SyncOneTimePayments;
 use enupal\stripe\Stripe;
 
 class SettingsController extends BaseController
@@ -50,7 +51,6 @@ class SettingsController extends BaseController
         return $this->redirectToPostedUrl();
     }
 
-
     /**
      * Updates all stripe plans as options for dropdown select field within matrix field
      *
@@ -61,10 +61,9 @@ class SettingsController extends BaseController
     public function actionUpdatePlans()
     {
         $result = null;
+        $this->requirePostRequest();
 
         try {
-            $this->requirePostRequest();
-
             $result = Stripe::$app->plans->getUpdatePlans();
 
         } catch (\Throwable $e) {
@@ -77,6 +76,22 @@ class SettingsController extends BaseController
         else{
             Craft::$app->getSession()->setNotice(Stripe::t('Stripe plans updated.'));
         }
+
+        return $this->redirectToPostedUrl();
+    }
+
+    /**
+     * Sync One-Time payments from Stripe
+     *
+     * @return \yii\web\Response
+     * @throws \yii\web\BadRequestHttpException
+     */
+    public function actionSyncOneTimePayments()
+    {
+        $result = null;
+        $this->requirePostRequest();
+
+        Craft::$app->queue->push(new SyncOneTimePayments());
 
         return $this->redirectToPostedUrl();
     }
