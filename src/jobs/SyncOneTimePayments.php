@@ -56,6 +56,7 @@ class SyncOneTimePayments extends BaseJob implements RetryableJobInterface
 
         foreach ($charges->autoPagingIterator() as $charge) {
             $order = StripePlugin::$app->orders->getOrderByStripeId($charge['id']);
+
             if ($order === null){
                 // Check if customer exists
                 $customerRecord = CustomerRecord::findOne([
@@ -108,8 +109,6 @@ class SyncOneTimePayments extends BaseJob implements RetryableJobInterface
                 $newOrder->addressStreet = $charge['shipping']['address_line1'] ?? null;
                 $newOrder->addressZip = $charge['shipping']['address_zip'] ?? null;
                 $newOrder->refunded = $charge['refunded'];
-                $newOrder->email = $email;
-                $newOrder->email = $email;
 
                 $result = StripePlugin::$app->orders->saveOrder($order, false);
 

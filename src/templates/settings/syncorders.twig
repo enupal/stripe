@@ -1,0 +1,83 @@
+{#
+/**
+ * Stripe Payments plugin for Craft CMS 3.x
+ *
+ * @link      https://enupal.com/
+ * @copyright Copyright (c) 2018 Enupal LLC
+ */
+#}
+
+{% extends "enupal-stripe/_layouts/settings" %}
+{% import "_includes/forms" as forms %}
+
+{% set settings = settings is defined ? settings : craft.enupalStripe.getSettings()  %}
+{% set variables = craft.enupalStripe.getPaymentFormsAsElementOptions(settings)  %}
+{% set syncTypes = craft.enupalStripe.getSyncTypes() %}
+{% set orderStatuses = craft.enupalStripe.getOrderStatusesAsOptions() %}
+
+{% set fullPageForm = false %}
+
+{% set content %}
+    {{ forms.field({
+        label: "Sync your payments from Stripe"|t('enupal-stripe')|upper,
+        instructions : 'This process will fetch Payments in Stripe and create new orders if the payment does not exist in the plugin.'|t('enupal-stripe')
+    }, null) }}
+    <hr>
+
+    <form method="POST">
+        {{ csrfInput() }}
+        <input type="hidden" name="stripeScenario" value="sync">
+        <input type="hidden" name="action"
+               value="enupal-stripe/settings/sync-one-time-payments">
+        <input type="hidden" aria-hidden="true" name="redirect"
+               value="{{ 'enupal-stripe/settings/synconetime'|hash }}">
+
+        {{ forms.selectField({
+            label: "Sync Type"|t('enupal-stripe'),
+            instructions: "What king of Payments you want sync from Stripe"|t('enupal-stripe'),
+            id: 'syncType',
+            name: 'syncType',
+            options: syncTypes,
+            value: settings.syncType
+        }) }}
+
+        {{ forms.textField({
+            label: "Limit"|t('enupal-stripe'),
+            instructions: "A limit on the number of new orders to be created."|t('enupal-stripe'),
+            name: 'syncLimit',
+            size:'10',
+            value: settings.syncLimit,
+            errors: (settings is defined ? settings.getErrors('syncLimit') : null)
+        }) }}
+
+        {{ forms.field({
+            label: 'Payment Form'|t('enupal-stripe'),
+            instructions: 'Default Payment Form'|t('enupal-stripe'),
+            id: 'slides'
+        }, forms.elementSelect({
+            elements: variables.paymentFormElements,
+            elementType: variables.elementType,
+            id: 'syncDefaultFormId',
+            name: 'syncDefaultFormId',
+            class: 'syncDefaultFormId-field',
+            selectionLabel: 'Add Payment Form'|t('enupal-stripe'),
+            limit: 1,
+            viewMode: 'large',
+            criteria: {siteId : null}
+        })) }}
+
+        {{ forms.selectField({
+            label: "Order Status"|t('enupal-stripe'),
+            instructions: "Default Order Status for synced orders"|t('enupal-stripe'),
+            id: 'syncDefaultStatusId',
+            name: 'syncDefaultStatusId',
+            options: orderStatuses,
+            value: settings.syncDefaultStatusId
+        }) }}
+
+        <div class="buttons">
+            <input class="btn submit" type="submit" value="{{ 'Sync Orders'|t('enupal-stripe') }}">
+        </div>
+    </form>
+
+{% endset %}

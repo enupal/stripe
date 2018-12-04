@@ -65,7 +65,10 @@
                 </a>
             </li>
             <li>
-                <a href="{{ cpUrl('enupal-stripe/settings/webhook') }}" {% if selectedSidebarItem == 'webhook' %} class="sel" {% endif %}><i class="fa fa-bell fa-fw" aria-hidden="true"></i>&nbsp;{{"Webhook"|t('enupal-backup')}}</a>
+                <a href="{{ cpUrl('enupal-stripe/settings/webhook') }}" {% if selectedSidebarItem == 'webhook' %} class="sel" {% endif %}><i class="fa fa-bell fa-fw" aria-hidden="true"></i>&nbsp;{{"Webhook"|t('enupal-stripe')}}</a>
+            </li>
+            <li>
+                <a href="{{ cpUrl('enupal-stripe/settings/syncorders') }}" {% if selectedSidebarItem == 'syncorders' %} class="sel" {% endif %}><i class="fa fa-refresh fa-fw" aria-hidden="true"></i>&nbsp;{{"Sync Orders"|t('enupal-stripe')}}</a>
             </li>
         </ul>
     </nav>
