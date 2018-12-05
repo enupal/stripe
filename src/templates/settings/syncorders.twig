@@ -80,6 +80,16 @@
             value: settings.syncDefaultStatusId
         }) }}
 
+        {{ forms.lightswitchField({
+            first: true,
+            label: "Create the Order only if User exists"|t('enupal-stripe'),
+            instructions: "Create the Order only if the Order Email has a Craft User associated"|t('enupal-stripe'),
+            id: 'syncIfUserExists',
+            name: 'syncIfUserExists',
+            on: settings.syncIfUserExists,
+            errors: settings.getErrors('syncIfUserExists')
+        }) }}
+
         {% endnamespace %}
 
         <div class="buttons">

@@ -54,6 +54,7 @@ class Settings extends Model
     // Snyc
     public $syncType = 1;
     public $syncLimit = 500;
+    public $syncIfUserExists = false;
     public $syncDefaultFormId;
     public $syncDefaultStatusId;
 

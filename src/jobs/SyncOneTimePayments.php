@@ -32,6 +32,8 @@ class SyncOneTimePayments extends BaseJob implements RetryableJobInterface
 
     public $defaultStatusId;
 
+    public $syncIfUserExists = false;
+
     /**
      * Returns the default description for this job.
      *
@@ -53,8 +55,8 @@ class SyncOneTimePayments extends BaseJob implements RetryableJobInterface
         try{
             $charges = Charge::all();
 
-            $step = 1;
-            $failed = 1;
+            $step = 0;
+            $failed = 0;
 
             foreach ($charges->autoPagingIterator() as $charge) {
                 $order = StripePlugin::$app->orders->getOrderByStripeId($charge['id']);
@@ -84,6 +86,10 @@ class SyncOneTimePayments extends BaseJob implements RetryableJobInterface
                         $user = Craft::$app->getUsers()->getUserByUsernameOrEmail($email);
                         if ($user){
                             $userId = $user->id;
+                        }else{
+                            if ($this->syncIfUserExists){
+                                continue;
+                            }
                         }
                     }
 
@@ -116,16 +122,17 @@ class SyncOneTimePayments extends BaseJob implements RetryableJobInterface
                     $result = StripePlugin::$app->orders->saveOrder($newOrder, false);
 
                     if ($result){
-                        StripePlugin::$app->messages->addMessage($newOrder->id, "Synced Order", $charge);
+                        StripePlugin::$app->messages->addMessage($newOrder->id, "Order Synced", $charge);
                     }else{
                         $failed++;
                         Craft::error('Unable to sync Order: '.$charge['id'], __METHOD__);
                     }
 
                     $step++;
+
                     $this->setProgress($queue, $step / $this->totalSteps);
 
-                    if ($step > $this->totalSteps){
+                    if ($step >= $this->totalSteps){
                         break;
                     }
                 }

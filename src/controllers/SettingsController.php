@@ -102,7 +102,8 @@ class SettingsController extends BaseController
             Craft::$app->queue->push(new SyncOneTimePayments([
                 'totalSteps' => $settings->syncLimit,
                 'defaultPaymentFormId' => $settings->syncDefaultFormId[0],
-                'defaultStatusId' => $settings->syncDefaultStatusId
+                'defaultStatusId' => $settings->syncDefaultStatusId,
+                'syncIfUserExists' => $settings->syncIfUserExists
             ]));
         }
     }
