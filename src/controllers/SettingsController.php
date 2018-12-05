@@ -11,6 +11,7 @@ namespace enupal\stripe\controllers;
 use Craft;
 use craft\web\Controller as BaseController;
 use enupal\stripe\jobs\SyncOneTimePayments;
+use enupal\stripe\models\Settings;
 use enupal\stripe\Stripe;
 
 class SettingsController extends BaseController
@@ -28,6 +29,7 @@ class SettingsController extends BaseController
         $request = Craft::$app->getRequest();
         $settings = $request->getBodyParam('settings');
         $scenario = $request->getBodyParam('stripeScenario');
+        $message = Stripe::t('Settings saved.');
 
         $plugin = Stripe::$app->settings->getPlugin();
         $settingsModel = $plugin->getSettings();
@@ -46,7 +48,12 @@ class SettingsController extends BaseController
             return null;
         }
 
-        Craft::$app->getSession()->setNotice(Stripe::t('Settings saved.'));
+        if ($scenario == 'sync'){
+            $this->runSyncJob($settingsModel);
+            $message = Stripe::t('Sync Orders added to the queue');
+        }
+
+        Craft::$app->getSession()->setNotice($message);
 
         return $this->redirectToPostedUrl();
     }
@@ -81,18 +88,22 @@ class SettingsController extends BaseController
     }
 
     /**
-     * Sync One-Time payments from Stripe
+     * Sync payments from Stripe
      *
-     * @return \yii\web\Response
+     * @param $settings Settings
      * @throws \yii\web\BadRequestHttpException
      */
-    public function actionSyncOneTimePayments()
+    private function runSyncJob($settings)
     {
         $result = null;
         $this->requirePostRequest();
 
-        Craft::$app->queue->push(new SyncOneTimePayments());
-
-        return $this->redirectToPostedUrl();
+        if ($settings->syncType == 1){
+            Craft::$app->queue->push(new SyncOneTimePayments([
+                'totalSteps' => $settings->syncLimit,
+                'defaultPaymentFormId' => $settings->syncDefaultFormId[0],
+                'defaultStatusId' => $settings->syncDefaultStatusId
+            ]));
+        }
     }
 }

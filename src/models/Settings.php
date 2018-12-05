@@ -88,6 +88,14 @@ class Settings extends Model
                 }
             ],
             [
+                ['syncType', 'syncLimit', 'syncDefaultFormId', 'syncDefaultStatusId'],
+                'required', 'on' => 'sync'
+            ],
+            [
+                ['syncLimit'],
+                'number', 'on' => 'sync', 'min'=> '1', 'max'=>'1000'
+            ],
+            [
                 ['testSecretKey'],
                 'required', 'on' => 'general', 'when' => function($model) {
                 $configSettings = Stripe::$app->settings->getConfigSettings();

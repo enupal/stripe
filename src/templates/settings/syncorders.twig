@@ -28,16 +28,17 @@
         {{ csrfInput() }}
         <input type="hidden" name="stripeScenario" value="sync">
         <input type="hidden" name="action"
-               value="enupal-stripe/settings/sync-one-time-payments">
+               value="enupal-stripe/settings/save-settings">
         <input type="hidden" aria-hidden="true" name="redirect"
-               value="{{ 'enupal-stripe/settings/synconetime'|hash }}">
-
+               value="{{ 'enupal-stripe/settings/syncorders'|hash }}">
+        {% namespace 'settings' %}
         {{ forms.selectField({
             label: "Sync Type"|t('enupal-stripe'),
             instructions: "What king of Payments you want sync from Stripe"|t('enupal-stripe'),
             id: 'syncType',
             name: 'syncType',
             options: syncTypes,
+            required: true,
             value: settings.syncType
         }) }}
 
@@ -46,6 +47,7 @@
             instructions: "A limit on the number of new orders to be created."|t('enupal-stripe'),
             name: 'syncLimit',
             size:'10',
+            required: true,
             value: settings.syncLimit,
             errors: (settings is defined ? settings.getErrors('syncLimit') : null)
         }) }}
@@ -53,7 +55,9 @@
         {{ forms.field({
             label: 'Payment Form'|t('enupal-stripe'),
             instructions: 'Default Payment Form'|t('enupal-stripe'),
-            id: 'slides'
+            id: 'syncDefaultFormId',
+            required: true,
+            errors: (settings is defined ? settings.getErrors('syncDefaultFormId') : null)
         }, forms.elementSelect({
             elements: variables.paymentFormElements,
             elementType: variables.elementType,
@@ -70,10 +74,13 @@
             label: "Order Status"|t('enupal-stripe'),
             instructions: "Default Order Status for synced orders"|t('enupal-stripe'),
             id: 'syncDefaultStatusId',
+            required: true,
             name: 'syncDefaultStatusId',
             options: orderStatuses,
             value: settings.syncDefaultStatusId
         }) }}
+
+        {% endnamespace %}
 
         <div class="buttons">
             <input class="btn submit" type="submit" value="{{ 'Sync Orders'|t('enupal-stripe') }}">
