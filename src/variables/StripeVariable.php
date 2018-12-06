@@ -414,6 +414,64 @@ class StripeVariable
     }
 
     /**
+     * @param $settings
+     * @return mixed
+     */
+    public function getPaymentFormsAsElementOptions($settings)
+    {
+        $variables['elementType'] = PaymentForm::class;
+        $variables['paymentFormElements'] = null;
+
+        if ($settings->syncDefaultFormId) {
+            $paymentForms = $settings->syncDefaultFormId;
+            if (is_string($paymentForms)) {
+                $paymentForms = json_decode($settings->syncDefaultFormId);
+            }
+
+            $paymentFormElements = [];
+
+            if (count($paymentForms)) {
+                foreach ($paymentForms as $key => $paymentFormId) {
+                    $paymentForm = Craft::$app->elements->getElementById($paymentFormId);
+                    array_push($paymentFormElements, $paymentForm);
+                }
+
+                $variables['paymentFormElements'] = $paymentFormElements;
+            }
+        }
+
+        return $variables;
+    }
+
+    /**
+     * @return array
+     */
+    public function getSyncTypes()
+    {
+        $options = [
+            1 => Craft::t('enupal-stripe', 'One-Time'),
+            2 => Craft::t('enupal-stripe', 'Subscriptions')
+        ];
+
+        return $options;
+    }
+
+    /**
+     * @return array
+     */
+    public function getOrderStatusesAsOptions()
+    {
+        $statuses = Stripe::$app->orders->getAllOrderStatuses();
+        $statusArray = [];
+
+        foreach ($statuses as $status) {
+            $statusArray[$status['id']] = $status['name'];
+        }
+
+        return $statusArray;
+    }
+
+    /**
      * @param $view
      * @param $inputFilePath
      * @param $templatePath

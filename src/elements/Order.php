@@ -419,7 +419,7 @@ class Order extends Element
             $record->id = $this->id;
         }
 
-        $record->dateOrdered = Db::prepareDateForDb(new \DateTime());
+        $record->dateOrdered = $this->dateOrdered ?? Db::prepareDateForDb(new \DateTime());
         $record->number = $this->number;
         $record->userId = $this->userId;
         $record->orderStatusId = $this->orderStatusId;
