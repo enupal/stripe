@@ -1,5 +1,9 @@
 # Stripe Payments Changelog
 
+## 1.6.4 - 2018.12.05
+### Added
+- Added Sync Orders from Stripe under the advanced settings. `beta`
+
 ## 1.6.3 - 2018.11.30
 ### Added
 - Added `calculateFinalAmount` setting to options on `paymentForm`

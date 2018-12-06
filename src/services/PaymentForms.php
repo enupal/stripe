@@ -1225,6 +1225,18 @@ class PaymentForms extends Component
     }
 
     /**
+     * @return array
+     */
+    public function getPaymentTypesIds()
+    {
+        return [
+            'card' => PaymentType::CC,
+            'ideal' => PaymentType::IDEAL ,
+            'sofort' => PaymentType::SOFORT,
+        ];
+    }
+
+    /**
      * @param $paymentType
      * @return mixed|null
      */

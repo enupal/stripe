@@ -51,6 +51,12 @@ class Settings extends Model
     // Get plans with nickname
     public $plansWithNickname = 1;
     public $loadJquery = 1;
+    // Snyc
+    public $syncType = 1;
+    public $syncLimit = 500;
+    public $syncIfUserExists = false;
+    public $syncDefaultFormId;
+    public $syncDefaultStatusId;
 
     /**
      * @inheritdoc
@@ -81,6 +87,14 @@ class Settings extends Model
                     $isRequired = isset($configSettings['testPublishableKey']) ? false : true;
                     return $model->testMode && $isRequired;
                 }
+            ],
+            [
+                ['syncType', 'syncLimit', 'syncDefaultFormId', 'syncDefaultStatusId'],
+                'required', 'on' => 'sync'
+            ],
+            [
+                ['syncLimit'],
+                'number', 'on' => 'sync', 'min'=> '1', 'max'=>'1000'
             ],
             [
                 ['testSecretKey'],
