@@ -105,6 +105,7 @@ class SyncOneTimePayments extends BaseJob implements RetryableJobInterface
                     $newOrder->currency = strtoupper($charge['currency']);
                     $newOrder->totalPrice = StripePlugin::$app->orders->convertFromCents($charge['amount'], $newOrder->currency);
                     $newOrder->quantity = 1;
+                    $newOrder->isSubscription = false;
                     $newOrder->dateOrdered = DateTimeHelper::toDateTime($charge['created'])->format('Y-m-d H:i:s');
                     $newOrder->dateCreated = $newOrder->dateOrdered;
                     $newOrder->orderStatusId = $this->defaultStatusId;
