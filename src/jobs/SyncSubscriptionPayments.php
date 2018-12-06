@@ -55,7 +55,6 @@ class SyncSubscriptionPayments extends BaseJob implements RetryableJobInterface
 
         try{
             $invoices = Invoice::all();
-
             $step = 0;
             $failed = 0;
 
@@ -64,9 +63,7 @@ class SyncSubscriptionPayments extends BaseJob implements RetryableJobInterface
                 foreach ($invoice['lines']['data'] as $subscription) {
                     $subscriptionId = $subscription['subscription'] ?? null;
                     if (isset($subscription['plan']) && $subscription['plan'] && $subscriptionId){
-                        $plan = $subscription['plan'];
                         $order = StripePlugin::$app->orders->getOrderByStripeId($subscriptionId);
-
                         if ($order === null) {
                             // Check if customer exists
                             $customerRecord = CustomerRecord::findOne([
@@ -100,11 +97,16 @@ class SyncSubscriptionPayments extends BaseJob implements RetryableJobInterface
                             }
 
                             $paymentTypes = StripePlugin::$app->paymentForms->getPaymentTypesIds();
-                            $charge = Charge::retrieve($invoice['charge']);
+                            $charge = null;
+
+                            if ($invoice['charge']){
+                                $charge = Charge::retrieve($invoice['charge']);
+                            }
                             // @todo - Add sepa debit payment let's default to sofort
-                            $paymentType = isset($charge['source']['type']) ? 'sofort'  : $invoice['source']['object'] ?? null;
+                            $paymentType = isset($charge['source']['type']) ? 'sofort'  : $charge['source']['object'] ?? null;
 
                             $newOrder = new Order();
+                            $newOrder->isSubscription = true;
                             $newOrder->formId = $this->defaultPaymentFormId;
                             $newOrder->userId = $userId;
                             $newOrder->testMode = $testMode;
@@ -113,27 +115,34 @@ class SyncSubscriptionPayments extends BaseJob implements RetryableJobInterface
                             $newOrder->currency = strtoupper($invoice['currency']);
                             $newOrder->totalPrice = StripePlugin::$app->orders->convertFromCents($invoice['amount_paid'], $newOrder->currency);
                             $newOrder->quantity = $subscription['quantity'];
-                            $newOrder->dateOrdered = Db::prepareDateForDb(DateTimeHelper::toDateTime($invoice['created'])->getTimestamp());
+                            $newOrder->dateOrdered = DateTimeHelper::toDateTime($invoice['date'])->format('Y-m-d H:i:s');
                             $newOrder->dateCreated = $newOrder->dateOrdered;
                             $newOrder->orderStatusId = $this->defaultStatusId;
-                            $newOrder->stripeTransactionId = $invoice['id'];
+                            $newOrder->stripeTransactionId = $subscriptionId;
                             $newOrder->email = $email;
-                            $newOrder->isCompleted = $invoice['status'] == 'succeeded' ? true : false;
-                            $newOrder->firstName = $invoice['shipping']['name'] ?? null;
-                            $newOrder->addressCity = $invoice['shipping']['address_city'] ?? null;
-                            $newOrder->addressCountry = $invoice['shipping']['address_country'] ?? null;
-                            $newOrder->addressState = $invoice['shipping']['address_state'] ?? null;
-                            $newOrder->addressStreet = $invoice['shipping']['address_line1'] ?? null;
-                            $newOrder->addressZip = $invoice['shipping']['address_zip'] ?? null;
-                            $newOrder->refunded = $invoice['refunded'];
+                            if (isset($charge['status'])){
+                                $newOrder->isCompleted = $charge['status'] == 'succeeded' ? true : false;
+                            }else{
+                                $newOrder->isCompleted = false;
+                            }
+                            if ($charge) {
+                                $newOrder->firstName = $charge['shipping']['name'] ?? null;
+                                $newOrder->addressCity = $charge['shipping']['address_city'] ?? null;
+                                $newOrder->addressCountry = $charge['shipping']['address_country'] ?? null;
+                                $newOrder->addressState = $charge['shipping']['address_state'] ?? null;
+                                $newOrder->addressStreet = $charge['shipping']['address_line1'] ?? null;
+                                $newOrder->addressZip = $charge['shipping']['address_zip'] ?? null;
+                                $newOrder->refunded = $charge['refunded'];
+                            }
 
                             $result = StripePlugin::$app->orders->saveOrder($newOrder, false);
 
                             if ($result) {
-                                StripePlugin::$app->messages->addMessage($newOrder->id, "Order Synced", $invoice);
+                                StripePlugin::$app->messages->addMessage($newOrder->id, "Order Synced - Invoice", $invoice);
+                                StripePlugin::$app->messages->addMessage($newOrder->id, "Order Synced - Charge", $charge);
                             } else {
                                 $failed++;
-                                Craft::error('Unable to sync Order: ' . $invoice['id'], __METHOD__);
+                                Craft::error('Unable to sync Order: ' . $subscriptionId, __METHOD__);
                             }
 
                             $step++;
@@ -141,7 +150,7 @@ class SyncSubscriptionPayments extends BaseJob implements RetryableJobInterface
                             $this->setProgress($queue, $step / $this->totalSteps);
 
                             if ($step >= $this->totalSteps) {
-                                break;
+                                break 2;
                             }
                         }
                     }

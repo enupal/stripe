@@ -11,6 +11,7 @@ namespace enupal\stripe\controllers;
 use Craft;
 use craft\web\Controller as BaseController;
 use enupal\stripe\jobs\SyncOneTimePayments;
+use enupal\stripe\jobs\SyncSubscriptionPayments;
 use enupal\stripe\models\Settings;
 use enupal\stripe\Stripe;
 
@@ -97,14 +98,16 @@ class SettingsController extends BaseController
     {
         $result = null;
         $this->requirePostRequest();
-
+        $defaultSettings = [
+            'totalSteps' => $settings->syncLimit,
+            'defaultPaymentFormId' => $settings->syncDefaultFormId[0],
+            'defaultStatusId' => $settings->syncDefaultStatusId,
+            'syncIfUserExists' => $settings->syncIfUserExists
+        ];
         if ($settings->syncType == 1){
-            Craft::$app->queue->push(new SyncOneTimePayments([
-                'totalSteps' => $settings->syncLimit,
-                'defaultPaymentFormId' => $settings->syncDefaultFormId[0],
-                'defaultStatusId' => $settings->syncDefaultStatusId,
-                'syncIfUserExists' => $settings->syncIfUserExists
-            ]));
+            Craft::$app->queue->push(new SyncOneTimePayments($defaultSettings));
+        }else{
+            Craft::$app->queue->push(new SyncSubscriptionPayments($defaultSettings));
         }
     }
 }

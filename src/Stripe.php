@@ -17,7 +17,6 @@ use craft\web\UrlManager;
 use enupal\stripe\events\OrderCompleteEvent;
 use enupal\stripe\services\App;
 use enupal\stripe\services\Orders;
-use Stripe\Charge;
 use yii\base\Event;
 use craft\web\twig\variables\CraftVariable;
 use enupal\stripe\fields\StripePaymentForms as StripePaymentFormsField;
@@ -44,9 +43,6 @@ class Stripe extends Plugin
         parent::init();
 
         self::$app = $this->get('app');
-        self::$app->settings->initializeStripe();
-        $charge = Charge::retrieve("ch_1De3yyLLWVlbcCFQrfIsnAJz");
-        Craft::dd($charge);
 
         Event::on(UrlManager::class, UrlManager::EVENT_REGISTER_CP_URL_RULES, function(RegisterUrlRulesEvent $event) {
             $event->rules = array_merge($event->rules, $this->getCpUrlRules());
