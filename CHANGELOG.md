@@ -1,5 +1,9 @@
 # Stripe Payments Changelog
 
+## 1.6.5 - 2018.12.11
+### Added
+- Adds support to older Stripe API versions in sync Setting
+
 ## 1.6.4 - 2018.12.05
 ### Added
 - Added Sync Orders from Stripe under the advanced settings. `beta`
