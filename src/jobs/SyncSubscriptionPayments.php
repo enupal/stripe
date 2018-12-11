@@ -57,11 +57,13 @@ class SyncSubscriptionPayments extends BaseJob implements RetryableJobInterface
             $invoices = Invoice::all();
             $step = 0;
             $failed = 0;
+            $alreadyExists = 0;
+            $skipped = 0;
 
             foreach ($invoices->autoPagingIterator() as $invoice) {
                 $testMode = !$invoice['livemode'];
                 foreach ($invoice['lines']['data'] as $subscription) {
-                    $subscriptionId = $subscription['subscription'] ?? null;
+                    $subscriptionId = $subscription['subscription'] ?? $subscription['id'];
                     if (isset($subscription['plan']) && $subscription['plan'] && $subscriptionId){
                         $order = StripePlugin::$app->orders->getOrderByStripeId($subscriptionId);
                         if ($order === null) {
@@ -152,12 +154,16 @@ class SyncSubscriptionPayments extends BaseJob implements RetryableJobInterface
                             if ($step >= $this->totalSteps) {
                                 break 2;
                             }
+                        }else{
+                            $alreadyExists++;
                         }
+                    }else{
+                        $skipped++;
                     }
                 }
             }
 
-            Craft::info('Sync process finished, Total: '.$step. ', Failed: '.$failed, __METHOD__);
+            Craft::info('Sync process finished, Total: '.$step. ', Failed: '.$failed. ', Already exists: '.$alreadyExists. ', Skipped: '.$skipped, __METHOD__);
             $result = true;
 
         }catch (\Exception $e) {
