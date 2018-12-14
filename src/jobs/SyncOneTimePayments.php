@@ -9,7 +9,6 @@
 namespace enupal\stripe\jobs;
 
 use craft\helpers\DateTimeHelper;
-use craft\helpers\Db;
 use enupal\stripe\enums\PaymentType;
 use enupal\stripe\records\Customer as CustomerRecord;
 use enupal\stripe\Stripe as StripePlugin;
@@ -34,6 +33,12 @@ class SyncOneTimePayments extends BaseJob implements RetryableJobInterface
 
     public $syncIfUserExists = false;
 
+    public $enableDateRange;
+
+    public $startDate;
+
+    public $endDate;
+
     /**
      * Returns the default description for this job.
      *
@@ -53,7 +58,21 @@ class SyncOneTimePayments extends BaseJob implements RetryableJobInterface
         StripePlugin::$app->settings->initializeStripe();
 
         try{
-            $charges = Charge::all();
+            $params = [];
+
+            if ($this->enableDateRange){
+                $startDate = strtotime($this->startDate);
+                $endDate = strtotime($this->endDate);
+
+                $params = [
+                    'created' => [
+                        'gte' => $startDate,
+                        'lte' => $endDate
+                    ]
+                ];
+            }
+
+            $charges = Charge::all($params);
 
             $step = 0;
             $failed = 0;
@@ -75,11 +94,7 @@ class SyncOneTimePayments extends BaseJob implements RetryableJobInterface
                         $stripeCustomer = Customer::retrieve($charge['customer']);
                         $email = $stripeCustomer['email'];
 
-                        $customerRecord = new CustomerRecord();
-                        $customerRecord->email = $email;
-                        $customerRecord->stripeId =  $charge['customer'];
-                        $customerRecord->testMode = !$charge['livemode'];
-                        $customerRecord->save(false);
+                        StripePlugin::$app->customers->createCustomer($email, $charge['customer'], !$charge['livemode']);
                     }
 
                     if ($email){
@@ -145,7 +160,6 @@ class SyncOneTimePayments extends BaseJob implements RetryableJobInterface
         }catch (\Exception $e) {
             Craft::error('Sync process failed: '.$e->getMessage(), __METHOD__);
         }
-
 
         return $result;
     }

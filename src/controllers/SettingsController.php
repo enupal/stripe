@@ -9,6 +9,7 @@
 namespace enupal\stripe\controllers;
 
 use Craft;
+use craft\helpers\DateTimeHelper;
 use craft\web\Controller as BaseController;
 use enupal\stripe\jobs\SyncOneTimePayments;
 use enupal\stripe\jobs\SyncSubscriptionPayments;
@@ -28,8 +29,8 @@ class SettingsController extends BaseController
     {
         $this->requirePostRequest();
         $request = Craft::$app->getRequest();
-        $settings = $request->getBodyParam('settings');
         $scenario = $request->getBodyParam('stripeScenario');
+        $settings = $this->getPostSettings();
         $message = Stripe::t('Settings saved.');
 
         $plugin = Stripe::$app->settings->getPlugin();
@@ -89,6 +90,24 @@ class SettingsController extends BaseController
     }
 
     /**
+     * @return mixed
+     */
+    private function getPostSettings()
+    {
+        $settings = Craft::$app->getRequest()->getBodyParam('settings');
+
+        if (isset($settings['syncStartDate'])){
+            $settings['syncStartDate'] = DateTimeHelper::toDateTime($settings['syncStartDate']);
+        }
+
+        if (isset($settings['syncEndDate'])){
+            $settings['syncEndDate'] = DateTimeHelper::toDateTime($settings['syncEndDate']);
+        }
+
+        return $settings;
+    }
+
+    /**
      * Sync payments from Stripe
      *
      * @param $settings Settings
@@ -102,7 +121,10 @@ class SettingsController extends BaseController
             'totalSteps' => $settings->syncLimit,
             'defaultPaymentFormId' => $settings->syncDefaultFormId[0],
             'defaultStatusId' => $settings->syncDefaultStatusId,
-            'syncIfUserExists' => $settings->syncIfUserExists
+            'syncIfUserExists' => $settings->syncIfUserExists,
+            'enableDateRange' => $settings->syncEnabledDateRange,
+            'startDate' => $settings->syncStartDate->date ?? null,
+            'endDate' => $settings->syncEndDate->date ?? null
         ];
         if ($settings->syncType == 1){
             Craft::$app->queue->push(new SyncOneTimePayments($defaultSettings));

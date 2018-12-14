@@ -975,11 +975,11 @@ class Orders extends Component
      */
     public function getAllOrderStatuses()
     {
-        $entryStatuses = OrderStatusRecord::find()
+        $orderStatuses = OrderStatusRecord::find()
             ->orderBy(['sortOrder' => 'asc'])
             ->all();
 
-        return $entryStatuses;
+        return $orderStatuses;
     }
 
     /**
@@ -1374,6 +1374,8 @@ class Orders extends Component
     }
 
     /**
+     * Get a Stripe Customer Object
+     *
      * @param $email
      * @param $token
      * @param $isNew
@@ -1414,11 +1416,7 @@ class Orders extends Component
                 'source' => $token
             ]);
 
-            $customerRecord = new CustomerRecord();
-            $customerRecord->email = $email;
-            $customerRecord->stripeId = $stripeCustomer->id;
-            $customerRecord->testMode = $testMode;
-            $customerRecord->save(false);
+            StripePlugin::$app->customers->createCustomer($email, $stripeCustomer->id, $testMode);
             $isNew = true;
         }else{
             // Add support for Stripe API 2018-07-27
@@ -1450,7 +1448,6 @@ class Orders extends Component
                         }
                         $pos++;
                     }
-
                     $metadata[$key] = $value;
                 }else{
                     $metadata[$key] = $item;

@@ -9,7 +9,6 @@
 namespace enupal\stripe\jobs;
 
 use craft\helpers\DateTimeHelper;
-use craft\helpers\Db;
 use enupal\stripe\enums\PaymentType;
 use enupal\stripe\records\Customer as CustomerRecord;
 use enupal\stripe\Stripe as StripePlugin;
@@ -35,6 +34,12 @@ class SyncSubscriptionPayments extends BaseJob implements RetryableJobInterface
 
     public $syncIfUserExists = false;
 
+    public $enableDateRange;
+
+    public $startDate;
+
+    public $endDate;
+
     /**
      * Returns the default description for this job.
      *
@@ -54,7 +59,21 @@ class SyncSubscriptionPayments extends BaseJob implements RetryableJobInterface
         StripePlugin::$app->settings->initializeStripe();
 
         try{
-            $invoices = Invoice::all();
+            $params = [];
+
+            if ($this->enableDateRange && $this->startDate && $this->endDate){
+                $startDate = strtotime($this->startDate);
+                $endDate = strtotime($this->endDate);
+
+                $params = [
+                    'date' => [
+                        'gte' => $startDate,
+                        'lte' => $endDate
+                    ]
+                ];
+            }
+
+            $invoices = Invoice::all($params);
             $step = 0;
             $failed = 0;
             $alreadyExists = 0;
@@ -79,12 +98,7 @@ class SyncSubscriptionPayments extends BaseJob implements RetryableJobInterface
                             } else {
                                 $stripeCustomer = Customer::retrieve($invoice['customer']);
                                 $email = $stripeCustomer['email'];
-
-                                $customerRecord = new CustomerRecord();
-                                $customerRecord->email = $email;
-                                $customerRecord->stripeId = $invoice['customer'];
-                                $customerRecord->testMode = $testMode;
-                                $customerRecord->save(false);
+                                StripePlugin::$app->customers->createCustomer($email, $invoice['customer'], $testMode);
                             }
 
                             if ($email) {
@@ -169,7 +183,6 @@ class SyncSubscriptionPayments extends BaseJob implements RetryableJobInterface
         }catch (\Exception $e) {
             Craft::error('Sync process failed: '.$e->getMessage(), __METHOD__);
         }
-
 
         return $result;
     }

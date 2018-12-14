@@ -41,7 +41,38 @@
             required: true,
             value: settings.syncType
         }) }}
+         <hr>
+        {{ forms.lightswitchField({
+            first: true,
+            label: "Enable Date Range"|t('enupal-stripe'),
+            instructions: "Sync Orders in a date range"|t('enupal-stripe'),
+            id: 'syncEnabledDateRange',
+            name: 'syncEnabledDateRange',
+            on: settings.syncEnabledDateRange,
+            errors: settings.getErrors('syncEnabledDateRange'),
+            toggle: 'date-range'
+        }) }}
 
+        <div id="date-range" class="{% if not settings.syncEnabledDateRange %} hidden {% endif %}">
+            {{ forms.dateField({
+                label: "Start Date"|t('enupal-stripe'),
+                instructions: "The start date of the date range you wish to sync"|t('enupal-stripe'),
+                id: 'syncStartDate',
+                name: 'syncStartDate',
+                value: settings.syncStartDate.date is defined ? settings.syncStartDate.date : now|date_modify("-30 days"),
+                errors: (settings is defined ? settings.getErrors('syncStartDate') : null)
+            }) }}
+
+            {{ forms.dateField({
+                label: "End Date"|t('enupal-stripe'),
+                instructions: "The end date of the date range you wish to sync."|t('enupal-stripe'),
+                id: 'syncEndDate',
+                name: 'syncEndDate',
+                value: settings.syncEndDate.date is defined ? settings.syncEndDate.date : now,
+                errors: (settings is defined ? settings.getErrors('syncEndDate') : null)
+            }) }}
+        </div>
+        <hr>
         {{ forms.textField({
             label: "Limit"|t('enupal-stripe'),
             instructions: "A limit on the number of new orders to be created."|t('enupal-stripe'),
