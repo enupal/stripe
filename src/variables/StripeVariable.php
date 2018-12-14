@@ -14,6 +14,7 @@ use enupal\stripe\enums\FrequencyType;
 use enupal\stripe\services\PaymentForms;
 use enupal\stripe\Stripe;
 use craft\helpers\Template as TemplateHelper;
+use DateTime;
 use Craft;
 
 /**
@@ -469,6 +470,16 @@ class StripeVariable
         }
 
         return $statusArray;
+    }
+
+    /**
+     * @param $string
+     *
+     * @return DateTime
+     */
+    public function getDate($string)
+    {
+        return new DateTime($string, new \DateTimeZone(Craft::$app->getTimeZone()));
     }
 
     /**

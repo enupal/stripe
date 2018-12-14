@@ -1,5 +1,9 @@
 # Stripe Payments Changelog
 
+## 1.6.8 - 2018.12.14
+### Fixed
+- Fixed issue with date field on data range setting
+
 ## 1.6.7 - 2018.12.14
 ### Added
 - Adds support to date range filters in sync Setting
