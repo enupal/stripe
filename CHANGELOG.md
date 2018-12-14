@@ -1,5 +1,9 @@
 # Stripe Payments Changelog
 
+## 1.6.7 - 2018.12.14
+### Added
+- Adds support to date range filters in sync Setting
+
 ## 1.6.5 - 2018.12.11
 ### Added
 - Adds support to older Stripe API versions in sync Setting
