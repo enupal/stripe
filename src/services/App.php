@@ -42,6 +42,11 @@ class App extends Component
      */
     public $messages;
 
+    /**
+     * @var Customers
+     */
+    public $customers;
+
     public function init()
     {
         $this->settings = new Settings();
@@ -50,5 +55,6 @@ class App extends Component
         $this->plans = new Plans();
         $this->subscriptions = new Subscriptions();
         $this->messages = new Messages();
+        $this->customers = new Customers();
     }
 }

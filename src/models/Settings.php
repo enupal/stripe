@@ -11,6 +11,7 @@ namespace enupal\stripe\models;
 use craft\base\Model;
 use enupal\stripe\enums\DiscountType;
 use enupal\stripe\Stripe;
+use Craft;
 
 
 class Settings extends Model
@@ -57,6 +58,9 @@ class Settings extends Model
     public $syncIfUserExists = false;
     public $syncDefaultFormId;
     public $syncDefaultStatusId;
+    public $syncEnabledDateRange = false;
+    public $syncStartDate;
+    public $syncEndDate;
 
     /**
      * @inheritdoc
@@ -91,6 +95,16 @@ class Settings extends Model
             [
                 ['syncType', 'syncLimit', 'syncDefaultFormId', 'syncDefaultStatusId'],
                 'required', 'on' => 'sync'
+            ],
+            [
+                ['syncStartDate', 'syncEndDate'],
+                'required', 'on' => 'sync', 'when' => function($model) {
+                    return $model->syncEnabledDateRange;
+                }
+            ],
+            ['syncStartDate', 'validateDates', 'on' => 'sync', 'when' => function($model) {
+                    return $model->syncEnabledDateRange;
+                }
             ],
             [
                 ['syncLimit'],
@@ -130,5 +144,12 @@ class Settings extends Model
                 'number', 'min'=> '1', 'max'=>'100' , 'on' => 'taxes', 'numberPattern' => '/^\d+(.\d{1,2})?$/',
             ]
         ];
+    }
+
+    public function validateDates(){
+        if(strtotime($this->syncEndDate->format('Y-m-d')) <= strtotime($this->syncStartDate->format('Y-m-d'))){
+            $this->addError('syncStartDate','Please give correct Start and End dates');
+            $this->addError('syncEndDate','Please give correct Start and End dates');
+        }
     }
 }
