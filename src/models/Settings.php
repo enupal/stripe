@@ -147,9 +147,18 @@ class Settings extends Model
     }
 
     public function validateDates(){
-        if(strtotime($this->syncEndDate->format('Y-m-d')) <= strtotime($this->syncStartDate->format('Y-m-d'))){
-            $this->addError('syncStartDate','Please give correct Start and End dates');
-            $this->addError('syncEndDate','Please give correct Start and End dates');
+        if ($this->syncEndDate && $this->syncStartDate){
+            if(strtotime($this->syncEndDate->format('Y-m-d')) <= strtotime($this->syncStartDate->format('Y-m-d'))){
+                $this->addError('syncStartDate','Please give correct Start and End dates');
+                $this->addError('syncEndDate','Please give correct Start and End dates');
+            }
+        }else{
+            if (!$this->syncEndDate){
+                $this->addError('syncEndDate','End Date is required');
+            }
+            if (!$this->syncStartDate){
+                $this->addError('syncStartDate','Start Date is required');
+            }
         }
     }
 }
