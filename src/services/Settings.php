@@ -48,15 +48,7 @@ class Settings extends Component
      */
     public function getSettings()
     {
-        $pluginSettings =  (new Query())
-            ->select(['settings'])
-            ->from(['{{%plugins}}'])
-            ->where(['handle' => 'enupal-stripe'])
-            ->one();
-
-        $settings = new SettingsModel();
-
-        $settings->setAttributes(json_decode($pluginSettings['settings'], true), false);
+        $settings = $this->getPlugin()->getSettings();
 
         $configSettings = $this->getConfigSettings();
         // Overrides config settings
