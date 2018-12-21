@@ -1,5 +1,9 @@
 # Stripe Payments Changelog
 
+## 1.6.9 - 2018.12.20
+### Fixed
+- Fixed issue on Craft 3.1
+
 ## 1.6.8 - 2018.12.14
 ### Fixed
 - Fixed issue with date field on data range setting
