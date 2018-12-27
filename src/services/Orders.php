@@ -14,12 +14,10 @@ use craft\helpers\Db;
 
 use craft\helpers\Json;
 use craft\helpers\UrlHelper;
-use craft\mail\Message;
 use enupal\stripe\elements\Order;
 use enupal\stripe\elements\PaymentForm;
 use enupal\stripe\enums\PaymentType;
 use enupal\stripe\enums\SubscriptionType;
-use enupal\stripe\events\NotificationEvent;
 use enupal\stripe\events\OrderCompleteEvent;
 use enupal\stripe\events\OrderRefundEvent;
 use enupal\stripe\events\WebhookEvent;
@@ -56,24 +54,6 @@ class Orders extends Component
      * ```
      */
     const EVENT_AFTER_ORDER_COMPLETE = 'afterOrderComplete';
-
-    /**
-     * @event NotificationEvent The event that is triggered before a notification is send
-     *
-     * Plugins can get notified before a notification email is send
-     *
-     * ```php
-     * use enupal\stripe\events\NotificationEvent;
-     * use enupal\stripe\services\Orders;
-     * use yii\base\Event;
-     *
-     * Event::on(Orders::class, Orders::EVENT_BEFORE_SEND_NOTIFICATION_EMAIL, function(NotificationEvent $e) {
-     *      $message = $e->message;
-     *     // Do something
-     * });
-     * ```
-     */
-    const EVENT_BEFORE_SEND_NOTIFICATION_EMAIL = 'beforeSendNotificationEmail';
 
     /**
      * @event WebhookEvent The event that is triggered before a notification is send
@@ -223,6 +203,7 @@ class Orders extends Component
                     ]);
 
                     $this->trigger(self::EVENT_AFTER_ORDER_COMPLETE, $event);
+                    Stripe::$app->emails->sendNotificationEmails($order);
                 }
             }
         } catch (\Exception $e) {
@@ -306,175 +287,6 @@ class Orders extends Component
         $order->setAttributes($postFields, false);
 
         return $order;
-    }
-
-    /**
-     * @param Order $order
-     *
-     * @return bool
-     * @throws \yii\base\Exception
-     */
-    public function sendCustomerNotification(Order $order)
-    {
-        $settings = StripePlugin::$app->settings->getSettings();
-
-        if (!$settings->enableCustomerNotification) {
-            return false;
-        }
-
-        $variables = [];
-        $view = Craft::$app->getView();
-        $message = new Message();
-        $message->setFrom([$settings->customerNotificationSenderEmail => $settings->customerNotificationSenderName]);
-        $variables['order'] = $order;
-        $subject = $view->renderString($settings->customerNotificationSubject, $variables);
-        $textBody = $view->renderString("Thank you! your order number is: {{order.number}}", $variables);
-
-        $originalPath = $view->getTemplatesPath();
-
-        $template = 'customer';
-        $templateOverride = null;
-        $extensions = ['.html', '.twig'];
-
-        if ($settings->customerTemplateOverride){
-            // let's check if the file exists
-            $overridePath = $originalPath.DIRECTORY_SEPARATOR.$settings->customerTemplateOverride;
-            foreach ($extensions as $extension) {
-                if (file_exists($overridePath.$extension)){
-                    $templateOverride = $settings->customerTemplateOverride;
-                    $template = $templateOverride;
-                }
-            }
-        }
-
-        if (is_null($templateOverride)){
-            $view->setTemplatesPath($this->getEmailsPath());
-        }
-
-        $htmlBody = $view->renderTemplate($template, $variables);
-
-        $view->setTemplatesPath($originalPath);
-
-        $message->setSubject($subject);
-        $message->setHtmlBody($htmlBody);
-        $message->setTextBody($textBody);
-        $message->setReplyTo($settings->customerNotificationReplyToEmail);
-        // customer email
-        $emails = [$order->email];
-        $message->setTo($emails);
-
-        $mailer = Craft::$app->getMailer();
-
-        $event = new NotificationEvent([
-            'message' => $message,
-            'type' => 'customer'
-        ]);
-
-        $this->trigger(self::EVENT_BEFORE_SEND_NOTIFICATION_EMAIL, $event);
-
-        try {
-            $result = $mailer->send($message);
-        } catch (\Throwable $e) {
-            Craft::$app->getErrorHandler()->logException($e);
-            $result = false;
-        }
-
-        if (!$result) {
-            Craft::error('Unable to send customer email', __METHOD__);
-        }
-
-        Craft::info('Customer email sent successfully', __METHOD__);
-
-        return $result;
-    }
-
-    /**
-     * @param Order $order
-     *
-     * @return bool
-     * @throws \yii\base\Exception
-     */
-    public function sendAdminNotification(Order $order)
-    {
-        $settings = StripePlugin::$app->settings->getSettings();
-
-        if (!$settings->enableAdminNotification) {
-            return false;
-        }
-
-        $variables = [];
-        $view = Craft::$app->getView();
-        $message = new Message();
-        $message->setFrom([$settings->adminNotificationSenderEmail => $settings->adminNotificationSenderName]);
-        $variables['order'] = $order;
-        $subject = $view->renderString($settings->adminNotificationSubject, $variables);
-        $textBody = $view->renderString("Congratulations! you have received a payment, total: {{ order.totalPrice }} order number: {{order.number}}", $variables);
-
-        $originalPath = $view->getTemplatesPath();
-        $template = 'admin';
-        $templateOverride = null;
-        $extensions = ['.html', '.twig'];
-
-        if ($settings->adminTemplateOverride){
-            // let's check if the file exists
-            $overridePath = $originalPath.DIRECTORY_SEPARATOR.$settings->adminTemplateOverride;
-            foreach ($extensions as $extension) {
-                if (file_exists($overridePath.$extension)){
-                    $templateOverride = $settings->adminTemplateOverride;
-                    $template = $templateOverride;
-                }
-            }
-        }
-
-        if (is_null($templateOverride)){
-            $view->setTemplatesPath($this->getEmailsPath());
-        }
-
-        $htmlBody = $view->renderTemplate($template, $variables);
-
-        $view->setTemplatesPath($originalPath);
-
-        $message->setSubject($subject);
-        $message->setHtmlBody($htmlBody);
-        $message->setTextBody($textBody);
-        $message->setReplyTo($settings->adminNotificationReplyToEmail);
-
-        $emails = explode(",", $settings->adminNotificationRecipients);
-        $message->setTo($emails);
-
-        $mailer = Craft::$app->getMailer();
-
-        $event = new NotificationEvent([
-            'message' => $message,
-            'type' => 'admin'
-        ]);
-
-        $this->trigger(self::EVENT_BEFORE_SEND_NOTIFICATION_EMAIL, $event);
-
-        try {
-            $result = $mailer->send($message);
-        } catch (\Throwable $e) {
-            Craft::$app->getErrorHandler()->logException($e);
-            $result = false;
-        }
-
-        if (!$result) {
-            Craft::error('Unable to send admin email', __METHOD__);
-        }
-
-        Craft::info('Admin email sent successfully', __METHOD__);
-
-        return $result;
-    }
-
-    /**
-     * @return string
-     */
-    public function getEmailsPath()
-    {
-        $defaultTemplate = Craft::getAlias('@enupal/stripe/templates/_emails/');
-
-        return $defaultTemplate;
     }
 
     /**

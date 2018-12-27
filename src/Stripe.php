@@ -14,9 +14,7 @@ use craft\events\RegisterComponentTypesEvent;
 use craft\events\RegisterUrlRulesEvent;
 use craft\services\Fields;
 use craft\web\UrlManager;
-use enupal\stripe\events\OrderCompleteEvent;
 use enupal\stripe\services\App;
-use enupal\stripe\services\Orders;
 use yii\base\Event;
 use craft\web\twig\variables\CraftVariable;
 use enupal\stripe\fields\StripePaymentForms as StripePaymentFormsField;
@@ -64,11 +62,6 @@ class Stripe extends Plugin
                 $variable->set('enupalstripe', StripeVariable::class);
             }
         );
-
-        Event::on(Orders::class, Orders::EVENT_AFTER_ORDER_COMPLETE, function(OrderCompleteEvent $e) {
-            Stripe::$app->orders->sendCustomerNotification($e->order);
-            Stripe::$app->orders->sendAdminNotification($e->order);
-        });
 
         Event::on(Fields::class, Fields::EVENT_REGISTER_FIELD_TYPES, function(RegisterComponentTypesEvent $event) {
             $event->types[] = StripePaymentFormsField::class;
