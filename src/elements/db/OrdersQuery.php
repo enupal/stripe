@@ -398,7 +398,7 @@ class OrdersQuery extends ElementQuery
         }
 
         if ($this->orderStatusHandle) {
-            $orderStatus = Stripe::$app->orders->getOrderStatusRecordByHandle($this->orderStatusHandle);
+            $orderStatus = Stripe::$app->orderStatuses->getOrderStatusRecordByHandle($this->orderStatusHandle);
             if ($orderStatus){
                 $this->orderStatusId = $orderStatus->id;
             }

@@ -36,8 +36,6 @@ use yii\base\Component;
 use enupal\stripe\Stripe as StripePlugin;
 use enupal\stripe\records\Order as OrderRecord;
 use enupal\stripe\records\Customer as CustomerRecord;
-use enupal\stripe\models\OrderStatus as OrderStatusModel;
-use enupal\stripe\records\OrderStatus as OrderStatusRecord;
 
 class Orders extends Component
 {
@@ -490,17 +488,17 @@ class Orders extends Component
     {
         $currentUser = Craft::$app->getUser();
         $order = new Order();
-        $order->orderStatusId = $this->getDefaultOrderStatusId();
+        $order->orderStatusId = StripePlugin::$app->orderStatuses->getDefaultOrderStatusId();
         $order->isCompleted = $isPending ? false : true;
         $order->number = $this->getRandomStr();
         $order->userId = $currentUser ? $currentUser->getId() : null;
         $order->email = $data['email'];
-        $order->totalPrice = $data['amount'];// The amount come in cents, we revert this just before save the order
+        // The amount come in cents, we revert this just before save the order
+        $order->totalPrice = $data['amount'];
         $order->quantity = $data['quantity'] ?? 1;
         $order->shipping = $data['shippingAmount'] ?? 0;
         $order->tax = $data['taxAmount'] ?? 0;
         $order->discount = $data['discountAmount'] ?? 0;
-        // Shipping
         if (isset($data['address'])){
             $order->addressCity = $data['address']['city'] ?? '';
             $order->addressCountry = $data['address']['country'] ?? '';
@@ -803,25 +801,20 @@ class Orders extends Component
         try {
             $charge = Charge::create($settings);
         } catch (Card $e) {
-            // Since it's a decline, \Stripe\Error\Card will be caught
             $body = $e->getJsonBody();
             Craft::error('Stripe - declined error occurred: '.json_encode($body), __METHOD__);
             $this->throwException($e);
         } catch (\Stripe\Error\RateLimit $e) {
-            // Too many requests made to the API too quickly
             Craft::error('Stripe - Too many requests made to the API too quickly: '.$e->getMessage(), __METHOD__);
             $this->throwException($e);
         } catch (\Stripe\Error\InvalidRequest $e) {
-            // Invalid parameters were supplied to Stripe's API
             Craft::error('Stripe - Invalid parameters were supplied to Stripe\'s API: '.$e->getMessage(), __METHOD__);
             $this->throwException($e);
         } catch (\Stripe\Error\Authentication $e) {
-            // Authentication with Stripe's API failed
             // (maybe changed API keys recently)
             Craft::error('Stripe - Authentication with Stripe\'s API failed: '.$e->getMessage(), __METHOD__);
             $this->throwException($e);
         } catch (\Stripe\Error\ApiConnection $e) {
-            // Network communication with Stripe failed
             Craft::error('Stripe - Network communication with Stripe failed: '.$e->getMessage(), __METHOD__);
             $this->throwException($e);
         } catch (\Stripe\Error\Base $e) {
@@ -836,6 +829,11 @@ class Orders extends Component
         return $charge;
     }
 
+    /**
+     * @param $amount
+     * @param $currency
+     * @return float|int
+     */
     public function convertToCents($amount, $currency)
     {
         if ($this->hasZeroDecimals($currency)){
@@ -845,6 +843,11 @@ class Orders extends Component
         return (int)$amount * 100;
     }
 
+    /**
+     * @param $amount
+     * @param $currency
+     * @return float|int
+     */
     public function convertFromCents($amount, $currency)
     {
         if ($this->hasZeroDecimals($currency)){
@@ -854,189 +857,7 @@ class Orders extends Component
         return $amount / 100;
     }
 
-    /**
-     * @param $orderStatusId
-     *
-     * @return OrderStatusModel
-     */
-    public function getOrderStatusById($orderStatusId)
-    {
-        $orderStatus = OrderStatusRecord::find()
-            ->where(['id' => $orderStatusId])
-            ->one();
 
-        $orderStatusesModel = new OrderStatusModel;
-
-        if ($orderStatus) {
-            $orderStatusesModel->setAttributes($orderStatus->getAttributes(), false);
-        }
-
-        return $orderStatusesModel;
-    }
-
-    /**
-     * @param $orderStatus OrderStatusModel
-     *
-     * @return bool
-     * @throws \Exception
-     * @throws \yii\db\Exception
-     */
-    public function saveOrderStatus(OrderStatusModel $orderStatus): bool
-    {
-        $record = new OrderStatusRecord;
-
-        if ($orderStatus->id) {
-            $record = OrderStatusRecord::findOne($orderStatus->id);
-
-            if (!$record) {
-                throw new \Exception(Craft::t('enupal-stripe', 'No Order Status exists with the id of “{id}”', [
-                    'id' => $orderStatus->id
-                ]));
-            }
-        }
-
-        $record->setAttributes($orderStatus->getAttributes(), false);
-
-        $record->sortOrder = $orderStatus->sortOrder ?: 999;
-
-        $orderStatus->validate();
-
-        if (!$orderStatus->hasErrors()) {
-            $transaction = Craft::$app->db->beginTransaction();
-
-            try {
-                if ($record->isDefault) {
-                    OrderStatusRecord::updateAll(['isDefault' => 0]);
-                }
-
-                $record->save(false);
-
-                if (!$orderStatus->id) {
-                    $orderStatus->id = $record->id;
-                }
-
-                $transaction->commit();
-            } catch (\Exception $e) {
-                $transaction->rollback();
-
-                throw $e;
-            }
-
-            return true;
-        }
-
-        return false;
-    }
-
-    /**
-     * @return mixed|null
-     */
-    public function getDefaultOrderStatusId()
-    {
-        $entryStatus = OrderStatusRecord::find()
-            ->orderBy(['isDefault' => SORT_DESC])
-            ->one();
-
-        return $entryStatus != null ? $entryStatus->id : null;
-    }
-
-    /**
-     * Reorders Order Statuses
-     *
-     * @param $orderStatusIds
-     *
-     * @return bool
-     * @throws \Exception
-     * @throws \yii\db\Exception
-     */
-    public function reorderOrderStatuses($orderStatusIds)
-    {
-        $transaction = Craft::$app->db->beginTransaction();
-
-        try {
-            foreach ($orderStatusIds as $orderStatus => $orderStatusId) {
-                $orderStatusRecord = $this->getOrderStatusRecordById($orderStatusId);
-                $orderStatusRecord->sortOrder = $orderStatus + 1;
-                $orderStatusRecord->save();
-            }
-
-            $transaction->commit();
-        } catch (\Exception $e) {
-            $transaction->rollBack();
-
-            throw $e;
-        }
-
-        return true;
-    }
-
-    /**
-     * @return array
-     */
-    public function getAllOrderStatuses()
-    {
-        $orderStatuses = OrderStatusRecord::find()
-            ->orderBy(['sortOrder' => 'asc'])
-            ->all();
-
-        return $orderStatuses;
-    }
-
-    /**
-     * @param $id
-     *
-     * @return bool
-     * @throws \Exception
-     * @throws \Throwable
-     * @throws \yii\db\StaleObjectException
-     */
-    public function deleteOrderStatusById($id)
-    {
-        $statuses = $this->getAllOrderStatuses();
-
-        $order = Order::find()->orderStatusId($id)->one();
-
-        if ($order) {
-            return false;
-        }
-
-        if (count($statuses) >= 2) {
-            $orderStatus = OrderStatusRecord::findOne($id);
-
-            if ($orderStatus) {
-                $orderStatus->delete();
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    /**
-     * Gets an Order Status's record.
-     *
-     * @param null $orderStatusHandle
-     *
-     * @return OrderStatusRecord|null
-     * @throws \Exception
-     */
-    public function getOrderStatusRecordByHandle($orderStatusHandle = null)
-    {
-        $orderStatusRecord = null ;
-
-        if ($orderStatusHandle) {
-            $orderStatusRecord = OrderStatusRecord::findOne(['handle' => $orderStatusHandle]);
-
-            if (!$orderStatusRecord) {
-                throw new \Exception(Craft::t('enupal-stripe', 'No Order Status exists with the ID “{id}”.',
-                    ['id' => $orderStatusHandle]
-                )
-                );
-            }
-        }
-
-        return $orderStatusRecord;
-    }
 
     /**
      * @param $order Order
@@ -1311,32 +1132,6 @@ class Orders extends Component
         $subscription = $customer->subscriptions->create($subscriptionSettings);
 
         return $subscription;
-    }
-
-    /**
-     * Gets an Order Status's record.
-     *
-     * @param null $orderStatusId
-     *
-     * @return OrderStatusRecord|null|static
-     * @throws \Exception
-     */
-    private function getOrderStatusRecordById($orderStatusId = null)
-    {
-        if ($orderStatusId) {
-            $orderStatusRecord = OrderStatusRecord::findOne($orderStatusId);
-
-            if (!$orderStatusRecord) {
-                throw new \Exception(Craft::t('enupal-stripe', 'No Order Status exists with the ID “{id}”.',
-                    ['id' => $orderStatusId]
-                )
-                );
-            }
-        } else {
-            $orderStatusRecord = new OrderStatusRecord();
-        }
-
-        return $orderStatusRecord;
     }
 
     /**
