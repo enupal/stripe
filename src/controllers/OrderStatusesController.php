@@ -27,7 +27,7 @@ class OrderStatusesController extends BaseController
     {
         if (!$orderStatus) {
             if ($orderStatusId) {
-                $orderStatus = Stripe::$app->orders->getOrderStatusById($orderStatusId);
+                $orderStatus = Stripe::$app->orderStatuses->getOrderStatusById($orderStatusId);
 
                 if (!$orderStatus->id) {
                     throw new NotFoundHttpException(Craft::t('enupal-stripe', 'Order Status not found'));
@@ -54,14 +54,14 @@ class OrderStatusesController extends BaseController
         $this->requirePostRequest();
 
         $id = Craft::$app->request->getBodyParam('orderStatusId');
-        $orderStatus = Stripe::$app->orders->getOrderStatusById($id);
+        $orderStatus = Stripe::$app->orderStatuses->getOrderStatusById($id);
 
         $orderStatus->name = Craft::$app->request->getBodyParam('name');
         $orderStatus->handle = Craft::$app->request->getBodyParam('handle');
         $orderStatus->color = Craft::$app->request->getBodyParam('color');
         $orderStatus->isDefault = Craft::$app->request->getBodyParam('isDefault');
 
-        if (!Stripe::$app->orders->saveOrderStatus($orderStatus)) {
+        if (!Stripe::$app->orderStatuses->saveOrderStatus($orderStatus)) {
             Craft::$app->session->setError(Craft::t('enupal-stripe', 'Could not save Order Status.'));
 
             Craft::$app->getUrlManager()->setRouteParams([
@@ -87,7 +87,7 @@ class OrderStatusesController extends BaseController
 
         $ids = json_decode(Craft::$app->request->getRequiredBodyParam('ids'), true);
 
-        if ($success = Stripe::$app->orders->reorderOrderStatuses($ids)) {
+        if ($success = Stripe::$app->orderStatuses->reorderOrderStatuses($ids)) {
             return $this->asJson(['success' => $success]);
         }
 
@@ -107,7 +107,7 @@ class OrderStatusesController extends BaseController
 
         $orderStatusId = Craft::$app->request->getRequiredBodyParam('id');
 
-        if (!Stripe::$app->orders->deleteOrderStatusById($orderStatusId)) {
+        if (!Stripe::$app->orderStatuses->deleteOrderStatusById($orderStatusId)) {
             return $this->asJson(null);
         }
 

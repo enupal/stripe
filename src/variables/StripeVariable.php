@@ -129,7 +129,7 @@ class StripeVariable
      */
     public function getOrderStatuses()
     {
-        $statuses = Stripe::$app->orders->getAllOrderStatuses();
+        $statuses = Stripe::$app->orderStatuses->getAllOrderStatuses();
         $options = [];
         foreach ($statuses as $status) {
             $options[$status->id] = Stripe::t($status->name);
@@ -384,7 +384,7 @@ class StripeVariable
      */
     public function getAllOrderStatuses()
     {
-        return Stripe::$app->orders->getAllOrderStatuses();
+        return Stripe::$app->orderStatuses->getAllOrderStatuses();
     }
 
     /**
@@ -462,7 +462,7 @@ class StripeVariable
      */
     public function getOrderStatusesAsOptions()
     {
-        $statuses = Stripe::$app->orders->getAllOrderStatuses();
+        $statuses = Stripe::$app->orderStatuses->getAllOrderStatuses();
         $statusArray = [];
 
         foreach ($statuses as $status) {

@@ -181,7 +181,7 @@ class Order extends Element
      */
     public static function statuses(): array
     {
-        $statuses = StripePaymentsPlugin::$app->orders->getAllOrderStatuses();
+        $statuses = StripePaymentsPlugin::$app->orderStatuses->getAllOrderStatuses();
         $statusArray = [];
 
         foreach ($statuses as $status) {
@@ -200,7 +200,7 @@ class Order extends Element
     {
         $statusId = $this->orderStatusId;
 
-        $status = StripePaymentsPlugin::$app->orders->getOrderStatusById($statusId);
+        $status = StripePaymentsPlugin::$app->orderStatuses->getOrderStatusById($statusId);
 
         return $status->color;
     }
@@ -219,7 +219,7 @@ class Order extends Element
             ]
         ];
 
-        $statuses = StripePaymentsPlugin::$app->orders->getAllOrderStatuses();
+        $statuses = StripePaymentsPlugin::$app->orderStatuses->getAllOrderStatuses();
 
         $sources[] = ['heading' => StripePaymentsPlugin::t("Order Status")];
 

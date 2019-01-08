@@ -1,5 +1,16 @@
 # Stripe Payments Changelog
 
+## WIP
+### Updated
+- Updated `Stripe::$app->orders->getOrderStatusById` to `Stripe::$app->orderStatuses->getOrderStatusById`
+- Updated `Stripe::$app->orders->saveOrderStatus` to `Stripe::$app->orderStatuses->saveOrderStatus`
+- Updated `Stripe::$app->orders->reorderOrderStatuses` to `Stripe::$app->orderStatuses->reorderOrderStatuses`
+- Updated `Stripe::$app->orders->getAllOrderStatuses` to `Stripe::$app->orderStatuses->getAllOrderStatuses`
+- Updated `Stripe::$app->orders->deleteOrderStatusById` to `Stripe::$app->orderStatuses->deleteOrderStatusById`
+- Updated `Stripe::$app->orders->getOrderStatusRecordByHandle` to `Stripe::$app->orderStatuses->getOrderStatusRecordByHandle`
+- Updated the `EVENT_BEFORE_SEND_NOTIFICATION_EMAIL` event from the `enupal\stripe\services\Orders` class to `enupal\stripe\services\Emails`
+- Updated `sendAdminNotification` and `sendCustomerNotification` to `sendNotificationEmail` 
+
 ## 1.6.9 - 2018.12.20
 ### Fixed
 - Fixed issue on Craft 3.1
