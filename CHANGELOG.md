@@ -1,6 +1,13 @@
 # Stripe Payments Changelog
 
 ## WIP
+### Added
+- Added support to cancel subscriptions via front-end. [docs](https://enupal.com/craft-plugins/stripe-payments/docs/templating/cancel-subscriptions)
+- Added the `craft.enupalStripe.getSubscriptionsByEmail` template function.
+- Added the `craft.enupalStripe.getSubscriptionsByUser` template function.
+- Added the `craft.enupalStripe.getOrdersByEmail` template function.
+- Added the `craft.enupalStripe.getOrdersByUser` template function.
+
 ### Updated
 - Updated `Stripe::$app->orders->getOrderStatusById` to `Stripe::$app->orderStatuses->getOrderStatusById`
 - Updated `Stripe::$app->orders->saveOrderStatus` to `Stripe::$app->orderStatuses->saveOrderStatus`
