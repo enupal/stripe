@@ -72,7 +72,7 @@ class StripeVariable
     /**
      * Returns a complete Payment Form for display in template
      *
-     * @param string     $handle
+     * @param string $handle
      * @param array|null $options
      *
      * @return string
@@ -183,15 +183,15 @@ class StripeVariable
     {
         $templatePaths = Stripe::$app->paymentForms->getFormTemplatePaths($paymentForm);
         $view = Craft::$app->getView();
-        $defaultTemplate =  Stripe::$app->paymentForms->getEnupalStripePath().DIRECTORY_SEPARATOR.'fields';
+        $defaultTemplate = Stripe::$app->paymentForms->getEnupalStripePath() . DIRECTORY_SEPARATOR . 'fields';
         $view->setTemplatesPath($defaultTemplate);
         $preValue = '';
 
-        $inputFilePath = $templatePaths['fields'].DIRECTORY_SEPARATOR.strtolower($block->type);
+        $inputFilePath = $templatePaths['fields'] . DIRECTORY_SEPARATOR . strtolower($block->type);
 
         $this->setTemplateOverride($view, $inputFilePath, $templatePaths['fields']);
 
-        if ($block->type == 'hidden'){
+        if ($block->type == 'hidden') {
             if ($block->hiddenValue) {
                 try {
                     $preValue = Craft::$app->view->renderObjectTemplate($block->hiddenValue, Stripe::$app->paymentForms->getFieldVariables());
@@ -231,14 +231,14 @@ class StripeVariable
     }
 
     /**
- * Display plans as dropdown or radio buttons to the user
- *
- * @param $paymentForm PaymentForm
- *
- * @return \Twig_Markup
- * @throws \Twig_Error_Loader
- * @throws \yii\base\Exception
- */
+     * Display plans as dropdown or radio buttons to the user
+     *
+     * @param $paymentForm PaymentForm
+     *
+     * @return \Twig_Markup
+     * @throws \Twig_Error_Loader
+     * @throws \yii\base\Exception
+     */
     public function displayMultiSelect($paymentForm)
     {
         $type = $paymentForm->subscriptionStyle;
@@ -246,10 +246,10 @@ class StripeVariable
 
         $templatePaths = Stripe::$app->paymentForms->getFormTemplatePaths($paymentForm);
         $view = Craft::$app->getView();
-        $defaultTemplate =  Stripe::$app->paymentForms->getEnupalStripePath().DIRECTORY_SEPARATOR.'fields';
+        $defaultTemplate = Stripe::$app->paymentForms->getEnupalStripePath() . DIRECTORY_SEPARATOR . 'fields';
         $view->setTemplatesPath($defaultTemplate);
 
-        $inputFilePath = $templatePaths['multipleplans'].DIRECTORY_SEPARATOR.strtolower($type);
+        $inputFilePath = $templatePaths['multipleplans'] . DIRECTORY_SEPARATOR . strtolower($type);
 
         $this->setTemplateOverride($view, $inputFilePath, $templatePaths['multipleplans']);
 
@@ -277,7 +277,7 @@ class StripeVariable
     {
         $templatePaths = Stripe::$app->paymentForms->getFormTemplatePaths($paymentForm);
         $view = Craft::$app->getView();
-        $defaultTemplate =  Stripe::$app->paymentForms->getEnupalStripePath().DIRECTORY_SEPARATOR.'fields';
+        $defaultTemplate = Stripe::$app->paymentForms->getEnupalStripePath() . DIRECTORY_SEPARATOR . 'fields';
         $view->setTemplatesPath($defaultTemplate);
 
         $view->setTemplatesPath($templatePaths['address']);
@@ -304,7 +304,7 @@ class StripeVariable
         $plan = Stripe::$app->plans->getStripePlan($planId);
         $planName = null;
 
-        if ($plan){
+        if ($plan) {
             $planName = Stripe::$app->plans->getDefaultPlanName($plan);
         }
 
@@ -483,6 +483,64 @@ class StripeVariable
     }
 
     /**
+     * @param null $userId
+     * @return array|\craft\base\ElementInterface|null
+     */
+    public function getSubscriptionsByUser($userId = null)
+    {
+        if (is_null($userId)){
+            $currentUser = Craft::$app->getUser()->getIdentity();
+            $userId = $currentUser->id ?? null;
+        }
+
+        return Stripe::$app->subscriptions->getSubscriptionsByUser($userId);
+    }
+
+    /**
+     * @param null $email
+     * @return array|\craft\base\ElementInterface|null
+     */
+    public function getSubscriptionsByEmail($email = null)
+    {
+        if (is_null($email)){
+            $currentUser = Craft::$app->getUser()->getIdentity();
+            $email = $currentUser->email ?? null;
+        }
+
+        return Stripe::$app->subscriptions->getSubscriptionsByEmail($email);
+
+    }
+
+    /**
+     * @param null $userId
+     * @return array|\craft\base\ElementInterface|null
+     */
+    public function getOrdersByUser($userId = null)
+    {
+        if (is_null($userId)){
+            $currentUser = Craft::$app->getUser()->getIdentity();
+            $userId = $currentUser->id ?? null;
+        }
+
+        return Stripe::$app->orders->getSubscriptionsByUser($userId);
+    }
+
+    /**
+     * @param null $email
+     * @return array|\craft\base\ElementInterface|null
+     */
+    public function getOrdersByEmail($email = null)
+    {
+        if (is_null($email)){
+            $currentUser = Craft::$app->getUser()->getIdentity();
+            $email = $currentUser->email ?? null;
+        }
+
+        return Stripe::$app->orders->getSubscriptionsByEmail($email);
+
+    }
+
+    /**
      * @param $view
      * @param $inputFilePath
      * @param $templatePath
@@ -491,7 +549,7 @@ class StripeVariable
     {
         // Allow input field templates to be overridden
         foreach (Craft::$app->getConfig()->getGeneral()->defaultTemplateExtensions as $extension) {
-            if (file_exists($inputFilePath.'.'.$extension)) {
+            if (file_exists($inputFilePath . '.' . $extension)) {
 
                 // Override Field Input template path
                 $view->setTemplatesPath($templatePath);

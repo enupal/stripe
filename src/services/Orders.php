@@ -669,8 +669,6 @@ class Orders extends Component
         return $amount / 100;
     }
 
-
-
     /**
      * @param $order Order
      * @return bool
@@ -727,6 +725,30 @@ class Orders extends Component
         }
 
         return $result;
+    }
+
+    /**
+     * @param $userId
+     * @return array|\craft\base\ElementInterface|null
+     */
+    public function getOrdersByUser($userId)
+    {
+        $query = Order::find();
+        $query->userId = $userId;
+
+        return $query->all();
+    }
+
+    /**
+     * @param $email
+     * @return array|\craft\base\ElementInterface|null
+     */
+    public function getOrdersByEmail($email)
+    {
+        $query = Order::find();
+        $query->email = $email;
+
+        return $query->all();
     }
 
     /**
