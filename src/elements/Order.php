@@ -649,4 +649,29 @@ class Order extends Element
 
         return $subscription;
     }
+
+    /**
+     * @param string $fieldHandle
+     * @param $value
+     */
+    public function setFormFieldValue(string $fieldHandle, $value)
+    {
+        $variants = $this->getFormFields();
+
+        if (isset($variants[$fieldHandle])){
+            $variants[$fieldHandle] =  $value;
+        }
+
+        $this->variants = json_encode($variants);
+    }
+
+    /**
+     * @param array $values
+     */
+    public function setFormFieldValues(array $values)
+    {
+        foreach ($values as $fieldHandle => $value) {
+            $this->setFormFieldValue($fieldHandle, $value);
+        }
+    }
 }

@@ -227,7 +227,7 @@ class StripeVariable
 
         $handle = Stripe::$app->paymentForms->labelToHandle($handleFromUser);
 
-        return strtolower($handle);
+        return $handle;
     }
 
     /**
