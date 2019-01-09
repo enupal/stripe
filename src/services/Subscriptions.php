@@ -9,6 +9,7 @@
 namespace enupal\stripe\services;
 
 use Craft;
+use enupal\stripe\elements\Order;
 use Stripe\Subscription;
 use enupal\stripe\models\Subscription as SubscriptionModel;
 use yii\base\Component;
@@ -52,6 +53,7 @@ class Subscriptions extends Component
     /**
      * @param $id
      * @return bool
+     * @throws \Exception
      */
     public function cancelStripeSubscription($id)
     {
@@ -71,6 +73,7 @@ class Subscriptions extends Component
             $response = true;
         } catch (\Exception $e) {
             Craft::error('Unable to cancel subscription: '.$e->getMessage(), __METHOD__);
+            throw $e;
         }
 
         return $response;
@@ -111,4 +114,29 @@ class Subscriptions extends Component
         return $html;
     }
 
+    /**
+     * @param $userId
+     * @return array|\craft\base\ElementInterface|null
+     */
+    public function getSubscriptionsByUser($userId)
+    {
+        $query = Order::find();
+        $query->userId = $userId;
+        $query->isSubscription = true;
+
+        return $query->all();
+    }
+
+    /**
+     * @param $email
+     * @return array|\craft\base\ElementInterface|null
+     */
+    public function getSubscriptionsByEmail($email)
+    {
+        $query = Order::find();
+        $query->email = $email;
+        $query->isSubscription = true;
+
+        return $query->all();
+    }
 }

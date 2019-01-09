@@ -1,5 +1,30 @@
 # Stripe Payments Changelog
 
+## 1.7.0 - 2019.01.08
+> {warning} we have changed a few method names and namespaces please update your custom plugins after the upgrade. All changes are listed in the `Updated` section.
+
+### Added
+- Added the `$order->setFormFieldValue($handle, $value)` method 
+- Added the `$order->setFormFieldValues($array)` method
+- Added support to cancel subscriptions via front-end. [docs](https://enupal.com/craft-plugins/stripe-payments/docs/templating/cancel-subscriptions)
+- Added the `craft.enupalStripe.getSubscriptionsByEmail` template function.
+- Added the `craft.enupalStripe.getSubscriptionsByUser` template function.
+- Added the `craft.enupalStripe.getOrdersByEmail` template function.
+- Added the `craft.enupalStripe.getOrdersByUser` template function.
+
+### Fixed
+- Fixed issue where form field handles were saved as lowercase
+
+### Updated
+- Updated `Stripe::$app->orders->getOrderStatusById` to `Stripe::$app->orderStatuses->getOrderStatusById`
+- Updated `Stripe::$app->orders->saveOrderStatus` to `Stripe::$app->orderStatuses->saveOrderStatus`
+- Updated `Stripe::$app->orders->reorderOrderStatuses` to `Stripe::$app->orderStatuses->reorderOrderStatuses`
+- Updated `Stripe::$app->orders->getAllOrderStatuses` to `Stripe::$app->orderStatuses->getAllOrderStatuses`
+- Updated `Stripe::$app->orders->deleteOrderStatusById` to `Stripe::$app->orderStatuses->deleteOrderStatusById`
+- Updated `Stripe::$app->orders->getOrderStatusRecordByHandle` to `Stripe::$app->orderStatuses->getOrderStatusRecordByHandle`
+- Updated the `EVENT_BEFORE_SEND_NOTIFICATION_EMAIL` event from the `enupal\stripe\services\Orders` class to `enupal\stripe\services\Emails`
+- Updated `sendAdminNotification` and `sendCustomerNotification` to `sendNotificationEmail` 
+
 ## 1.6.9 - 2018.12.20
 ### Fixed
 - Fixed issue on Craft 3.1

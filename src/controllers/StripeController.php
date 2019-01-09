@@ -16,7 +16,10 @@ use yii\web\NotFoundHttpException;
 
 class StripeController extends BaseController
 {
-    protected $allowAnonymous = ['save-order'];
+    /**
+     * @inheritdoc
+     */
+    protected $allowAnonymous = true;
 
     /**
      * @return \yii\web\Response
@@ -62,5 +65,41 @@ class StripeController extends BaseController
         }
 
         return $this->redirectToPostedUrl($order);
+    }
+
+    /**
+     * @return null|\yii\web\Response
+     * @throws \yii\web\BadRequestHttpException
+     */
+    public function actionCancelSubscription()
+    {
+        $this->requirePostRequest();
+        $request = Craft::$app->getRequest();
+        $subscriptionId = $request->getRequiredBodyParam('subscriptionId');
+
+        $result = StripePlugin::$app->subscriptions->cancelStripeSubscription($subscriptionId);
+
+        if (!$result) {
+            if (Craft::$app->getRequest()->getAcceptsJson()) {
+                return $this->asJson([
+                    'success' => false,
+                ]);
+            }
+
+            Craft::$app->getUrlManager()->setRouteParams([
+                    'success' => false
+                ]
+            );
+
+            return null;
+        }
+
+        if (Craft::$app->getRequest()->getAcceptsJson()) {
+            return $this->asJson([
+                'success' => true
+            ]);
+        }
+
+        return $this->redirectToPostedUrl();
     }
 }

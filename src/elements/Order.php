@@ -181,7 +181,7 @@ class Order extends Element
      */
     public static function statuses(): array
     {
-        $statuses = StripePaymentsPlugin::$app->orders->getAllOrderStatuses();
+        $statuses = StripePaymentsPlugin::$app->orderStatuses->getAllOrderStatuses();
         $statusArray = [];
 
         foreach ($statuses as $status) {
@@ -200,7 +200,7 @@ class Order extends Element
     {
         $statusId = $this->orderStatusId;
 
-        $status = StripePaymentsPlugin::$app->orders->getOrderStatusById($statusId);
+        $status = StripePaymentsPlugin::$app->orderStatuses->getOrderStatusById($statusId);
 
         return $status->color;
     }
@@ -219,7 +219,7 @@ class Order extends Element
             ]
         ];
 
-        $statuses = StripePaymentsPlugin::$app->orders->getAllOrderStatuses();
+        $statuses = StripePaymentsPlugin::$app->orderStatuses->getAllOrderStatuses();
 
         $sources[] = ['heading' => StripePaymentsPlugin::t("Order Status")];
 
@@ -648,5 +648,30 @@ class Order extends Element
         }
 
         return $subscription;
+    }
+
+    /**
+     * @param string $fieldHandle
+     * @param $value
+     */
+    public function setFormFieldValue(string $fieldHandle, $value)
+    {
+        $variants = $this->getFormFields();
+
+        if (isset($variants[$fieldHandle])){
+            $variants[$fieldHandle] =  $value;
+        }
+
+        $this->variants = json_encode($variants);
+    }
+
+    /**
+     * @param array $values
+     */
+    public function setFormFieldValues(array $values)
+    {
+        foreach ($values as $fieldHandle => $value) {
+            $this->setFormFieldValue($fieldHandle, $value);
+        }
     }
 }
