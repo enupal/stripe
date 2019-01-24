@@ -541,6 +541,21 @@ class StripeVariable
     }
 
     /**
+     * @return bool
+     */
+    public function getIsSnapshotInstalled()
+    {
+        $plugin = Craft::$app->getPlugins()->getPlugin('enupal-snapshot');
+
+        if (is_null($plugin)){
+            return false;
+        }
+
+        return true;
+
+    }
+
+    /**
      * @param $view
      * @param $inputFilePath
      * @param $templatePath

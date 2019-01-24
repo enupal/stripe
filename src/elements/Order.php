@@ -524,8 +524,12 @@ class Order extends Element
      */
     public function getShippingAddress()
     {
-        $address = "<address>{{ order.addressName }}<br>{{ order.addressStreet }}<br>{{ order.addressCity }}, {{ order.addressState }} {{ order.addressZip }}<br>{{ order.addressCountry }}</address>";
-        $address = Craft::$app->getView()->renderString($address, ['order'=>$this]);
+        $address = '';
+
+        if ($this->addressName && $this->addressStreet){
+            $address = "<address>{{ order.addressName }}<br>{{ order.addressStreet }}<br>{{ order.addressCity }}, {{ order.addressState }} {{ order.addressZip }}<br>{{ order.addressCountry }}</address>";
+            $address = Craft::$app->getView()->renderString($address, ['order' => $this]);
+        }
 
         return $address;
     }

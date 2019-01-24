@@ -24,8 +24,12 @@
 } %}
 
 {% block actionButton %}
-    {# @todo add integration with EnupalSanpshot to download pdf #}
     {% hook "cp.enupal-stripe.order.actionbutton" %}
+    {% if not craft.enupalStripe.getIsSnapshotInstalled() %}
+        <a class="btn small" href="{{ cpUrl('plugin-store/enupal-snapshot') }}" target="_blank">{{ 'Install Enupal Snapshot'|t('enupal-snapshot') }}</a>
+        &nbsp;<span class="info">{{ "This plugin automatically adds a PDF invoice to the order confirmation emails sent out to your customers. Includes a basic template as well as the possibility to modify/create your own templates"|t('enupal-snapshot') }}</span>
+        <div class="flex-grow"></div>
+    {% endif %}
 
     <input type="hidden" name="action" value="enupal-stripe/orders/save-order">
     <input type="hidden" name="orderId" value="{{ order.id }}">
