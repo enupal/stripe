@@ -11,6 +11,7 @@ namespace enupal\stripe\events;
 
 use yii\base\Event;
 use craft\mail\Message;
+use enupal\stripe\elements\Order;
 
 /**
  * NotificationEvent class.
@@ -29,4 +30,9 @@ class NotificationEvent extends Event
      * @var string admin|customer
      */
     public $type;
+
+    /**
+     * @var Order
+     */
+    public $order;
 }
