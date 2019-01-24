@@ -1,5 +1,9 @@
 # Stripe Payments Changelog
 
+## 1.7.1 - 2019.01.24
+### Added
+- Added support to generate a PDF Order via Enupal Snapshot
+
 ## 1.7.0 - 2019.01.08
 > {warning} we have changed a few method names and namespaces please update your custom plugins after the upgrade. All changes are listed in the `Updated` section.
 
