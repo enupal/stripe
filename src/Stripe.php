@@ -22,7 +22,6 @@ use enupal\stripe\fields\StripePaymentForms as StripePaymentFormsField;
 use enupal\stripe\variables\StripeVariable;
 use enupal\stripe\models\Settings;
 use craft\base\Plugin;
-use craft\db\Query;
 
 class Stripe extends Plugin
 {
