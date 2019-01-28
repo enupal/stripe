@@ -21,6 +21,7 @@ use enupal\stripe\enums\SubscriptionType;
 use enupal\stripe\events\OrderCompleteEvent;
 use enupal\stripe\events\OrderRefundEvent;
 use enupal\stripe\events\WebhookEvent;
+use enupal\stripe\models\Address;
 use enupal\stripe\Stripe;
 use Stripe\Charge;
 use Stripe\Customer;
@@ -311,14 +312,15 @@ class Orders extends Component
         $order->shipping = $data['shippingAmount'] ?? 0;
         $order->tax = $data['taxAmount'] ?? 0;
         $order->discount = $data['discountAmount'] ?? 0;
-        if (isset($data['address'])){
-            $order->addressCity = $data['address']['city'] ?? '';
-            $order->addressCountry = $data['address']['country'] ?? '';
-            $order->addressState = $data['address']['state'] ?? '';
-            $order->addressCountryCode = $data['address']['zip'] ?? '';
-            $order->addressName = $data['address']['name'] ?? '';
-            $order->addressStreet = $data['address']['line1'] ?? '';
-            $order->addressZip = $data['address']['zip'] ?? '';
+        $shippingAddress = $data['address']['shipping'] ?? null;
+        $billingAddress = $data['address']['billing'] ?? null;
+
+        if ($shippingAddress){
+            $order->shippingAddressId = $this->getAddressId($shippingAddress);
+        }
+
+        if ($shippingAddress){
+            $order->billingAddressId = $this->getAddressId($billingAddress);
         }
 
         $order->testMode = $data['testMode'];
@@ -749,6 +751,26 @@ class Orders extends Component
         $query->email = $email;
 
         return $query->all();
+    }
+
+    /**
+     * @param $addressData
+     * @return int
+     */
+    private function getAddressId($addressData)
+    {
+        $address = new Address();
+
+        $address->city = $addressData['city'] ?? '';
+        $address->countryId = $addressData['country'] ?? '';
+        $address->stateName = $addressData['state'] ?? '';
+        $address->zipCode = $addressData['zip'] ?? '';
+        $address->firstName = $addressData['name'] ?? '';
+        $address->address1 = $addressData['line1'] ?? '';
+
+        Stripe::$app->addresses->saveAddress($address, false);
+
+        return $address->id;
     }
 
     /**

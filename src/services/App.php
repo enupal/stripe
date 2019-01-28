@@ -57,6 +57,16 @@ class App extends Component
      */
     public $emails;
 
+    /**
+     * @var Addresses
+     */
+    public $addresses;
+
+    /**
+     * @var Countries
+     */
+    public $countries;
+
     public function init()
     {
         $this->settings = new Settings();
@@ -68,5 +78,7 @@ class App extends Component
         $this->customers = new Customers();
         $this->orderStatuses = new OrderStatuses();
         $this->emails = new Emails();
+        $this->addresses = new Addresses();
+        $this->countries = new Countries();
     }
 }

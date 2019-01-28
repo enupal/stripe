@@ -22,6 +22,7 @@ use enupal\stripe\fields\StripePaymentForms as StripePaymentFormsField;
 use enupal\stripe\variables\StripeVariable;
 use enupal\stripe\models\Settings;
 use craft\base\Plugin;
+use craft\db\Query;
 
 class Stripe extends Plugin
 {
@@ -34,7 +35,7 @@ class Stripe extends Plugin
 
     public $hasCpSection = true;
     public $hasCpSettings = true;
-    public $schemaVersion = '1.6.0';
+    public $schemaVersion = '1.8.0';
 
     public function init()
     {

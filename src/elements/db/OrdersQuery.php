@@ -311,6 +311,8 @@ class OrdersQuery extends ElementQuery
             'enupalstripe_orders.testMode',
             'enupalstripe_orders.userId',
             'enupalstripe_orders.paymentType',
+            'enupalstripe_orders.billingAddressId',
+            'enupalstripe_orders.shippingAddressId',
             'enupalstripe_orders.number',
             'enupalstripe_orders.currency',
             'enupalstripe_orders.totalPrice',

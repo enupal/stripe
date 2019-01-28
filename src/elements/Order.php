@@ -72,6 +72,8 @@ class Order extends Element
     public $firstName;
     public $lastName;
     // Shipping
+    public $billingAddressId;
+    public $shippingAddressId;
     public $addressCity;
     public $addressCountry;
     public $addressState;
