@@ -201,6 +201,18 @@ class Address extends Model
      */
     public function getCountry()
     {
-        return $this->countryId ? Plugin::$app->getCountries()->getCountryById($this->countryId) : null;
+        return $this->countryId ? Plugin::$app->countries->getCountryById($this->countryId) : null;
+    }
+
+    /**
+     * @return string
+     */
+    public function getAddressAsHtml(): string
+    {
+        $address = $this;
+            $addressHtml = "<address>{{ shipping.getFullName() }}<br>{{ shipping.address1 }}<br>{{ shipping.city }}, {{ shipping.stateName }} {{ shipping.zipCode }}<br>{{ shipping.getCountryText() }}</address>";
+        $addressHtml = Craft::$app->getView()->renderString($addressHtml, ['shipping' => $address]);
+
+        return $addressHtml;
     }
 }

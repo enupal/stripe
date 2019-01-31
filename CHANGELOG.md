@@ -1,5 +1,15 @@
 # Stripe Payments Changelog
 
+#WIP
+## 1.8.0 - 2019.01.31
+### Added
+- Added `enupal\stripe\elements\Order::getShippingAddressModel()`.
+- Added `enupal\stripe\elements\Order::getBillingAddressModel()`.
+- Added `enupal\stripe\elements\Order::getBillingAddress()`.
+
+### Improved
+- Improved the shipping and billing address save behavior
+
 ## 1.7.1 - 2019.01.24
 ### Added
 - Added support to generate a PDF Order via Enupal Snapshot

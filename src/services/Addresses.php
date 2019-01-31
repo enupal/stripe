@@ -57,9 +57,6 @@ class Addresses extends Component
      */
     private $_addressesById = [];
 
-    // Public Methods
-    // =========================================================================
-
     /**
      * Returns an address by its ID.
      *
