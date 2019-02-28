@@ -70,7 +70,8 @@ class Emails extends Component
 
         $event = new NotificationEvent([
             'message' => $message,
-            'type' => $type
+            'type' => $type,
+            'order' => $order
         ]);
 
         $this->trigger(self::EVENT_BEFORE_SEND_NOTIFICATION_EMAIL, $event);
@@ -82,9 +83,9 @@ class Emails extends Component
         }
 
         if ($result) {
-            Craft::info('Admin email sent successfully', __METHOD__);
+            Craft::info($type.' email sent successfully', __METHOD__);
         }else{
-            Craft::error('Unable to send admin email', __METHOD__);
+            Craft::error('Unable to send '.$type.' email', __METHOD__);
         }
 
         return $result;
