@@ -269,11 +269,11 @@ class StripeVariable
      *
      * @param $paymentForm PaymentForm
      *
+     * @param string $type
      * @return \Twig_Markup
-     * @throws \Twig_Error_Loader
      * @throws \yii\base\Exception
      */
-    public function displayAddress($paymentForm)
+    public function displayAddress($paymentForm, $type = 'address')
     {
         $templatePaths = Stripe::$app->paymentForms->getFormTemplatePaths($paymentForm);
         $view = Craft::$app->getView();
@@ -284,7 +284,8 @@ class StripeVariable
 
         $htmlField = $view->renderTemplate(
             'address', [
-                'paymentForm' => $paymentForm
+                'paymentForm' => $paymentForm,
+                'type' => $type
             ]
         );
 
