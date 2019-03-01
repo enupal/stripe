@@ -7,6 +7,7 @@ use craft;
 use enupal\stripe\services\PaymentForms;
 use craft\fields\PlainText;
 use craft\base\Field;
+use enupal\stripe\Stripe as StripePlugin;
 
 /**
  * m180607_000060_hidden_field migration.
@@ -22,7 +23,7 @@ class m180607_000060_hidden_field extends Migration
         $fieldsService = Craft::$app->getFields();
 
         $currentFieldContext = Craft::$app->getContent()->fieldContext;
-        Craft::$app->getContent()->fieldContext = 'enupalStripe:';
+        Craft::$app->getContent()->fieldContext = StripePlugin::$app->settings->getFieldContext();
         /**
          * @var craft\fields\Matrix
         */

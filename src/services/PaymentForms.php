@@ -506,6 +506,7 @@ class PaymentForms extends Component
      * @param StripeElement $paymentForm
      *
      * @return StripeElement|null
+     * @throws \yii\db\Exception
      */
     public function addDefaultVariant(StripeElement $paymentForm)
     {
@@ -514,7 +515,7 @@ class PaymentForms extends Component
         }
 
         $currentFieldContext = Craft::$app->getContent()->fieldContext;
-        Craft::$app->getContent()->fieldContext = 'enupalStripe:';
+        Craft::$app->getContent()->fieldContext = StripePlugin::$app->settings->getFieldContext();
 
         $matrixBasicField = Craft::$app->fields->getFieldByHandle(self::BASIC_FORM_FIELDS_HANDLE);
         $matrixMultiplePlans = Craft::$app->fields->getFieldByHandle(self::MULTIPLE_PLANS_HANDLE);
@@ -563,7 +564,7 @@ class PaymentForms extends Component
         $multiplePlansMatrixField = $this->createMultiplePlansMatrixField();
         // Save our fields
         $currentFieldContext = Craft::$app->getContent()->fieldContext;
-        Craft::$app->getContent()->fieldContext = 'enupalStripe:';
+        Craft::$app->getContent()->fieldContext = StripePlugin::$app->settings->getFieldContext();
         Craft::$app->fields->saveField($matrixBasicField);
         Craft::$app->fields->saveField($multiplePlansMatrixField);
         // Give back the current field context
@@ -576,7 +577,7 @@ class PaymentForms extends Component
     public function deleteVariantFields()
     {
         $currentFieldContext = Craft::$app->getContent()->fieldContext;
-        Craft::$app->getContent()->fieldContext = 'enupalStripe:';
+        Craft::$app->getContent()->fieldContext = StripePlugin::$app->settings->getFieldContext();
 
         $matrixBasicField = Craft::$app->fields->getFieldByHandle(self::BASIC_FORM_FIELDS_HANDLE);
         $matrixMultiplePlans = Craft::$app->fields->getFieldByHandle(self::MULTIPLE_PLANS_HANDLE);
@@ -1088,7 +1089,7 @@ class PaymentForms extends Component
         ];
 
         $currentFieldContext = Craft::$app->getContent()->fieldContext;
-        Craft::$app->getContent()->fieldContext = 'enupalStripe:';
+        Craft::$app->getContent()->fieldContext = StripePlugin::$app->settings->getFieldContext();
         $matrixBasicField = Craft::$app->fields->getFieldByHandle(self::BASIC_FORM_FIELDS_HANDLE);
         Craft::$app->getContent()->fieldContext = $currentFieldContext;
 
@@ -1101,7 +1102,7 @@ class PaymentForms extends Component
         $matrixBasicField = $fieldsService->createField([
             'type' => Matrix::class,
             'name' => 'Basic Form Fields',
-            'context' => 'enupalStripe:',
+            'context' => StripePlugin::$app->settings->getFieldContext(),
             'handle' => self::BASIC_FORM_FIELDS_HANDLE,
             'settings' => json_encode($matrixSettings),
             'instructions' => 'All data saved are stored as “metadata” with each Stripe payment record within your Stripe dashboard.',
@@ -1170,7 +1171,7 @@ class PaymentForms extends Component
         ];
 
         $currentFieldContext = Craft::$app->getContent()->fieldContext;
-        Craft::$app->getContent()->fieldContext = 'enupalStripe:';
+        Craft::$app->getContent()->fieldContext = StripePlugin::$app->settings->getFieldContext();
         $matrixMultiplePlansField = Craft::$app->fields->getFieldByHandle(self::MULTIPLE_PLANS_HANDLE);
         Craft::$app->getContent()->fieldContext = $currentFieldContext;
 
@@ -1184,7 +1185,7 @@ class PaymentForms extends Component
         $matrixMultiplePlansField = $fieldsService->createField([
             'type' => Matrix::class,
             'name' => 'Add Plan',
-            'context' => 'enupalStripe:',
+            'context' => StripePlugin::$app->settings->getFieldContext(),
             'handle' => self::MULTIPLE_PLANS_HANDLE,
             'settings' => json_encode($matrixSettings),
             'instructions' => 'Customize the plans that the customer should select',
