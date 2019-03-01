@@ -25,6 +25,7 @@ Craft.StripeButton.OrderTableView = Craft.TableElementIndexView.extend({
         $currency: null,
         $currencyField: null,
         $currencies: null,
+        $exportButton: null,
 
         afterInit: function() {
             this.$explorerContainer = $('<div class="chart-explorer-container"></div>').prependTo(this.$container);
@@ -48,6 +49,8 @@ Craft.StripeButton.OrderTableView = Craft.TableElementIndexView.extend({
             // chart explorer
             var $chartExplorer = $('<div class="chart-explorer"></div>').appendTo(this.$explorerContainer),
                 $chartHeader = $('<div class="chart-header"></div>').appendTo($chartExplorer),
+                $exportButton = $('<div class="btn menubtn export-menubtn">'+Craft.t('enupal-stripe', 'Export')+'</div>').appendTo($chartHeader),
+                $exportMenu = $('<div class="menu"><ul><li><a data-format="csv">CSV</a> <a data-format="xls">XLS</a></li><li><a data-format="xlsx">XLSX</a></li><li><a data-format="ods">ODS</a></li></ul></div>').appendTo($chartHeader),
                 $currencyContainer = $('<div class="date-range" />').appendTo($chartHeader),
                 $dateRange = $('<div class="date-range" />').appendTo($chartHeader),
                 $startDateContainer = $('<div class="datewrapper"></div>').appendTo($dateRange),
@@ -58,6 +61,7 @@ Craft.StripeButton.OrderTableView = Craft.TableElementIndexView.extend({
                 $totalValueWrapper = $('<div class="total-value-wrapper"></div>').appendTo($total),
                 $totalValue = $('<span class="total-value">&nbsp;</span>').appendTo($totalValueWrapper);
 
+            this.$exportButton = $exportButton;
             this.$chartExplorer = $chartExplorer;
             this.$totalValue = $totalValue;
             this.$chartContainer = $('<div class="chart-container"></div>').appendTo($chartExplorer);
@@ -87,6 +91,10 @@ Craft.StripeButton.OrderTableView = Craft.TableElementIndexView.extend({
                 onSelect: $.proxy(this, 'handleEndDateChange')
             }, Craft.datepickerOptions));
 
+            new Garnish.MenuBtn(this.$exportButton, {
+                onOptionSelect: $.proxy(this, 'handleClickExport')
+            });
+
             this.startDatepicker = this.$startDate.data('datepicker');
             this.endDatepicker = this.$endDate.data('datepicker');
 
@@ -104,6 +112,15 @@ Craft.StripeButton.OrderTableView = Craft.TableElementIndexView.extend({
 
             // Load the report
             this.loadReport();
+        },
+
+        handleClickExport: function(option) {
+            var data = {};
+            data.source = this.settings.params.source;
+            data.format = option.dataset.format;
+            data.startDate = Craft.StripeButton.OrderTableView.getDateValue(this.startDate);
+            data.endDate = Craft.StripeButton.OrderTableView.getDateValue(this.endDate);
+            location.href = Craft.getActionUrl('enupal-stripe/downloads/export-order', data);
         },
 
         handleStartDateChange: function() {
@@ -179,6 +196,14 @@ Craft.StripeButton.OrderTableView = Craft.TableElementIndexView.extend({
             requestData.startDate = Craft.StripeButton.OrderTableView.getDateValue(this.startDate);
             requestData.endDate = Craft.StripeButton.OrderTableView.getDateValue(this.endDate);
             requestData.currency = this.currency;
+
+            if (requestData.source.includes('orderStatusId:')) {
+                this.$exportButton.removeClass('hidden');
+            }else{
+                if (!requestData.source.includes('*')) {
+                    this.$exportButton.addClass('hidden');
+                }
+            }
 
             this.$spinner.removeClass('hidden');
             this.$error.addClass('hidden');

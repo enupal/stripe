@@ -67,6 +67,11 @@ class App extends Component
      */
     public $countries;
 
+    /**
+     * @var Reports
+     */
+    public $reports;
+
     public function init()
     {
         $this->settings = new Settings();
@@ -80,5 +85,6 @@ class App extends Component
         $this->emails = new Emails();
         $this->addresses = new Addresses();
         $this->countries = new Countries();
+        $this->reports = new Reports();
     }
 }
