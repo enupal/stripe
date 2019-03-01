@@ -31,7 +31,7 @@ class Plans extends Component
         }
 
         $currentFieldContext = Craft::$app->getContent()->fieldContext;
-        Craft::$app->getContent()->fieldContext = 'enupalStripe:';
+        Craft::$app->getContent()->fieldContext = StripePlugin::$app->settings->getFieldContext();
         $matrixMultiplePlansField = Craft::$app->fields->getFieldByHandle(StripePlugin::$app->paymentForms::MULTIPLE_PLANS_HANDLE);
 
         $matrixFields = $matrixMultiplePlansField->getBlockTypeFields();
@@ -66,7 +66,7 @@ class Plans extends Component
         }
 
         $currentFieldContext = Craft::$app->getContent()->fieldContext;
-        Craft::$app->getContent()->fieldContext = 'enupalStripe:';
+        Craft::$app->getContent()->fieldContext = StripePlugin::$app->settings->getFieldContext();
         $matrixMultiplePlansField = Craft::$app->fields->getFieldByHandle(StripePlugin::$app->paymentForms::MULTIPLE_PLANS_HANDLE);
 
         $matrixFields = $matrixMultiplePlansField->getBlockTypeFields();

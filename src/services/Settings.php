@@ -14,6 +14,7 @@ use yii\base\Component;
 use enupal\stripe\models\Settings as SettingsModel;
 use enupal\stripe\Stripe as StripePlugin;
 use Stripe\Stripe;
+use yii\db\Exception;
 
 class Settings extends Component
 {
@@ -114,5 +115,36 @@ class Settings extends Component
     public function getConfigSettings()
     {
         return Craft::$app->config->getGeneral()->stripePayments ?? null;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getPluginUid()
+    {
+        $plugin = (new Query())
+            ->select(['uid'])
+            ->from('{{%plugins}}')
+            ->where(["handle" => 'enupal-stripe'])
+            ->one();
+
+        return $plugin['uid'] ?? null;
+    }
+
+    /**
+     * @return string
+     * @throws Exception
+     */
+    public function getFieldContext()
+    {
+        $pluginUid = $this->getPluginUid();
+
+        if (is_null($pluginUid)){
+            throw new Exception('Unable to get the plugin Uid');
+        }
+
+        $context = 'enupalStripe:'.$pluginUid;
+
+        return $context;
     }
 }
