@@ -3,7 +3,6 @@
 namespace enupal\stripe\migrations;
 
 use craft\db\Migration;
-use craft\db\Query;
 
 /**
  * m190126_000000_insert_countries migration.

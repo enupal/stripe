@@ -3,7 +3,6 @@
 namespace enupal\stripe\migrations;
 
 use craft\db\Migration;
-use craft\db\Query;
 
 /**
  * m181124_000000_add_messages_table migration.

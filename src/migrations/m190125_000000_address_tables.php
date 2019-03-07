@@ -3,7 +3,6 @@
 namespace enupal\stripe\migrations;
 
 use craft\db\Migration;
-use craft\db\Query;
 
 /**
  * m190125_000000_address_tables migration.

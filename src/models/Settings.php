@@ -11,7 +11,6 @@ namespace enupal\stripe\models;
 use craft\base\Model;
 use enupal\stripe\enums\DiscountType;
 use enupal\stripe\Stripe;
-use Craft;
 
 
 class Settings extends Model

@@ -10,7 +10,6 @@ namespace enupal\stripe\elements\db;
 
 use craft\elements\db\ElementQuery;
 use craft\helpers\Db;
-use Craft;
 use enupal\stripe\Stripe;
 
 class OrdersQuery extends ElementQuery

@@ -4,7 +4,6 @@ namespace enupal\stripe\migrations;
 
 use craft\db\Migration;
 use craft\db\Query;
-use enupal\stripe\Stripe;
 
 /**
  * m190228_000000_add_field_context migration.
