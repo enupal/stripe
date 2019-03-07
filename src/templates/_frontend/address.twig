@@ -1,3 +1,16 @@
+{% set typeTitle = type == 'address' ? 'Shipping Address'|t : 'Billing Address'|t  %}
+
+<div class="col form-group">
+    <div class="heading">
+        <label for="{{ type }}Line1-{{ paymentForm.id }}">
+            {{ typeTitle }}
+        </label>
+    </div>
+    <div class="input">
+        <input id="{{ type }}Line1-{{ paymentForm.id }}" type="text" name="{{ type }}[line1]" placeholder="Street" required>
+    </div>
+</div>
+
 <div class="col form-group">
     <div class="heading">
         <label for="{{ type }}Name-{{ paymentForm.id }}">
@@ -6,17 +19,6 @@
     </div>
     <div class="input">
         <input id="{{ type }}Name-{{ paymentForm.id }}" name="{{ type }}[name]" placeholder="Jenny Rosen" >
-    </div>
-</div>
-
-<div class="col form-group">
-    <div class="heading">
-        <label for="{{ type }}Line1-{{ paymentForm.id }}">
-            {{ "Address"|t }}
-        </label>
-    </div>
-    <div class="input">
-        <input id="{{ type }}Line1-{{ paymentForm.id }}" type="text" name="{{ type }}[line1]" placeholder="77 Winchester Lane" required>
     </div>
 </div>
 

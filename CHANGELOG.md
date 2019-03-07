@@ -6,9 +6,11 @@
 - Added `enupal\stripe\elements\Order::getShippingAddressModel()`.
 - Added `enupal\stripe\elements\Order::getBillingAddressModel()`.
 - Added `enupal\stripe\elements\Order::getBillingAddress()`.
+- Added export Orders button in the Orders index page.
 
 ### Improved
 - Improved the shipping and billing address save behavior
+- Improved unique field context
 
 ## 1.7.1 - 2019.01.24
 ### Added

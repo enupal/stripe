@@ -103,6 +103,17 @@ var enupalStripe = {};
                 });
             }
 
+            if (enupalStripeData.enableShippingAddress && enupalStripeData.enableBillingAddress){
+                var shippingAddressWrapper = enupalButtonElement.find('.shipping-address-container');
+                $("#same-address-toggle-"+enupalStripeData.paymentFormId).change(function() {
+                    if(this.checked) {
+                        shippingAddressWrapper.addClass('hidden');
+                    }else{
+                        shippingAddressWrapper.removeClass('hidden');
+                    }
+                });
+            }
+
             for ( var i = 0, l = pTypes.length; i < l; i++ ) {
                 if (pTypes[i] == 1){// Credit Card
                     if (i == 0){
