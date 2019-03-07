@@ -312,15 +312,21 @@ class Orders extends Component
         $order->shipping = $data['shippingAmount'] ?? 0;
         $order->tax = $data['taxAmount'] ?? 0;
         $order->discount = $data['discountAmount'] ?? 0;
-        $shippingAddress = $data['address']['shipping'] ?? null;
+        $shippingAddress = $data['address'] ?? null;
         $billingAddress = $data['address']['billing'] ?? null;
+        $sameAddress = $data['sameAddressToggle'] ?? null;
 
-        if ($shippingAddress){
-            $order->shippingAddressId = $this->getAddressId($shippingAddress);
+        if ($billingAddress){
+            $order->billingAddressId = $this->getAddressId($billingAddress);
+            if ($sameAddress){
+                $order->shippingAddressId = $order->billingAddressId;
+            }
         }
 
         if ($shippingAddress){
-            $order->billingAddressId = $this->getAddressId($billingAddress);
+            if (is_null($order->shippingAddressId)){
+                $order->shippingAddressId = $this->getAddressId($shippingAddress);
+            }
         }
 
         $order->testMode = $data['testMode'];

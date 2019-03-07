@@ -145,20 +145,20 @@
             {% set hideShipping = false %}
             {% if paymentForm.enableShippingAddress and paymentForm.enableBillingAddress %}
                 {% set hideShipping = true %}
-                <input type="checkbox" name="same-address-toggle" id="same-address-toggle-{{ paymentForm.id }}" class="same-address-toggle" checked="checked">
+                <input type="checkbox" name="sameAddressToggle" id="sameAddressToggle-{{ paymentForm.id }}" class="same-address-toggle" checked="checked">
                 <label for="same-address-toggle-{{ paymentForm.id }}">{{ "Same billing & shipping info"|t }}</label>
             {% endif %}
 
             {% if paymentForm.enableBillingAddress  %}
                 {%- set address = craft.enupalStripe.displayAddress(paymentForm, 'billingAddress')  %}
-                <div id="billing-address-container-{{ paymentForm.id }}">
+                <div id="billingAddressContainer-{{ paymentForm.id }}">
                     {{ address|raw }}
                 </div>
             {% endif %}
 
             {% if paymentForm.enableShippingAddress  %}
                 {%- set address = craft.enupalStripe.displayAddress(paymentForm)  %}
-                <div id="shipping-address-container-{{ paymentForm.id }}" class="shipping-address-container {% if hideShipping %} hidden {% endif %}">
+                <div id="shippingAddressContainer-{{ paymentForm.id }}" class="shippingAddressContainer {% if hideShipping %} hidden {% endif %}">
                     {{ address|raw }}
                 </div>
             {% endif %}
