@@ -71,7 +71,7 @@ class Countries extends Component
     }
 
     /**
-     * Returns all country names, indexed by ID.
+     * Returns all country names, indexed by ISO.
      *
      * @return array
      */
@@ -79,7 +79,7 @@ class Countries extends Component
     {
         $countries = $this->getAllCountries();
 
-        return ArrayHelper::map($countries, 'id', 'name');
+        return ArrayHelper::map($countries, 'iso', 'name');
     }
 
     /**
