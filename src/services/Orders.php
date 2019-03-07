@@ -116,15 +116,17 @@ class Orders extends Component
      * @param string $number
      * @param int    $siteId
      *
-     * @return array|Order
+     * @return null|Order
      */
     public function getOrderByNumber($number, int $siteId = null)
     {
         $query = Order::find();
         $query->number($number);
         $query->siteId($siteId);
+        /** @var Order $order */
+        $order = $query->one();
 
-        return $query->one();
+        return $order;
     }
 
     /**
@@ -1263,23 +1265,6 @@ class Orders extends Component
         $result = $order;
 
         return $result;
-    }
-
-    /**
-     * @param $address
-     * @return array
-     */
-    private function getStripeAddress($address)
-    {
-        $stripeAddress = [];
-
-        $stripeAddress['address_line1'] = $address['line1'];
-        $stripeAddress['address_city'] = $address['city'];
-        $stripeAddress['address_state'] = $address['state'];
-        $stripeAddress['address_zip'] = $address['zip'];
-        $stripeAddress['address_country'] = $address['country'];
-
-        return $stripeAddress;
     }
 
     /**
