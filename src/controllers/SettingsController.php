@@ -91,6 +91,7 @@ class SettingsController extends BaseController
 
     /**
      * @return mixed
+     * @throws \Exception
      */
     private function getPostSettings()
     {

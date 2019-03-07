@@ -104,6 +104,7 @@ class Orders extends Component
      */
     public function getOrderById(int $id, int $siteId = null)
     {
+        /** @var Order $order */
         $order = Craft::$app->getElements()->getElementById($id, Order::class, $siteId);
 
         return $order;

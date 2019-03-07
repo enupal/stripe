@@ -42,7 +42,6 @@ class Emails extends Component
      * Send admin and customer emails
      *
      * @param Order $order
-     * @return mixed
      * @throws \yii\base\Exception
      */
     public function sendNotificationEmails(Order $order)

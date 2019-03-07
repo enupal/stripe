@@ -590,14 +590,12 @@ class PaymentForm extends Element
      * @param array|null $options
      *
      * @return string
-     * @throws \Twig_Error_Loader
      * @throws \yii\base\Exception
      */
     public function paymentForm(array $options = null)
     {
         return StripePlugin::$app->paymentForms->getPaymentFormHtml($this->handle, $options);
     }
-
 
     /**
      * @param $options array

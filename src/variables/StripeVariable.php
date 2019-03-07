@@ -88,7 +88,6 @@ class StripeVariable extends Behavior
      * @param array|null $options
      *
      * @return string
-     * @throws \Twig_Error_Loader
      * @throws \yii\base\Exception
      */
     public function paymentForm($handle, array $options = null)
@@ -489,6 +488,7 @@ class StripeVariable extends Behavior
      * @param $string
      *
      * @return DateTime
+     * @throws \Exception
      */
     public function getDate($string)
     {

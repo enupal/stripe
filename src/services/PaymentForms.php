@@ -56,6 +56,7 @@ class PaymentForms extends Component
      */
     public function getPaymentFormById(int $id, int $siteId = null)
     {
+        /** @var PaymentForm $paymentForm */
         $paymentForm = Craft::$app->getElements()->getElementById($id, StripeElement::class, $siteId);
 
         return $paymentForm;
@@ -782,6 +783,7 @@ class PaymentForms extends Component
 
     /**
      * @return \craft\base\FieldInterface
+     * @throws \yii\db\Exception
      */
     private function createFormFieldsMatrixField()
     {
@@ -1114,6 +1116,7 @@ class PaymentForms extends Component
 
     /**
      * @return \craft\base\FieldInterface
+     * @throws \yii\db\Exception
      */
     private function createMultiplePlansMatrixField()
     {

@@ -49,6 +49,7 @@ class Settings extends Component
      */
     public function getSettings()
     {
+        /** @var SettingsModel $settings */
         $settings = $this->getPlugin()->getSettings();
 
         $configSettings = $this->getConfigSettings();

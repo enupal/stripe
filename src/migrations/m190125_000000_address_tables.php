@@ -12,6 +12,7 @@ class m190125_000000_address_tables extends Migration
 {
     /**
      * @return bool
+     * @throws \yii\base\NotSupportedException
      */
     public function safeUp()
     {
