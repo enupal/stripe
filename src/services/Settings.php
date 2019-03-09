@@ -18,6 +18,8 @@ use yii\db\Exception;
 
 class Settings extends Component
 {
+    const STRIPE_PARTNER_ID  = 'pp_partner_EfXiTpz5iOJqCT';
+
     /**
      * Saves Settings
      *
@@ -102,7 +104,7 @@ class Settings extends Component
         $privateKey = $this->getPrivateKey();
 
         if ($privateKey) {
-            Stripe::setAppInfo(StripePlugin::getInstance()->name, StripePlugin::getInstance()->version, StripePlugin::getInstance()->documentationUrl);
+            Stripe::setAppInfo('Craft CMS - '.StripePlugin::getInstance()->name, StripePlugin::getInstance()->version, StripePlugin::getInstance()->documentationUrl, self::STRIPE_PARTNER_ID);
             Stripe::setApiKey($privateKey);
         }
         else{
