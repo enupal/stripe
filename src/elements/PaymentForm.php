@@ -166,16 +166,22 @@ class PaymentForm extends Element
     }
 
     /**
+     * @param Order|null $order
      * @return string
+     * @throws \Throwable
      * @throws \yii\base\Exception
      */
-    public function getReturnUrl()
+    public function getReturnUrl(Order $order = null)
     {
         // by default return to the same page
         $returnUrl = '';
 
         if ($this->returnUrl){
             $returnUrl = $this->getSiteUrl($this->returnUrl);
+        }
+
+        if ($order){
+            $returnUrl = Craft::$app->getView()->renderObjectTemplate($returnUrl, $order);
         }
 
         return $returnUrl;
