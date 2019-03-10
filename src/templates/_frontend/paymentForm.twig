@@ -31,13 +31,23 @@
             <input type="hidden" name="amountBeforeTax" value>
             <input type="hidden" name='stripeData' value="{{ paymentForm.getPublicData(options) }}">
             <input type="hidden" name='testMode' value>
-            {% if (paymentForm.enableShippingAddress or paymentForm.enableBillingAddress) and paymentForm.enableCheckout  %}
+            {% if paymentForm.enableShippingAddress and paymentForm.enableCheckout  %}
                 <input type="hidden" name="address[name]" value />
                 <input type="hidden" name="address[country]" value />
                 <input type="hidden" name="address[zip]" value />
                 <input type="hidden" name="address[state]" value />
                 <input type="hidden" name="address[line1]" value />
+                <input type="hidden" name="address[line2]" value />
                 <input type="hidden" name="address[city]" value />
+            {% endif %}
+            {% if paymentForm.enableBillingAddress and paymentForm.enableCheckout  %}
+                <input type="hidden" name="billingAddress[name]" value />
+                <input type="hidden" name="billingAddress[country]" value />
+                <input type="hidden" name="billingAddress[zip]" value />
+                <input type="hidden" name="billingAddress[state]" value />
+                <input type="hidden" name="billingAddress[line1]" value />
+                <input type="hidden" name="billingAddress[line2]" value />
+                <input type="hidden" name="billingAddress[city]" value />
             {% endif %}
 
         {% for block in paymentForm.enupalStripeBasicFields.all() %}
@@ -133,9 +143,27 @@
         {# Stripe Elements logic #}
         {% if not paymentForm.enableCheckout %}
             {# Address #}
-            {% if paymentForm.enableBillingAddress or paymentForm.enableShippingAddress %}
+            {% set hideShipping = false %}
+            {% if paymentForm.enableShippingAddress and paymentForm.enableBillingAddress %}
+                {% set hideShipping = true %}
+                {% namespace 'enupalStripe' %}
+                    <input type="checkbox" name="sameAddressToggle" id="sameAddressToggle-{{ paymentForm.id }}" class="same-address-toggle" checked="checked">
+                    <label for="same-address-toggle-{{ paymentForm.id }}">{{ "Same billing & shipping info"|t }}</label>
+                {% endnamespace %}
+            {% endif %}
+
+            {% if paymentForm.enableBillingAddress  %}
+                {%- set address = craft.enupalStripe.displayAddress(paymentForm, 'billingAddress')  %}
+                <div id="billingAddressContainer-{{ paymentForm.id }}">
+                    {{ address|raw }}
+                </div>
+            {% endif %}
+
+            {% if paymentForm.enableShippingAddress  %}
                 {%- set address = craft.enupalStripe.displayAddress(paymentForm)  %}
-                {{ address|raw }}
+                <div id="shippingAddressContainer-{{ paymentForm.id }}" class="shippingAddressContainer {% if hideShipping %} hidden {% endif %}">
+                    {{ address|raw }}
+                </div>
             {% endif %}
             {# End address #}
 

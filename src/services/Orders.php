@@ -21,6 +21,7 @@ use enupal\stripe\enums\SubscriptionType;
 use enupal\stripe\events\OrderCompleteEvent;
 use enupal\stripe\events\OrderRefundEvent;
 use enupal\stripe\events\WebhookEvent;
+use enupal\stripe\models\Address;
 use enupal\stripe\Stripe;
 use Stripe\Charge;
 use Stripe\Customer;
@@ -103,6 +104,7 @@ class Orders extends Component
      */
     public function getOrderById(int $id, int $siteId = null)
     {
+        /** @var Order $order */
         $order = Craft::$app->getElements()->getElementById($id, Order::class, $siteId);
 
         return $order;
@@ -114,15 +116,17 @@ class Orders extends Component
      * @param string $number
      * @param int    $siteId
      *
-     * @return array|Order
+     * @return null|Order
      */
     public function getOrderByNumber($number, int $siteId = null)
     {
         $query = Order::find();
         $query->number($number);
         $query->siteId($siteId);
+        /** @var Order $order */
+        $order = $query->one();
 
-        return $query->one();
+        return $order;
     }
 
     /**
@@ -311,14 +315,21 @@ class Orders extends Component
         $order->shipping = $data['shippingAmount'] ?? 0;
         $order->tax = $data['taxAmount'] ?? 0;
         $order->discount = $data['discountAmount'] ?? 0;
-        if (isset($data['address'])){
-            $order->addressCity = $data['address']['city'] ?? '';
-            $order->addressCountry = $data['address']['country'] ?? '';
-            $order->addressState = $data['address']['state'] ?? '';
-            $order->addressCountryCode = $data['address']['zip'] ?? '';
-            $order->addressName = $data['address']['name'] ?? '';
-            $order->addressStreet = $data['address']['line1'] ?? '';
-            $order->addressZip = $data['address']['zip'] ?? '';
+        $shippingAddress = $data['address'] ?? null;
+        $billingAddress = $data['billingAddress'] ?? null;
+        $sameAddress = $data['sameAddressToggle'] ?? null;
+
+        if ($billingAddress){
+            $order->billingAddressId = $this->getAddressId($billingAddress);
+            if ($sameAddress === 'on'){
+                $order->shippingAddressId = $order->billingAddressId;
+            }
+        }
+
+        if ($shippingAddress){
+            if (is_null($order->shippingAddressId)){
+                $order->shippingAddressId = $this->getAddressId($shippingAddress);
+            }
         }
 
         $order->testMode = $data['testMode'];
@@ -544,7 +555,7 @@ class Orders extends Component
      */
     public function getSetupFeeFromMatrix($planId, $paymentForm)
     {
-        foreach ($paymentForm->enupalMultiplePlans as $plan) {
+        foreach ($paymentForm->enupalMultiplePlans->all() as $plan) {
             if ($plan->selectPlan == $planId){
                 if ($plan->setupFee){
                     return $plan->setupFee;
@@ -749,6 +760,35 @@ class Orders extends Component
         $query->email = $email;
 
         return $query->all();
+    }
+
+    /**
+     * @param $addressData
+     * @return int
+     */
+    private function getAddressId($addressData)
+    {
+        $address = new Address();
+
+        $countryId = $addressData['country'] ?? null;
+
+        if (!is_int($countryId)){
+            $country = Stripe::$app->countries->getCountryByIso($countryId);
+            if ($country){
+                $countryId = $country->id;
+            }
+        }
+
+        $address->city = $addressData['city'] ?? '';
+        $address->countryId = $countryId;
+        $address->stateName = $addressData['state'] ?? '';
+        $address->zipCode = $addressData['zip'] ?? '';
+        $address->firstName = $addressData['name'] ?? '';
+        $address->address1 = $addressData['line1'] ?? '';
+
+        Stripe::$app->addresses->saveAddress($address, true);
+
+        return $address->id;
     }
 
     /**
@@ -1234,23 +1274,6 @@ class Orders extends Component
         $result = $order;
 
         return $result;
-    }
-
-    /**
-     * @param $address
-     * @return array
-     */
-    private function getStripeAddress($address)
-    {
-        $stripeAddress = [];
-
-        $stripeAddress['address_line1'] = $address['line1'];
-        $stripeAddress['address_city'] = $address['city'];
-        $stripeAddress['address_state'] = $address['state'];
-        $stripeAddress['address_zip'] = $address['zip'];
-        $stripeAddress['address_country'] = $address['country'];
-
-        return $stripeAddress;
     }
 
     /**

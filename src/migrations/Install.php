@@ -38,6 +38,8 @@ class Install extends Migration
         $this->dropTableIfExists('{{%enupalstripe_forms}}');
         $this->dropTableIfExists('{{%enupalstripe_customers}}');
         $this->dropTableIfExists('{{%enupalstripe_orderstatuses}}');
+        $this->dropTableIfExists('{{%enupalstripe_addresses}}');
+        $this->dropTableIfExists('{{%enupalstripe_countries}}');
 
         return true;
     }
@@ -120,6 +122,8 @@ class Install extends Migration
             'formId' => $this->integer(),
             'userId' => $this->integer(),
             'testMode' => $this->boolean()->defaultValue(0),
+            'billingAddressId' => $this->integer(),
+            'shippingAddressId' => $this->integer(),
             'paymentType' => $this->integer(),
             'number' => $this->string(),
             'currency' => $this->string(),
@@ -165,6 +169,38 @@ class Install extends Migration
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
             'uid' => $this->uid()
+        ]);
+
+        $this->createTable('{{%enupalstripe_addresses}}', [
+            'id' => $this->primaryKey(),
+            'countryId' => $this->integer(),
+            'attention' => $this->string(),
+            'title' => $this->string(),
+            'firstName' => $this->string(),
+            'lastName' => $this->string(),
+            'address1' => $this->string(),
+            'address2' => $this->string(),
+            'city' => $this->string(),
+            'zipCode' => $this->string(),
+            'phone' => $this->string(),
+            'alternativePhone' => $this->string(),
+            'businessName' => $this->string(),
+            'businessTaxId' => $this->string(),
+            'businessId' => $this->string(),
+            'stateName' => $this->string(),
+            'dateCreated' => $this->dateTime()->notNull(),
+            'dateUpdated' => $this->dateTime()->notNull(),
+            'uid' => $this->uid(),
+        ]);
+
+        $this->createTable('{{%enupalstripe_countries}}', [
+            'id' => $this->primaryKey(),
+            'name' => $this->string()->notNull(),
+            'iso' => $this->string(2)->notNull(),
+            'isStateRequired' => $this->boolean(),
+            'dateCreated' => $this->dateTime()->notNull(),
+            'dateUpdated' => $this->dateTime()->notNull(),
+            'uid' => $this->uid(),
         ]);
 
         $this->createTable('{{%enupalstripe_orderstatuses}}', [
@@ -224,6 +260,12 @@ class Install extends Migration
             'orderId',
             false
         );
+
+        $this->createIndex(null, '{{%enupalstripe_addresses}}', 'countryId', false);
+        $this->createIndex(null, '{{%enupalstripe_countries}}', 'name', true);
+        $this->createIndex(null, '{{%enupalstripe_countries}}', 'iso', true);
+        $this->createIndex(null, '{{%enupalstripe_orders}}', 'billingAddressId', false);
+        $this->createIndex(null, '{{%enupalstripe_orders}}', 'shippingAddressId', false);
     }
 
     /**
@@ -264,6 +306,10 @@ class Install extends Migration
             '{{%enupalstripe_messages}}', 'orderId',
             '{{%enupalstripe_orders}}', 'id', 'CASCADE', null
         );
+
+        $this->addForeignKey(null, '{{%enupalstripe_addresses}}', ['countryId'], '{{%enupalstripe_countries}}', ['id'], 'SET NULL');
+        $this->addForeignKey(null, '{{%enupalstripe_orders}}', ['billingAddressId'], '{{%enupalstripe_addresses}}', ['id'], 'SET NULL');
+        $this->addForeignKey(null, '{{%enupalstripe_orders}}', ['shippingAddressId'], '{{%enupalstripe_addresses}}', ['id'], 'SET NULL');
     }
 
     /**
@@ -273,6 +319,8 @@ class Install extends Migration
      */
     protected function insertDefaultData()
     {
+        $this->_defaultCountries();
+
         // populate default Order Statuses
         $defaultEntryStatuses = [
             0 => [
@@ -300,5 +348,17 @@ class Install extends Migration
                 'isDefault' => $entryStatus['isDefault']
             ])->execute();
         }
+    }
+
+    /**
+     * Insert default countries data.
+     */
+    private function _defaultCountries()
+    {
+        $migration = new m190126_000000_insert_countries();
+
+        ob_start();
+        $migration->safeUp();
+        ob_end_clean();
     }
 }

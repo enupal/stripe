@@ -96,31 +96,43 @@ var enupalStripe = {};
         },
 
         addValuesToForm: function(enupalButtonElement, args, enupalStripeData) {
-            if (enupalStripeData.stripe.shippingAddress || enupalStripeData.stripe.billingAddress){
-                var suffix = enupalStripeData.stripe.shippingAddress ? 'shipping' : 'billing';
-                if (args[suffix+'_name']) {
-                    enupalButtonElement.find('[name="enupalStripe[address][name]"]').val(args[suffix+'_name']);
-                }
+            if (enupalStripeData.stripe.shippingAddress){
+                var suffix = 'shipping';
+                var namespace = 'address';
+                this.setAddressToHiddenValues(suffix, namespace, args, enupalButtonElement)
+            }
 
-                if (args[suffix+'_address_country']) {
-                    enupalButtonElement.find('[name="enupalStripe[address][country]"]').val(args[suffix+'_address_country']);
-                }
+            if (enupalStripeData.stripe.billingAddress){
+                var suffix = 'billing';
+                var namespace = 'billingAddress';
+                this.setAddressToHiddenValues(suffix, namespace, args, enupalButtonElement)
+            }
+        },
 
-                if (args[suffix+'_address_zip']) {
-                    enupalButtonElement.find('[name="enupalStripe[address][zip]"]').val(args[suffix+'_address_zip']);
-                }
+        setAddressToHiddenValues(suffix, namespace, args, enupalButtonElement)
+        {
+            if (args[suffix+'_name']) {
+                enupalButtonElement.find('[name="enupalStripe['+namespace+'][name]"]').val(args[suffix+'_name']);
+            }
 
-                if (args[suffix+'_address_state']) {
-                    enupalButtonElement.find('[name="enupalStripe[address][state]"]').val(args[suffix+'_address_state']);
-                }
+            if (args[suffix+'_address_country']) {
+                enupalButtonElement.find('[name="enupalStripe['+namespace+'][country]"]').val(args[suffix+'_address_country_code']);
+            }
 
-                if (args[suffix+'_address_line1']) {
-                    enupalButtonElement.find('[name="enupalStripe[address][line1]"]').val(args[suffix+'_address_line1']);
-                }
+            if (args[suffix+'_address_zip']) {
+                enupalButtonElement.find('[name="enupalStripe['+namespace+'][zip]"]').val(args[suffix+'_address_zip']);
+            }
 
-                if (args[suffix+'_address_city']) {
-                    enupalButtonElement.find('[name="enupalStripe[address][city]"]').val(args[suffix+'_address_city']);
-                }
+            if (args[suffix+'_address_state']) {
+                enupalButtonElement.find('[name="enupalStripe['+namespace+'][state]"]').val(args[suffix+'_address_state']);
+            }
+
+            if (args[suffix+'_address_line1']) {
+                enupalButtonElement.find('[name="enupalStripe['+namespace+'][line1]"]').val(args[suffix+'_address_line1']);
+            }
+
+            if (args[suffix+'_address_city']) {
+                enupalButtonElement.find('[name="enupalStripe['+namespace+'][city]"]').val(args[suffix+'_address_city']);
             }
         },
 

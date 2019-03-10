@@ -34,8 +34,16 @@ class StripeController extends BaseController
         $enableCheckout = Craft::$app->getRequest()->getBodyParam('enableCheckout') ?? true;
         $postData = $_POST;
 
+        if (isset($postData['billingAddress'])){
+            $postData['enupalStripe']['billingAddress'] = $postData['billingAddress'];
+        }
+
         if (isset($postData['address'])){
             $postData['enupalStripe']['address'] = $postData['address'];
+
+            if (isset($postData['enupalStripe']['sameAddressToggle']) && $postData['enupalStripe']['sameAddressToggle'] == 'on'){
+                $postData['enupalStripe']['address'] = $postData['billingAddress'];
+            }
         }
 
         // Stripe Elements

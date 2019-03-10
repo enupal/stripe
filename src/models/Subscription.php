@@ -11,7 +11,6 @@ namespace enupal\stripe\models;
 use craft\base\Model;
 use craft\helpers\DateTimeHelper;
 use enupal\stripe\Stripe;
-use Craft;
 
 class Subscription extends Model
 {

@@ -48,6 +48,8 @@ use craft\records\Element;
  * @property $refunded
  * @property $dateRefunded
  * @property $isSubscription
+ * @property $billingAddressId
+ * @property $shippingAddressId
  */
 class Order extends ActiveRecord
 {

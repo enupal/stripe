@@ -166,16 +166,22 @@ class PaymentForm extends Element
     }
 
     /**
+     * @param Order|null $order
      * @return string
+     * @throws \Throwable
      * @throws \yii\base\Exception
      */
-    public function getReturnUrl()
+    public function getReturnUrl(Order $order = null)
     {
         // by default return to the same page
         $returnUrl = '';
 
         if ($this->returnUrl){
             $returnUrl = $this->getSiteUrl($this->returnUrl);
+        }
+
+        if ($order){
+            $returnUrl = Craft::$app->getView()->renderObjectTemplate($returnUrl, $order);
         }
 
         return $returnUrl;
@@ -590,14 +596,12 @@ class PaymentForm extends Element
      * @param array|null $options
      *
      * @return string
-     * @throws \Twig_Error_Loader
      * @throws \yii\base\Exception
      */
     public function paymentForm(array $options = null)
     {
         return StripePlugin::$app->paymentForms->getPaymentFormHtml($this->handle, $options);
     }
-
 
     /**
      * @param $options array
@@ -708,6 +712,7 @@ class PaymentForm extends Element
 
         // Booleans
         if ($this->enableShippingAddress){
+            // 'billingAddress' must be enabled whenever 'shippingAddress' is.
             $publicData['stripe']['shippingAddress'] = true;
             $publicData['stripe']['billingAddress'] = true;
         }

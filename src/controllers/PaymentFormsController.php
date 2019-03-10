@@ -12,7 +12,6 @@ use Craft;
 use craft\elements\Asset;
 use craft\helpers\UrlHelper;
 use craft\web\Controller as BaseController;
-use enupal\stripe\enums\PaymentType;
 use enupal\stripe\Stripe;
 use yii\web\NotFoundHttpException;
 

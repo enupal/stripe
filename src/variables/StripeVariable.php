@@ -9,6 +9,7 @@
 namespace enupal\stripe\variables;
 
 use enupal\stripe\elements\Order;
+use enupal\stripe\elements\db\OrdersQuery;
 use enupal\stripe\elements\PaymentForm;
 use enupal\stripe\enums\FrequencyType;
 use enupal\stripe\services\PaymentForms;
@@ -16,21 +17,32 @@ use enupal\stripe\Stripe;
 use craft\helpers\Template as TemplateHelper;
 use DateTime;
 use Craft;
+use yii\base\Behavior;
 
 /**
  * Stripe Payments provides an API for accessing information about stripe buttons. It is accessible from templates via `craft.enupalStripe`.
  *
  */
-class StripeVariable
+class StripeVariable extends Behavior
 {
     /**
      * @var Order
      */
     public $orders;
 
-    public function __construct()
+    /**
+     * Returns a new OrderQuery instance.
+     *
+     * @param mixed $criteria
+     * @return OrdersQuery
+     */
+    public function orders($criteria = null): OrdersQuery
     {
-        $this->orders = Order::find();
+        $query = Order::find();
+        if ($criteria) {
+            Craft::configure($query, $criteria);
+        }
+        return $query;
     }
 
     /**
@@ -76,7 +88,6 @@ class StripeVariable
      * @param array|null $options
      *
      * @return string
-     * @throws \Twig_Error_Loader
      * @throws \yii\base\Exception
      */
     public function paymentForm($handle, array $options = null)
@@ -269,11 +280,11 @@ class StripeVariable
      *
      * @param $paymentForm PaymentForm
      *
+     * @param string $type
      * @return \Twig_Markup
-     * @throws \Twig_Error_Loader
      * @throws \yii\base\Exception
      */
-    public function displayAddress($paymentForm)
+    public function displayAddress($paymentForm, $type = 'address')
     {
         $templatePaths = Stripe::$app->paymentForms->getFormTemplatePaths($paymentForm);
         $view = Craft::$app->getView();
@@ -284,7 +295,8 @@ class StripeVariable
 
         $htmlField = $view->renderTemplate(
             'address', [
-                'paymentForm' => $paymentForm
+                'paymentForm' => $paymentForm,
+                'type' => $type
             ]
         );
 
@@ -476,6 +488,7 @@ class StripeVariable
      * @param $string
      *
      * @return DateTime
+     * @throws \Exception
      */
     public function getDate($string)
     {
@@ -553,6 +566,14 @@ class StripeVariable
 
         return true;
 
+    }
+
+    /**
+     * @return array
+     */
+    public function getAllCountriesAsList()
+    {
+        return Stripe::$app->countries->getAllCountriesAsList();
     }
 
     /**

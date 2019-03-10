@@ -14,9 +14,12 @@ use yii\base\Component;
 use enupal\stripe\models\Settings as SettingsModel;
 use enupal\stripe\Stripe as StripePlugin;
 use Stripe\Stripe;
+use yii\db\Exception;
 
 class Settings extends Component
 {
+    const STRIPE_PARTNER_ID  = 'pp_partner_EfXiTpz5iOJqCT';
+
     /**
      * Saves Settings
      *
@@ -48,6 +51,7 @@ class Settings extends Component
      */
     public function getSettings()
     {
+        /** @var SettingsModel $settings */
         $settings = $this->getPlugin()->getSettings();
 
         $configSettings = $this->getConfigSettings();
@@ -100,7 +104,7 @@ class Settings extends Component
         $privateKey = $this->getPrivateKey();
 
         if ($privateKey) {
-            Stripe::setAppInfo(StripePlugin::getInstance()->name, StripePlugin::getInstance()->version, StripePlugin::getInstance()->documentationUrl);
+            Stripe::setAppInfo('Craft CMS - '.StripePlugin::getInstance()->name, StripePlugin::getInstance()->version, StripePlugin::getInstance()->documentationUrl, self::STRIPE_PARTNER_ID);
             Stripe::setApiKey($privateKey);
         }
         else{
@@ -114,5 +118,36 @@ class Settings extends Component
     public function getConfigSettings()
     {
         return Craft::$app->config->getGeneral()->stripePayments ?? null;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getPluginUid()
+    {
+        $plugin = (new Query())
+            ->select(['uid'])
+            ->from('{{%plugins}}')
+            ->where(["handle" => 'enupal-stripe'])
+            ->one();
+
+        return $plugin['uid'] ?? null;
+    }
+
+    /**
+     * @return string
+     * @throws Exception
+     */
+    public function getFieldContext()
+    {
+        $pluginUid = $this->getPluginUid();
+
+        if (is_null($pluginUid)){
+            throw new Exception('Unable to get the plugin Uid');
+        }
+
+        $context = 'enupalStripe:'.$pluginUid;
+
+        return $context;
     }
 }

@@ -8,7 +8,6 @@
 
 namespace enupal\stripe\validators;
 
-use enupal\stripe\enums\DiscountType;
 use yii\validators\Validator;
 use enupal\stripe\Stripe;
 

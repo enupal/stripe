@@ -10,7 +10,6 @@ namespace enupal\stripe\services;
 
 use yii\base\Component;
 use enupal\stripe\records\Message as MessageRecord;
-use Craft;
 
 class Messages extends Component
 {

@@ -17,6 +17,7 @@ use craft\helpers\UrlHelper;
 use craft\elements\actions\Delete;
 
 use enupal\stripe\elements\db\OrdersQuery;
+use enupal\stripe\models\Address;
 use enupal\stripe\records\Order as OrderRecord;
 use enupal\stripe\Stripe as StripePaymentsPlugin;
 use craft\validators\UniqueValidator;
@@ -72,6 +73,8 @@ class Order extends Element
     public $firstName;
     public $lastName;
     // Shipping
+    public $billingAddressId;
+    public $shippingAddressId;
     public $addressCity;
     public $addressCountry;
     public $addressState;
@@ -323,6 +326,7 @@ class Order extends Element
         $attributes['paymentStatus'] = ['label' => StripePaymentsPlugin::t('Payment Status')];
         $attributes['user'] = ['label' => StripePaymentsPlugin::t('User')];
         $attributes['address'] = ['label' => StripePaymentsPlugin::t('Shipping Address')];
+        $attributes['billingAddress'] = ['label' => StripePaymentsPlugin::t('Billing Address')];
         $attributes['email'] = ['label' => StripePaymentsPlugin::t('Customer Email')];
         $attributes['itemName'] = ['label' => StripePaymentsPlugin::t('Item Name')];
         $attributes['itemSku'] = ['label' => StripePaymentsPlugin::t('Form Handle')];
@@ -370,6 +374,10 @@ class Order extends Element
             case 'address':
                 {
                     return $this->getShippingAddress();
+                }
+            case 'billingAddress':
+                {
+                    return $this->getBillingAddress();
                 }
             case 'paymentStatus':
                 {
@@ -452,6 +460,8 @@ class Order extends Element
         $record->refunded = $this->refunded;
         $record->dateRefunded = $this->dateRefunded;
         $record->isSubscription = $this->isSubscription;
+        $record->billingAddressId = $this->billingAddressId;
+        $record->shippingAddressId = $this->shippingAddressId;
         $record->save(false);
 
         parent::afterSave($isNew);
@@ -524,14 +534,57 @@ class Order extends Element
      */
     public function getShippingAddress()
     {
-        $address = '';
+        $addressHtml = '';
 
-        if ($this->addressName && $this->addressStreet){
-            $address = "<address>{{ order.addressName }}<br>{{ order.addressStreet }}<br>{{ order.addressCity }}, {{ order.addressState }} {{ order.addressZip }}<br>{{ order.addressCountry }}</address>";
-            $address = Craft::$app->getView()->renderString($address, ['order' => $this]);
+        if ($this->shippingAddressId){
+            $address = StripePaymentsPlugin::$app->addresses->getAddressById($this->shippingAddressId);
+            $addressHtml = $address->getAddressAsHtml();
+        }
+
+        return $addressHtml;
+    }
+
+    /**
+     * @return Address|null
+     */
+    public function getShippingAddressModel()
+    {
+        $address = null;
+
+        if ($this->shippingAddressId){
+            $address = StripePaymentsPlugin::$app->addresses->getAddressById($this->shippingAddressId);
         }
 
         return $address;
+    }
+
+    /**
+     * @return Address|null
+     */
+    public function getBillingAddressModel()
+    {
+        $address = null;
+
+        if ($this->billingAddressId){
+            $address = StripePaymentsPlugin::$app->addresses->getAddressById($this->billingAddressId);
+        }
+
+        return $address;
+    }
+
+    /**
+     * @return string
+     */
+    public function getBillingAddress()
+    {
+        $addressHtml = '';
+
+        if ($this->billingAddressId){
+            $address = StripePaymentsPlugin::$app->addresses->getAddressById($this->billingAddressId);
+            $addressHtml = $address->getAddressAsHtml();
+        }
+
+        return $addressHtml;
     }
 
     /**
@@ -539,13 +592,18 @@ class Order extends Element
      */
     public function getShippingAddressAsArray()
     {
+        Craft::$app->getDeprecator()->log('Order::getShippingAddressAsArray()', 'enupal\\stripe\\elements\Order::getShippingAddressAsArray() has been deprecated. Use getBillingAddressModel() instead.');
+        $addressModel = $this->getShippingAddressModel();
         $address = [];
-        $address['addressName'] = $this->addressName;
-        $address['addressStreet'] = $this->addressStreet;
-        $address['addressCity'] = $this->addressCity;
-        $address['addressState'] = $this->addressState;
-        $address['addressZip'] = $this->addressZip;
-        $address['addressCountry'] = $this->addressCountry;
+
+        if ($addressModel){
+            $address['addressName'] = $addressModel->getFullName();
+            $address['addressStreet'] = $addressModel->address1;
+            $address['addressCity'] = $addressModel->city;
+            $address['addressState'] = $addressModel->stateName;
+            $address['addressZip'] = $addressModel->zipCode;
+            $address['addressCountry'] = $addressModel->getCountryText();
+        }
 
         return $address;
     }
@@ -678,4 +736,6 @@ class Order extends Element
             $this->setFormFieldValue($fieldHandle, $value);
         }
     }
+
+
 }

@@ -141,13 +141,12 @@ class OrdersController extends BaseController
         $request = Craft::$app->getRequest();
         $orderNumber = $request->getRequiredBodyParam('orderNumber');
         $order = Stripe::$app->orders->getOrderByNumber($orderNumber);
-        $result = false;
 
-        if ($order){
-            $result = Stripe::$app->orders->refundOrder($order);
-        }else{
+        if (is_null($order)){
             return $this->asErrorJson("Order not found: ".$orderNumber);
         }
+
+        $result = Stripe::$app->orders->refundOrder($order);
 
         if (!$result){
             return $this->asErrorJson("Unable to refund payment, please check messages tab.");

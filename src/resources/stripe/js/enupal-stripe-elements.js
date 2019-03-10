@@ -103,6 +103,17 @@ var enupalStripe = {};
                 });
             }
 
+            if (enupalStripeData.enableShippingAddress && enupalStripeData.enableBillingAddress){
+                var shippingAddressWrapper = enupalButtonElement.find('.shippingAddressContainer');
+                $("#sameAddressToggle-"+enupalStripeData.paymentFormId).change(function() {
+                    if(this.checked) {
+                        shippingAddressWrapper.addClass('hidden');
+                    }else{
+                        shippingAddressWrapper.removeClass('hidden');
+                    }
+                });
+            }
+
             for ( var i = 0, l = pTypes.length; i < l; i++ ) {
                 if (pTypes[i] == 1){// Credit Card
                     if (i == 0){
@@ -160,6 +171,19 @@ var enupalStripe = {};
                 }
                 var form = enupalButtonElement[0];
 
+                // Avoid focusable error on js
+                if (enupalStripeData.enableBillingAddress && enupalStripeData.enableBillingAddress){
+                    var sameBillingAndShipping = $(enupalButtonElement).find('[name="enupalStripe[sameAddressToggle]"]').val();
+                    if (sameBillingAndShipping == 'on'){
+                       $(enupalButtonElement).find('[name="address[name]"]').removeAttr('required');
+                       $(enupalButtonElement).find('[name="address[line1]"]').removeAttr('required');
+                       $(enupalButtonElement).find('[name="address[city]"]').removeAttr('required');
+                       $(enupalButtonElement).find('[name="address[state]"]').removeAttr('required');
+                       $(enupalButtonElement).find('[name="address[zip]"]').removeAttr('required');
+                       $(enupalButtonElement).find('[name="address[country]"]').removeAttr('required');
+                    }
+                }
+
                 if (!form.checkValidity()) {
                     if (form.reportValidity) {
                         form.reportValidity();
@@ -170,14 +194,14 @@ var enupalStripe = {};
                     e.preventDefault();
                     var options = {};
 
-                    if (enupalStripeData.enableBillingAddress || enupalStripeData.enableShippingAddress){
+                    if (enupalStripeData.enableBillingAddress){
                         options = {
-                            name: $(enupalButtonElement).find('[name="address[name]"]').val(),
-                            address_line1: $(enupalButtonElement).find('[name="address[line1]"]').val(),
-                            address_city: $(enupalButtonElement).find('[name="address[city]"]').val(),
-                            address_state: $(enupalButtonElement).find('[name="address[state]"]').val(),
-                            address_zip: $(enupalButtonElement).find('[name="address[zip]"]').val(),
-                            address_country: $(enupalButtonElement).find('[name="address[country]"]').val(),
+                            name: $(enupalButtonElement).find('[name="billingAddress[name]"]').val(),
+                            address_line1: $(enupalButtonElement).find('[name="billingAddress[line1]"]').val(),
+                            address_city: $(enupalButtonElement).find('[name="billingAddress[city]"]').val(),
+                            address_state: $(enupalButtonElement).find('[name="billingAddress[state]"]').val(),
+                            address_zip: $(enupalButtonElement).find('[name="billingAddress[zip]"]').val(),
+                            address_country: $(enupalButtonElement).find('[name="billingAddress[country]"]').val(),
                         };
                     }
 
