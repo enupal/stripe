@@ -59,6 +59,8 @@ class Reports extends Component
             'orderStatusId',
             'dateRefunded',
             'refunded',
+            'billingAddressId',
+            'shippingAddressId',
             'dateCreated',
             'dateUpdated'
         ];

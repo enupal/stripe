@@ -18,6 +18,11 @@
     float: right;
 }
 
+.chart-explorer .export-menubtn {
+    float: right;
+    margin-left: 14px;
+}
+
 body.rtl .chart-explorer .chart-header .date-range {
     float: left;
 }
