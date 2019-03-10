@@ -38,6 +38,8 @@ class Install extends Migration
         $this->dropTableIfExists('{{%enupalstripe_forms}}');
         $this->dropTableIfExists('{{%enupalstripe_customers}}');
         $this->dropTableIfExists('{{%enupalstripe_orderstatuses}}');
+        $this->dropTableIfExists('{{%enupalstripe_addresses}}');
+        $this->dropTableIfExists('{{%enupalstripe_countries}}');
 
         return true;
     }
@@ -262,8 +264,8 @@ class Install extends Migration
         $this->createIndex(null, '{{%enupalstripe_addresses}}', 'countryId', false);
         $this->createIndex(null, '{{%enupalstripe_countries}}', 'name', true);
         $this->createIndex(null, '{{%enupalstripe_countries}}', 'iso', true);
-        $this->createIndex(null, '{{%enupalstripe_orders}}', 'primaryBillingAddressId', false);
-        $this->createIndex(null, '{{%enupalstripe_orders}}', 'primaryShippingAddressId', false);
+        $this->createIndex(null, '{{%enupalstripe_orders}}', 'billingAddressId', false);
+        $this->createIndex(null, '{{%enupalstripe_orders}}', 'shippingAddressId', false);
     }
 
     /**

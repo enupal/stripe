@@ -316,12 +316,12 @@ class Orders extends Component
         $order->tax = $data['taxAmount'] ?? 0;
         $order->discount = $data['discountAmount'] ?? 0;
         $shippingAddress = $data['address'] ?? null;
-        $billingAddress = $data['address']['billing'] ?? null;
+        $billingAddress = $data['billingAddress'] ?? null;
         $sameAddress = $data['sameAddressToggle'] ?? null;
 
         if ($billingAddress){
             $order->billingAddressId = $this->getAddressId($billingAddress);
-            if ($sameAddress){
+            if ($sameAddress === 'on'){
                 $order->shippingAddressId = $order->billingAddressId;
             }
         }
@@ -786,7 +786,7 @@ class Orders extends Component
         $address->firstName = $addressData['name'] ?? '';
         $address->address1 = $addressData['line1'] ?? '';
 
-        Stripe::$app->addresses->saveAddress($address, false);
+        Stripe::$app->addresses->saveAddress($address, true);
 
         return $address->id;
     }

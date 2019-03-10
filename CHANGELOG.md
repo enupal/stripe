@@ -1,16 +1,27 @@
 # Stripe Payments Changelog
 
 #WIP
-## 1.8.0 - 2019.01.31
+## 1.8.0 - 2019.03.10
+> {warning} we have updated the [front-end templates](https://github.com/enupal/stripe/tree/master/src/templates/_frontend) make sure to update the latest changes if you're using template overrides
 ### Added
 - Added `enupal\stripe\elements\Order::getShippingAddressModel()`.
 - Added `enupal\stripe\elements\Order::getBillingAddressModel()`.
 - Added `enupal\stripe\elements\Order::getBillingAddress()`.
-- Added export Orders button in the Orders index page.
+- Added export Orders button in the Orders index page. ([#22])
+- Added `Same billing & shipping info` checkbox when using Stripe elements
 
 ### Improved
-- Improved the shipping and billing address save behavior
+- Improved the shipping and billing address save behavior. ([#20])
 - Improved unique field context
+
+### Fixed
+- Fixed bad "Read more" link on default customer email template ([#23])
+- Fixed deprecation warnings ([#26])
+
+[#23]: https://github.com/enupal/stripe/issues/23
+[#26]: https://github.com/enupal/stripe/issues/26
+[#22]: https://github.com/enupal/stripe/issues/22
+[#20]: https://github.com/enupal/stripe/issues/20
 
 ## 1.7.1 - 2019.01.24
 ### Added

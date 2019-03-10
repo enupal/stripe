@@ -172,7 +172,7 @@ class Address extends Model
     {
         $rules = parent::rules();
         $rules[] = [['firstName'], 'required'];
-        $rules[] = [['lastName'], 'required'];
+        $rules[] = [['countryId'], 'required'];
 
         return $rules;
     }

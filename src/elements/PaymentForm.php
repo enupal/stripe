@@ -712,6 +712,7 @@ class PaymentForm extends Element
 
         // Booleans
         if ($this->enableShippingAddress){
+            // 'billingAddress' must be enabled whenever 'shippingAddress' is.
             $publicData['stripe']['shippingAddress'] = true;
             $publicData['stripe']['billingAddress'] = true;
         }
