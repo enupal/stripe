@@ -555,7 +555,7 @@ class Orders extends Component
      */
     public function getSetupFeeFromMatrix($planId, $paymentForm)
     {
-        foreach ($paymentForm->enupalMultiplePlans as $plan) {
+        foreach ($paymentForm->enupalMultiplePlans->all() as $plan) {
             if ($plan->selectPlan == $planId){
                 if ($plan->setupFee){
                     return $plan->setupFee;
@@ -770,8 +770,17 @@ class Orders extends Component
     {
         $address = new Address();
 
+        $countryId = $addressData['country'] ?? null;
+
+        if (!is_int($countryId)){
+            $country = Stripe::$app->countries->getCountryByIso($countryId);
+            if ($country){
+                $countryId = $country->id;
+            }
+        }
+
         $address->city = $addressData['city'] ?? '';
-        $address->countryId = $addressData['country'] ?? '';
+        $address->countryId = $countryId;
         $address->stateName = $addressData['state'] ?? '';
         $address->zipCode = $addressData['zip'] ?? '';
         $address->firstName = $addressData['name'] ?? '';

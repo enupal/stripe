@@ -326,6 +326,7 @@ class Order extends Element
         $attributes['paymentStatus'] = ['label' => StripePaymentsPlugin::t('Payment Status')];
         $attributes['user'] = ['label' => StripePaymentsPlugin::t('User')];
         $attributes['address'] = ['label' => StripePaymentsPlugin::t('Shipping Address')];
+        $attributes['billingAddress'] = ['label' => StripePaymentsPlugin::t('Billing Address')];
         $attributes['email'] = ['label' => StripePaymentsPlugin::t('Customer Email')];
         $attributes['itemName'] = ['label' => StripePaymentsPlugin::t('Item Name')];
         $attributes['itemSku'] = ['label' => StripePaymentsPlugin::t('Form Handle')];
@@ -373,6 +374,10 @@ class Order extends Element
             case 'address':
                 {
                     return $this->getShippingAddress();
+                }
+            case 'billingAddress':
+                {
+                    return $this->getBillingAddress();
                 }
             case 'paymentStatus':
                 {
@@ -455,6 +460,8 @@ class Order extends Element
         $record->refunded = $this->refunded;
         $record->dateRefunded = $this->dateRefunded;
         $record->isSubscription = $this->isSubscription;
+        $record->billingAddressId = $this->billingAddressId;
+        $record->shippingAddressId = $this->shippingAddressId;
         $record->save(false);
 
         parent::afterSave($isNew);

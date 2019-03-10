@@ -9,7 +9,7 @@
         class="{{ handle }}"
         required aria-required="true"
 >
-    {% for key,block in matrixField %}
+    {% for key,block in matrixField.all() %}
         {% if not selected %}
             {% set selected = block.default %}
         {% endif %}

@@ -6,7 +6,7 @@
     id="{{ handle }}"
     class="{{ handle }}">
 
-    {% for key,block in matrixField %}
+    {% for key,block in matrixField.all() %}
         {%- set label = (block.customLabel ? block.customLabel : craft.enupalStripe.getDefaultPlanName(block.selectPlan)) -%}
         {%- set optionValue = (block.selectPlan is defined ? block.selectPlan : key) -%}
 
