@@ -32,6 +32,7 @@ Stripe Payments allows customers sign up for recurring and one-time payments wit
  * Stripe Test and Live accounts
  * Events: After Order Create, Before Send Email, After Refund Order and After Process Webhook
  * Field type
+ * Export Orders in CSV, XLS, XLS or ODS format
  * Template Overrides
 
 ## Documentation
