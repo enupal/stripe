@@ -881,7 +881,8 @@ class Orders extends Component
 
         // Add the plan to the customer
         $subscriptionSettings = [
-            "plan" => $planId
+            "plan" => $planId,
+            "trial_from_plan" => true
         ];
 
         // Add support for tiers
