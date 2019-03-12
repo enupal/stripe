@@ -1,7 +1,13 @@
 # Stripe Payments Changelog
 
+## 1.8.1 - 2019.03.12
+### Fixed
+- Fixed issue where trial period was not set from the Stripe Plan.
+- Fixed issue where emails where sent even if the Send Email lightswitch was disabled
+
 ## 1.8.0 - 2019.03.10
 > {warning} we have updated the [front-end templates](https://github.com/enupal/stripe/tree/master/src/templates/_frontend) make sure to update the latest changes if you're using template overrides
+
 ### Added
 - Added `enupal\stripe\elements\Order::getShippingAddressModel()`.
 - Added `enupal\stripe\elements\Order::getBillingAddressModel()`.
