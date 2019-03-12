@@ -46,8 +46,15 @@ class Emails extends Component
      */
     public function sendNotificationEmails(Order $order)
     {
-        $this->sendNotificationEmail($order, self::ADMIN_TYPE);
-        $this->sendNotificationEmail($order, self::CUSTOMER_TYPE);
+        $settings = StripePlugin::getInstance()->getSettings();
+
+        if ($settings->enableCustomerNotification){
+            $this->sendNotificationEmail($order, self::CUSTOMER_TYPE);
+        }
+
+        if ($settings->enableAdminNotification){
+            $this->sendNotificationEmail($order, self::ADMIN_TYPE);
+        }
     }
 
     /**
