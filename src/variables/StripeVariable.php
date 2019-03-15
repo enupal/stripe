@@ -8,6 +8,7 @@
 
 namespace enupal\stripe\variables;
 
+use enupal\stripe\elements\db\PaymentFormsQuery;
 use enupal\stripe\elements\Order;
 use enupal\stripe\elements\db\OrdersQuery;
 use enupal\stripe\elements\PaymentForm;
@@ -31,6 +32,11 @@ class StripeVariable extends Behavior
     public $orders;
 
     /**
+     * @var PaymentForm
+     */
+    public $paymentForms;
+
+    /**
      * Returns a new OrderQuery instance.
      *
      * @param mixed $criteria
@@ -39,6 +45,21 @@ class StripeVariable extends Behavior
     public function orders($criteria = null): OrdersQuery
     {
         $query = Order::find();
+        if ($criteria) {
+            Craft::configure($query, $criteria);
+        }
+        return $query;
+    }
+
+    /**
+     * Returns a new OrderQuery instance.
+     *
+     * @param mixed $criteria
+     * @return PaymentFormsQuery
+     */
+    public function paymentForms($criteria = null): PaymentFormsQuery
+    {
+        $query = PaymentForm::find();
         if ($criteria) {
             Craft::configure($query, $criteria);
         }
