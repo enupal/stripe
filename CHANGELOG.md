@@ -1,5 +1,9 @@
 # Stripe Payments Changelog
 
+## 1.8.2 - 2019.03.15
+### Added
+- Added the `paymentForms` twig tag. [More info](https://enupal.com/craft-plugins/stripe-payments/docs/templating/payment-forms)
+
 ## 1.8.1 - 2019.03.12
 ### Fixed
 - Fixed issue where trial period was not set from the Stripe Plan.
