@@ -1,5 +1,11 @@
 # Stripe Payments Changelog
 
+## 1.8.3 - 2019.03.19
+### Added
+- Added addresses info to CSV/XLS Report. ([#28])
+
+[#28]: https://github.com/enupal/stripe/issues/28
+
 ## 1.8.2 - 2019.03.15
 ### Added
 - Added the `paymentForms` twig tag. [More info](https://enupal.com/craft-plugins/stripe-payments/docs/templating/payment-forms)
