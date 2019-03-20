@@ -13,6 +13,7 @@ use craft\controllers\ElementIndexesController;
 use craft\helpers\ChartHelper;
 use craft\helpers\DateTimeHelper;
 use craft\i18n\Locale;
+use enupal\stripe\elements\db\OrdersQuery;
 use enupal\stripe\Stripe;
 
 class ChartsController extends ElementIndexesController
@@ -40,6 +41,7 @@ class ChartsController extends ElementIndexesController
 
         $intervalUnit = ChartHelper::getRunChartIntervalUnit($startDate, $endDate);
 
+        /** @var OrdersQuery $query */
         $query = clone $this->getElementQuery()
             ->limit(null);
 

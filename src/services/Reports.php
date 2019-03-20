@@ -39,31 +39,8 @@ class Reports extends Component
      */
     public function getOrdersExportFile($format, $startDate, $endDate, $orderStatusId = null)
     {
-        $columns = [
-            'id',
-            'formId',
-            'userId',
-            'testMode',
-            'paymentType',
-            'number',
-            'currency',
-            'totalPrice',
-            'tax',
-            'quantity',
-            'dateOrdered',
-            'stripeTransactionId',
-            'email',
-            'isCompleted',
-            'variants formFields',
-            'isSubscription',
-            'orderStatusId',
-            'dateRefunded',
-            'refunded',
-            'billingAddressId',
-            'shippingAddressId',
-            'dateCreated',
-            'dateUpdated'
-        ];
+        $columns = $this->getSelectColumns();
+        $reportColumns = $this->getReportColumns();
 
         // Dont use `date(dateOrdered)` in sql to force comparison to whole day, instead just remove timestamp and shift end date.
         $startDate = new \DateTime($startDate);
@@ -76,6 +53,11 @@ class Reports extends Component
             ->from('{{%enupalstripe_orders}}')
             ->andWhere(['>=', 'dateOrdered', Db::prepareDateForDb($startDate)])
             ->andWhere(['<=', 'dateOrdered', Db::prepareDateForDb($endDate)]);
+
+        $orderQuery->leftJoin('{{%enupalstripe_addresses}} shipping_address', 'shipping_address.id = enupalstripe_orders.shippingAddressId');
+        $orderQuery->leftJoin('{{%enupalstripe_addresses}} billing_address', 'billing_address.id = enupalstripe_orders.billingAddressId');
+        $orderQuery->leftJoin('{{%enupalstripe_countries}} shippingCountries', 'shippingCountries.id = shipping_address.countryId');
+        $orderQuery->leftJoin('{{%enupalstripe_countries}} billingCountries', 'billingCountries.id = billing_address.countryId');
 
         $status = null;
 
@@ -92,7 +74,7 @@ class Reports extends Component
         // Populate the spreadsheet
         $spreadsheet = new Spreadsheet();
         $spreadsheet->setActiveSheetIndex(0);
-        $spreadsheet->getActiveSheet()->fromArray($columns, null, 'A1');
+        $spreadsheet->getActiveSheet()->fromArray($reportColumns, null, 'A1');
         $spreadsheet->getActiveSheet()->fromArray($orders, null, 'A2');
 
         // Could use the writer factory with a $format <-> phpspreadsheet string map, but this is more simple for now.
@@ -124,5 +106,101 @@ class Reports extends Component
         $writer->save($tempFile);
 
         return $tempFile;
+    }
+
+    /**
+     * @return array
+     */
+    private function getSelectColumns()
+    {
+        $columns = [
+            'enupalstripe_orders.id orderId',
+            'formId',
+            'userId',
+            'testMode',
+            'paymentType',
+            'number',
+            'currency',
+            'totalPrice',
+            'tax',
+            'quantity',
+            'dateOrdered',
+            'stripeTransactionId',
+            'email',
+            'isCompleted',
+            'variants formFields',
+            'isSubscription',
+            'orderStatusId',
+            'dateRefunded',
+            'refunded',
+            'billingAddressId',
+            'shippingAddressId',
+            'enupalstripe_orders.dateCreated dateCreated',
+            'enupalstripe_orders.dateUpdated dateUpdated',
+            'billing_address.firstName billingAddressFirstName',
+            'billing_address.lastName billingAddressLastName',
+            'billing_address.address1 billingAddressAddress1',
+            'billing_address.address2 billingAddressAddress2',
+            'billing_address.zipCode billingAddressZipCode',
+            'billing_address.stateName billingState',
+            'billingCountries.name billingCountry',
+            'shipping_address.firstName shippingAddressFirstName',
+            'shipping_address.lastName shippingAddressLastName',
+            'shipping_address.address1 shippingAddressAddress1',
+            'shipping_address.address2 shippingAddressAddress2',
+            'shipping_address.zipCode shippingAddressZipCode',
+            'shipping_address.stateName shippingState',
+            'shippingCountries.name shippingCountry',
+        ];
+
+        return $columns;
+    }
+
+    /**
+     * @return array
+     */
+    private function getReportColumns()
+    {
+        $columns = [
+            'orderId',
+            'formId',
+            'userId',
+            'testMode',
+            'paymentType',
+            'number',
+            'currency',
+            'totalPrice',
+            'tax',
+            'quantity',
+            'dateOrdered',
+            'stripeTransactionId',
+            'email',
+            'isCompleted',
+            'variants formFields',
+            'isSubscription',
+            'orderStatusId',
+            'dateRefunded',
+            'refunded',
+            'billingAddressId',
+            'shippingAddressId',
+            'dateCreated',
+            'dateUpdated',
+            'billingAddressFirstName',
+            'billingAddressLastName',
+            'billingAddressAddress1',
+            'billingAddressAddress2',
+            'billingAddressZipCode',
+            'billingAddressState',
+            'billingCountry',
+            'shippingAddressFirstName',
+            'shippingAddressLastName',
+            'shippingAddressAddress1',
+            'shippingAddressAddress2',
+            'shippingAddressZipCode',
+            'shippingAddressState',
+            'shippingCountry',
+        ];
+
+        return $columns;
     }
 }
