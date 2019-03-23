@@ -1,5 +1,11 @@
 # Stripe Payments Changelog
 
+## 1.8.4 - 2019.03.22
+### Fixed
+- Fixed error when exporting Orders and have a database has a table prefix. ([#29])
+
+[#29]: https://github.com/enupal/stripe/issues/29
+
 ## 1.8.3 - 2019.03.19
 ### Added
 - Added addresses info to CSV/XLS Report. ([#28])

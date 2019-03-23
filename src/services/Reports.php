@@ -50,7 +50,7 @@ class Reports extends Component
 
         $orderQuery = (new CraftQuery())
             ->select($columns)
-            ->from('{{%enupalstripe_orders}}')
+            ->from('{{%enupalstripe_orders}} enupalstripe_orders')
             ->andWhere(['>=', 'dateOrdered', Db::prepareDateForDb($startDate)])
             ->andWhere(['<=', 'dateOrdered', Db::prepareDateForDb($endDate)]);
 
