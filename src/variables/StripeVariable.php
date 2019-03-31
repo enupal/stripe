@@ -598,6 +598,25 @@ class StripeVariable extends Behavior
     }
 
     /**
+     * @return \Stripe\Collection
+     * @throws \Stripe\Error\Api
+     */
+    public function getAllCoupons()
+    {
+        return Stripe::$app->coupons->getAllCoupons();
+    }
+
+    /**
+     * @param $amount
+     * @param $currency
+     * @return float|int
+     */
+    public function convertFromCents($amount, $currency)
+    {
+        return Stripe::$app->orders->convertFromCents($amount, $currency);
+    }
+
+    /**
      * @param $view
      * @param $inputFilePath
      * @param $templatePath

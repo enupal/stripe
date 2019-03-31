@@ -109,6 +109,10 @@ class Stripe extends Plugin
                     "label" => self::t("Payment Forms"),
                     "url" => 'enupal-stripe/forms'
                 ],
+                'coupons' => [
+                    "label" => self::t("Coupons"),
+                    "url" => 'enupal-stripe/coupons'
+                ],
                 'settings' => [
                     "label" => self::t("Settings"),
                     "url" => 'enupal-stripe/settings'

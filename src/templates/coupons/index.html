@@ -1,0 +1,67 @@
+{% extends "enupal-stripe/_layouts/coupons" %}
+{% set title = "Coupons"|t('enupal-stripe') %}
+{% set coupons = craft.enupalStripe.getAllCoupons() %}
+
+{% block actionButton %}
+    {% include "enupal-stripe/coupons/_actionStatusButton" %}
+{% endblock %}
+
+{% set content %}
+    {% if coupons|length %}
+        <table id="coupons" class="data fullwidth collapsible">
+            <thead>
+            <tr>
+                <th scope="col">{{ "Name"|t('enupal-stripe') }}</th>
+                <th scope="col">{{ "ID"|t('enupal-stripe') }}</th>
+                <th scope="col">{{ "Percent off/Amount"|t('enupal-stripe') }}
+                <td class="thin"></td>
+            </tr>
+            </thead>
+            <tbody>
+            {% for coupon in coupons %}
+                <tr data-id="{{ coupon.id }}"
+                    data-name="{{ coupon.name }}">
+                    <th scope="row" data-title="{{ coupon.name }}"><a
+                                href="{{ 'https://dashboard.stripe.com/' ~ coupon.id }}">{{ coupon.name }}</a>
+                    </th>
+                    <td data-title="{{ coupon.id }}"
+                        class="code">{{ coupon.id }}</td>
+                    <td>
+                        {% if coupon.amount_off %}
+                            {% set finalAmount = craft.stripePayments.convertFromCents(coupon.amount_off, coupon.currency) %}
+                            {{ finalAmount|currency(coupon.currency) }}
+                        {% else %}
+                            {{ coupon.percent_off }} %
+                        {% endif %}
+                    </td>
+                    <td>
+                    <td class="thin">
+                        <a class="delete icon"
+                           title="{{ 'Delete'|t('enupal-stripe') }}"
+                           role="button"></a>
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        {{ "Create your first coupon!" }} <a href="https://dashboard.stripe.com/coupons">Here</a>
+    {% endif %}
+
+{% endset %}
+
+{% js %}
+    new Craft.AdminTable({
+    tableSelector: '#coupons',
+    newObjectBtnSelector: '#newcoupon',
+    deleteAction: 'enupal-stripe/coupons/delete',
+    minObjects: 0,
+    sortable: true,
+    reorderAction: 'enupal-stripe/order-statuses/reorder',
+    reorderSuccessMessage: Craft.t('Order statuses reordered.'),
+    reorderFailMessage:    Craft.t("Couldn’t reorder statuses.."),
+    confirmDeleteMessage: '{{ "Are you sure you want to delete the Coupon “{name}”?"|t('enupal-stripe') }}',
+    deleteFailMessage: '{{ "Unable to delete the coupon."|t('enupal-stripe') }}'
+    });
+{% endjs %}
+
