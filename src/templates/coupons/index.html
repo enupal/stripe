@@ -1,6 +1,9 @@
 {% extends "enupal-stripe/_layouts/coupons" %}
 {% set title = "Coupons"|t('enupal-stripe') %}
 {% set coupons = craft.enupalStripe.getAllCoupons() %}
+{% set testMode = craft.enupalStripe.getMode() %}
+{% set url = "https://dashboard.stripe.com" %}
+{% set url = testMode ? url~'/test' : url %}
 
 {% block actionButton %}
     {% include "enupal-stripe/coupons/_actionStatusButton" %}
@@ -22,13 +25,13 @@
                 <tr data-id="{{ coupon.id }}"
                     data-name="{{ coupon.name }}">
                     <th scope="row" data-title="{{ coupon.name }}"><a
-                                href="{{ 'https://dashboard.stripe.com/' ~ coupon.id }}">{{ coupon.name }}</a>
+                                href="{{ url~'/coupons/' ~ coupon.id }}">{{ coupon.name }}</a>
                     </th>
                     <td data-title="{{ coupon.id }}"
                         class="code">{{ coupon.id }}</td>
                     <td>
                         {% if coupon.amount_off %}
-                            {% set finalAmount = craft.stripePayments.convertFromCents(coupon.amount_off, coupon.currency) %}
+                            {% set finalAmount = craft.enupalStripe.convertFromCents(coupon.amount_off, coupon.currency) %}
                             {{ finalAmount|currency(coupon.currency) }}
                         {% else %}
                             {{ coupon.percent_off }} %
@@ -45,7 +48,7 @@
             </tbody>
         </table>
     {% else %}
-        {{ "Create your first coupon!" }} <a href="https://dashboard.stripe.com/coupons">Here</a>
+        {{ "Create your first coupon" }} <a href="{{ url }}/coupons">Here!</a>
     {% endif %}
 
 {% endset %}

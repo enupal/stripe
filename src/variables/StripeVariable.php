@@ -617,6 +617,16 @@ class StripeVariable extends Behavior
     }
 
     /**
+     * @return int
+     */
+    public function getMode()
+    {
+        $settings = Stripe::$app->settings->getSettings();
+
+        return $settings->testMode;
+    }
+
+    /**
      * @param $view
      * @param $inputFilePath
      * @param $templatePath
