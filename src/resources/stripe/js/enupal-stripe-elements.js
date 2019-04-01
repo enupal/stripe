@@ -114,6 +114,16 @@ var enupalStripe = {};
                 });
             }
 
+            if (enupalStripeData.coupon.enabled){
+                var shippingAddressWrapper = enupalButtonElement.find('.shippingAddressContainer');
+                var $couponButton = $("#check-coupon-button-"+enupalStripeData.paymentFormId);
+                $couponButton.click(function(event) {
+                    event.preventDefault();
+                    $couponButton.addClass('disabled');
+
+                });
+            }
+
             for ( var i = 0, l = pTypes.length; i < l; i++ ) {
                 if (pTypes[i] == 1){// Credit Card
                     if (i == 0){
@@ -223,6 +233,7 @@ var enupalStripe = {};
             var enupalStripeDataSubmission = $.extend(true, {}, enupalStripeData);
             var stripeConfig = enupalStripeDataSubmission.stripe;
             stripeConfig.amount = this.convertToCents(this.getFinalAmount(enupalButtonElement, enupalStripeDataSubmission), stripeConfig.currency);
+            // @todo add a hidden value with the coupon and update the price
             enupalButtonElement.find('[name="enupalStripe[amount]"]').val(stripeConfig.amount);
             enupalButtonElement.find('[name="enupalStripe[testMode]"]').val(enupalStripeDataSubmission.testMode);
             if (token){

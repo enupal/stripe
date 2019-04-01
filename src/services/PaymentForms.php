@@ -648,11 +648,15 @@ class PaymentForms extends Component
     /**
      * Returns a complete Stripe Payment Form for display in template
      *
-     * @param string     $handle
+     * @param string $handle
      * @param array|null $options
      *
      * @return string
-     * @throws \yii\base\Exception
+     * @throws Exception
+     * @throws \Twig\Error\LoaderError
+     * @throws \Twig\Error\RuntimeError
+     * @throws \Twig\Error\SyntaxError
+     * @throws \yii\base\InvalidConfigException
      */
     public function getPaymentFormHtml($handle, array $options = null)
     {

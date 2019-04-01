@@ -615,6 +615,7 @@ class PaymentForm extends Element
         $logoUrl = null;
         $logoAsset = $this->getLogoAsset();
         $calculateFinalAmount = $options['calculateFinalAmount'] ?? true;
+        $couponData = $this->getCouponData($options);
 
         if ($logoAsset){
             $logoUrl = $logoAsset->getUrl();
@@ -696,6 +697,7 @@ class PaymentForm extends Element
             'paymentTypeIds' => $paymentTypeIds,
             'enableShippingAddress' => $this->enableShippingAddress,
             'enableBillingAddress' => $this->enableBillingAddress,
+            'couponData' => $couponData,
             'stripe' => [
                 'description' => $this->name,
                 'panelLabel' =>  $this->checkoutButtonText ?? 'Pay {{amount}}',
@@ -856,5 +858,21 @@ class PaymentForm extends Element
         $methods = json_decode($this->paymentType, true);
 
         return $methods[0] ?? '';
+    }
+
+    /**
+     * @param $options
+     * @return array
+     */
+    private function getCouponData($options)
+    {
+        $couponData = [
+            'enabled' => $options['coupon']['enabled'] ?? false,
+            'label' => $options['coupon']['label'] ?? Craft::t('site', 'Coupon Code'),
+            'successMessage' => $options['coupon']['successMessage'] ?? '{name} !',
+            'errorMessage' => $options['coupon']['successMessage'] ?? 'This coupon is not valid',
+        ];
+
+        return $couponData;
     }
 }
