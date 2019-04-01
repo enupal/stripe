@@ -154,8 +154,6 @@ class PaymentFormsQuery extends ElementQuery
             'enupalstripe_forms.hasUnlimitedStock',
             'enupalstripe_forms.customerQuantity',
             'enupalstripe_forms.soldOutMessage',
-            'enupalstripe_forms.discountType',
-            'enupalstripe_forms.discount',
 
             'enupalstripe_forms.enableSubscriptions',
             'enupalstripe_forms.subscriptionType',

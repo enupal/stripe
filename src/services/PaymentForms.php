@@ -24,7 +24,6 @@ use enupal\stripe\enums\SubscriptionType;
 use enupal\stripe\web\assets\StripeAsset;
 use enupal\stripe\elements\PaymentForm;
 use enupal\stripe\enums\AmountType;
-use enupal\stripe\enums\DiscountType;
 use enupal\stripe\web\assets\StripeElementsAsset;
 use yii\base\Component;
 use enupal\stripe\Stripe as StripePlugin;
@@ -632,18 +631,6 @@ class PaymentForms extends Component
         $result = PaymentFormRecord::findOne([$field => $value]);
 
         return $result;
-    }
-
-    /**
-     * @return array
-     */
-    public function getDiscountOptions()
-    {
-        $types = [];
-        $types[DiscountType::RATE] = StripePlugin::t('Rate (%)');
-        $types[DiscountType::AMOUNT] = StripePlugin::t('Amount');
-
-        return $types;
     }
 
     /**
