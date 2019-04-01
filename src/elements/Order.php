@@ -67,7 +67,6 @@ class Order extends Element
     public $totalPrice;
     public $shipping;
     public $tax;
-    public $discount;
     public $isCompleted;
     public $email;
     public $firstName;
@@ -82,6 +81,11 @@ class Order extends Element
     public $addressName;
     public $addressStreet;
     public $addressZip;
+    // coupons
+    public $couponCode;
+    public $couponName;
+    public $couponAmount;
+    public $couponSnapshot;
     // variants
     public $variants;
     public $postData;
@@ -440,7 +444,10 @@ class Order extends Element
         $record->isCompleted = $this->isCompleted;
         $record->shipping = $this->shipping;
         $record->tax = $this->tax;
-        $record->discount = $this->discount;
+        $record->couponCode = $this->couponCode;
+        $record->couponName = $this->couponName;
+        $record->couponAmount = $this->couponAmount;
+        $record->couponSnapshot = $this->couponSnapshot;
         $record->variants = $this->variants;
         $record->transactionInfo = $this->transactionInfo;
         $record->testMode = $this->testMode;

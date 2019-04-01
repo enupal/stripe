@@ -88,9 +88,6 @@ class Install extends Migration
             'hasUnlimitedStock' => $this->boolean()->defaultValue(1),
             'customerQuantity' => $this->boolean(),
             'soldOutMessage' => $this->string(),
-            // Discounts
-            'discountType' => $this->integer()->defaultValue(0),
-            'discount' => $this->decimal(14, 4),
             // Shipping
             'verifyZip' => $this->boolean(),
             'enableBillingAddress' => $this->boolean(),
@@ -130,7 +127,10 @@ class Install extends Migration
             'totalPrice' => $this->decimal(14, 4)->defaultValue(0),
             'shipping' => $this->decimal(14, 4)->defaultValue(0),
             'tax' => $this->decimal(14, 4)->defaultValue(0),
-            'discount' => $this->decimal(14, 4)->defaultValue(0),
+            'couponCode' => $this->string(),
+            'couponName' => $this->string(),
+            'couponAmount' => $this->decimal(14, 4),
+            'couponSnapshot' => $this->longText(),
             'quantity' => $this->integer(),
             'dateOrdered' => $this->dateTime(),
             'orderStatusId' => $this->integer(),

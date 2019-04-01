@@ -28,7 +28,6 @@ use craft\records\Element;
  * @property $isCompleted
  * @property $shipping
  * @property $tax
- * @property $discount
  * @property $variants
  * @property $transactionInfo
  * @property $testMode
@@ -41,6 +40,10 @@ use craft\records\Element;
  * @property $isSubscription
  * @property $billingAddressId
  * @property $shippingAddressId
+ * @property $couponCode;
+ * @property $couponName;
+ * @property $couponAmount;
+ * @property $couponSnapshot;
  */
 class Order extends ActiveRecord
 {

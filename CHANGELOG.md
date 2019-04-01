@@ -1,5 +1,16 @@
 # Stripe Payments Changelog
 
+## WIP
+
+### Updated
+- Updated sync orders to save the shippingAddressId and billingAddressId
+
+### Removed
+- Removed unused address column on orders table
+- Removed unused discount column on orders table
+- Removed unused discount columns on forms table
+
+
 ## 1.8.4 - 2019.03.22
 ### Fixed
 - Fixed error when exporting Orders and have a database has a table prefix. ([#29])
