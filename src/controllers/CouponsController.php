@@ -27,6 +27,7 @@ class CouponsController extends BaseController
     public function actionValidate()
     {
         $this->requirePostRequest();
+        $this->requireAcceptsJson();
         $request = Craft::$app->getRequest();
         $couponCode = $request->getRequiredBodyParam('couponCode');
         $isRecurring = $request->getRequiredBodyParam('isRecurring');
