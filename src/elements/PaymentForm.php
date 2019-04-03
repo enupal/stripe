@@ -697,7 +697,7 @@ class PaymentForm extends Element
             'paymentTypeIds' => $paymentTypeIds,
             'enableShippingAddress' => $this->enableShippingAddress,
             'enableBillingAddress' => $this->enableBillingAddress,
-            'couponData' => $couponData,
+            'coupon' => $couponData,
             'stripe' => [
                 'description' => $this->name,
                 'panelLabel' =>  $this->checkoutButtonText ?? 'Pay {{amount}}',
@@ -868,9 +868,11 @@ class PaymentForm extends Element
     {
         $couponData = [
             'enabled' => $options['coupon']['enabled'] ?? false,
+            'displayTotal' => $options['coupon']['displayTotal'] ?? false,
+            'totalAmountLabel' => $options['coupon']['totalAmountLabel'] ?? false,
             'label' => $options['coupon']['label'] ?? Craft::t('site', 'Coupon Code'),
-            'successMessage' => $options['coupon']['successMessage'] ?? '{name} !',
-            'errorMessage' => $options['coupon']['successMessage'] ?? 'This coupon is not valid',
+            'successMessage' => $options['coupon']['successMessage'] ?? '{name} - {id}',
+            'errorMessage' => $options['coupon']['errorMessage'] ?? Craft::t('site','This coupon is not valid'),
         ];
 
         return $couponData;

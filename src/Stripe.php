@@ -172,7 +172,9 @@ class Stripe extends Plugin
     {
         return [
             'enupal/stripe-payments' =>
-                'enupal-stripe/webhook/stripe'
+                'enupal-stripe/webhook/stripe',
+            'enupal/validate-coupon' =>
+                'enupal-stripe/coupons/validate'
         ];
     }
 }

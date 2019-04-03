@@ -269,13 +269,14 @@
             </p>
         {% endif %}
 
-        {% set isCouponHidden = options.coupon.enabled ?? false %}
-        <div class="coupons-wrapper {% if isCouponHidden %} hidden {% endif %}">
+        {% set isCouponEnabled = options.coupon.enabled ?? false %}
+        <div class="coupons-wrapper {% if not isCouponEnabled %} hidden {% endif %}">
             <div class="form-group">
                 <div class="heading">
                     <label for="couponCode-{{ paymentForm.id }}">
                         {{ options.coupon.label ?? 'Coupon Code'|t }}
                     </label>
+                    <div class="coupon-message-wrapper"><span id="coupon-message-{{ paymentForm.id }}"></span></div>
                 </div>
                 <div class="input">
                     <input type="text"
@@ -284,10 +285,20 @@
                            class=""/>
 
                     <input id="check-coupon-button-{{ paymentForm.id }}" type="submit" value="Check Coupon"/>
-                    <input type="hidden" name="couponChecked" value="">
+                    <input type="hidden" name="enupalCouponCode" value="">
                 </div>
             </div>
         </div>
+        {% set displayTotal = options.coupon.displayTotal ?? false %}
+        {% if displayTotal %}
+            {% set totalAmountLabel = options.coupon.totalAmountLabel ?? 'Total Amount: '|t %}
+            <div class="total-amount-wrapper">
+                <div class="total-amount-label">
+                    {{ totalAmountLabel }}
+                    <span id="total-amount-value-{{ paymentForm.id }}" class="total-amount-value"></span>
+                </div>
+            </div>
+        {% endif %}
 
         <button id="{{ buttonId }}" class="{{ paymentForm.buttonClass }}"><span>{{ paymentForm.getPaymentFormText() }}</span></button>
     </form>

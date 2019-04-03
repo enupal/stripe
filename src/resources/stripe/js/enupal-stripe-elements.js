@@ -57,6 +57,8 @@ var enupalStripe = {};
             // get the form ID
             var enupalStripeData = $.parseJSON($(enupalButtonElement).find('[name="enupalStripe[stripeData]"]').val());
 
+            var that = this;
+
             //  Firefox is cached for some reason when we empty the hidden input.
             if (navigator.userAgent.indexOf("Firefox") < 0) {
                 // reset our values
@@ -115,12 +117,10 @@ var enupalStripe = {};
             }
 
             if (enupalStripeData.coupon.enabled){
-                var shippingAddressWrapper = enupalButtonElement.find('.shippingAddressContainer');
                 var $couponButton = $("#check-coupon-button-"+enupalStripeData.paymentFormId);
                 $couponButton.click(function(event) {
                     event.preventDefault();
-                    $couponButton.addClass('disabled');
-
+                    that.handleCouponValidation(enupalButtonElement, enupalStripeData, that);
                 });
             }
 
@@ -148,6 +148,51 @@ var enupalStripe = {};
                 }
             }
 
+        },
+
+        handleCouponValidation(enupalButtonElement, enupalStripeData, that)
+        {
+            var $couponButton = $("#check-coupon-button-"+enupalStripeData.paymentFormId);
+            var $couponMessage = $("#coupon-message-"+enupalStripeData.paymentFormId);
+            var $totalMessage = $("#total-amount-value-"+enupalStripeData.paymentFormId);
+            var $couponInput = $("#couponCode-"+enupalStripeData.paymentFormId);
+            var couponCode = $couponInput.val();
+            var stripeConfig = enupalStripeData.stripe;
+            $couponInput.val('');
+
+            var amount = this.convertToCents(that.getFinalAmount(enupalButtonElement, enupalStripeData), stripeConfig.currency);
+            $couponButton.prop('disabled', true);
+            var isRecurring = this.getIsRecurring(enupalButtonElement, enupalStripeData);
+
+            var data = {
+                'amount' : amount,
+                'couponCode': couponCode,
+                'isRecurring': isRecurring,
+                'currency': stripeConfig.currency,
+                'successMessage': enupalStripeData.coupon.successMessage
+            };
+
+            $.ajax({
+                type:"POST",
+                url:"enupal/validate-coupon",
+                data: data,
+                dataType : 'json',
+                success: function(response) {
+                    if (response.success === true){
+                        $couponMessage.removeClass('coupon-error');
+                        $couponMessage.text(response.successMessage);
+                        $totalMessage.text(response.finalAmount);
+                    }else{
+                        $couponMessage.addClass('coupon-error');
+                        $couponMessage.text(enupalStripeData.coupon.errorMessage);
+                    }
+                    $couponButton.prop('disabled', false);
+                }.bind(this),
+                error: function(xhr, status, err) {
+                    $couponButton.prop('disabled', false);
+                    console.error(xhr, status, err.toString());
+                }.bind(this)
+            });
         },
 
         createCardElement: function(stripe, enupalStripeData, elements, enupalButtonElement) {
@@ -233,7 +278,6 @@ var enupalStripe = {};
             var enupalStripeDataSubmission = $.extend(true, {}, enupalStripeData);
             var stripeConfig = enupalStripeDataSubmission.stripe;
             stripeConfig.amount = this.convertToCents(this.getFinalAmount(enupalButtonElement, enupalStripeDataSubmission), stripeConfig.currency);
-            // @todo add a hidden value with the coupon and update the price
             enupalButtonElement.find('[name="enupalStripe[amount]"]').val(stripeConfig.amount);
             enupalButtonElement.find('[name="enupalStripe[testMode]"]').val(enupalStripeDataSubmission.testMode);
             if (token){
@@ -297,6 +341,19 @@ var enupalStripe = {};
 
                 that.submitForm(enupalStripeData, enupalButtonElement, paymentFormId, null);
             });
+        },
+
+        getIsRecurring: function(enupalButtonElement, enupalStripeData) {
+            var isRecurring = false;
+            if (enupalStripeData.amountType == 1) {
+                isRecurring = enupalButtonElement.find('[name="enupalStripe[recurringToggle]"]').is(":checked");
+            }
+
+            if (enupalStripeData.enableSubscriptions) {
+                isRecurring = true;
+            }
+
+            return isRecurring;
         },
 
         getFinalAmount: function(enupalButtonElement, enupalStripeData) {

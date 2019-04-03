@@ -67,4 +67,27 @@ class Coupons extends Component
 
         return $result;
     }
+
+    /**
+     * Apply a coupon to an amount in cents
+     *
+     * @param $amountInCents
+     * @param $coupon
+     * @return float|int
+     */
+    public function applyCouponToAmount($amountInCents, $coupon)
+    {
+        $finalAmount = $amountInCents;
+
+        if ($coupon['percent_off']){
+            $percentOff = $coupon['percent_off'];
+            $discountAmount = $amountInCents * ($percentOff / 100);
+            $finalAmount = $amountInCents - $discountAmount;
+        }else {
+            $amountOff = $coupon['amount_off'];
+            $finalAmount = $amountInCents - $amountOff;
+        }
+
+        return $finalAmount;
+    }
 }

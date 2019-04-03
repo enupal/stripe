@@ -763,6 +763,34 @@ class Orders extends Component
     }
 
     /**
+     * Return the Minimum charge by currency
+     *
+     * @link https://stripe.com/docs/currencies#minimum-and-maximum-charge-amounts
+     * @param $currency
+     * @return mixed|string
+     */
+    public function getMinimumCharge($currency)
+    {
+        // Default for USD, BRL, CAD, AUD, CHF, EUR, NZD, SGD
+        $default = '0.50';
+
+        $minimumCharges = [
+            'DKK' => '2.50',
+            'GBP' => '4.00',
+            'HKD' => '0.50',
+            'JPY' => '50',
+            'MXN' => '10',
+            'NOK' => '3.00',
+            'SEK' => '3.00',
+            'USD' => '0.50',
+        ];
+
+        $minimum = $minimumCharges[$currency] ?? $default;
+
+        return $minimum;
+    }
+
+    /**
      * @param $addressData
      * @return int
      */
