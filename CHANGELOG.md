@@ -11,9 +11,13 @@
 - Removed unused discount columns on forms table
 
 
+## 1.8.5 - 2019.04.02
+### Fixed
+- Fixed an error which could prevent the plugin from installing on PostgreSQL.
+
 ## 1.8.4 - 2019.03.22
 ### Fixed
-- Fixed error when exporting Orders and have a database has a table prefix. ([#29])
+- Fixed error when exporting Orders and a table prefix is set ([#29])
 
 [#29]: https://github.com/enupal/stripe/issues/29
 

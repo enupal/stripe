@@ -56,7 +56,7 @@ class Install extends Migration
             'companyName' => $this->string(),
             'name' => $this->string()->notNull(),
             'handle' => $this->string()->notNull(),
-            'enableCheckout' => $this->boolean()->defaultValue(1),
+            'enableCheckout' => $this->boolean()->defaultValue(true),
             'paymentType' => $this->string(),
             'currency' => $this->string()->defaultValue('USD'),
             'language' => $this->string()->defaultValue('en'),
@@ -85,7 +85,7 @@ class Install extends Migration
             'selectPlanLabel' => $this->string(),
             // Inventory
             'quantity' => $this->integer(),
-            'hasUnlimitedStock' => $this->boolean()->defaultValue(1),
+            'hasUnlimitedStock' => $this->boolean()->defaultValue(true),
             'customerQuantity' => $this->boolean(),
             'soldOutMessage' => $this->string(),
             // Shipping
@@ -97,9 +97,9 @@ class Install extends Migration
             'itemWeight' => $this->decimal(14, 4)->notNull()->defaultValue(0),
             'itemWeightUnit' => $this->string(),
             // Customer
-            'showItemName' => $this->boolean()->defaultValue(0),
-            'showItemPrice' => $this->boolean()->defaultValue(0),
-            'showItemCurrency' => $this->boolean()->defaultValue(0),
+            'showItemName' => $this->boolean()->defaultValue(false),
+            'showItemPrice' => $this->boolean()->defaultValue(false),
+            'showItemCurrency' => $this->boolean()->defaultValue(false),
             'returnUrl' => $this->string(),
             'buttonClass' => $this->string(),
             // Button
@@ -118,7 +118,7 @@ class Install extends Migration
             'id' => $this->primaryKey(),
             'formId' => $this->integer(),
             'userId' => $this->integer(),
-            'testMode' => $this->boolean()->defaultValue(0),
+            'testMode' => $this->boolean()->defaultValue(false),
             'billingAddressId' => $this->integer(),
             'shippingAddressId' => $this->integer(),
             'paymentType' => $this->integer(),
