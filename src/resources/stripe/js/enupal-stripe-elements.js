@@ -182,6 +182,7 @@ var enupalStripe = {};
                         $couponMessage.removeClass('coupon-error');
                         $couponMessage.text(response.successMessage);
                         $totalMessage.text(response.finalAmount);
+                        $(enupalButtonElement).find('[name="enupalCouponCode"]').val(response.coupon.id);
                     }else{
                         $couponMessage.addClass('coupon-error');
                         $couponMessage.text(enupalStripeData.coupon.errorMessage);
@@ -430,7 +431,9 @@ var enupalStripe = {};
                 enupalButtonElement.find('[name="tax-amount-label"]').empty().append(taxLabel);
             }
 
-            return parseFloat(finalAmount) + parseFloat(fee);
+            var finalTotalAmount = parseFloat(finalAmount) + parseFloat(fee);
+
+            return finalTotalAmount;
         },
 
         convertToCents: function(amount, currency) {

@@ -8,7 +8,6 @@
 
 namespace enupal\stripe\controllers;
 
-use craft\i18n\Formatter;
 use craft\web\Controller as BaseController;
 use Craft;
 use enupal\stripe\Stripe;
@@ -45,6 +44,7 @@ class CouponsController extends BaseController
         if ($coupon){
             if ($coupon['valid']){
                 $finalAmount = Stripe::$app->coupons->applyCouponToAmount($amount, $coupon);
+                $result['coupon'] = $coupon;
                 if ($coupon['amount_off']){
                     $couponCurrency = $coupon['currency'];
                     $minimumCharge = Stripe::$app->orders->getMinimumCharge($currency);
