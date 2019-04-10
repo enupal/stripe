@@ -14,10 +14,8 @@ use craft\behaviors\FieldLayoutBehavior;
 use craft\elements\db\ElementQueryInterface;
 use craft\helpers\Json;
 use enupal\stripe\models\Settings;
-use enupal\stripe\enums\DiscountType;
 use enupal\stripe\enums\SubscriptionType;
 use enupal\stripe\Stripe;
-use enupal\stripe\validators\DiscountValidator;
 use craft\helpers\UrlHelper;
 use craft\elements\actions\Delete;
 
@@ -85,8 +83,6 @@ class PaymentForm extends Element
     public $hasUnlimitedStock;
     public $customerQuantity;
     public $soldOutMessage;
-    public $discountType;
-    public $discount;
     public $shippingAmount;
     public $itemWeight;
     public $itemWeightUnit;
@@ -205,62 +201,6 @@ class PaymentForm extends Element
         $tax = $this->settings->tax ?? null;
 
         return $tax;
-    }
-
-    /**
-     * @return string
-     */
-    public function getTaxType()
-    {
-        $taxType = null;
-
-        switch ($this->settings->taxType) {
-            case DiscountType::RATE:
-                {
-                    $taxType = 'tax_rate';
-                    break;
-                }
-            case DiscountType::AMOUNT:
-                {
-                    $taxType = 'rate';
-                    break;
-                }
-        }
-
-        return $taxType;
-    }
-
-    /**
-     * @return string
-     */
-    public function getDiscount()
-    {
-        $discount = $this->discount ?? null;
-
-        return $discount;
-    }
-
-    /**
-     * @return string
-     */
-    public function getDiscountType()
-    {
-        $discountType = null;
-
-        switch ($this->discountType) {
-            case DiscountType::RATE:
-                {
-                    $discountType = 'discount_rate';
-                    break;
-                }
-            case DiscountType::AMOUNT:
-                {
-                    $discountType = 'discount_amount';
-                    break;
-                }
-        }
-
-        return $discountType;
     }
 
     /**
@@ -512,8 +452,6 @@ class PaymentForm extends Element
         $record->enableRememberMe = $this->enableRememberMe;
         $record->quantity = $this->quantity;
         $record->hasUnlimitedStock = $this->hasUnlimitedStock;
-        $record->discountType = $this->discountType;
-        $record->discount = $this->discount;
 
         $record->verifyZip = $this->verifyZip;
         $record->enableBillingAddress = $this->enableBillingAddress;
@@ -567,11 +505,7 @@ class PaymentForm extends Element
                 return $model->enableCheckout != 1;
             }],
             [['name', 'handle'], 'string', 'max' => 255],
-            [['name', 'handle'], UniqueValidator::class, 'targetClass' => PaymentFormRecord::class],
-            [
-                ['discount'],
-                DiscountValidator::class
-            ],
+            [['name', 'handle'], UniqueValidator::class, 'targetClass' => PaymentFormRecord::class]
         ];
     }
 

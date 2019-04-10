@@ -143,14 +143,6 @@ class StripeVariable extends Behavior
     /**
      * @return array
      */
-    public function getDiscountOptions()
-    {
-        return Stripe::$app->paymentForms->getDiscountOptions();
-    }
-
-    /**
-     * @return array
-     */
     public function getAmountTypeOptions()
     {
         return Stripe::$app->paymentForms->getAmountTypeOptions();
