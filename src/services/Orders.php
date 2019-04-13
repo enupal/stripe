@@ -314,7 +314,6 @@ class Orders extends Component
         $order->quantity = $data['quantity'] ?? 1;
         $order->shipping = $data['shippingAmount'] ?? 0;
         $order->tax = $data['taxAmount'] ?? 0;
-        $order->discount = $data['discountAmount'] ?? 0;
         $shippingAddress = $data['address'] ?? null;
         $billingAddress = $data['billingAddress'] ?? null;
         $sameAddress = $data['sameAddressToggle'] ?? null;
@@ -362,6 +361,7 @@ class Orders extends Component
         $email = $request->getBodyParam('stripeElementEmail') ?? null;
         $formId = $data['formId'] ?? null;
         $data['email'] = $email;
+        $data['couponCode'] = $request->getBodyParam('enupalCouponCode') ?? null;
         $paymentType = $request->getBodyParam('paymentType');
         $paymentOptions = Stripe::$app->paymentForms->getAsynchronousPaymentTypes();
 
@@ -484,6 +484,7 @@ class Orders extends Component
         $token = $data['token'] ?? null;
         $formId = $data['formId'] ?? null;
         $paymentType = $postData['paymentType'] ?? PaymentType::CC;
+        $data['couponCode'] = $data['enupalCouponCode'] ?? null;
 
         if (empty($token) || empty($formId)){
             Craft::error('Unable to get the stripe token or formId', __METHOD__);
@@ -777,12 +778,10 @@ class Orders extends Component
         $minimumCharges = [
             'DKK' => '2.50',
             'GBP' => '4.00',
-            'HKD' => '0.50',
             'JPY' => '50',
             'MXN' => '10',
             'NOK' => '3.00',
-            'SEK' => '3.00',
-            'USD' => '0.50',
+            'SEK' => '3.00'
         ];
 
         $minimum = $minimumCharges[$currency] ?? $default;
@@ -1299,7 +1298,7 @@ class Orders extends Component
             }
         }
 
-        Craft::info('Enupal Stripe - Order Created: './** @scrutinizer ignore-type */ $order->number);
+        Craft::info('Enupal Stripe - Order Created: './** @scrutinizer ignore-type */ $order->number, __METHOD__);
         $result = $order;
 
         return $result;
