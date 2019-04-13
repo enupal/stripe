@@ -21,10 +21,6 @@ class m190401_000000_coupons_columns extends Migration
             $this->dropColumn($formsTable, 'discount');
         }
 
-        if ($this->getDb()->columnExists($formsTable, 'discountType')){
-            $this->dropColumn($formsTable, 'discountType');
-        }
-
         if ($this->getDb()->columnExists($table, 'discount')){
             $this->dropColumn($table, 'discount');
         }
