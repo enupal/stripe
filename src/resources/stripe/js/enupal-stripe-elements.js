@@ -152,10 +152,10 @@ var enupalStripe = {};
 
         handleCouponValidation(enupalButtonElement, enupalStripeData, that)
         {
-            var $couponButton = $("#check-coupon-button-"+enupalStripeData.paymentFormId);
-            var $couponMessage = $("#coupon-message-"+enupalStripeData.paymentFormId);
-            var $totalMessage = $("#total-amount-value-"+enupalStripeData.paymentFormId);
-            var $couponInput = $("#couponCode-"+enupalStripeData.paymentFormId);
+            var $couponButton = enupalButtonElement.find("#check-coupon-button-"+enupalStripeData.paymentFormId);
+            var $couponMessage = enupalButtonElement.find("#coupon-message-"+enupalStripeData.paymentFormId);
+            var $totalMessage = enupalButtonElement.find("#total-amount-value-"+enupalStripeData.paymentFormId);
+            var $couponInput = enupalButtonElement.find("#couponCode-"+enupalStripeData.paymentFormId);
             var couponCode = $couponInput.val();
             var stripeConfig = enupalStripeData.stripe;
             $couponInput.val('');
@@ -182,7 +182,7 @@ var enupalStripe = {};
                         $couponMessage.removeClass('coupon-error');
                         $couponMessage.text(response.successMessage);
                         $totalMessage.text(response.finalAmount);
-                        $(enupalButtonElement).find('[name="enupalCouponCode"]').val(response.coupon.id);
+                        enupalButtonElement.find('[name="enupalCouponCode"]').val(response.coupon.id);
                     }else{
                         $couponMessage.addClass('coupon-error');
                         $couponMessage.text(enupalStripeData.coupon.errorMessage);

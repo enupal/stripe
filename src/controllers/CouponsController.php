@@ -63,7 +63,7 @@ class CouponsController extends BaseController
                     }
                 }
 
-                $successMessage = Craft::$app->view->renderString($successMessage, ['coupon' => $coupon]);
+                $successMessage = Craft::$app->view->renderObjectTemplate($successMessage, $coupon);
             }
         }else {
             $result['success'] = false;
