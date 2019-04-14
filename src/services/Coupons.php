@@ -75,7 +75,7 @@ class Coupons extends Component
      * @param $coupon
      * @return float|int
      */
-    public function applyCouponToAmount($amountInCents, $coupon)
+    public function applyCouponToAmountInCents($amountInCents, $coupon)
     {
         $finalAmount = $amountInCents;
 

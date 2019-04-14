@@ -43,7 +43,7 @@ class CouponsController extends BaseController
 
         if ($coupon){
             if ($coupon['valid']){
-                $finalAmount = Stripe::$app->coupons->applyCouponToAmount($amount, $coupon);
+                $finalAmount = Stripe::$app->coupons->applyCouponToAmountInCents($amount, $coupon);
                 $result['coupon'] = $coupon;
                 if ($coupon['amount_off']){
                     $couponCurrency = $coupon['currency'];

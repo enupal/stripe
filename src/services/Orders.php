@@ -484,7 +484,7 @@ class Orders extends Component
         $token = $data['token'] ?? null;
         $formId = $data['formId'] ?? null;
         $paymentType = $postData['paymentType'] ?? PaymentType::CC;
-        $data['couponCode'] = $data['enupalCouponCode'] ?? null;
+        $data['couponCode'] = $postData['enupalCouponCode'] ?? null;
 
         if (empty($token) || empty($formId)){
             Craft::error('Unable to get the stripe token or formId', __METHOD__);
@@ -865,6 +865,10 @@ class Orders extends Component
             }
         }
 
+        if ($data['couponCode']){
+            $this->applyOneTimeCoupon($data, $order);
+        }
+
         $chargeSettings = [
             'amount' => $data['amount'], // amount in cents from js
             'currency' => $paymentForm->currency,
@@ -877,6 +881,31 @@ class Orders extends Component
         $charge = $this->charge($chargeSettings);
 
         return $charge;
+    }
+
+    /**
+     * @param $data
+     * @param Order $order
+     * @throws \Exception
+     */
+    private function applyOneTimeCoupon(&$data, Order &$order)
+    {
+        $coupon = StripePlugin::$app->coupons->getCoupon($data['couponCode']);
+
+        if ($coupon) {
+            if ($coupon['valid']) {
+                $finalAmount = StripePlugin::$app->coupons->applyCouponToAmountInCents($data['amount'], $coupon);
+                $couponAmount = $data['amount'] - $finalAmount;
+                $order->couponCode = $coupon['id'];
+                $order->couponName = $coupon['name'];
+                $order->couponAmount = $this->convertFromCents($couponAmount, $order->currency);
+                $order->couponSnapshot = json_encode($coupon);
+                $order->totalPrice = $finalAmount;
+
+                $data['metadata']['couponCode'] = $coupon['id'];
+                $data['amount'] = $finalAmount;
+            }
+        }
     }
 
     /**
