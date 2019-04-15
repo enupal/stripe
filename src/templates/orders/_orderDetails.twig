@@ -32,34 +32,35 @@
             </td>
         </tr>
 
-                <tr>
-                    <td></td>
-                    <td>
-                        <strong></strong><br>
-                    </td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td>
-                        <span class="right"></span>
-                    </td>
-                    <td></td>
-                </tr>
-                {# SHIPPING
-                <tr>
-                    <td></td>
-                    <td>
-                        <strong>{{ "Discount "|t('enupal-stripe')}}</strong><br>
-                    </td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td>
-                        <span class="right">-{{ order.discount|currency(order.currency) }}</span>
-                    </td>
-                    <td></td>
-                </tr>
-                #}
+        <tr>
+            <td></td>
+            <td>
+                <strong></strong><br>
+            </td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td>
+                <span class="right"></span>
+            </td>
+            <td></td>
+        </tr>
+        {% if order.couponAmount > 0 and order.couponCode %}
+        <tr class="infoRow"  data-info="{{ order.couponSnapshot }}">
+            <td></td>
+            <td>
+            </td>
+            <td></td>
+            <td></td>
+            <td>
+                <strong>{{ "Coupon Discount"|t('enupal-stripe')}}</strong><br>{{ order.couponName }}  <span class="tableRowInfo" data-icon="info" href="#"></span>
+            </td>
+            <td>
+                <span class="right">-{{ order.couponAmount|currency(order.currency) }}</span>
+            </td>
+            <td></td>
+        </tr>
+        {% endif %}
         {% if order.tax > 0 and order.isSubscription() %}
         <tr>
             <td></td>
