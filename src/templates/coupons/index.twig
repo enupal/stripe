@@ -16,7 +16,12 @@
             <tr>
                 <th scope="col">{{ "Name"|t('enupal-stripe') }}</th>
                 <th scope="col">{{ "ID"|t('enupal-stripe') }}</th>
-                <th scope="col">{{ "Percent off/Amount"|t('enupal-stripe') }}
+                <th scope="col">{{ "Percent off/Amount"|t('enupal-stripe') }}</th>
+                <th scope="col">{{ "Times Redeemed"|t('enupal-stripe') }} <br>(subscriptions)</th>
+                <th scope="col">{{ "Times Redeemed"|t('enupal-stripe') }} <br>(one-time)</th>
+                <th scope="col">{{ "Max Redemptions"|t('enupal-stripe') }} <span class="info">{{ "Maximum number of times this coupon can be redeemed"|t('enupal-stripe') }}</span></th>
+                <th scope="col">{{ "Redeem By"|t('enupal-stripe') }} <span class="info">{{ "Date after which the coupon can no longer be redeemed."|t('enupal-stripe') }}</span></th>
+
                 <td class="thin"></td>
             </tr>
             </thead>
@@ -35,6 +40,26 @@
                             {{ finalAmount|currency(coupon.currency) }}
                         {% else %}
                             {{ coupon.percent_off }} %
+                        {% endif %}
+                    </td>
+                    <td>
+                        {{ coupon.times_redeemed }}
+                    </td>
+                    <td>
+                        {{ coupon.one_time_redeemed }}
+                    </td>
+                    <td>
+                        {% if coupon.max_redemptions is null %}
+                            ∞
+                        {% else %}
+                            {{ coupon.max_redemptions }}
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if coupon.redeem_by is null %}
+                            ∞
+                        {% else %}
+                            {{ coupon.redeem_by|date('short') }}
                         {% endif %}
                     </td>
                     <td>

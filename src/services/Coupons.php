@@ -8,6 +8,7 @@
 
 namespace enupal\stripe\services;
 
+use craft\db\Query;
 use enupal\stripe\Stripe as StripePlugin;
 use Stripe\Coupon;
 use yii\base\Component;
@@ -24,6 +25,10 @@ class Coupons extends Component
         StripePlugin::$app->settings->initializeStripe();
 
         $coupons = Coupon::all();
+
+        foreach ($coupons as $coupon) {
+            $coupon['one_time_redeemed'] = $this->getTotalTimesCouponRedeemed($coupon['id']);
+        }
 
         return $coupons;
     }
@@ -89,5 +94,23 @@ class Coupons extends Component
         }
 
         return $finalAmount;
+    }
+
+    /**
+     * Return the total times that a coupon is Redeemed
+     *
+     * @param $coupon
+     * @return int|string
+     */
+    public function getTotalTimesCouponRedeemed($coupon)
+    {
+        $total = (new Query())
+            ->select('id')
+            ->from(['{{%enupalstripe_orders}}'])
+            ->where(['<>','paymentType', 2])
+            ->andWhere(['[[couponCode]]' => $coupon])
+            ->count();
+
+        return $total;
     }
 }
