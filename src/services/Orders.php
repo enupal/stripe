@@ -23,6 +23,7 @@ use enupal\stripe\events\OrderRefundEvent;
 use enupal\stripe\events\WebhookEvent;
 use enupal\stripe\models\Address;
 use enupal\stripe\Stripe;
+use enupal\stripe\Stripe as StripePlugin;
 use Stripe\Charge;
 use Stripe\Customer;
 use Stripe\Error\Card;
@@ -32,7 +33,6 @@ use Stripe\Plan;
 use Stripe\Refund;
 use Stripe\Source;
 use yii\base\Component;
-use enupal\stripe\Stripe as StripePlugin;
 use enupal\stripe\records\Order as OrderRecord;
 use enupal\stripe\records\Customer as CustomerRecord;
 
@@ -664,7 +664,7 @@ class Orders extends Component
             return (int)$amount;
         }
 
-        return (int)$amount * 100;
+        return $amount * 100;
     }
 
     /**
@@ -770,7 +770,7 @@ class Orders extends Component
      * @param $currency
      * @return mixed|string
      */
-    public function getMinimumCharge($currency)
+    public function getMinimumChargeInCents($currency)
     {
         // Default for USD, BRL, CAD, AUD, CHF, EUR, NZD, SGD
         $default = '0.50';
@@ -786,7 +786,7 @@ class Orders extends Component
 
         $minimum = $minimumCharges[$currency] ?? $default;
 
-        return $minimum;
+        return $this->convertToCents($minimum, $currency);
     }
 
     /**

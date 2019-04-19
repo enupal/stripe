@@ -9,6 +9,9 @@
 namespace enupal\stripe\services;
 
 use craft\db\Query;
+use craft\helpers\DateTimeHelper;
+use craft\helpers\UrlHelper;
+use enupal\stripe\models\CouponRedeemed;
 use enupal\stripe\Stripe as StripePlugin;
 use Stripe\Coupon;
 use yii\base\Component;
@@ -77,23 +80,61 @@ class Coupons extends Component
      * Apply a coupon to an amount in cents
      *
      * @param $amountInCents
-     * @param $coupon
-     * @return float|int
+     * @param $couponCode
+     * @param $currency
+     * @param bool $isRecurring
+     * @return CouponRedeemed
+     * @throws \Exception
      */
-    public function applyCouponToAmountInCents($amountInCents, $coupon)
+    public function applyCouponToAmountInCents($amountInCents, $couponCode, $currency, $isRecurring = false)
     {
-        $finalAmount = $amountInCents;
+        $coupon = $this->getCoupon($couponCode);
+        $couponRedeemed = new CouponRedeemed();
+        $couponRedeemed->isValid = true;
+        $couponRedeemed->finalAmount = $amountInCents;
+
+        if (!isset($coupon['valid']) && !$coupon['valid']) {
+            $couponRedeemed->addErrorMessage(Craft::t('enupal-stripe', 'The coupon is no longer valid'));
+            return $couponRedeemed;
+        }
+
+        $isValidDate = $this->validateCouponDate($coupon);
+
+        if (!$isValidDate){
+            $couponRedeemed->addErrorMessage(Craft::t('enupal-stripe', 'The Coupon date has expired'));
+            return $couponRedeemed;
+        }
+
+        $canBeRedeemed = $this->validateTimesRedeemed($coupon, $isRecurring);
+
+        if (!$canBeRedeemed){
+            $couponRedeemed->addErrorMessage(Craft::t('enupal-stripe', 'Reached maximum number of times this coupon can be redeemed'));
+            return $couponRedeemed;
+        }
+
+        $couponRedeemed->coupon = $coupon;
 
         if ($coupon['percent_off']){
             $percentOff = $coupon['percent_off'];
             $discountAmount = $amountInCents * ($percentOff / 100);
-            $finalAmount = $amountInCents - $discountAmount;
+            $couponRedeemed->finalAmount = $amountInCents - $discountAmount;
         }else {
             $amountOff = $coupon['amount_off'];
-            $finalAmount = $amountInCents - $amountOff;
+            $couponRedeemed->finalAmount = $amountInCents - $amountOff;
+
+            $couponCurrency = $coupon['currency'];
+            if (strtolower($couponCurrency) != strtolower($currency)) {
+                $couponRedeemed->addErrorMessage(Craft::t('enupal-stripe', 'The amount currency and coupon currency are different'));
+            }
         }
 
-        return $finalAmount;
+        $minimumCharge = StripePlugin::$app->orders->getMinimumChargeInCents($currency);
+
+        if ($couponRedeemed->finalAmount < $minimumCharge) {
+            $couponRedeemed->addErrorMessage(Craft::t('enupal-stripe', 'The final amount is less than allowed by Stripe after apply the coupon'));
+        }
+
+        return $couponRedeemed;
     }
 
     /**
@@ -112,5 +153,44 @@ class Coupons extends Component
             ->count();
 
         return $total;
+    }
+
+    /**
+     * @param Coupon $coupon
+     * @return bool
+     */
+    private function validateCouponDate(Coupon $coupon): bool
+    {
+        $redeemBy = $coupon['redeem_by'] ?? null;
+        $result = true;
+
+        if (!is_null($redeemBy)){
+            $result = DateTimeHelper::isInThePast($redeemBy);
+        }
+
+        return $result;
+    }
+
+    /**
+     * @param Coupon $coupon
+     * @param bool $isRecurring
+     * @return bool
+     */
+    private function validateTimesRedeemed(Coupon $coupon, $isRecurring): bool
+    {
+        if ($isRecurring){
+            if (!is_null($coupon['max_redemptions'])){
+                if ($coupon['times_redeemed'] >= $coupon['max_redemptions']){
+                    return false;
+                }
+            }
+        }else{
+            $timesRedeemed = $this->getTotalTimesCouponRedeemed($coupon['id']);
+            if ($timesRedeemed >= $coupon['max_redemptions']){
+                return false;
+            }
+        }
+
+        return true;
     }
 }

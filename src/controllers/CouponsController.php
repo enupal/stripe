@@ -34,46 +34,18 @@ class CouponsController extends BaseController
         $successMessage = $request->getRequiredBodyParam('successMessage');
         $amount = $request->getRequiredBodyParam('amount');
 
+        $couponRedeemed = Stripe::$app->coupons->applyCouponToAmountInCents($amount, $couponCode, $currency, $isRecurring);
+
+        if ($couponRedeemed->isValid){
+            $successMessage = Craft::$app->view->renderObjectTemplate($successMessage, $couponRedeemed->coupon);
+        }
+
         $result = [
-            'success' => true
+            'success' => $couponRedeemed->isValid,
+            'coupon' => $couponRedeemed->coupon
         ];
 
-        $coupon = Stripe::$app->coupons->getCoupon($couponCode);
-        $finalAmount = $amount;
-
-        if ($coupon){
-            if ($coupon['valid']){
-                $finalAmount = Stripe::$app->coupons->applyCouponToAmountInCents($amount, $coupon);
-                $result['coupon'] = $coupon;
-                if ($coupon['amount_off']){
-                    $couponCurrency = $coupon['currency'];
-                    $minimumCharge = Stripe::$app->orders->getMinimumCharge($currency);
-                    $minimumCharge = Stripe::$app->orders->convertToCents($minimumCharge, $currency);
-
-                    if (!$isRecurring) {
-                        if ($finalAmount < $minimumCharge) {
-                            $result['success'] = false;
-                            Craft::error('The final amount is less than allowed by Stripe after apply the coupon', __METHOD__);
-                        }
-                    }
-
-                    if (strtolower($couponCurrency) != strtolower($currency)){
-                        $result['success'] = false;
-                        Craft::error('The amount currency and coupon currency are different', __METHOD__);
-                    }
-                }
-
-                $successMessage = Craft::$app->view->renderObjectTemplate($successMessage, $coupon);
-            }
-        }else {
-            $result['success'] = false;
-        }
-
-        if ($finalAmount < 0){
-            $finalAmount = 0;
-        }
-
-        $finalAmount = Stripe::$app->orders->convertFromCents($finalAmount, $currency);
+        $finalAmount = Stripe::$app->orders->convertFromCents($couponRedeemed->finalAmount, $currency);
         $result['finalAmount'] = Craft::$app->getFormatter()->asCurrency($finalAmount, $currency);
         $result['successMessage'] = $successMessage;
 
