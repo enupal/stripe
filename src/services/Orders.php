@@ -391,6 +391,7 @@ class Orders extends Component
 
         $order = $this->populateOrder($data, true);
         $order->paymentType = $request->getBodyParam('paymentType');
+        $postData['currency'] = 'EUR';
         $order->postData = json_encode($postData);
         $order->currency = 'EUR';
         $order->formId = $paymentForm->id;
@@ -517,6 +518,7 @@ class Orders extends Component
         }
 
         $order->currency = $paymentForm->currency;
+        $data['currency'] = $paymentForm->currency;
         $order->formId = $paymentForm->id;
 
         StripePlugin::$app->settings->initializeStripe();
@@ -526,7 +528,7 @@ class Orders extends Component
         $stripeId = null;
 
         if ($paymentForm->enableSubscriptions){
-            $stripeId = $this->handleSubscription($paymentForm, $customer, $data);
+            $stripeId = $this->handleSubscription($paymentForm, $customer, $data, $order);
         }else{
             $stripeId = $this->handleOneTimePayment($paymentForm, $customer, $data, $token, $isNew, $order);
         }
@@ -927,7 +929,7 @@ class Orders extends Component
      * @return mixed
      * @throws \Exception
      */
-    private function addPlanToCustomer($customer, $planId, $data)
+    private function addPlanToCustomer($customer, $planId, $data, $order)
     {
         $settings = StripePlugin::$app->settings->getSettings();
 
@@ -939,6 +941,10 @@ class Orders extends Component
             "plan" => $planId,
             "trial_from_plan" => true
         ];
+
+        if ($data['couponCode']){
+            $this->applyCouponToSubscription($data['couponCode'], $data, $subscriptionSettings, $order);
+        }
 
         // Add support for tiers
         if (isset($data['quantity']) && $data['quantity']){
@@ -958,12 +964,39 @@ class Orders extends Component
     }
 
     /**
+     * @param $couponCode
+     * @param $data
+     * @param $subscriptionSettings
+     * @param $order
+     * @throws \Exception
+     */
+    private function applyCouponToSubscription($couponCode, &$data, &$subscriptionSettings, &$order)
+    {
+        $couponRedeemed = StripePlugin::$app->coupons->applyCouponToAmountInCents($data['amount'], $couponCode, $data['currency'], true);
+        if ($couponRedeemed->isValid){
+            $coupon =  $couponRedeemed->coupon;
+
+            $couponAmount = $data['amount'] - $couponRedeemed->finalAmount;
+            $order->couponCode = $coupon['id'];
+            $order->couponName = $coupon['name'];
+            $order->couponAmount = $this->convertFromCents($couponAmount, $order->currency);
+            $order->couponSnapshot = json_encode($coupon);
+            $order->totalPrice = $couponRedeemed->finalAmount;
+
+            $subscriptionSettings['coupon'] = $coupon['id'];
+            $data['metadata']['couponCode'] = $coupon['id'];
+        }
+    }
+
+    /**
      * @param $customer
      * @param $data
      * @param $paymentForm
+     * @param $order
      * @return mixed
+     * @throws \Exception
      */
-    private function addRecurringPayment($customer, $data, $paymentForm)
+    private function addRecurringPayment($customer, $data, $paymentForm, $order)
     {
         $currentTime = time();
         $planName = strval($currentTime);
@@ -995,6 +1028,10 @@ class Orders extends Component
         // Add tax
         if ($settings->enableTaxes && $settings->tax){
             $subscriptionSettings['tax_percent'] = $settings->tax;
+        }
+
+        if ($data['couponCode']){
+            $this->applyCouponToSubscription($data['couponCode'], $data, $subscriptionSettings, $order);
         }
 
         $subscriptionSettings['metadata'] = $this->getStripeMetadata($data);
@@ -1208,13 +1245,14 @@ class Orders extends Component
     }
 
     /**
-     * @param $paymentForm PaymentForm
+     * @param $paymentForm
      * @param $customer
      * @param $data
      * @param $token
      * @param $isNew
-     * @param $order Order
+     * @param $order
      * @return mixed|null
+     * @throws \Exception
      */
     private function handleOneTimePayment($paymentForm, $customer, $data, $token, $isNew, $order)
     {
@@ -1223,7 +1261,7 @@ class Orders extends Component
         if (isset($data['recurringToggle']) && $data['recurringToggle'] == 'on'){
             if (isset($data['customAmount']) && $data['customAmount'] > 0){
                 // test what is returning we need a stripe id
-                $subscription = $this->addRecurringPayment($customer, $data, $paymentForm);
+                $subscription = $this->addRecurringPayment($customer, $data, $paymentForm, $order);
                 $stripeId = $subscription->id ?? null;
             }
         }
@@ -1243,7 +1281,7 @@ class Orders extends Component
      * @return null
      * @throws \Exception
      */
-    private function handleSubscription($paymentForm, $customer, $data)
+    private function handleSubscription($paymentForm, $customer, $data, $order)
     {
         $planId = null;
         $stripeId = null;
@@ -1258,7 +1296,7 @@ class Orders extends Component
             }
 
             // Either single plan or multiple plans the user should select one plan and plan id should be available in the post request
-            $subscription = $this->addPlanToCustomer($customer, $planId, $data);
+            $subscription = $this->addPlanToCustomer($customer, $planId, $data, $order);
             $stripeId = $subscription->id ?? null;
         }
 
@@ -1287,7 +1325,7 @@ class Orders extends Component
                 $this->addOneTimeSetupFee($customer, $setupFee, $paymentForm);
             }
 
-            $subscription = $this->addPlanToCustomer($customer, $planId, $data);
+            $subscription = $this->addPlanToCustomer($customer, $planId, $data, $order);
             $stripeId = $subscription->id ?? null;
         }
 
