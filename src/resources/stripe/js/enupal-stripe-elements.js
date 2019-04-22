@@ -118,6 +118,15 @@ var enupalStripe = {};
 
             if (enupalStripeData.coupon.enabled){
                 var $couponButton = $("#check-coupon-button-"+enupalStripeData.paymentFormId);
+                this.updateTotalAmoutLabel(enupalButtonElement, enupalStripeData);
+
+                var $removeCoupon = enupalButtonElement.find("#remove-coupon-"+enupalStripeData.paymentFormId);
+
+                $removeCoupon.click(function(event) {
+                    event.preventDefault();
+                    that.handleRemoveCoupon(enupalButtonElement, enupalStripeData, that);
+                });
+
                 $couponButton.click(function(event) {
                     event.preventDefault();
                     that.handleCouponValidation(enupalButtonElement, enupalStripeData, that);
@@ -150,10 +159,35 @@ var enupalStripe = {};
 
         },
 
+        updateTotalAmoutLabel(enupalButtonElement, enupalStripeData)
+        {
+            var $totalMessage = enupalButtonElement.find("#total-amount-value-"+enupalStripeData.paymentFormId);
+            var amount = this.getFinalAmount(enupalButtonElement, enupalStripeData);
+            if ($totalMessage){
+                $totalMessage.text(amount);
+            }
+        },
+
+        handleRemoveCoupon(enupalButtonElement, enupalStripeData, that)
+        {
+            var $couponButton = enupalButtonElement.find("#check-coupon-button-"+enupalStripeData.paymentFormId);
+            var $couponMessage = enupalButtonElement.find("#coupon-message-"+enupalStripeData.paymentFormId);
+            var $removeCoupon = enupalButtonElement.find("#remove-coupon-"+enupalStripeData.paymentFormId);
+            var $totalMessage = enupalButtonElement.find("#total-amount-value-"+enupalStripeData.paymentFormId);
+            var $couponInput = enupalButtonElement.find("#couponCode-"+enupalStripeData.paymentFormId);
+            var couponCode = $couponInput.val();
+            var stripeConfig = enupalStripeData.stripe;
+            $couponInput.val('');
+
+            enupalButtonElement.find('[name="enupalCouponCode"]').val('');
+            that.updateTotalAmoutLabel(enupalButtonElement, enupalStripeData);
+        },
+
         handleCouponValidation(enupalButtonElement, enupalStripeData, that)
         {
             var $couponButton = enupalButtonElement.find("#check-coupon-button-"+enupalStripeData.paymentFormId);
             var $couponMessage = enupalButtonElement.find("#coupon-message-"+enupalStripeData.paymentFormId);
+            var $removeCoupon = enupalButtonElement.find("#remove-coupon-"+enupalStripeData.paymentFormId);
             var $totalMessage = enupalButtonElement.find("#total-amount-value-"+enupalStripeData.paymentFormId);
             var $couponInput = enupalButtonElement.find("#couponCode-"+enupalStripeData.paymentFormId);
             var couponCode = $couponInput.val();
@@ -181,10 +215,15 @@ var enupalStripe = {};
                     if (response.success === true){
                         $couponMessage.removeClass('coupon-error');
                         $couponMessage.text(response.successMessage);
-                        $totalMessage.text(response.finalAmount);
+                        $removeCoupon.removeClass('hidden');
+
+                        if ($totalMessage){
+                            $totalMessage.text(response.finalAmount);
+                        }
                         enupalButtonElement.find('[name="enupalCouponCode"]').val(response.coupon.id);
                     }else{
                         $couponMessage.addClass('coupon-error');
+                        $removeCoupon.addClass('hidden');
                         $couponMessage.text(enupalStripeData.coupon.errorMessage);
                     }
                     $couponButton.prop('disabled', false);
