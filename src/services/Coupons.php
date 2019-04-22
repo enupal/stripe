@@ -162,13 +162,13 @@ class Coupons extends Component
     private function validateCouponDate(Coupon $coupon): bool
     {
         $redeemBy = $coupon['redeem_by'] ?? null;
-        $result = true;
+        $result = false;
 
         if (!is_null($redeemBy)){
             $result = DateTimeHelper::isInThePast($redeemBy);
         }
 
-        return $result;
+        return !$result;
     }
 
     /**

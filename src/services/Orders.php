@@ -849,7 +849,8 @@ class Orders extends Component
      * @param $isNew
      * @param $token
      * @param $order
-     * @return null|\Stripe\ApiResource
+     * @return \Stripe\ApiResource|null
+     * @throws \Exception
      */
     private function stripeCharge($data, $paymentForm, $customer, $isNew, $token, $order)
     {
@@ -890,21 +891,19 @@ class Orders extends Component
      */
     private function applyOneTimeCoupon(&$data, Order &$order)
     {
-        $coupon = StripePlugin::$app->coupons->getCoupon($data['couponCode']);
+        $couponRedeemed = StripePlugin::$app->coupons->applyCouponToAmountInCents($data['amount'], $data['couponCode'], $order->currency);
 
-        if ($coupon) {
-            if ($coupon['valid']) {
-                $finalAmount = StripePlugin::$app->coupons->applyCouponToAmountInCents($data['amount'], $coupon);
-                $couponAmount = $data['amount'] - $finalAmount;
-                $order->couponCode = $coupon['id'];
-                $order->couponName = $coupon['name'];
-                $order->couponAmount = $this->convertFromCents($couponAmount, $order->currency);
-                $order->couponSnapshot = json_encode($coupon);
-                $order->totalPrice = $finalAmount;
+        if ($couponRedeemed->isValid){
+            $coupon = $couponRedeemed->coupon;
+            $couponAmount = $data['amount'] - $couponRedeemed->finalAmount;
+            $order->couponCode = $coupon['id'];
+            $order->couponName = $coupon['name'];
+            $order->couponAmount = $this->convertFromCents($couponAmount, $order->currency);
+            $order->couponSnapshot = json_encode($coupon);
+            $order->totalPrice = $couponRedeemed->finalAmount;
 
-                $data['metadata']['couponCode'] = $coupon['id'];
-                $data['amount'] = $finalAmount;
-            }
+            $data['metadata']['couponCode'] = $coupon['id'];
+            $data['amount'] = $couponRedeemed->finalAmount;
         }
     }
 
