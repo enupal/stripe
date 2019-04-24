@@ -30,6 +30,8 @@ class CouponsController extends BaseController
         $request = Craft::$app->getRequest();
         $couponCode = $request->getRequiredBodyParam('couponCode');
         $isRecurring = $request->getRequiredBodyParam('isRecurring');
+        $isRecurring = filter_var ($isRecurring, FILTER_VALIDATE_BOOLEAN);
+
         $currency = $request->getRequiredBodyParam('currency');
         $successMessage = $request->getRequiredBodyParam('successMessage');
         $amount = $request->getRequiredBodyParam('amount');
