@@ -541,6 +541,10 @@ class Orders extends Component
             Craft::error('Something went wrong making the charge to Stripe. -CHECK PREVIOUS LOGS-', __METHOD__);
             return $result;
         }
+        
+        if ($data['couponCode'] && ($paymentType == PaymentType::IDEAL || $paymentType==PaymentType::SOFORT)){
+            $order->totalPrice = $this->convertFromCents($order->totalPrice, $paymentForm->currency);
+        }
 
         $order->stripeTransactionId = $stripeId;
         $order->isSubscription = StripePlugin::$app->subscriptions->getIsSubscription($order->stripeTransactionId);
