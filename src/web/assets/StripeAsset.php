@@ -22,14 +22,14 @@ class StripeAsset extends AssetBundle
         // define the relative path to CSS/JS files that should be registered with the page
         // when this asset bundle is registered
         $this->css = [
-            'stripe/css/enupal-button.css'
+            'stripe/css/enupal-button.min.css'
         ];
 
         if ($settings->loadJquery){
             $this->js[] = 'vendor/js/jquery.min.js';
         }
 
-        $this->js[] = 'stripe/js/enupal-stripe.js';
+        $this->js[] = 'stripe/js/enupal-stripe.min.js';
 
         parent::init();
     }
