@@ -130,7 +130,7 @@ class Coupons extends Component
 
         $minimumCharge = StripePlugin::$app->orders->getMinimumChargeInCents($currency);
 
-        if ($couponRedeemed->finalAmount < $minimumCharge) {
+        if ($couponRedeemed->finalAmount < $minimumCharge && !$isRecurring) {
             $couponRedeemed->addErrorMessage(Craft::t('enupal-stripe', 'The final amount is less than allowed by Stripe after apply the coupon'));
         }
 

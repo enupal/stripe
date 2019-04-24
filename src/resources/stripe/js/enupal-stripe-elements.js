@@ -119,8 +119,8 @@ var enupalStripe = {};
             if (enupalStripeData.coupon.enabled){
                 var $couponButton = $("#check-coupon-button-"+enupalStripeData.paymentFormId);
                 this.updateTotalAmoutLabel(enupalButtonElement, enupalStripeData);
-
                 var $removeCoupon = enupalButtonElement.find("#remove-coupon-"+enupalStripeData.paymentFormId);
+                this.updatesTotalLabelOnChoosesPlan(enupalButtonElement, enupalStripeData);
 
                 $removeCoupon.click(function(event) {
                     event.preventDefault();
@@ -170,14 +170,16 @@ var enupalStripe = {};
 
         handleRemoveCoupon(enupalButtonElement, enupalStripeData, that)
         {
-            var $couponButton = enupalButtonElement.find("#check-coupon-button-"+enupalStripeData.paymentFormId);
             var $couponMessage = enupalButtonElement.find("#coupon-message-"+enupalStripeData.paymentFormId);
             var $removeCoupon = enupalButtonElement.find("#remove-coupon-"+enupalStripeData.paymentFormId);
-            var $totalMessage = enupalButtonElement.find("#total-amount-value-"+enupalStripeData.paymentFormId);
             var $couponInput = enupalButtonElement.find("#couponCode-"+enupalStripeData.paymentFormId);
-            var couponCode = $couponInput.val();
-            var stripeConfig = enupalStripeData.stripe;
-            $couponInput.val('');
+            if ($couponInput){
+                $couponInput.val('');
+            }
+            if ($couponMessage){
+                $couponMessage.text('');
+            }
+            $removeCoupon.addClass("hidden");
 
             enupalButtonElement.find('[name="enupalCouponCode"]').val('');
             that.updateTotalAmoutLabel(enupalButtonElement, enupalStripeData);
@@ -435,7 +437,7 @@ var enupalStripe = {};
                     // Custom plan
                     var customPlanAmountId = null;
                     if (enupalStripeData.subscriptionStyle == 'radio') {
-                        customPlanAmountId = $('input[name="enupalStripe[enupalMultiPlan]"]:checked').val();
+                        customPlanAmountId = enupalButtonElement.find('input[name="enupalStripe[enupalMultiPlan]"]:checked').val();
                     } else {
                         customPlanAmountId = enupalButtonElement.find('[name="enupalStripe[enupalMultiPlan]"]').val();
                     }
@@ -473,6 +475,26 @@ var enupalStripe = {};
             var finalTotalAmount = parseFloat(finalAmount) + parseFloat(fee);
 
             return finalTotalAmount;
+        },
+
+        updatesTotalLabelOnChoosesPlan(enupalButtonElement, enupalStripeData)
+        {
+            var that = this;
+            if (enupalStripeData.subscriptionType !== 0){
+                if (enupalStripeData.subscriptionStyle == 'radio') {
+                    var radio = enupalButtonElement.find('input[name="enupalStripe[enupalMultiPlan]"]');
+                    $(radio).change(function(){
+                        if ($(this).is(':checked')) {
+                            that.handleRemoveCoupon(enupalButtonElement, enupalStripeData, that);
+                        }
+                     });
+                } else {
+                    var dropdown =  enupalButtonElement.find('[name="enupalStripe[enupalMultiPlan]"]');
+                    $(dropdown).on('change', function() {
+                        that.handleRemoveCoupon(enupalButtonElement, enupalStripeData, that);
+                    });
+                }
+            }
         },
 
         convertToCents: function(amount, currency) {

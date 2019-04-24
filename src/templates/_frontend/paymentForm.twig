@@ -276,7 +276,12 @@
                     <label for="couponCode-{{ paymentForm.id }}">
                         {{ options.coupon.label ?? 'Coupon Code'|t }}
                     </label>
-                    <div class="coupon-message-wrapper"><span id="coupon-message-{{ paymentForm.id }}"></span><span class="hidden" id="remove-coupon-{{ paymentForm.id }}"> &#10006; {{ "Remove"|t }}</span></div>
+                    <div class="coupon-message-wrapper">
+                        <span id="coupon-message-{{ paymentForm.id }}">
+                        </span>&nbsp;
+                        {% set removeCouponLabel = options.coupon.removeCouponLabel ?? 'Remove'|t %}
+                        <a class="hidden" href="#" id="remove-coupon-{{ paymentForm.id }}">{{ removeCouponLabel }}</a>
+                    </div>
                 </div>
                 <div class="input">
                     <input type="text"
