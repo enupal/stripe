@@ -15,7 +15,6 @@ use craft\helpers\Db;
 use craft\helpers\Json;
 use craft\helpers\UrlHelper;
 use enupal\stripe\elements\Order;
-use enupal\stripe\elements\PaymentForm;
 use enupal\stripe\enums\PaymentType;
 use enupal\stripe\enums\SubscriptionType;
 use enupal\stripe\events\OrderCompleteEvent;

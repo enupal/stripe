@@ -10,7 +10,6 @@ namespace enupal\stripe\services;
 
 use craft\db\Query;
 use craft\helpers\DateTimeHelper;
-use craft\helpers\UrlHelper;
 use enupal\stripe\models\CouponRedeemed;
 use enupal\stripe\Stripe as StripePlugin;
 use Stripe\Coupon;

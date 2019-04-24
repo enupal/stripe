@@ -10,7 +10,6 @@ namespace enupal\stripe\jobs;
 
 use craft\helpers\DateTimeHelper;
 use enupal\stripe\enums\PaymentType;
-use enupal\stripe\models\Address;
 use enupal\stripe\records\Customer as CustomerRecord;
 use enupal\stripe\Stripe as StripePlugin;
 use craft\queue\BaseJob;
