@@ -392,6 +392,7 @@ class Orders extends Component
         $order = $this->populateOrder($data, true);
         $order->paymentType = $request->getBodyParam('paymentType');
         $postData['currency'] = 'EUR';
+        $postData['enupalCouponCode'] = $data['couponCode'];
         $order->postData = json_encode($postData);
         $order->currency = 'EUR';
         $order->formId = $paymentForm->id;
@@ -400,9 +401,14 @@ class Orders extends Component
 
         StripePlugin::$app->settings->initializeStripe();
 
+        if (!is_null($data['couponCode'])){
+            $isSubscription = $paymentForm->enableSubscriptions ?? false;
+            $this->applyCouponToOrder($data, $order, $isSubscription);
+        }
+
         $options = [
             'type' => strtolower($paymentOptions[$paymentType]),
-            'amount' => $amount,
+            'amount' => $order->totalPrice,
             'currency' => 'eur',
             'owner' => ['email' => $email],
             'redirect' => ['return_url' => $redirect],
@@ -461,8 +467,6 @@ class Orders extends Component
         }
 
         $postData['enupalStripe']['token'] = $token;
-        $postData['enupalStripe']['amount'] = $sourceObject['data']['object']['amount'];
-        $postData['enupalStripe']['currency'] = $sourceObject['data']['object']['currency'];
 
         $order = $this->processPayment($postData, $order);
 
@@ -869,7 +873,7 @@ class Orders extends Component
         }
 
         if ($data['couponCode']){
-            $this->applyOneTimeCoupon($data, $order);
+            $this->applyCouponToOrder($data, $order);
         }
 
         $chargeSettings = [
@@ -884,29 +888,6 @@ class Orders extends Component
         $charge = $this->charge($chargeSettings);
 
         return $charge;
-    }
-
-    /**
-     * @param $data
-     * @param Order $order
-     * @throws \Exception
-     */
-    private function applyOneTimeCoupon(&$data, Order &$order)
-    {
-        $couponRedeemed = StripePlugin::$app->coupons->applyCouponToAmountInCents($data['amount'], $data['couponCode'], $order->currency);
-
-        if ($couponRedeemed->isValid){
-            $coupon = $couponRedeemed->coupon;
-            $couponAmount = $data['amount'] - $couponRedeemed->finalAmount;
-            $order->couponCode = $coupon['id'];
-            $order->couponName = $coupon['name'];
-            $order->couponAmount = $this->convertFromCents($couponAmount, $order->currency);
-            $order->couponSnapshot = json_encode($coupon);
-            $order->totalPrice = $couponRedeemed->finalAmount;
-
-            $data['metadata']['couponCode'] = $coupon['id'];
-            $data['amount'] = $couponRedeemed->finalAmount;
-        }
     }
 
     /**
@@ -943,7 +924,8 @@ class Orders extends Component
         ];
 
         if ($data['couponCode']){
-            $this->applyCouponToSubscription($data['couponCode'], $data, $subscriptionSettings, $order);
+            $this->applyCouponToOrder($data, $order, true);
+            $subscriptionSettings['coupon'] = $order->couponCode;
         }
 
         // Add support for tiers
@@ -964,18 +946,17 @@ class Orders extends Component
     }
 
     /**
-     * @param $couponCode
      * @param $data
-     * @param $subscriptionSettings
-     * @param $order
+     * @param Order $order
+     * @param bool $isRecurring
      * @throws \Exception
      */
-    private function applyCouponToSubscription($couponCode, &$data, &$subscriptionSettings, &$order)
+    private function applyCouponToOrder(&$data, Order &$order, $isRecurring = false)
     {
-        $couponRedeemed = StripePlugin::$app->coupons->applyCouponToAmountInCents($data['amount'], $couponCode, $data['currency'], true);
-        if ($couponRedeemed->isValid){
-            $coupon =  $couponRedeemed->coupon;
+        $couponRedeemed = StripePlugin::$app->coupons->applyCouponToAmountInCents($data['amount'], $data['couponCode'], $order->currency, $isRecurring);
 
+        if ($couponRedeemed->isValid){
+            $coupon = $couponRedeemed->coupon;
             $couponAmount = $data['amount'] - $couponRedeemed->finalAmount;
             $order->couponCode = $coupon['id'];
             $order->couponName = $coupon['name'];
@@ -983,8 +964,8 @@ class Orders extends Component
             $order->couponSnapshot = json_encode($coupon);
             $order->totalPrice = $couponRedeemed->finalAmount;
 
-            $subscriptionSettings['coupon'] = $coupon['id'];
             $data['metadata']['couponCode'] = $coupon['id'];
+            $data['amount'] = $couponRedeemed->finalAmount;
         }
     }
 
@@ -1031,7 +1012,8 @@ class Orders extends Component
         }
 
         if ($data['couponCode']){
-            $this->applyCouponToSubscription($data['couponCode'], $data, $subscriptionSettings, $order);
+            $this->applyCouponToOrder($data, $order, true);
+            $subscriptionSettings['coupon'] = $order->couponCode;
         }
 
         $subscriptionSettings['metadata'] = $this->getStripeMetadata($data);
