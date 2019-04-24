@@ -587,6 +587,7 @@ class Order extends Element
 
     /**
      * @return array
+     * @throws \craft\errors\DeprecationException
      */
     public function getShippingAddressAsArray()
     {

@@ -11,6 +11,7 @@ class m190401_000000_coupons_columns extends Migration
 {
     /**
      * @return bool
+     * @throws \yii\base\NotSupportedException
      */
     public function safeUp()
     {

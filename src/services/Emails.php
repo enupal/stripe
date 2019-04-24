@@ -110,7 +110,9 @@ class Emails extends Component
     /**
      * @param Order $order
      * @return bool|Message
-     * @throws \yii\base\Exception
+     * @throws \Twig\Error\LoaderError
+     * @throws \Twig\Error\RuntimeError
+     * @throws \Twig\Error\SyntaxError
      */
     private function getCustomerMessage(Order $order)
     {
@@ -166,7 +168,9 @@ class Emails extends Component
     /**
      * @param Order $order
      * @return bool|Message
-     * @throws \yii\base\Exception
+     * @throws \Twig\Error\LoaderError
+     * @throws \Twig\Error\RuntimeError
+     * @throws \Twig\Error\SyntaxError
      */
     private function getAdminMessage(Order $order)
     {

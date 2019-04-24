@@ -109,7 +109,11 @@ class StripeVariable extends Behavior
      * @param array|null $options
      *
      * @return string
+     * @throws \Twig\Error\LoaderError
+     * @throws \Twig\Error\RuntimeError
+     * @throws \Twig\Error\SyntaxError
      * @throws \yii\base\Exception
+     * @throws \yii\base\InvalidConfigException
      */
     public function paymentForm($handle, array $options = null)
     {
@@ -260,7 +264,9 @@ class StripeVariable extends Behavior
      * @param $paymentForm PaymentForm
      *
      * @return \Twig_Markup
-     * @throws \Twig_Error_Loader
+     * @throws \Twig\Error\LoaderError
+     * @throws \Twig\Error\RuntimeError
+     * @throws \Twig\Error\SyntaxError
      * @throws \yii\base\Exception
      */
     public function displayMultiSelect($paymentForm)
@@ -295,6 +301,9 @@ class StripeVariable extends Behavior
      *
      * @param string $type
      * @return \Twig_Markup
+     * @throws \Twig\Error\LoaderError
+     * @throws \Twig\Error\RuntimeError
+     * @throws \Twig\Error\SyntaxError
      * @throws \yii\base\Exception
      */
     public function displayAddress($paymentForm, $type = 'address')

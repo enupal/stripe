@@ -97,7 +97,6 @@ class PaymentForms extends Component
      * @return bool
      * @throws Exception
      * @throws \Throwable
-     * @throws \yii\db\Exception
      */
     public function savePaymentForm(StripeElement $paymentForm, bool $updateSinglePlanInfo = true)
     {
@@ -725,9 +724,7 @@ class PaymentForms extends Component
      * @param StripeElement $paymentForm
      *
      * @return bool
-     * @throws \Exception
      * @throws \Throwable
-     * @throws \yii\db\Exception
      */
     public function deletePaymentForm(StripeElement $paymentForm)
     {

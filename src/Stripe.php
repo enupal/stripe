@@ -123,8 +123,10 @@ class Stripe extends Plugin
 
     /**
      * @inheritdoc
-     * @throws \yii\base\Exception
-     * @throws \Twig_Error_Loader
+     * @return string
+     * @throws \Twig\Error\LoaderError
+     * @throws \Twig\Error\RuntimeError
+     * @throws \Twig\Error\SyntaxError
      */
     protected function settingsHtml()
     {

@@ -223,9 +223,7 @@ class Orders extends Component
      * @param Order $order
      *
      * @return bool
-     * @throws \Exception
      * @throws \Throwable
-     * @throws \yii\db\Exception
      */
     public function deleteOrder(Order $order)
     {
@@ -911,6 +909,7 @@ class Orders extends Component
      * @param $customer
      * @param $planId
      * @param $data
+     * @param $order
      * @return mixed
      * @throws \Exception
      */
@@ -1264,6 +1263,7 @@ class Orders extends Component
      * @param $paymentForm
      * @param $customer
      * @param $data
+     * @param $order
      * @return null
      * @throws \Exception
      */

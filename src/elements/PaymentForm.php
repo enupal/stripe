@@ -530,7 +530,11 @@ class PaymentForm extends Element
      * @param array|null $options
      *
      * @return string
+     * @throws \Twig\Error\LoaderError
+     * @throws \Twig\Error\RuntimeError
+     * @throws \Twig\Error\SyntaxError
      * @throws \yii\base\Exception
+     * @throws \yii\base\InvalidConfigException
      */
     public function paymentForm(array $options = null)
     {
@@ -685,6 +689,8 @@ class PaymentForm extends Element
      * @param string $default
      *
      * @return string
+     * @throws \Twig\Error\LoaderError
+     * @throws \Twig\Error\SyntaxError
      */
     public function getPaymentFormText($default = null)
     {

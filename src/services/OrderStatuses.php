@@ -41,7 +41,6 @@ class OrderStatuses extends Component
      *
      * @return bool
      * @throws \Exception
-     * @throws \yii\db\Exception
      */
     public function saveOrderStatus(OrderStatusModel $orderStatus): bool
     {
@@ -109,7 +108,6 @@ class OrderStatuses extends Component
      *
      * @return bool
      * @throws \Exception
-     * @throws \yii\db\Exception
      */
     public function reorderOrderStatuses($orderStatusIds)
     {
