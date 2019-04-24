@@ -16,3 +16,7 @@
     padding-left: 25px;
     padding-right: 0;
 }
+
+.hidden{
+    display: none !important;
+}

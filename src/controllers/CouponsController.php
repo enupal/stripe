@@ -47,6 +47,7 @@ class CouponsController extends BaseController
 
         $finalAmount = Stripe::$app->orders->convertFromCents($couponRedeemed->finalAmount, $currency);
         $result['finalAmount'] = $finalAmount;
+        $result['finalAmountInCents'] = $couponRedeemed->finalAmount;
         $result['finalAmountAsCurrency'] = Craft::$app->getFormatter()->asCurrency($finalAmount, $currency);
         $result['successMessage'] = $successMessage;
 

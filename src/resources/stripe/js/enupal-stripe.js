@@ -43,6 +43,7 @@ var enupalStripe = {};
 
             //  Stripe config
             var stripeHandler = null;
+            var that = this;
 
             var paymentFormId = 'stripe-payments-submit-button-'+enupalStripeData.paymentFormId;
 
@@ -79,6 +80,23 @@ var enupalStripe = {};
                 enupalButtonElement.submit();
             }
 
+            if (enupalStripeData.coupon.enabled){
+                var $couponButton = $("#check-coupon-button-"+enupalStripeData.paymentFormId);
+                this.updateTotalAmoutLabel(enupalButtonElement, enupalStripeData);
+                var $removeCoupon = enupalButtonElement.find("#remove-coupon-"+enupalStripeData.paymentFormId);
+                this.updatesTotalLabelOnChoosesPlan(enupalButtonElement, enupalStripeData);
+
+                $removeCoupon.click(function(event) {
+                    event.preventDefault();
+                    that.handleRemoveCoupon(enupalButtonElement, enupalStripeData, that);
+                });
+
+                $couponButton.click(function(event) {
+                    event.preventDefault();
+                    that.handleCouponValidation(enupalButtonElement, enupalStripeData, that);
+                });
+            }
+
             // Pay Button clicked
             enupalButtonElement.find('#'+paymentFormId).on('click', function(e) {
                 var form = enupalButtonElement[0];
@@ -93,6 +111,117 @@ var enupalStripe = {};
                     enupalStripe.submitPayment(enupalButtonElement, enupalStripeData, stripeHandler);
                 }
             });
+        },
+
+        updateTotalAmoutLabel(enupalButtonElement, enupalStripeData)
+        {
+            var $totalMessage = enupalButtonElement.find("#total-amount-value-"+enupalStripeData.paymentFormId);
+            var amount = this.getFinalAmount(enupalButtonElement, enupalStripeData);
+            if ($totalMessage){
+                $totalMessage.text(amount);
+            }
+        },
+
+        updatesTotalLabelOnChoosesPlan(enupalButtonElement, enupalStripeData)
+        {
+            var that = this;
+            if (enupalStripeData.subscriptionType !== 0){
+                if (enupalStripeData.subscriptionStyle == 'radio') {
+                    var radio = enupalButtonElement.find('input[name="enupalStripe[enupalMultiPlan]"]');
+                    $(radio).change(function(){
+                        if ($(this).is(':checked')) {
+                            that.handleRemoveCoupon(enupalButtonElement, enupalStripeData, that);
+                        }
+                    });
+                } else {
+                    var dropdown =  enupalButtonElement.find('[name="enupalStripe[enupalMultiPlan]"]');
+                    $(dropdown).on('change', function() {
+                        that.handleRemoveCoupon(enupalButtonElement, enupalStripeData, that);
+                    });
+                }
+            }
+        },
+
+        handleRemoveCoupon(enupalButtonElement, enupalStripeData, that)
+        {
+            var $couponMessage = enupalButtonElement.find("#coupon-message-"+enupalStripeData.paymentFormId);
+            var $removeCoupon = enupalButtonElement.find("#remove-coupon-"+enupalStripeData.paymentFormId);
+            var $couponInput = enupalButtonElement.find("#couponCode-"+enupalStripeData.paymentFormId);
+            if ($couponInput){
+                $couponInput.val('');
+            }
+            if ($couponMessage){
+                $couponMessage.text('');
+            }
+            $removeCoupon.addClass("hidden");
+
+            enupalButtonElement.find('[name="enupalCouponCode"]').val('');
+            that.updateTotalAmoutLabel(enupalButtonElement, enupalStripeData);
+        },
+
+        handleCouponValidation(enupalButtonElement, enupalStripeData, that)
+        {
+            var $couponButton = enupalButtonElement.find("#check-coupon-button-"+enupalStripeData.paymentFormId);
+            var $couponMessage = enupalButtonElement.find("#coupon-message-"+enupalStripeData.paymentFormId);
+            var $removeCoupon = enupalButtonElement.find("#remove-coupon-"+enupalStripeData.paymentFormId);
+            var $totalMessage = enupalButtonElement.find("#total-amount-value-"+enupalStripeData.paymentFormId);
+            var $couponInput = enupalButtonElement.find("#couponCode-"+enupalStripeData.paymentFormId);
+            var couponCode = $couponInput.val();
+            var stripeConfig = enupalStripeData.stripe;
+            $couponInput.val('');
+
+            var amount = this.convertToCents(that.getFinalAmount(enupalButtonElement, enupalStripeData), stripeConfig.currency);
+            $couponButton.prop('disabled', true);
+            var isRecurring = this.getIsRecurring(enupalButtonElement, enupalStripeData);
+
+            var data = {
+                'amount' : amount,
+                'couponCode': couponCode,
+                'isRecurring': isRecurring,
+                'currency': stripeConfig.currency,
+                'successMessage': enupalStripeData.coupon.successMessage
+            };
+
+            $.ajax({
+                type:"POST",
+                url:"enupal/validate-coupon",
+                data: data,
+                dataType : 'json',
+                success: function(response) {
+                    if (response.success === true){
+                        $couponMessage.removeClass('coupon-error');
+                        $couponMessage.text(response.successMessage);
+                        $removeCoupon.removeClass('hidden');
+
+                        if ($totalMessage){
+                            $totalMessage.text(response.finalAmount);
+                        }
+                        enupalButtonElement.find('[name="enupalCouponCode"]').val(response.coupon.id);
+                    }else{
+                        $couponMessage.addClass('coupon-error');
+                        $removeCoupon.addClass('hidden');
+                        $couponMessage.text(enupalStripeData.coupon.errorMessage);
+                    }
+                    $couponButton.prop('disabled', false);
+                }.bind(this),
+                error: function(xhr, status, err) {
+                    $couponButton.prop('disabled', false);
+                    console.error(xhr, status, err.toString());
+                }.bind(this)
+            });
+        },
+
+        getIsRecurring: function(enupalButtonElement, enupalStripeData) {
+            var isRecurring = false;
+            if (enupalStripeData.amountType == 1) {
+                isRecurring = enupalButtonElement.find('[name="enupalStripe[recurringToggle]"]').is(":checked");
+            }
+
+            if (enupalStripeData.enableSubscriptions) {
+                isRecurring = true;
+            }
+
+            return isRecurring;
         },
 
         addValuesToForm: function(enupalButtonElement, args, enupalStripeData) {
@@ -142,8 +271,42 @@ var enupalStripe = {};
             stripeConfig.amount = this.convertToCents(this.getFinalAmount(enupalButtonElement, enupalStripeDataSubmission), stripeConfig.currency);
             enupalButtonElement.find('[name="enupalStripe[amount]"]').val(stripeConfig.amount);
             enupalButtonElement.find('[name="enupalStripe[testMode]"]').val(enupalStripeDataSubmission.testMode);
-            // If everything checks out then let's open the form
-            stripeHandler.open(stripeConfig);
+            // Show amount if coupon
+            if (enupalStripeData.coupon.enabled){
+                var couponCode = enupalButtonElement.find('[name="enupalCouponCode"]').val();
+                var isRecurring = this.getIsRecurring(enupalButtonElement, enupalStripeData);
+                if (couponCode){
+                    var data = {
+                        'amount' : stripeConfig.amount,
+                        'couponCode': couponCode,
+                        'isRecurring': isRecurring,
+                        'currency': stripeConfig.currency,
+                        'successMessage': enupalStripeData.coupon.successMessage
+                    };
+
+                    $.ajax({
+                        type:"POST",
+                        url:"enupal/validate-coupon",
+                        data: data,
+                        dataType : 'json',
+                        success: function(response) {
+                            if (response.success === true){
+                                stripeConfig.amount = response.finalAmountInCents;
+                            }
+                            stripeHandler.open(stripeConfig);
+                        }.bind(this),
+                        error: function(xhr, status, err) {
+                            console.error(xhr, status, err.toString());
+                        }.bind(this)
+                    });
+                }else{
+                    stripeHandler.open(stripeConfig);
+                }
+            }else{
+                // let's open the form
+                stripeHandler.open(stripeConfig);
+            }
+
         },
 
         getFinalAmount: function(enupalButtonElement, enupalStripeData){
