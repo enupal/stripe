@@ -25,6 +25,7 @@ class Subscription extends Model
     public $canceledAt;
     public $status;
     public $statusHtml;
+    public $meteredId;
 
     public function __construct($subscription = [])
     {
@@ -38,5 +39,9 @@ class Subscription extends Model
         $this->canceledAt = isset($subscription['canceled_at']) && $subscription['canceled_at'] ? DateTimeHelper::toDateTime($subscription['canceled_at'])->format('m/d/Y') : null;
         $this->data = $subscription;
         $this->statusHtml = Stripe::$app->subscriptions->getSubscriptionStatusHtml($this->status);
+
+        if ($subscription['plan']['usage_type'] === 'metered'){
+            $this->meteredId = $subscription['items']['data'][0]['id'];
+        }
     }
 }
