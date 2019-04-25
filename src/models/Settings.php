@@ -60,6 +60,8 @@ class Settings extends Model
     public $syncStartDate;
     public $syncEndDate;
 
+    public $cancelAtPeriodEnd = false;
+
     /**
      * @inheritdoc
      */

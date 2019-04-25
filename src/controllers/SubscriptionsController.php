@@ -48,12 +48,31 @@ class SubscriptionsController extends BaseController
         $this->requireAcceptsJson();
         $request = Craft::$app->getRequest();
         $subscriptionId = $request->getRequiredBodyParam('subscriptionId');
-
-
-        $result = Stripe::$app->subscriptions->cancelStripeSubscription($subscriptionId);
+        $settings = Stripe::$app->settings->getSettings();
+        $result = Stripe::$app->subscriptions->cancelStripeSubscription($subscriptionId, $settings->cancelAtPeriodEnd);
 
         if (!$result){
             return $this->asErrorJson("Unable to cancel subscription, please check your logs.");
+        }
+
+        return $this->asJson(['success'=> true]);
+    }
+
+    /**
+     * Reactivate Subscription via ajax
+     *
+     * @return \yii\web\Response
+     * @throws \yii\web\BadRequestHttpException
+     */
+    public function actionReactivateSubscription()
+    {
+        $this->requireAcceptsJson();
+        $request = Craft::$app->getRequest();
+        $subscriptionId = $request->getRequiredBodyParam('subscriptionId');
+        $result = Stripe::$app->subscriptions->reactivateStripeSubscription($subscriptionId);
+
+        if (!$result){
+            return $this->asErrorJson("Unable to reactivate subscription, please check your logs.");
         }
 
         return $this->asJson(['success'=> true]);

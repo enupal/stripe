@@ -6,6 +6,8 @@
 
         $refreshSubscriptionButton: null,
         $cancelSubscriptionButton: null,
+        $reactivateSubscriptionButtonWrapper: null,
+        $reactivateSubscriptionButton: null,
         $refundButton: null,
 
         /**
@@ -16,7 +18,10 @@
             if (isSubscription){
                 this.$refreshSubscriptionButton = $('#refresh-subscription');
                 this.$cancelSubscriptionButton = $('#cancel-subscription');
+                this.$reactivateSubscriptionButtonWrapper = $('#subs-reactivate');
+                this.$reactivateSubscriptionButton = $('#reactivate-subscription');
                 this.addListener(this.$refreshSubscriptionButton, 'click', 'handleRefreshSubscription');
+                this.addListener(this.$reactivateSubscriptionButton, 'click', 'handleReactivateSubscription');
                 this.addListener(this.$cancelSubscriptionButton, 'click', 'handleCancelSubscription');
                 this.handleRefreshSubscription();
             }
@@ -54,11 +59,21 @@
                         $("#subs-interval").text(subscription.interval);
                         $("#subs-status").html(subscription.statusHtml);
                         $("#subs-quantity").text(subscription.quantity);
+                        if (!subscription.cancelAtPeriodEnd){
+                            that.$reactivateSubscriptionButtonWrapper.addClass('hidden');
+                            $("#cancel-title").text(Craft.t('enupal-stripe', ''));
+                            $("#canceled-at").addClass("hidden");
+                            $("#subs-cancel").removeClass("hidden");
+                        }
 
                         if (subscription.canceledAt !== null){
-                            that.$cancelSubscriptionButton.addClass('hidden');
                             $("#cancel-title").text(Craft.t('enupal-stripe', 'Canceled at'));
-                            $("#subs-cancel").text(subscription.canceledAt);
+                            $("#canceled-at").removeClass("hidden");
+                            $("#subs-cancel").addClass("hidden");
+                            $("#canceled-at").text(subscription.canceledAt);
+                            if (subscription.cancelAtPeriodEnd){
+                                that.$reactivateSubscriptionButtonWrapper.removeClass('hidden');
+                            }
                         }else{
                             that.$cancelSubscriptionButton.removeClass('disabled');
                         }
@@ -93,10 +108,43 @@
                         Craft.cp.displayError(Craft.t('enupal-stripe', response.error));
                     }
                     else if (response.success) {
-                        Craft.cp.displayNotice(Craft.t('enupal-stripe', 'Subscription Canceled'));
+                        Craft.cp.displayNotice(Craft.t('enupal-stripe', 'Subscription canceled'));
                         that.handleRefreshSubscription();
                     }else{
-                        Craft.cp.displayError(Craft.t('enupal-stripe', 'Unable to cancel subscription'));
+                        Craft.cp.displayError(Craft.t('enupal-stripe', 'Unable to reactivate subscription'));
+                    }
+                }
+            });
+        },
+
+        handleReactivateSubscription: function(option) {
+            if (!confirm(Craft.t('enupal-stripe', 'Are you sure you want to reactivate this subscription?'))) {
+                return true;
+            }
+
+            if (this.$reactivateSubscriptionButton.hasClass('disabled')) {
+                return;
+            }
+
+            var that = this;
+
+            this.$reactivateSubscriptionButton.addClass('disabled').siblings('.spinner').removeClass('hidden');
+
+            var data = {
+                'subscriptionId' : $("#subscriptionId").val()
+            };
+
+            Craft.postActionRequest('enupal-stripe/subscriptions/reactivate-subscription', data, function(response, textStatus) {
+                that.$reactivateSubscriptionButton.removeClass('disabled').siblings('.spinner').addClass('hidden');
+                if (textStatus === 'success') {
+                    if ("error" in response ){
+                        Craft.cp.displayError(Craft.t('enupal-stripe', response.error));
+                    }
+                    else if (response.success) {
+                        Craft.cp.displayNotice(Craft.t('enupal-stripe', 'Subscription reactivated'));
+                        that.handleRefreshSubscription();
+                    }else{
+                        Craft.cp.displayError(Craft.t('enupal-stripe', 'Unable to reactive subscription'));
                     }
                 }
             });

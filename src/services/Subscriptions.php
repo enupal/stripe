@@ -52,10 +52,46 @@ class Subscriptions extends Component
 
     /**
      * @param $id
+     * @param bool $cancelAtPediodEnd
      * @return bool
      * @throws \Exception
      */
-    public function cancelStripeSubscription($id)
+    public function cancelStripeSubscription($id, bool $cancelAtPeriodEnd)
+    {
+        $response = false;
+
+        try {
+            StripePlugin::$app->settings->initializeStripe();
+
+            $subscription = $this->getStripeSubscription($id);
+
+            if ($subscription === null){
+                Craft::error('Subscription not found: '.$id, __METHOD__);
+                return $response;
+            }
+            if ($cancelAtPeriodEnd){
+                Subscription::update($id, [
+                    'cancel_at_period_end' => true
+                ]);
+            }else{
+                $subscription->cancel();
+            }
+            $response = true;
+        } catch (\Exception $e) {
+            Craft::error('Unable to cancel subscription: '.$e->getMessage(), __METHOD__);
+            throw $e;
+        }
+
+        return $response;
+    }
+
+    /**
+     * @param $id
+     * @param bool $cancelAtPediodEnd
+     * @return bool
+     * @throws \Exception
+     */
+    public function reactivateStripeSubscription($id)
     {
         $response = false;
 
@@ -69,10 +105,13 @@ class Subscriptions extends Component
                 return $response;
             }
 
-            $subscription->cancel();
+            Subscription::update($id, [
+                'cancel_at_period_end' => false
+            ]);
+
             $response = true;
         } catch (\Exception $e) {
-            Craft::error('Unable to cancel subscription: '.$e->getMessage(), __METHOD__);
+            Craft::error('Unable to reactivate subscription: '.$e->getMessage(), __METHOD__);
             throw $e;
         }
 

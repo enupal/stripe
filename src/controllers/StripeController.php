@@ -76,7 +76,7 @@ class StripeController extends BaseController
     }
 
     /**
-     * @return null|\yii\web\Response
+     * @return \yii\web\Response|null
      * @throws \yii\web\BadRequestHttpException
      */
     public function actionCancelSubscription()
@@ -84,8 +84,14 @@ class StripeController extends BaseController
         $this->requirePostRequest();
         $request = Craft::$app->getRequest();
         $subscriptionId = $request->getRequiredBodyParam('subscriptionId');
+        $cancelAtPeriodEnd = $_POST['cancelAtPeriodEnd'] ?? null;
 
-        $result = StripePlugin::$app->subscriptions->cancelStripeSubscription($subscriptionId);
+        if (is_null($cancelAtPeriodEnd)){
+            $settings = StripePlugin::$app->settings->getSettings();
+            $cancelAtPeriodEnd = $settings->cancelAtPeriodEnd;
+        }
+
+        $result = StripePlugin::$app->subscriptions->cancelStripeSubscription($subscriptionId, $cancelAtPeriodEnd);
 
         if (!$result) {
             if (Craft::$app->getRequest()->getAcceptsJson()) {
