@@ -6,6 +6,11 @@
 {% set url = testMode ? url~'/test' : url %}
 
 {% block actionButton %}
+    {% if testMode %}
+        <span class="testMode">Test Mode</span>
+        <div class="flex-grow"></div>
+    {% endif %}
+
     {% include "enupal-stripe/coupons/_actionStatusButton" %}
 {% endblock %}
 
@@ -92,4 +97,20 @@
     deleteFailMessage: '{{ "Unable to delete the coupon."|t('enupal-stripe') }}'
     });
 {% endjs %}
+
+{% css %}
+    .testMode {
+    float: left;
+    background-color: #f7e633;
+    color: #363636;
+    border-radius: 5px;
+    font-weight: 700;
+    font-size: 11px;
+    text-transform: uppercase;
+    padding-left: 9px;
+    padding-right: 9px;
+    height: 26px;
+    line-height: 26px;
+    }
+{% endcss %}
 
