@@ -142,12 +142,20 @@ class SyncSubscriptionPayments extends BaseJob implements RetryableJobInterface
                                 $newOrder->isCompleted = false;
                             }
                             if ($charge) {
-                                $newOrder->firstName = $charge['shipping']['name'] ?? null;
-                                $newOrder->addressCity = $charge['shipping']['address_city'] ?? null;
-                                $newOrder->addressCountry = $charge['shipping']['address_country'] ?? null;
-                                $newOrder->addressState = $charge['shipping']['address_state'] ?? null;
-                                $newOrder->addressStreet = $charge['shipping']['address_line1'] ?? null;
-                                $newOrder->addressZip = $charge['shipping']['address_zip'] ?? null;
+                                if (isset($charge['shipping'])){
+                                    $addressId = StripePlugin::$app->addresses->getAddressIdFromCharge($charge['shipping']);
+                                    if ($addressId){
+                                        $newOrder->shippingAddressId = $addressId;
+                                    }
+                                }
+
+                                if (isset($charge['billing'])){
+                                    $addressId = StripePlugin::$app->addresses->getAddressIdFromCharge($charge['billing']);
+                                    if ($addressId){
+                                        $newOrder->billingAddressId = $addressId;
+                                    }
+                                }
+
                                 $newOrder->refunded = $charge['refunded'];
                             }
 

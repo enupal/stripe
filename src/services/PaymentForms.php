@@ -24,7 +24,6 @@ use enupal\stripe\enums\SubscriptionType;
 use enupal\stripe\web\assets\StripeAsset;
 use enupal\stripe\elements\PaymentForm;
 use enupal\stripe\enums\AmountType;
-use enupal\stripe\enums\DiscountType;
 use enupal\stripe\web\assets\StripeElementsAsset;
 use yii\base\Component;
 use enupal\stripe\Stripe as StripePlugin;
@@ -98,7 +97,6 @@ class PaymentForms extends Component
      * @return bool
      * @throws Exception
      * @throws \Throwable
-     * @throws \yii\db\Exception
      */
     public function savePaymentForm(StripeElement $paymentForm, bool $updateSinglePlanInfo = true)
     {
@@ -637,18 +635,6 @@ class PaymentForms extends Component
     /**
      * @return array
      */
-    public function getDiscountOptions()
-    {
-        $types = [];
-        $types[DiscountType::RATE] = StripePlugin::t('Rate (%)');
-        $types[DiscountType::AMOUNT] = StripePlugin::t('Amount');
-
-        return $types;
-    }
-
-    /**
-     * @return array
-     */
     public function getAmountTypeOptions()
     {
         $types = [];
@@ -661,11 +647,15 @@ class PaymentForms extends Component
     /**
      * Returns a complete Stripe Payment Form for display in template
      *
-     * @param string     $handle
+     * @param string $handle
      * @param array|null $options
      *
      * @return string
-     * @throws \yii\base\Exception
+     * @throws Exception
+     * @throws \Twig\Error\LoaderError
+     * @throws \Twig\Error\RuntimeError
+     * @throws \Twig\Error\SyntaxError
+     * @throws \yii\base\InvalidConfigException
      */
     public function getPaymentFormHtml($handle, array $options = null)
     {
@@ -734,9 +724,7 @@ class PaymentForms extends Component
      * @param StripeElement $paymentForm
      *
      * @return bool
-     * @throws \Exception
      * @throws \Throwable
-     * @throws \yii\db\Exception
      */
     public function deletePaymentForm(StripeElement $paymentForm)
     {

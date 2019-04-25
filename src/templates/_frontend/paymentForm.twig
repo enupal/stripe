@@ -268,6 +268,43 @@
                 <label name="tax-amount-label" for="{{ buttonId }}"></label>
             </p>
         {% endif %}
+
+        {% set isCouponEnabled = options.coupon.enabled ?? false %}
+        <div class="coupons-wrapper {% if not isCouponEnabled %} hidden {% endif %}">
+            <div class="form-group">
+                <div class="heading">
+                    <label for="couponCode-{{ paymentForm.id }}">
+                        {{ options.coupon.label ?? 'Coupon Code'|t }}
+                    </label>
+                    <div class="coupon-message-wrapper">
+                        <span id="coupon-message-{{ paymentForm.id }}">
+                        </span>&nbsp;
+                        {% set removeCouponLabel = options.coupon.removeCouponLabel ?? 'Remove'|t %}
+                        <a class="hidden" href="#" id="remove-coupon-{{ paymentForm.id }}">{{ removeCouponLabel }}</a>
+                    </div>
+                </div>
+                <div class="input">
+                    <input type="text"
+                           name="couponCode"
+                           id="couponCode-{{ paymentForm.id }}"
+                           class=""/>
+
+                    <input id="check-coupon-button-{{ paymentForm.id }}" type="submit" value="Check Coupon"/>
+                    <input type="hidden" name="enupalCouponCode" value="">
+                </div>
+            </div>
+        </div>
+        {% set displayTotal = options.coupon.displayTotal ?? false %}
+        {% if displayTotal %}
+            {% set totalAmountLabel = options.coupon.totalAmountLabel ?? 'Total Amount: '|t %}
+            <div class="total-amount-wrapper">
+                <div class="total-amount-label">
+                    {{ totalAmountLabel }}
+                    <span>{{ paymentForm.getCurrencySymbol() }}</span><span id="total-amount-value-{{ paymentForm.id }}" class="total-amount-value"></span>
+                </div>
+            </div>
+        {% endif %}
+
         <button id="{{ buttonId }}" class="{{ paymentForm.buttonClass }}"><span>{{ paymentForm.getPaymentFormText() }}</span></button>
     </form>
 

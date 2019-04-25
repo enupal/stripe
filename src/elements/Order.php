@@ -67,7 +67,6 @@ class Order extends Element
     public $totalPrice;
     public $shipping;
     public $tax;
-    public $discount;
     public $isCompleted;
     public $email;
     public $firstName;
@@ -82,6 +81,11 @@ class Order extends Element
     public $addressName;
     public $addressStreet;
     public $addressZip;
+    // coupons
+    public $couponCode;
+    public $couponName;
+    public $couponAmount;
+    public $couponSnapshot;
     // variants
     public $variants;
     public $postData;
@@ -438,18 +442,12 @@ class Order extends Element
         $record->stripeTransactionId = $this->stripeTransactionId;
         $record->email = $this->email;
         $record->isCompleted = $this->isCompleted;
-        $record->firstName = $this->firstName;
-        $record->lastName = $this->lastName;
         $record->shipping = $this->shipping;
         $record->tax = $this->tax;
-        $record->discount = $this->discount;
-        $record->addressCity = $this->addressCity;
-        $record->addressCountry = $this->addressCountry;
-        $record->addressState = $this->addressState;
-        $record->addressCountryCode = $this->addressCountryCode;
-        $record->addressName = $this->addressName;
-        $record->addressStreet = $this->addressStreet;
-        $record->addressZip = $this->addressZip;
+        $record->couponCode = $this->couponCode;
+        $record->couponName = $this->couponName;
+        $record->couponAmount = $this->couponAmount;
+        $record->couponSnapshot = $this->couponSnapshot;
         $record->variants = $this->variants;
         $record->transactionInfo = $this->transactionInfo;
         $record->testMode = $this->testMode;
@@ -589,6 +587,7 @@ class Order extends Element
 
     /**
      * @return array
+     * @throws \craft\errors\DeprecationException
      */
     public function getShippingAddressAsArray()
     {

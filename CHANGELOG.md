@@ -1,5 +1,19 @@
 # Stripe Payments Changelog
 
+## WIP
+
+### Added
+- Added Coupons support
+
+### Updated
+- Updated sync orders to save the shippingAddressId and billingAddressId
+
+### Removed
+- Removed unused address column on orders table
+- Removed unused discount column on orders table
+- Removed unused discount columns on forms table
+
+
 ## 1.8.5 - 2019.04.02
 ### Fixed
 - Fixed an error which could prevent the plugin from installing on PostgreSQL.

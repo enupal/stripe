@@ -26,18 +26,8 @@ use craft\records\Element;
  * @property $stripeTransactionId
  * @property $email
  * @property $isCompleted
- * @property $firstName
- * @property $lastName
  * @property $shipping
  * @property $tax
- * @property $discount
- * @property $addressCity
- * @property $addressCountry
- * @property $addressState
- * @property $addressCountryCode
- * @property $addressName
- * @property $addressStreet
- * @property $addressZip
  * @property $variants
  * @property $transactionInfo
  * @property $testMode
@@ -50,6 +40,10 @@ use craft\records\Element;
  * @property $isSubscription
  * @property $billingAddressId
  * @property $shippingAddressId
+ * @property $couponCode;
+ * @property $couponName;
+ * @property $couponAmount;
+ * @property $couponSnapshot;
  */
 class Order extends ActiveRecord
 {

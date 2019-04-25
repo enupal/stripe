@@ -15,7 +15,6 @@ use craft\helpers\Db;
 use craft\helpers\Json;
 use craft\helpers\UrlHelper;
 use enupal\stripe\elements\Order;
-use enupal\stripe\elements\PaymentForm;
 use enupal\stripe\enums\PaymentType;
 use enupal\stripe\enums\SubscriptionType;
 use enupal\stripe\events\OrderCompleteEvent;
@@ -23,6 +22,7 @@ use enupal\stripe\events\OrderRefundEvent;
 use enupal\stripe\events\WebhookEvent;
 use enupal\stripe\models\Address;
 use enupal\stripe\Stripe;
+use enupal\stripe\Stripe as StripePlugin;
 use Stripe\Charge;
 use Stripe\Customer;
 use Stripe\Error\Card;
@@ -32,7 +32,6 @@ use Stripe\Plan;
 use Stripe\Refund;
 use Stripe\Source;
 use yii\base\Component;
-use enupal\stripe\Stripe as StripePlugin;
 use enupal\stripe\records\Order as OrderRecord;
 use enupal\stripe\records\Customer as CustomerRecord;
 
@@ -223,9 +222,7 @@ class Orders extends Component
      * @param Order $order
      *
      * @return bool
-     * @throws \Exception
      * @throws \Throwable
-     * @throws \yii\db\Exception
      */
     public function deleteOrder(Order $order)
     {
@@ -314,7 +311,6 @@ class Orders extends Component
         $order->quantity = $data['quantity'] ?? 1;
         $order->shipping = $data['shippingAmount'] ?? 0;
         $order->tax = $data['taxAmount'] ?? 0;
-        $order->discount = $data['discountAmount'] ?? 0;
         $shippingAddress = $data['address'] ?? null;
         $billingAddress = $data['billingAddress'] ?? null;
         $sameAddress = $data['sameAddressToggle'] ?? null;
@@ -362,6 +358,7 @@ class Orders extends Component
         $email = $request->getBodyParam('stripeElementEmail') ?? null;
         $formId = $data['formId'] ?? null;
         $data['email'] = $email;
+        $data['couponCode'] = $request->getBodyParam('enupalCouponCode') ?? null;
         $paymentType = $request->getBodyParam('paymentType');
         $paymentOptions = Stripe::$app->paymentForms->getAsynchronousPaymentTypes();
 
@@ -391,6 +388,8 @@ class Orders extends Component
 
         $order = $this->populateOrder($data, true);
         $order->paymentType = $request->getBodyParam('paymentType');
+        $postData['currency'] = 'EUR';
+        $postData['enupalCouponCode'] = $data['couponCode'];
         $order->postData = json_encode($postData);
         $order->currency = 'EUR';
         $order->formId = $paymentForm->id;
@@ -399,9 +398,14 @@ class Orders extends Component
 
         StripePlugin::$app->settings->initializeStripe();
 
+        if (!is_null($data['couponCode'])){
+            $isSubscription = $paymentForm->enableSubscriptions ?? false;
+            $this->applyCouponToOrder($data, $order, $isSubscription);
+        }
+
         $options = [
             'type' => strtolower($paymentOptions[$paymentType]),
-            'amount' => $amount,
+            'amount' => $order->totalPrice,
             'currency' => 'eur',
             'owner' => ['email' => $email],
             'redirect' => ['return_url' => $redirect],
@@ -460,8 +464,6 @@ class Orders extends Component
         }
 
         $postData['enupalStripe']['token'] = $token;
-        $postData['enupalStripe']['amount'] = $sourceObject['data']['object']['amount'];
-        $postData['enupalStripe']['currency'] = $sourceObject['data']['object']['currency'];
 
         $order = $this->processPayment($postData, $order);
 
@@ -484,6 +486,7 @@ class Orders extends Component
         $token = $data['token'] ?? null;
         $formId = $data['formId'] ?? null;
         $paymentType = $postData['paymentType'] ?? PaymentType::CC;
+        $data['couponCode'] = $postData['enupalCouponCode'] ?? null;
 
         if (empty($token) || empty($formId)){
             Craft::error('Unable to get the stripe token or formId', __METHOD__);
@@ -516,6 +519,7 @@ class Orders extends Component
         }
 
         $order->currency = $paymentForm->currency;
+        $data['currency'] = $paymentForm->currency;
         $order->formId = $paymentForm->id;
 
         StripePlugin::$app->settings->initializeStripe();
@@ -525,7 +529,7 @@ class Orders extends Component
         $stripeId = null;
 
         if ($paymentForm->enableSubscriptions){
-            $stripeId = $this->handleSubscription($paymentForm, $customer, $data);
+            $stripeId = $this->handleSubscription($paymentForm, $customer, $data, $order);
         }else{
             $stripeId = $this->handleOneTimePayment($paymentForm, $customer, $data, $token, $isNew, $order);
         }
@@ -533,6 +537,10 @@ class Orders extends Component
         if (is_null($stripeId)){
             Craft::error('Something went wrong making the charge to Stripe. -CHECK PREVIOUS LOGS-', __METHOD__);
             return $result;
+        }
+
+        if ($data['couponCode'] && ($paymentType == PaymentType::IDEAL || $paymentType==PaymentType::SOFORT)){
+            $order->totalPrice = $this->convertFromCents($order->totalPrice, $paymentForm->currency);
         }
 
         $order->stripeTransactionId = $stripeId;
@@ -663,7 +671,7 @@ class Orders extends Component
             return (int)$amount;
         }
 
-        return (int)$amount * 100;
+        return $amount * 100;
     }
 
     /**
@@ -763,6 +771,32 @@ class Orders extends Component
     }
 
     /**
+     * Return the Minimum charge by currency
+     *
+     * @link https://stripe.com/docs/currencies#minimum-and-maximum-charge-amounts
+     * @param $currency
+     * @return mixed|string
+     */
+    public function getMinimumChargeInCents($currency)
+    {
+        // Default for USD, BRL, CAD, AUD, CHF, EUR, NZD, SGD
+        $default = '0.50';
+
+        $minimumCharges = [
+            'DKK' => '2.50',
+            'GBP' => '4.00',
+            'JPY' => '50',
+            'MXN' => '10',
+            'NOK' => '3.00',
+            'SEK' => '3.00'
+        ];
+
+        $minimum = $minimumCharges[$currency] ?? $default;
+
+        return $this->convertToCents($minimum, $currency);
+    }
+
+    /**
      * @param $addressData
      * @return int
      */
@@ -822,7 +856,8 @@ class Orders extends Component
      * @param $isNew
      * @param $token
      * @param $order
-     * @return null|\Stripe\ApiResource
+     * @return \Stripe\ApiResource|null
+     * @throws \Exception
      */
     private function stripeCharge($data, $paymentForm, $customer, $isNew, $token, $order)
     {
@@ -836,6 +871,10 @@ class Orders extends Component
                 $customer->default_source = $token;
                 $customer->save();
             }
+        }
+
+        if ($data['couponCode']){
+            $this->applyCouponToOrder($data, $order);
         }
 
         $chargeSettings = [
@@ -869,15 +908,16 @@ class Orders extends Component
      * @param $customer
      * @param $planId
      * @param $data
+     * @param $order
      * @return mixed
      * @throws \Exception
      */
-    private function addPlanToCustomer($customer, $planId, $data)
+    private function addPlanToCustomer($customer, $planId, $data, $order)
     {
         $settings = StripePlugin::$app->settings->getSettings();
 
         //Get the plan from stripe it would trow an exception if the plan does not exists
-        StripePlugin::$app->plans->getStripePlan($planId);
+        $plan = StripePlugin::$app->plans->getStripePlan($planId);
 
         // Add the plan to the customer
         $subscriptionSettings = [
@@ -885,9 +925,16 @@ class Orders extends Component
             "trial_from_plan" => true
         ];
 
+        if ($data['couponCode']){
+            $this->applyCouponToOrder($data, $order, true);
+            $subscriptionSettings['coupon'] = $order->couponCode;
+        }
+
         // Add support for tiers
-        if (isset($data['quantity']) && $data['quantity']){
-            $subscriptionSettings['quantity'] = $data['quantity'];
+        if ($plan['usage_type'] !== 'metered'){
+            if (isset($data['quantity']) && $data['quantity']){
+                $subscriptionSettings['quantity'] = $data['quantity'];
+            }
         }
 
         // Add tax
@@ -903,12 +950,38 @@ class Orders extends Component
     }
 
     /**
+     * @param $data
+     * @param Order $order
+     * @param bool $isRecurring
+     * @throws \Exception
+     */
+    private function applyCouponToOrder(&$data, Order &$order, $isRecurring = false)
+    {
+        $couponRedeemed = StripePlugin::$app->coupons->applyCouponToAmountInCents($data['amount'], $data['couponCode'], $order->currency, $isRecurring);
+
+        if ($couponRedeemed->isValid){
+            $coupon = $couponRedeemed->coupon;
+            $couponAmount = $data['amount'] - $couponRedeemed->finalAmount;
+            $order->couponCode = $coupon['id'];
+            $order->couponName = $coupon['name'];
+            $order->couponAmount = $this->convertFromCents($couponAmount, $order->currency);
+            $order->couponSnapshot = json_encode($coupon);
+            $order->totalPrice = $couponRedeemed->finalAmount;
+
+            $data['metadata']['couponCode'] = $coupon['id'];
+            $data['amount'] = $couponRedeemed->finalAmount;
+        }
+    }
+
+    /**
      * @param $customer
      * @param $data
      * @param $paymentForm
+     * @param $order
      * @return mixed
+     * @throws \Exception
      */
-    private function addRecurringPayment($customer, $data, $paymentForm)
+    private function addRecurringPayment($customer, $data, $paymentForm, $order)
     {
         $currentTime = time();
         $planName = strval($currentTime);
@@ -940,6 +1013,11 @@ class Orders extends Component
         // Add tax
         if ($settings->enableTaxes && $settings->tax){
             $subscriptionSettings['tax_percent'] = $settings->tax;
+        }
+
+        if ($data['couponCode']){
+            $this->applyCouponToOrder($data, $order, true);
+            $subscriptionSettings['coupon'] = $order->couponCode;
         }
 
         $subscriptionSettings['metadata'] = $this->getStripeMetadata($data);
@@ -1153,13 +1231,14 @@ class Orders extends Component
     }
 
     /**
-     * @param $paymentForm PaymentForm
+     * @param $paymentForm
      * @param $customer
      * @param $data
      * @param $token
      * @param $isNew
-     * @param $order Order
+     * @param $order
      * @return mixed|null
+     * @throws \Exception
      */
     private function handleOneTimePayment($paymentForm, $customer, $data, $token, $isNew, $order)
     {
@@ -1168,7 +1247,7 @@ class Orders extends Component
         if (isset($data['recurringToggle']) && $data['recurringToggle'] == 'on'){
             if (isset($data['customAmount']) && $data['customAmount'] > 0){
                 // test what is returning we need a stripe id
-                $subscription = $this->addRecurringPayment($customer, $data, $paymentForm);
+                $subscription = $this->addRecurringPayment($customer, $data, $paymentForm, $order);
                 $stripeId = $subscription->id ?? null;
             }
         }
@@ -1185,10 +1264,11 @@ class Orders extends Component
      * @param $paymentForm
      * @param $customer
      * @param $data
+     * @param $order
      * @return null
      * @throws \Exception
      */
-    private function handleSubscription($paymentForm, $customer, $data)
+    private function handleSubscription($paymentForm, $customer, $data, $order)
     {
         $planId = null;
         $stripeId = null;
@@ -1203,7 +1283,7 @@ class Orders extends Component
             }
 
             // Either single plan or multiple plans the user should select one plan and plan id should be available in the post request
-            $subscription = $this->addPlanToCustomer($customer, $planId, $data);
+            $subscription = $this->addPlanToCustomer($customer, $planId, $data, $order);
             $stripeId = $subscription->id ?? null;
         }
 
@@ -1232,7 +1312,7 @@ class Orders extends Component
                 $this->addOneTimeSetupFee($customer, $setupFee, $paymentForm);
             }
 
-            $subscription = $this->addPlanToCustomer($customer, $planId, $data);
+            $subscription = $this->addPlanToCustomer($customer, $planId, $data, $order);
             $stripeId = $subscription->id ?? null;
         }
 
@@ -1271,7 +1351,7 @@ class Orders extends Component
             }
         }
 
-        Craft::info('Enupal Stripe - Order Created: './** @scrutinizer ignore-type */ $order->number);
+        Craft::info('Enupal Stripe - Order Created: './** @scrutinizer ignore-type */ $order->number, __METHOD__);
         $result = $order;
 
         return $result;

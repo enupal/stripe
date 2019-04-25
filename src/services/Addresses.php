@@ -13,6 +13,7 @@ use enupal\stripe\events\AddressEvent;
 use enupal\stripe\models\Address;
 use enupal\stripe\records\Address as AddressRecord;
 use craft\db\Query;
+use enupal\stripe\Stripe;
 use yii\base\Component;
 use yii\base\InvalidArgumentException;
 
@@ -204,5 +205,37 @@ class Addresses extends Component
                 'addresses.stateName'
             ])
             ->from(['{{%enupalstripe_addresses}} addresses']);
+    }
+
+    /**
+     * @param $data
+     * @return int|null
+     */
+    public function getAddressIdFromCharge($data)
+    {
+        $orderId = null;
+        $address = new Address();
+        $address->firstName = $data['name'] ?? null;
+        $address->city = $data['address_city'] ?? null;
+        $countryId = null;
+
+        if (isset($data['address_country'])){
+            $country = Stripe::$app->countries->getCountryByIso($data['address_country']);
+            if ($country){
+                $countryId = $country->id;
+            }
+
+        }
+
+        $address->countryId = $countryId;
+        $address->stateName = $data['address_state'] ?? null;
+        $address->address1 = $data['address_line1'] ?? null;
+        $address->zipCode = $data['address_zip'] ?? null;
+
+        if (Stripe::$app->addresses->saveAddress($address, true)){
+            $orderId = $address->id;
+        }
+
+        return $orderId;
     }
 }
