@@ -57,10 +57,7 @@ class Subscription extends Model
         if ($subscription['plan']['usage_type'] === 'metered'){
             $this->meteredId = $subscription['items']['data'][0]['id'];
             if ($this->validateMetered()){
-                $invoice = Invoice::upcoming([
-                        "subscription" => $this->data['id']]
-                );
-
+                $invoice = $this->getUpcomingInvoiceItem();
                 $this->meteredQuantity = $invoice['lines']['data'][0]['quantity'];
                 $this->meteredInfo = $invoice['lines']['data'][0];
                 $this->meteredInfoAsJson = json_encode($this->meteredInfo);
@@ -103,8 +100,24 @@ class Subscription extends Model
     public function getUsage()
     {
         if ($this->validateMetered()){
-            return $this->meteredInfo['quantity'];
+            $invoice = $this->getUpcomingInvoiceItem();
+            $this->meteredQuantity = $invoice['lines']['data'][0]['quantity'];
+            return $this->meteredQuantity;
         }
+
+        return null;
+    }
+
+    /**
+     * @return Invoice
+     */
+    private function getUpcomingInvoiceItem()
+    {
+        $invoice = Invoice::upcoming([
+            "subscription" => $this->data['id']]
+        );
+
+        return $invoice;
     }
 
     /**
