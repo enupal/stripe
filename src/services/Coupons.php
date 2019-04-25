@@ -186,9 +186,11 @@ class Coupons extends Component
                 }
             }
         }else{
-            $timesRedeemed = $this->getTotalTimesCouponRedeemed($coupon['id']);
-            if ($timesRedeemed >= $coupon['max_redemptions']){
-                return false;
+            if (!is_null($coupon['max_redemptions'])) {
+                $timesRedeemed = $this->getTotalTimesCouponRedeemed($coupon['id']);
+                if ((int)$timesRedeemed >= $coupon['max_redemptions']) {
+                    return false;
+                }
             }
         }
 
