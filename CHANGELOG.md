@@ -2,6 +2,9 @@
 
 ## WIP
 
+### Added
+- Added Coupons support
+
 ### Updated
 - Updated sync orders to save the shippingAddressId and billingAddressId
 
