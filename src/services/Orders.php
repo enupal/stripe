@@ -917,7 +917,7 @@ class Orders extends Component
         $settings = StripePlugin::$app->settings->getSettings();
 
         //Get the plan from stripe it would trow an exception if the plan does not exists
-        StripePlugin::$app->plans->getStripePlan($planId);
+        $plan = StripePlugin::$app->plans->getStripePlan($planId);
 
         // Add the plan to the customer
         $subscriptionSettings = [
@@ -931,8 +931,10 @@ class Orders extends Component
         }
 
         // Add support for tiers
-        if (isset($data['quantity']) && $data['quantity']){
-            $subscriptionSettings['quantity'] = $data['quantity'];
+        if ($plan['usage_type'] !== 'metered'){
+            if (isset($data['quantity']) && $data['quantity']){
+                $subscriptionSettings['quantity'] = $data['quantity'];
+            }
         }
 
         // Add tax

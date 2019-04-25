@@ -98,6 +98,7 @@
     </table>
 
     {% if order.isSubscription %}
+        {% set subscription = order.getSubscription() %}
         <input type="hidden" id="subscriptionId" value="{{ order.stripeTransactionId }}">
         <hr>
         <h3>{{ "Subscription"|t('enupal-stripe') }}</h3>
@@ -111,6 +112,10 @@
                     <th scope="col">{{ 'Period Start'|t('enupal-stripe') }}</th>
                     <th scope="col">{{ 'Period end'|t('enupal-stripe') }}</th>
                     <th scope="col">{{ 'Quantity'|t('enupal-stripe') }}</th>
+                    {% if subscription.meteredId %}
+                        <th scope="col">{{ 'Metered Id'|t('enupal-stripe') }} <span class="info"> <a target="_blank" href="https://stripe.com/docs/billing/subscriptions/metered-billing#reporting-usage">{{ "Report the usage"|t('enupal-stripe') }}</a>  using this id</span></th>
+                        <th scope="col">{{ 'Usage Info'|t('enupal-stripe') }} <span class="info"> All amounts are in cents</span></th>
+                    {% endif %}
                     <th id="cancel-title" scope="col"></th>
                     <th scope="col"></th>
                 </tr>
@@ -131,9 +136,24 @@
                 <td id="subs-end">
 
                 </td>
+                {% if subscription.meteredId is null %}
+
                 <td id="subs-quantity">
 
                 </td>
+                {% else %}
+                    <td>
+                       {{ subscription.meteredQuantity }}
+                    </td>
+                {% endif %}
+                {% if subscription.meteredId %}
+                    <td>
+                        <span class="code">{{ subscription.meteredId }}</span>
+                    </td>
+                    <td  class="infoRow"  data-info="{{ subscription.meteredInfoAsJson }}">
+                        Usage <span class="tableRowInfo" data-icon="info" href="#"></span>
+                    </td>
+                {% endif %}
                 <td style="width:10%;" id="subs-cancel">
                     <div id="cancel-subscription" class="btn small">{{ "Cancel"|t('enupal-stripe') }} </div><div class="spinner hidden"></div>
                 </td>
