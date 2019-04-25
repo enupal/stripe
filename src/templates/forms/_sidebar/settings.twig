@@ -163,29 +163,6 @@
         errors: stripeForm.getErrors('hasUnlimitedStock')|merge(stripeForm.getErrors('quantity')),
     }, stockInput) }}
 </div>
-{# Disable discounts for now
-<hr>
-<div class="meta">
-    <h6>{{ 'Discount'|t('enupal-stripe') }}</h6>
-    {{ forms.selectField({
-        label: "Discount Type <span class='info'>Reduce the price by a percentage or amount, of the original price.</span>"|t('enupal-stripe'),
-        id: 'discountType',
-        name: 'discountType',
-        options: discountOptions,
-        value: stripeForm.discountType
-    }) }}
-    {{ forms.textField({
-        first: true,
-        label: "Discount <span class='info'>Apply discount to amount</span>"|t('enupal-stripe'),
-        id: 'discount',
-        name: 'discount',
-        placeholder: 'Enter discount',
-        value: (stripeForm.discount == '0' ? '0'|number : (stripeForm.discount ? stripeForm.discount|number ?: '')),
-        errors: stripeForm.getErrors('discount'),
-        autofocus: true,
-    }) }}
-</div>
-#}
 <hr>
 <div class="meta">
     <h6>{{ 'Shipping'|t('enupal-stripe') }}</h6>

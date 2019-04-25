@@ -109,7 +109,11 @@ class StripeVariable extends Behavior
      * @param array|null $options
      *
      * @return string
+     * @throws \Twig\Error\LoaderError
+     * @throws \Twig\Error\RuntimeError
+     * @throws \Twig\Error\SyntaxError
      * @throws \yii\base\Exception
+     * @throws \yii\base\InvalidConfigException
      */
     public function paymentForm($handle, array $options = null)
     {
@@ -138,14 +142,6 @@ class StripeVariable extends Behavior
     public function getLanguageOptions()
     {
         return Stripe::$app->paymentForms->getLanguageOptions();
-    }
-
-    /**
-     * @return array
-     */
-    public function getDiscountOptions()
-    {
-        return Stripe::$app->paymentForms->getDiscountOptions();
     }
 
     /**
@@ -268,7 +264,9 @@ class StripeVariable extends Behavior
      * @param $paymentForm PaymentForm
      *
      * @return \Twig_Markup
-     * @throws \Twig_Error_Loader
+     * @throws \Twig\Error\LoaderError
+     * @throws \Twig\Error\RuntimeError
+     * @throws \Twig\Error\SyntaxError
      * @throws \yii\base\Exception
      */
     public function displayMultiSelect($paymentForm)
@@ -303,6 +301,9 @@ class StripeVariable extends Behavior
      *
      * @param string $type
      * @return \Twig_Markup
+     * @throws \Twig\Error\LoaderError
+     * @throws \Twig\Error\RuntimeError
+     * @throws \Twig\Error\SyntaxError
      * @throws \yii\base\Exception
      */
     public function displayAddress($paymentForm, $type = 'address')
@@ -595,6 +596,35 @@ class StripeVariable extends Behavior
     public function getAllCountriesAsList()
     {
         return Stripe::$app->countries->getAllCountriesAsList();
+    }
+
+    /**
+     * @return \Stripe\Collection
+     * @throws \Stripe\Error\Api
+     */
+    public function getAllCoupons()
+    {
+        return Stripe::$app->coupons->getAllCoupons();
+    }
+
+    /**
+     * @param $amount
+     * @param $currency
+     * @return float|int
+     */
+    public function convertFromCents($amount, $currency)
+    {
+        return Stripe::$app->orders->convertFromCents($amount, $currency);
+    }
+
+    /**
+     * @return int
+     */
+    public function getMode()
+    {
+        $settings = Stripe::$app->settings->getSettings();
+
+        return $settings->testMode;
     }
 
     /**

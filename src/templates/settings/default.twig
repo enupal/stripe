@@ -93,6 +93,20 @@
                 offLabel: "Off"|t('enupal-stripe'),
                 errors: settings.getErrors('loadJquery'),
             }) }}
+
+            <hr>
+
+            {{ forms.lightswitchField({
+                label: 'Cancel subscription at period end'|t('enupal-stripe'),
+                instructions: 'By default, the cancellation takes effect immediately. Once a customer’s subscription is canceled, no further invoices are generated for that subscription. If the customer paid for the entire billing period and the subscription was canceled part-way through, the customer is not credited a refund automatically by Stripe. Note that, for metered plans, all reported usage is discarded.
+If you instead want to cancel the subscription at the end of the current billing period (i.e., for the duration of time the customer has already paid for), enable this setting',
+                id: 'cancelAtPeriodEnd',
+                name: 'cancelAtPeriodEnd',
+                on: settings.cancelAtPeriodEnd,
+                onLabel: "On"|t('enupal-stripe'),
+                offLabel: "Off"|t('enupal-stripe'),
+                errors: settings.getErrors('cancelAtPeriodEnd'),
+            }) }}
         {% endnamespace %}
 
     </div>

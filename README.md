@@ -18,8 +18,10 @@ Stripe Payments allows customers sign up for recurring and one-time payments wit
  * Stripe Elements: Card, iDEAL and SOFORT.
  * Optimized for Mobile
  * Subscriptions Integration: Allow your customers to sign up for recurring payments.
- * Cancel Subscription via CP `new`
- * Refund button in the CP `new`
+ * Cancel/Reactivate Subscription via CP and Front-end `new`
+ * Support for Metered billing plans `new`
+ * Redeem Coupons on one-time and recurring payments`new`
+ * Refund button in the CP 
  * Applying Taxes to Subscriptions
  * Basic Payment Form Builder: Add field types to capture more data to store with each Stripe Order record: Single Line, Paragraph, numbers, Dropdowns, checkboxes.
  * Custom Amounts: Allow your customers to pay what they want by entering an amount. Perfect for single and recurring donation or any custom payment form.

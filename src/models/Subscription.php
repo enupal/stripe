@@ -8,9 +8,15 @@
 
 namespace enupal\stripe\models;
 
+use Craft;
 use craft\base\Model;
 use craft\helpers\DateTimeHelper;
 use enupal\stripe\Stripe;
+use enupal\stripe\Stripe as StripePlugin;
+use Stripe\Invoice;
+use Stripe\InvoiceLineItem;
+use Stripe\UsageRecord;
+use yii\db\Exception;
 
 class Subscription extends Model
 {
@@ -25,6 +31,14 @@ class Subscription extends Model
     public $canceledAt;
     public $status;
     public $statusHtml;
+    public $cancelAtPeriodEnd;
+    public $meteredId = null;
+    public $meteredQuantity;
+    /**
+     * @var InvoiceLineItem
+     */
+    public $meteredInfo;
+    public $meteredInfoAsJson;
 
     public function __construct($subscription = [])
     {
@@ -38,5 +52,87 @@ class Subscription extends Model
         $this->canceledAt = isset($subscription['canceled_at']) && $subscription['canceled_at'] ? DateTimeHelper::toDateTime($subscription['canceled_at'])->format('m/d/Y') : null;
         $this->data = $subscription;
         $this->statusHtml = Stripe::$app->subscriptions->getSubscriptionStatusHtml($this->status);
+        $this->cancelAtPeriodEnd = $subscription['cancel_at_period_end'];
+
+        if ($subscription['plan']['usage_type'] === 'metered'){
+            $this->meteredId = $subscription['items']['data'][0]['id'];
+            if ($this->validateMetered()){
+                $invoice = $this->getUpcomingInvoiceItem();
+                $this->meteredQuantity = $invoice['lines']['data'][0]['quantity'];
+                $this->meteredInfo = $invoice['lines']['data'][0];
+                $this->meteredInfoAsJson = json_encode($this->meteredInfo);
+            }
+        }
+    }
+
+    /**
+     * @param $quantity
+     * @param null $dateTime
+     * @param string $action
+     * @return bool
+     * @throws Exception
+     */
+    public function reportUsage($quantity, $dateTime = null, $action = 'increment')
+    {
+        if (!$this->validateMetered()){
+            return false;
+        }
+
+        $dateTime = $dateTime ?? DateTimeHelper::currentTimeStamp();
+        try{
+            UsageRecord::create([
+                'quantity' => $quantity,
+                'timestamp' => $dateTime,
+                'subscription_item' => $this->meteredId,
+                'action' => $action,
+            ]);
+        }catch (\Exception $e){
+            throw new Exception($e->getMessage());
+        }
+
+        return true;
+    }
+
+    /**
+     * @return mixed|null
+     * @throws \Exception
+     */
+    public function getUsage()
+    {
+        if ($this->validateMetered()){
+            $invoice = $this->getUpcomingInvoiceItem();
+            $this->meteredQuantity = $invoice['lines']['data'][0]['quantity'];
+            return $this->meteredQuantity;
+        }
+
+        return null;
+    }
+
+    /**
+     * @return Invoice
+     */
+    private function getUpcomingInvoiceItem()
+    {
+        $invoice = Invoice::upcoming([
+            "subscription" => $this->data['id']]
+        );
+
+        return $invoice;
+    }
+
+    /**
+     *
+     * @return bool
+     * @throws \Exception
+     */
+    private function validateMetered()
+    {
+        if (!is_null($this->meteredId) && ($this->status == 'active' || $this->status == 'trialing')){
+            StripePlugin::$app->settings->initializeStripe();
+
+            return true;
+        }
+
+        return false;
     }
 }

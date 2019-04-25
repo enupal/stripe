@@ -206,6 +206,8 @@ class Address extends Model
 
     /**
      * @return string
+     * @throws \Twig\Error\LoaderError
+     * @throws \Twig\Error\SyntaxError
      */
     public function getAddressAsHtml(): string
     {

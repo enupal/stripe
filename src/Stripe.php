@@ -34,7 +34,7 @@ class Stripe extends Plugin
 
     public $hasCpSection = true;
     public $hasCpSettings = true;
-    public $schemaVersion = '1.8.0';
+    public $schemaVersion = '1.9.0';
 
     public function init()
     {
@@ -109,6 +109,10 @@ class Stripe extends Plugin
                     "label" => self::t("Payment Forms"),
                     "url" => 'enupal-stripe/forms'
                 ],
+                'coupons' => [
+                    "label" => self::t("Coupons"),
+                    "url" => 'enupal-stripe/coupons'
+                ],
                 'settings' => [
                     "label" => self::t("Settings"),
                     "url" => 'enupal-stripe/settings'
@@ -119,8 +123,10 @@ class Stripe extends Plugin
 
     /**
      * @inheritdoc
-     * @throws \yii\base\Exception
-     * @throws \Twig_Error_Loader
+     * @return string
+     * @throws \Twig\Error\LoaderError
+     * @throws \Twig\Error\RuntimeError
+     * @throws \Twig\Error\SyntaxError
      */
     protected function settingsHtml()
     {
@@ -168,7 +174,9 @@ class Stripe extends Plugin
     {
         return [
             'enupal/stripe-payments' =>
-                'enupal-stripe/webhook/stripe'
+                'enupal-stripe/webhook/stripe',
+            'enupal/validate-coupon' =>
+                'enupal-stripe/coupons/validate'
         ];
     }
 }

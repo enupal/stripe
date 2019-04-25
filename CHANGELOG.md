@@ -1,5 +1,22 @@
 # Stripe Payments Changelog
 
+## 1.9.0 - 2019.04.25
+
+### Added
+- Added Coupons support
+- Added support for metered plans
+- Added `reportUsage` to the subscription model on metered plans
+- Added `Cancel subscription at period end` setting
+- Added support to reactivate subscriptions via CP and Front-end
+
+### Updated
+- Updated sync orders to save the shippingAddressId and billingAddressId
+
+### Removed
+- Removed unused address column on orders table
+- Removed unused discount column on orders table
+- Removed unused discount columns on forms table
+
 ## 1.8.5 - 2019.04.02
 ### Fixed
 - Fixed an error which could prevent the plugin from installing on PostgreSQL.

@@ -46,8 +46,6 @@ use craft\records\Element;
  * @property boolean $hasUnlimitedStock
  * @property boolean $customerQuantity
  * @property string $soldOutMessage
- * @property integer $discountType
- * @property float $discount
  * @property boolean $verifyZip
  * @property boolean $enableBillingAddress
  * @property boolean $enableShippingAddress

@@ -9,7 +9,6 @@
 namespace enupal\stripe\models;
 
 use craft\base\Model;
-use enupal\stripe\enums\DiscountType;
 use enupal\stripe\Stripe;
 
 
@@ -26,7 +25,7 @@ class Settings extends Model
     public $defaultCurrency = 'USD';
     // Tax
     public $enableTaxes = 0;
-    public $taxType = DiscountType::RATE;
+    public $taxType = 0;
     public $displayTaxLabel = 0;
     public $tax;
     // Notification Customer
@@ -60,6 +59,8 @@ class Settings extends Model
     public $syncEnabledDateRange = false;
     public $syncStartDate;
     public $syncEndDate;
+
+    public $cancelAtPeriodEnd = false;
 
     /**
      * @inheritdoc
