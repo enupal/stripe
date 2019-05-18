@@ -201,6 +201,7 @@ var enupalStripe = {};
             var isRecurring = this.getIsRecurring(enupalButtonElement, enupalStripeData);
 
             var data = {
+                'action': 'enupal-stripe/coupons/validate',
                 'amount' : amount,
                 'couponCode': couponCode,
                 'isRecurring': isRecurring,
