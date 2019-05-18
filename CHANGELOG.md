@@ -1,9 +1,14 @@
 # Stripe Payments Changelog
 
+## 1.9.2 - 2019.05.17
+
+### Fixed
+-  Fixed `404 bad request` error on validating coupons
+
 ## 1.9.1 - 2019.04.25
 
 ### Fixed
-- Fixes issue when redeeming a coupon on one-time payments forms
+- Fixed issue when redeeming a coupon on one-time payments forms
 
 ## 1.9.0 - 2019.04.25
 
