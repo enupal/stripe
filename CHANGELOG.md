@@ -1,5 +1,10 @@
 # Stripe Payments Changelog
 
+## 1.9.3 - 2019.05.20
+
+### Fixed
+-  Fixed `404 bad request` error validating coupons with Stripe Checkout
+
 ## 1.9.2 - 2019.05.17
 
 ### Fixed

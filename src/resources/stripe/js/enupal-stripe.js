@@ -278,6 +278,7 @@ var enupalStripe = {};
                 var isRecurring = this.getIsRecurring(enupalButtonElement, enupalStripeData);
                 if (couponCode){
                     var data = {
+                        'action': 'enupal-stripe/coupons/validate',
                         'amount' : stripeConfig.amount,
                         'couponCode': couponCode,
                         'isRecurring': isRecurring,
