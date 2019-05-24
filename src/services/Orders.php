@@ -17,6 +17,7 @@ use craft\helpers\UrlHelper;
 use enupal\stripe\elements\Order;
 use enupal\stripe\enums\PaymentType;
 use enupal\stripe\enums\SubscriptionType;
+use enupal\stripe\events\OrderCaptureEvent;
 use enupal\stripe\events\OrderCompleteEvent;
 use enupal\stripe\events\OrderRefundEvent;
 use enupal\stripe\events\WebhookEvent;
@@ -92,6 +93,8 @@ class Orders extends Component
      * ```
      */
     const EVENT_AFTER_REFUND_ORDER = 'afterRefundOrder';
+
+    const EVENT_AFTER_CAPTURE_ORDER = 'afterCaptureOrder';
 
     /**
      * Returns a Order model if one is found in the database by id
@@ -549,6 +552,11 @@ class Orders extends Component
         // revert cents - Async charges already make this conversion - On Checkout $paymentType is null
         if ($paymentType == PaymentType::CC || is_null($paymentType)){
             $order->totalPrice = $this->convertFromCents($order->totalPrice, $paymentForm->currency);
+
+            $pluginSettings = StripePlugin::$app->settings->getSettings();
+            if (!$pluginSettings->capture){
+                $order->isCompleted = false;
+            }
         }
 
         $order = $this->finishOrder($order, $paymentForm);
@@ -620,6 +628,20 @@ class Orders extends Component
     }
 
     /**
+     * @param $order
+     */
+    public function triggerOrderCaptureEvent($order)
+    {
+        Craft::info("Triggering order capture event", __METHOD__);
+
+        $event = new OrderCaptureEvent([
+            'order' => $order
+        ]);
+
+        $this->trigger(self::EVENT_AFTER_CAPTURE_ORDER, $event);
+    }
+
+    /**
      * Stripe Charge given the config array
      *
      * @param $settings
@@ -628,6 +650,10 @@ class Orders extends Component
     public function charge($settings)
     {
         $charge = null;
+        $pluginSettings = StripePlugin::$app->settings->getSettings();
+        if (!$pluginSettings->capture){
+            $settings['capture'] = false;
+        }
 
         try {
             $charge = Charge::create($settings);
@@ -747,6 +773,41 @@ class Orders extends Component
     }
 
     /**
+     * @param $order Order
+     * @return bool
+     * @throws \Throwable
+     */
+    public function captureOrder(Order $order)
+    {
+        $result = false;
+        $charge = $this->getCharge($order->stripeTransactionId);
+
+        if (!$charge->captured) {
+            try {
+
+                $response = $charge->capture();
+
+                if (isset($response['captured']) && $response['captured']) {
+                    $order->isCompleted = true;
+                    $this->saveOrder($order, false);
+                    Stripe::$app->messages->addMessage($order->id,'Control Panel - Payment captured', $response);
+
+                    $this->triggerOrderCaptureEvent($order);
+                    $result = true;
+                }else{
+                    Stripe::$app->messages->addMessage($order->id,'Control Panel - Something went wrong on Capture process', $response);
+                }
+            } catch (\Exception $e) {
+                Stripe::$app->messages->addMessage($order->id,'Control Panel - Failed to refund payment', ['error' => $e->getMessage()]);
+            }
+        }else{
+            Stripe::$app->messages->addMessage($order->id, "Control Panel - Payment was already captured", []);
+        }
+
+        return $result;
+    }
+
+    /**
      * @param $userId
      * @return array|\craft\base\ElementInterface|null
      */
@@ -794,6 +855,20 @@ class Orders extends Component
         $minimum = $minimumCharges[$currency] ?? $default;
 
         return $this->convertToCents($minimum, $currency);
+    }
+
+    /**
+     * @param $charge
+     * @return Charge
+     * @throws \Exception
+     */
+    public function getCharge($charge)
+    {
+        StripePlugin::$app->settings->initializeStripe();
+
+        $charge = Charge::retrieve($charge);
+
+        return $charge;
     }
 
     /**

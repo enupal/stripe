@@ -154,4 +154,31 @@ class OrdersController extends BaseController
 
         return $this->asJson(['success'=> true]);
     }
+
+    /**
+     * Capture payment via ajax
+     *
+     * @return \yii\web\Response
+     * @throws \Throwable
+     * @throws \yii\web\BadRequestHttpException
+     */
+    public function actionCapturePayment()
+    {
+        $this->requireAcceptsJson();
+        $request = Craft::$app->getRequest();
+        $orderNumber = $request->getRequiredBodyParam('orderNumber');
+        $order = Stripe::$app->orders->getOrderByNumber($orderNumber);
+
+        if (is_null($order)){
+            return $this->asErrorJson("Order not found: ".$orderNumber);
+        }
+
+        $result = Stripe::$app->orders->captureOrder($order);
+
+        if (!$result){
+            return $this->asErrorJson("Unable to capture payment, please check messages tab.");
+        }
+
+        return $this->asJson(['success'=> true]);
+    }
 }
