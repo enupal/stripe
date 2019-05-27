@@ -17,10 +17,12 @@ use craft\helpers\UrlHelper;
 use craft\elements\actions\Delete;
 
 use enupal\stripe\elements\db\OrdersQuery;
+use enupal\stripe\enums\PaymentType;
 use enupal\stripe\models\Address;
 use enupal\stripe\records\Order as OrderRecord;
 use enupal\stripe\Stripe as StripePaymentsPlugin;
 use craft\validators\UniqueValidator;
+use enupal\stripe\Stripe;
 
 /**
  * Order represents a entry element.
@@ -736,5 +738,23 @@ class Order extends Element
         }
     }
 
+    /**
+     * @return bool
+     * @throws \Exception
+     */
+    public function getNeedCapture()
+    {
+        try{
+            if ($this->paymentType == PaymentType::CC || is_null($this->paymentType ) && !$this->isCompleted){
+                $stripeId = Stripe::$app->orders->getChargeIdFromOrder($this);
+                $charge = Stripe::$app->orders->getCharge($stripeId);
 
+                return !$charge->captured;
+            }
+        }catch (\Exception $e){
+            Craft::error($e->getMessage(), __METHOD__);
+        }
+
+        return false;
+    }
 }

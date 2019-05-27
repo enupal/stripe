@@ -9,6 +9,7 @@
         $reactivateSubscriptionButtonWrapper: null,
         $reactivateSubscriptionButton: null,
         $refundButton: null,
+        $captureButton: null,
 
         /**
          * The constructor.
@@ -28,6 +29,9 @@
 
             this.$refundButton = $('#fields-refund-payment');
             this.addListener(this.$refundButton, 'click', 'handleRefundPayment');
+
+            this.$captureButton = $('#fields-capture-payment');
+            this.addListener(this.$captureButton, 'click', 'handleCapturePayment');
         },
 
         handleRefreshSubscription: function(option) {
@@ -179,6 +183,41 @@
                         location.reload();
                     }else{
                         Craft.cp.displayError(Craft.t('enupal-stripe', 'Unable to refund payment - Check your messages tab'));
+                        location.reload();
+                    }
+                }
+            });
+        },
+
+        handleCapturePayment: function(option) {
+            if (!confirm(Craft.t('enupal-stripe', 'Are you sure you want to capture this payment?'))) {
+                return true;
+            }
+
+            if (this.$captureButton.hasClass('disabled')) {
+                return;
+            }
+
+            var that = this;
+
+            this.$captureButton.addClass('disabled').siblings('.spinner').removeClass('hidden');
+
+            var data = {
+                'orderNumber' : $("#fields-order-number-short").text()
+            };
+
+            Craft.postActionRequest('enupal-stripe/orders/capture-payment', data, function(response, textStatus) {
+                that.$captureButton.removeClass('disabled').siblings('.spinner').addClass('hidden');
+                if (textStatus === 'success') {
+                    if ("error" in response ){
+                        Craft.cp.displayError(Craft.t('enupal-stripe', response.error));
+                        location.reload();
+                    }
+                    else if (response.success) {
+                        Craft.cp.displayNotice(Craft.t('enupal-stripe', 'Payment Captured - Check your messages tab'));
+                        location.reload();
+                    }else{
+                        Craft.cp.displayError(Craft.t('enupal-stripe', 'Unable to capture payment - Check your messages tab'));
                         location.reload();
                     }
                 }

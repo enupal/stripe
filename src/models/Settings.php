@@ -20,6 +20,7 @@ class Settings extends Model
     public $livePublishableKey;
     public $liveSecretKey;
     public $testMode = 1;
+    public $capture = 1;
     // Globals
     public $returnUrl;
     public $defaultCurrency = 'USD';

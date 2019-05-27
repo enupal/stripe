@@ -49,6 +49,17 @@
             }) }}
 
             <hr>
+            {{ forms.lightswitchField({
+                label: 'Authorize and Capture Immediately'|t('enupal-stripe'),
+                instructions: 'If disabled, uncaptured payments expire exactly seven days after they are created. If they are not captured by that point in time, they will be marked as refunded and will no longer be capturable.',
+                id: 'capture',
+                name: 'capture',
+                on: settings.capture,
+                onLabel: "On"|t('enupal-stripe'),
+                offLabel: "Off"|t('enupal-stripe'),
+                errors: settings.getErrors('capture')
+            }) }}
+            <hr>
             <div id="testKeys" class="{% if not settings.testMode %} hidden {% endif %}">
             {% if not configSettings.testPublishableKey is defined %}
                 {{ forms.textField({

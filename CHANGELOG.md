@@ -1,5 +1,11 @@
 # Stripe Payments Changelog
 
+## 1.9.4 - 2019.05.27
+
+### Added
+- Added Authorize and Capture setting
+- Added `charge.captured` webhook
+
 ## 1.9.3 - 2019.05.20
 
 ### Fixed
