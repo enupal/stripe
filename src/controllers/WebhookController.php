@@ -71,6 +71,20 @@ class WebhookController extends BaseController
                 // Finalize the order and trigger order complete event to send a confirmation to the customer over email.
                 Craft::error('Stripe Payments - Charge Failed,  order: '.$order->number, __METHOD__);
                 break;
+
+            case 'charge.captured':
+                // Capture Order
+                $object = $eventJson['data']['object'];
+                $order = Stripe::$app->orders->getOrderByStripeId($object['id']);
+                if (isset($object['captured']) && $object['captured'] && $order) {
+                    $order->isCompleted = true;
+                    Stripe::$app->orders->saveOrder($order, false);
+                    Stripe::$app->messages->addMessage($order->id, 'Webhook - Payment captured', $object);
+
+                    Stripe::$app->orders->triggerOrderCaptureEvent($order);
+                    Craft::info('Stripe Payments - Payment Captured order: '.$order->number, __METHOD__);
+                }
+                break;
         }
 
         Stripe::$app->orders->triggerWebhookEvent($eventJson, $order);

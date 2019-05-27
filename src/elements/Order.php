@@ -744,10 +744,15 @@ class Order extends Element
      */
     public function getNeedCapture()
     {
-        if ($this->paymentType == PaymentType::CC || is_null($this->paymentType ) && !$this->isCompleted){
-            $charge = Stripe::$app->orders->getCharge($this->stripeTransactionId);
+        try{
+            if ($this->paymentType == PaymentType::CC || is_null($this->paymentType ) && !$this->isCompleted){
+                $stripeId = Stripe::$app->orders->getChargeIdFromOrder($this);
+                $charge = Stripe::$app->orders->getCharge($stripeId);
 
-            return !$charge->captured;
+                return !$charge->captured;
+            }
+        }catch (\Exception $e){
+            Craft::error($e->getMessage(), __METHOD__);
         }
 
         return false;

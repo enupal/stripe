@@ -553,9 +553,11 @@ class Orders extends Component
         if ($paymentType == PaymentType::CC || is_null($paymentType)){
             $order->totalPrice = $this->convertFromCents($order->totalPrice, $paymentForm->currency);
 
-            $pluginSettings = StripePlugin::$app->settings->getSettings();
-            if (!$pluginSettings->capture){
-                $order->isCompleted = false;
+            if (!$order->isSubscription){
+                $pluginSettings = StripePlugin::$app->settings->getSettings();
+                if (!$pluginSettings->capture){
+                    $order->isCompleted = false;
+                }
             }
         }
 
@@ -726,18 +728,10 @@ class Orders extends Component
         if (!$order->refunded) {
             try {
                 StripePlugin::$app->settings->initializeStripe();
-                $stripeId = $order->stripeTransactionId;
+                $stripeId = $this->getChargeIdFromOrder($order);
                 $options = [];
 
-                if ($order->isSubscription()){
-                    $invoices = Invoice::all(['subscription' => $stripeId]);
-                    if (isset($invoices['data'][0])){
-                        // Let's refund the first invoice for subscriptions
-                        $firstInvoice = $invoices['data'][0];
-
-                        $stripeId = $firstInvoice['charge'];
-                    }
-                }else{
+                if (!$order->isSubscription()){
                     // Async transactions have py_ (payment) as stripeId and an amount is required
                     if ($order->paymentType == PaymentType::IDEAL || $order->paymentType == PaymentType::SOFORT){
                         $options['amount'] = $this->convertToCents($order->totalPrice, $order->currency);
@@ -780,11 +774,20 @@ class Orders extends Component
     public function captureOrder(Order $order)
     {
         $result = false;
-        $charge = $this->getCharge($order->stripeTransactionId);
+        $stripeId = $order->stripeTransactionId;
+
+        if ($order->isSubscription()){
+            $invoices = Invoice::all(['subscription' => $stripeId]);
+            if (isset($invoices['data'][0])){
+                $firstInvoice = $invoices['data'][0];
+                $stripeId = $firstInvoice['charge'];
+            }
+        }
+
+        $charge = $this->getCharge($stripeId);
 
         if (!$charge->captured) {
             try {
-
                 $response = $charge->capture();
 
                 if (isset($response['captured']) && $response['captured']) {
@@ -805,6 +808,27 @@ class Orders extends Component
         }
 
         return $result;
+    }
+
+    /**
+     * @param Order $order
+     * @return string
+     * @throws \Exception
+     */
+    public function getChargeIdFromOrder(Order $order)
+    {
+        StripePlugin::$app->settings->initializeStripe();
+        $stripeId = $order->stripeTransactionId;
+
+        if ($order->isSubscription()){
+            $invoices = Invoice::all(['subscription' => $stripeId]);
+            if (isset($invoices['data'][0])){
+                $firstInvoice = $invoices['data'][0];
+                $stripeId = $firstInvoice['charge'];
+            }
+        }
+
+        return $stripeId;
     }
 
     /**
