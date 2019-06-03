@@ -21,9 +21,11 @@ class StripeElementsAsset extends AssetBundle
 
         // define the relative path to CSS/JS files that should be registered with the page
         // when this asset bundle is registered
-        $this->css = [
-            'stripe/css/enupal-stripe-elements.css'
-        ];
+        if ($settings->loadCss) {
+            $this->css = [
+                'stripe/css/enupal-stripe-elements.css'
+            ];
+        }
 
         if ($settings->loadJquery){
             $this->js[] = 'vendor/js/jquery.min.js';

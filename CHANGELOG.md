@@ -1,5 +1,10 @@
 # Stripe Payments Changelog
 
+## 1.9.5 - 2019.06.03
+
+### Added
+- Added `loadCss` setting
+
 ## 1.9.4 - 2019.05.27
 
 ### Added

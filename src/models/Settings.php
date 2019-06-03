@@ -51,6 +51,7 @@ class Settings extends Model
     // Get plans with nickname
     public $plansWithNickname = 1;
     public $loadJquery = 1;
+    public $loadCss = 1;
     // Snyc
     public $syncType = 1;
     public $syncLimit = 500;
