@@ -94,6 +94,17 @@
                 errors: settings.getErrors('loadJquery'),
             }) }}
 
+            {{ forms.lightswitchField({
+                label: 'Load Css'|t('enupal-stripe'),
+                instructions: 'If disabled it will prevent load default CSS styles',
+                id: 'loadCss',
+                name: 'loadCss',
+                on: settings.loadCss,
+                onLabel: "On"|t('enupal-stripe'),
+                offLabel: "Off"|t('enupal-stripe'),
+                errors: settings.getErrors('loadCss'),
+            }) }}
+
             <hr>
 
             {{ forms.lightswitchField({
