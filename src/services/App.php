@@ -73,6 +73,11 @@ class App extends Component
     public $reports;
 
     /**
+     * @var PaymentIntents
+     */
+    public $paymentIntents;
+
+    /**
      * @var Coupons
      */
     public $coupons;
@@ -92,5 +97,6 @@ class App extends Component
         $this->countries = new Countries();
         $this->reports = new Reports();
         $this->coupons = new Coupons();
+        $this->paymentIntents = new PaymentIntents();
     }
 }

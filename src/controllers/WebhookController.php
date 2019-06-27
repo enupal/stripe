@@ -85,6 +85,19 @@ class WebhookController extends BaseController
                     Craft::info('Stripe Payments - Payment Captured order: '.$order->number, __METHOD__);
                 }
                 break;
+            // New checkout
+            case 'checkout.session.completed':
+                // Capture Order
+                $object = $eventJson['data']['object'];
+                $paymentIntentId = $object['payment_intent'];
+                $formId = $object['client_reference_id'];
+                $paymentIntent = Stripe::$app->paymentIntents->getPaymentIntent($paymentIntentId);
+
+                if (!Stripe::$app->paymentIntents->createOrderFromPaymentIntent($paymentIntent, $formId)){
+                    Craft::error('Something went worng', __METHOD__);
+                }
+
+                break;
         }
 
         Stripe::$app->orders->triggerWebhookEvent($eventJson, $order);

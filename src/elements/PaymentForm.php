@@ -697,6 +697,7 @@ class PaymentForm extends Element
         $data = $publicData['stripe'];
         $session = Session::create([
             'payment_method_types' => ['card'],
+            'client_reference_id' => $this->id,
             'line_items' => [[
                 'name' => $data['name'],
                 'description' => $data['description'],
@@ -705,7 +706,7 @@ class PaymentForm extends Element
                 'currency' => $data['currency'],
                 'quantity' => $publicData['quantity'],
             ]],
-            'success_url' => $this->getSiteUrl($this->checkoutSuccessUrl),
+            'success_url' => $this->getSiteUrl('enupal/stripe-payments/finish-order?session_id={CHECKOUT_SESSION_ID}'),
             'cancel_url' => $this->getSiteUrl($this->checkoutCancelUrl),
         ]);
 

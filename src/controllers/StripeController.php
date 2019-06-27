@@ -155,4 +155,15 @@ class StripeController extends BaseController
 
         return $this->redirectToPostedUrl();
     }
+
+    /**
+     * @return \yii\web\Response|null
+     * @throws \yii\web\BadRequestHttpException
+     */
+    public function actionFinishOrder()
+    {
+        Craft::dd($_GET);
+
+        return $this->redirectToPostedUrl();
+    }
 }

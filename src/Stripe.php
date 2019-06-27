@@ -175,6 +175,8 @@ class Stripe extends Plugin
         return [
             'enupal/stripe-payments' =>
                 'enupal-stripe/webhook/stripe',
+            'enupal/stripe-payments/finish-order' =>
+                'enupal-stripe/stripe/finish-order',
             'enupal/validate-coupon' =>
                 'enupal-stripe/coupons/validate'
         ];
