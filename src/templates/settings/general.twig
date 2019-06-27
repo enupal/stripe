@@ -60,6 +60,17 @@
                 errors: settings.getErrors('capture')
             }) }}
             <hr>
+            {{ forms.lightswitchField({
+                label: 'Use Strong Customer Authentication (SCA) <span class="info"><a href="https://stripe.com/docs/strong-customer-authentication">New rule</a> coming into effect on September 14, 2019 as part of PSD2 regulation in Europe, will require changes to how your European customers authenticate online payments. Card payments will require a different user experience, namely 3D Secure, in order to meet SCA requirements. Transactions that don’t follow the new authentication guidelines may be declined by your customers’ banks.</span>'|t('enupal-stripe'),
+                instructions: 'If enabled, Stripe Payments will use the new <a href="https://stripe.com/docs/payments/checkout">Stripe Checkout</a> and the <a href="https://stripe.com/docs/payments/payment-intents">Payment Intents API</a>',
+                id: 'useSca',
+                name: 'useSca',
+                on: settings.useSca,
+                onLabel: "On"|t('enupal-stripe'),
+                offLabel: "Off"|t('enupal-stripe'),
+                errors: settings.getErrors('useSca')
+            }) }}
+            <hr>
             <div id="testKeys" class="{% if not settings.testMode %} hidden {% endif %}">
             {% if not configSettings.testPublishableKey is defined %}
                 {{ forms.textField({

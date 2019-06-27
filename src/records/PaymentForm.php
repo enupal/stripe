@@ -19,6 +19,8 @@ use craft\records\Element;
  * @property string $name
  * @property string $handle
  * @property bool $enableCheckout
+ * @property bool $checkoutCancelUrl
+ * @property bool $checkoutSuccessUrl
  * @property string $paymentType
  * @property string $currency
  * @property string $language

@@ -176,6 +176,9 @@ class PaymentForms extends Component
            $templateFolderOverride = $this->getSitePath($paymentForm->templateOverridesFolder);
         }
 
+        $settings = StripePlugin::$app->settings->getSettings();
+        $mainTemplate = $settings->useSca ? 'paymentFormSca' : 'paymentForm';
+
         // Set our defaults
         $templates['paymentForm'] = $defaultTemplate;
         $templates['address'] = $defaultTemplate;
@@ -185,7 +188,7 @@ class PaymentForms extends Component
         // See if we should override our defaults
         if ($templateFolderOverride) {
 
-            $formTemplate = $templateFolderOverride.DIRECTORY_SEPARATOR.'paymentForm';
+            $formTemplate = $templateFolderOverride.DIRECTORY_SEPARATOR.$mainTemplate;
             $addressTemplate = $templateFolderOverride.DIRECTORY_SEPARATOR.'address';
             $fieldsFolder = $templateFolderOverride.DIRECTORY_SEPARATOR.'fields';
             $multiplePlansFolder = $templateFolderOverride.DIRECTORY_SEPARATOR.'multipleplans';
@@ -662,6 +665,7 @@ class PaymentForms extends Component
         $paymentForm = StripePlugin::$app->paymentForms->getPaymentFormBySku($handle);
         $paymentFormHtml = null;
         $settings = StripePlugin::$app->settings->getSettings();
+        $mainTemplate = $settings->useSca ? 'paymentFormSca' : 'paymentForm';
 
         if ($settings->testMode){
             if (!$settings->testPublishableKey || !$settings->testSecretKey) {
@@ -690,7 +694,11 @@ class PaymentForms extends Component
             $loadAssets = isset($options['loadAssets']) ? $options['loadAssets'] : true;
 
             if ($paymentForm->enableCheckout){
-                $view->registerJsFile("https://checkout.stripe.com/checkout.js");
+                if ($settings->useSca){
+                    $view->registerJsFile("https://js.stripe.com/v3/");
+                }else{
+                    $view->registerJsFile("https://checkout.stripe.com/checkout.js");
+                }
                 if ($loadAssets){
                     $view->registerAssetBundle(StripeAsset::class);
                 }
@@ -704,7 +712,7 @@ class PaymentForms extends Component
             $paymentTypeIds = json_decode($paymentForm->paymentType, true);
 
             $paymentFormHtml = $view->renderTemplate(
-                'paymentForm', [
+                $mainTemplate, [
                     'paymentForm' => $paymentForm,
                     'settings' => $settings,
                     'options' => $options,

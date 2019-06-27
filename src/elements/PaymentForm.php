@@ -23,6 +23,7 @@ use enupal\stripe\elements\db\PaymentFormsQuery;
 use enupal\stripe\records\PaymentForm as PaymentFormRecord;
 use enupal\stripe\Stripe as StripePlugin;
 use craft\validators\UniqueValidator;
+use Stripe\Checkout\Session;
 
 /**
  * PaymentForm represents a entry element.
@@ -53,6 +54,16 @@ class PaymentForm extends Element
      * @var bool
      */
     public $enableCheckout = 1;
+
+    /**
+     * @var string
+     */
+    public $checkoutCancelUrl;
+
+    /**
+     * @var string
+     */
+    public $checkoutSuccessUrl;
 
     /**
      * @var string Payment Type
@@ -441,6 +452,8 @@ class PaymentForm extends Element
 
         $record->handle = $this->handle;
         $record->enableCheckout = $this->enableCheckout;
+        $record->checkoutCancelUrl = $this->checkoutCancelUrl;
+        $record->checkoutSuccessUrl = $this->checkoutSuccessUrl;
         $record->paymentType = $this->paymentType;
         $record->currency = $this->currency;
         $record->language = $this->language;
@@ -608,6 +621,9 @@ class PaymentForm extends Element
         $paymentTypeIds = json_decode($this->paymentType, true);
 
         $publicData = [
+            'useSca' => $this->settings->useSca,
+            'checkoutSuccessUrl' => $this->checkoutSuccessUrl,
+            'checkoutCancelUrl' => $this->checkoutCancelUrl,
             'paymentFormId' => $this->id,
             'handle' => $this->handle,
             'amountType' => $this->amountType,
@@ -636,6 +652,7 @@ class PaymentForm extends Element
             'enableShippingAddress' => $this->enableShippingAddress,
             'enableBillingAddress' => $this->enableBillingAddress,
             'coupon' => $couponData,
+            'quantity' => $quantity,
             'stripe' => [
                 'description' => $this->name,
                 'panelLabel' =>  $this->checkoutButtonText ?? 'Pay {{amount}}',
@@ -650,6 +667,11 @@ class PaymentForm extends Element
             ]
         ];
 
+        if ($this->settings->useSca && $this->enableCheckout){
+            $session = $this->getStripeSession($publicData);
+            $publicData['stripeSession'] = $session['id'];
+        }
+
         // Booleans
         if ($this->enableShippingAddress){
             // 'billingAddress' must be enabled whenever 'shippingAddress' is.
@@ -662,6 +684,32 @@ class PaymentForm extends Element
         }
 
         return json_encode($publicData);
+    }
+
+    /**
+     * @param $publicData
+     * @return Session
+     * @throws \yii\base\Exception
+     */
+    private function getStripeSession($publicData)
+    {
+        StripePlugin::$app->settings->initializeStripe();
+        $data = $publicData['stripe'];
+        $session = Session::create([
+            'payment_method_types' => ['card'],
+            'line_items' => [[
+                'name' => $data['name'],
+                'description' => $data['description'],
+                'images' => [$data['image']],
+                'amount' => StripePlugin::$app->orders->convertToCents($data['amount'], $data['currency']),
+                'currency' => $data['currency'],
+                'quantity' => $publicData['quantity'],
+            ]],
+            'success_url' => $this->getSiteUrl($this->checkoutSuccessUrl),
+            'cancel_url' => $this->getSiteUrl($this->checkoutCancelUrl),
+        ]);
+
+        return $session;
     }
 
     /**

@@ -30,6 +30,14 @@
         value: stripeForm.language
     }) }}
 
+    {{ forms.selectField({
+        label: "Currency"|t('enupal-stripe'),
+        id: 'currency',
+        name: 'currency',
+        options: currencyOptions,
+        value: stripeForm.currency
+    }) }}
+
     {{ forms.lightswitchField({
         label: "Enabled"|t('enupal-stripe'),
         id: 'enabled',
@@ -42,6 +50,26 @@
         id: 'enableCheckout',
         name: 'enableCheckout',
         on: stripeForm.enableCheckout
+    }) }}
+
+    {{ forms.textField({
+        label: "Checkout Success URL <span class='info'>Redirect buyers' to this URL after they complete their payments</span>"|t('enupal-stripe'),
+        id: 'checkoutSuccessUrl',
+        name: 'checkoutSuccessUrl',
+        value: stripeForm.checkoutSuccessUrl,
+        placeholder: '/thank-you',
+        autofocus: true,
+        errors: stripeForm.getErrors('checkoutSuccessUrl')
+    }) }}
+
+    {{ forms.textField({
+        label: "Checkout Cancel URL <span class='info'>Redirect buyers' to this URL after they complete their payments</span>"|t('enupal-stripe'),
+        id: 'checkoutCancelUrl',
+        name: 'checkoutCancelUrl',
+        value: stripeForm.checkoutCancelUrl,
+        placeholder: '/checkout-cancel',
+        autofocus: true,
+        errors: stripeForm.getErrors('checkoutCancelUrl')
     }) }}
 
     {% set paymentTypeInput %}
@@ -62,13 +90,6 @@
         errors: stripeForm.getErrors('paymentType'),
     }, paymentTypeInput) }}
 
-    {{ forms.selectField({
-        label: "Currency"|t('enupal-stripe'),
-        id: 'currency',
-        name: 'currency',
-        options: currencyOptions,
-        value: stripeForm.currency
-    }) }}
 </div>
 <hr>
 <div id="one-time-payment-wrapper" class="meta {% if stripeForm.enableSubscriptions %} hidden {% endif %}">

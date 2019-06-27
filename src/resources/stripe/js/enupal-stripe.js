@@ -47,37 +47,39 @@ var enupalStripe = {};
 
             var paymentFormId = 'stripe-payments-submit-button-'+enupalStripeData.paymentFormId;
 
-            // Stripe Checkout handler configuration.
-            // Docs: https://stripe.com/docs/checkout#integration-custom
-            stripeHandler = StripeCheckout.configure({
-                key: enupalStripeData.pbk,
-                token: processStripeToken,
-                opened: function() {
-                },
-                closed: function() {
+            if (!enupalStripeData.useSca) {
+                // Stripe Checkout handler configuration.
+                // Docs: https://stripe.com/docs/checkout#integration-custom
+                stripeHandler = StripeCheckout.configure({
+                    key: enupalStripeData.pbk,
+                    token: processStripeToken,
+                    opened: function() {
+                    },
+                    closed: function() {
+                    }
+                });
+
+                // Callback function to handle StripeCheckout.configure
+                function processStripeToken(token, args) {
+                    // At this point the Stripe Checkout overlay is validated and submitted.
+                    // Set values to hidden elements to pass via POST when submitting the form for payment.
+                    enupalButtonElement.find('[name="enupalStripe[token]"]').val(token.id);
+                    enupalButtonElement.find('[name="enupalStripe[email]"]').val(token.email);
+
+                    // Add others values to form
+                    enupalStripe.addValuesToForm(enupalButtonElement, args, enupalStripeData);
+
+                    // Disable pay button and show a nice UI message
+                    enupalButtonElement.find('#' + paymentFormId)
+                        .prop('disabled', true)
+                        .find('span')
+                        .text(enupalStripeData.paymentButtonProcessingText);
+
+                    // Unbind original form submit trigger before calling again to "reset" it and submit normally.
+                    enupalButtonElement.unbind('submit', [enupalButtonElement, enupalStripeData]);
+
+                    enupalButtonElement.submit();
                 }
-            });
-
-            // Callback function to handle StripeCheckout.configure
-            function processStripeToken(token, args) {
-                // At this point the Stripe Checkout overlay is validated and submitted.
-                // Set values to hidden elements to pass via POST when submitting the form for payment.
-                enupalButtonElement.find('[name="enupalStripe[token]"]').val(token.id);
-                enupalButtonElement.find('[name="enupalStripe[email]"]').val(token.email);
-
-                // Add others values to form
-                enupalStripe.addValuesToForm(enupalButtonElement, args, enupalStripeData);
-
-                // Disable pay button and show a nice UI message
-                enupalButtonElement.find('#'+paymentFormId)
-                    .prop('disabled', true)
-                    .find('span')
-                    .text(enupalStripeData.paymentButtonProcessingText);
-
-                // Unbind original form submit trigger before calling again to "reset" it and submit normally.
-                enupalButtonElement.unbind('submit', [enupalButtonElement, enupalStripeData]);
-
-                enupalButtonElement.submit();
             }
 
             if (enupalStripeData.coupon.enabled){
@@ -108,7 +110,16 @@ var enupalStripe = {};
                     }
                 }else{
                     e.preventDefault();
-                    enupalStripe.submitPayment(enupalButtonElement, enupalStripeData, stripeHandler);
+                    if (enupalStripeData.useSca){
+                        var stripe = Stripe(enupalStripeData.pbk);
+                        stripe.redirectToCheckout({
+                            sessionId: enupalStripeData.stripeSession
+                        });
+                        // New checkout
+                    }else{
+                        // Legacy checkout
+                        enupalStripe.submitPayment(enupalButtonElement, enupalStripeData, stripeHandler);
+                    }
                 }
             });
         },

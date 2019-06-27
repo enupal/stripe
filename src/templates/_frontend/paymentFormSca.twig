@@ -1,0 +1,332 @@
+{%- set redirectUri = paymentForm.returnUrl -%}
+{%- do craft.enupalStripe.addVariables(_context) -%}
+{% set formClass = paymentForm.enableCheckout ? "enupal-stripe-form" : "enupal-stripe-form-elements" %}
+
+{% spaceless %}
+    <form class="{{ formClass }}" id="enupal-stripe-{{ paymentForm.id }}" method="POST">
+        {{ csrfInput() }}
+        <input type="hidden" aria-hidden="true" name="action"
+               value="enupal-stripe/stripe/save-order">
+        {%- if redirectUri is not empty %}
+            {% if redirectUri|slice(0, 1)|lower == '?' %}
+                {%- set redirectUri = craft.request.getUrl()~paymentForm.returnUrl %}
+            {% endif %}
+
+            <input type="hidden" aria-hidden="true" name="redirect"
+                   value="{{ redirectUri|hash }}">
+        {% endif %}
+        <input type="hidden" aria-hidden="true" name="enableCheckout"
+               value="{{ paymentForm.enableCheckout }}">
+
+        {% namespace 'enupalStripe' %}
+            <input type="hidden" name="token" value />
+            {% if paymentForm.enableSubscriptions %}
+                <input type="hidden" name="planId" value>
+            {% endif %}
+            <input type="hidden" name="email" value />
+            <input type="hidden" name="formId" value="{{ paymentForm.id }}" />
+            <input type="hidden" name="amount" value />
+            <input type="hidden" name="quantity" value="{{ options.quantity ?? 1 }}" />
+            <input type="hidden" name="taxAmount" value>
+            <input type="hidden" name="amountBeforeTax" value>
+            <input type="hidden" name='stripeData' value="{{ paymentForm.getPublicData(options) }}">
+            <input type="hidden" name='testMode' value>
+            {% if paymentForm.enableShippingAddress and paymentForm.enableCheckout  %}
+                <input type="hidden" name="address[name]" value />
+                <input type="hidden" name="address[country]" value />
+                <input type="hidden" name="address[zip]" value />
+                <input type="hidden" name="address[state]" value />
+                <input type="hidden" name="address[line1]" value />
+                <input type="hidden" name="address[line2]" value />
+                <input type="hidden" name="address[city]" value />
+            {% endif %}
+            {% if paymentForm.enableBillingAddress and paymentForm.enableCheckout  %}
+                <input type="hidden" name="billingAddress[name]" value />
+                <input type="hidden" name="billingAddress[country]" value />
+                <input type="hidden" name="billingAddress[zip]" value />
+                <input type="hidden" name="billingAddress[state]" value />
+                <input type="hidden" name="billingAddress[line1]" value />
+                <input type="hidden" name="billingAddress[line2]" value />
+                <input type="hidden" name="billingAddress[city]" value />
+            {% endif %}
+
+            {% for block in paymentForm.enupalStripeBasicFields.all() %}
+                <div class="fields">
+                    {% if block.type != 'hidden' %}
+                        <div class="heading">
+                            <label for="{{ block.label }}">
+                                {{- block.label|raw|t -}}
+                            </label>
+                        </div>
+                    {% endif %}
+                    <div class="input">
+                        {%- set input = craft.enupalStripe.displayField(paymentForm, block)  %}
+                        {{ input|raw }}
+                    </div>
+                </div>
+            {% endfor %}
+
+            {# Fields Logic #}
+            {% if not paymentForm.enableSubscriptions  %}
+                {# One time payment logic #}
+                {% if paymentForm.amountType == 1 %}
+                    {% set customLabel = paymentForm.getCustomLabel() %}
+                    {% set currencySymbol = paymentForm.getCurrencySymbol() %}
+                    {% set customId = 'customAmount-'~paymentForm.id %}
+                    {% set recurringId = 'recurringToggle-'~paymentForm.id %}
+                    {# English only #}
+                    {% set interval = paymentForm.recurringPaymentType ~ 'ly'  %}
+                    {% set recurringLabel = 'Make this a '~interval~' payment' %}
+                    {% set minimumAmount = paymentForm.amount ? "%.2f"|format(paymentForm.amount) : paymentForm.minimumAmount ? "%.2f"|format(paymentForm.minimumAmount) : '' %}
+                    <div class="form-group">
+                        <div class="heading">
+                            <label for="{{ customId }}">
+                                {{- customLabel|raw|t -}}
+                            </label>
+                        </div>
+                        <div class="enupal-input-icon">
+                            <i>{{ currencySymbol }}</i>
+                            <input type="number" class="form-control" id="{{ customId }}" name="customAmount" min="{{ "%.2f"|format(paymentForm.minimumAmount) }}" value="{{ minimumAmount }}" step=".01">
+                        </div>
+                    </div>
+
+                    {% if paymentForm.enableRecurringPayment %}
+                        <div class="form-group">
+                            <div class="enupal-input-icon">
+                                <input type="checkbox" class="form-control" id="{{ recurringId }}" name="recurringToggle">
+
+                                <label for="{{ recurringId }}">
+                                    {{- recurringLabel|t -}}
+                                </label>
+                            </div>
+                        </div>
+                    {% endif %}
+                {% endif %}
+
+            {% else %}
+                {# Susbscription Pay logic #}
+                {% if paymentForm.subscriptionType == 0 %}
+                    {# Single Plan #}
+                    {% if paymentForm.enableCustomPlanAmount %}
+                        {% set currencySymbol = paymentForm.getCurrencySymbol() %}
+                        {% set customId = 'customSingleAmount-'~paymentForm.id %}
+                        {% set minimumAmount = paymentForm.customPlanDefaultAmount ? "%.2f"|format(paymentForm.customPlanDefaultAmount) : '' %}
+                        <div class="form-group">
+                            <div class="enupal-input-icon">
+                                <i>{{ currencySymbol }}</i>
+                                <input type="number" class="form-control" id="{{ customId }}" name="customPlanAmount" min="{{ "%.2f"|format(paymentForm.customPlanMinimumAmount) }}" value="{{ minimumAmount }}" step=".01">
+                            </div>
+                        </div>
+                    {% endif %}
+                {% else %}
+                    {# User select Plan #}
+                    {% if paymentForm.enupalMultiplePlans|length %}
+                        <div class="form-group">
+                            <section class="tab">
+                                <div class="heading">
+                                    <label for="{{ paymentForm.selectPlanLabel }}">
+                                        {{- paymentForm.selectPlanLabel|raw|t -}}
+                                    </label>
+                                </div>
+                                <div class="input">
+                                    {%- set input = craft.enupalStripe.displayMultiSelect(paymentForm)  %}
+                                    {{ input|raw }}
+                                </div>
+                            </section>
+                        </div>
+                    {% endif %}
+                {% endif %}
+            {% endif %}
+            {# ENDS FIELD LOGIC #}
+        {% endnamespace %}
+
+        {# Stripe Elements logic #}
+        {% if not paymentForm.enableCheckout %}
+            {# Address #}
+            {% set hideShipping = false %}
+            {% if paymentForm.enableShippingAddress and paymentForm.enableBillingAddress %}
+                {% set hideShipping = true %}
+                {% namespace 'enupalStripe' %}
+                    <input type="checkbox" name="sameAddressToggle" id="sameAddressToggle-{{ paymentForm.id }}" class="same-address-toggle" checked="checked">
+                    <label for="same-address-toggle-{{ paymentForm.id }}">{{ "Same billing & shipping info"|t }}</label>
+                {% endnamespace %}
+            {% endif %}
+
+            {% if paymentForm.enableBillingAddress  %}
+                {%- set address = craft.enupalStripe.displayAddress(paymentForm, 'billingAddress')  %}
+                <div id="billingAddressContainer-{{ paymentForm.id }}">
+                    {{ address|raw }}
+                </div>
+            {% endif %}
+
+            {% if paymentForm.enableShippingAddress  %}
+                {%- set address = craft.enupalStripe.displayAddress(paymentForm)  %}
+                <div id="shippingAddressContainer-{{ paymentForm.id }}" class="shippingAddressContainer {% if hideShipping %} hidden {% endif %}">
+                    {{ address|raw }}
+                </div>
+            {% endif %}
+            {# End address #}
+
+            {# Payment method select #}
+            <input type="hidden" name='paymentType' value="{{ paymentForm.getDefaultPaymentMethod() }}">
+            {% if paymentTypeIds|length > 1 %}
+                {% set paymentOptions = craft.enupalStripe.getPaymentTypesAsOptions(paymentForm.paymentType) %}
+                <div class="form-group">
+                    <div class="heading">
+                        <label for="paymentMethod-{{ paymentForm.id }}">
+                            {{ "Select a payment method:"|t -}}
+                        </label>
+                    </div>
+                    <div class="input">
+                        <select
+                                name="paymentMethod"
+                                id="paymentMethod-{{ paymentForm.id }}"
+                                class="paymentMethod"
+                                required aria-required="true"
+                        >
+                            {%- for key, option in paymentOptions -%}
+                                <option value="{{ option.value }}"
+                                >{{ option.label }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+            {% endif %}
+            {# End payment method select #}
+            {% set currentEmail = settings.currentUserEmail ? currentUser.email ?? '' : '' %}
+            <div class="col form-group">
+                <div class="heading">
+                    <label for="email-{{ paymentForm.id }}">
+                        {{ "Email Address"|t }}
+                    </label>
+                </div>
+                <div class="input">
+                    <input id="email-{{ paymentForm.id }}" type="email" name="stripeElementEmail" placeholder="jenny@example.com" required value="{{ currentEmail }}">
+                </div>
+            </div>
+
+            {% for paymentTypeId in paymentTypeIds %}
+                {# Credit Card #}
+                {% set isHidden = paymentTypeIds|length > 1 ? true : false %}
+                {% if paymentTypeId == 1 %}
+                    <div class="form-row cc-wrapper form-group {% if isHidden %}hidden{% endif %}">
+                        <label for="card-element-{{ paymentForm.id }}">
+                            {{ "Credit or debit card"|t }}
+                        </label>
+                        <div id="card-element-{{ paymentForm.id }}">
+                        </div>
+
+                        <div id="card-errors-{{ paymentForm.id }}" role="alert"></div>
+                    </div>
+                    {# IDeal #}
+                {% elseif paymentTypeId == 2 %}
+                    <input type="hidden" name='idealBank' value>
+                    <div class="form-row inline ideal-wrapper {% if isHidden %}hidden{% endif %}">
+                        <div class="form-row">
+                            <label for="ideal-bank-element-{{ paymentForm.id }}">
+                                {{ "iDEAL Bank"|t }}
+                            </label>
+                            <div id="ideal-bank-element-{{ paymentForm.id }}">
+                            </div>
+                        </div>
+                        {# Used to display form errors.#}
+                        <div id="ideal-error-message-{{ paymentForm.id }}" role="alert"></div>
+                    </div>
+                    {# SOFORT #}
+                {% elseif paymentTypeId == 3 %}
+                    {% set sofortCountries = craft.enupalStripe.getSofortCountriesAsOptions() %}
+                    <div class="form-row inline sofort-wrapper {% if isHidden %}hidden{% endif %}">
+                        <div class="form-group">
+                            <div class="heading">
+                                <label for="sofortCountry-{{ paymentForm.id }}">
+                                    {{ "Select a country:"|t -}}
+                                </label>
+                            </div>
+                            <div class="input">
+                                <select
+                                        name="sofortCountry"
+                                        id="sofortCountry-{{ paymentForm.id }}"
+                                        class="sofortCountry"
+                                        required aria-required="true"
+                                >
+                                    {%- for key, option in sofortCountries -%}
+                                        <option value="{{ option.value }}"
+                                        >{{ option.label }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                {% endif %}
+            {% endfor %}
+        {% endif %}
+        {# End elements logic #}
+
+        {% set buttonId = "stripe-payments-submit-button-" ~ paymentForm.id %}
+        {% if settings.enableTaxes and settings.tax and settings.displayTaxLabel %}
+            <p class="total-tax-amount">
+                <label name="tax-amount-label" for="{{ buttonId }}"></label>
+            </p>
+        {% endif %}
+
+        {% set isCouponEnabled = options.coupon.enabled ?? false %}
+        <div class="coupons-wrapper {% if not isCouponEnabled %} hidden {% endif %}">
+            <div class="form-group">
+                <div class="heading">
+                    <label for="couponCode-{{ paymentForm.id }}">
+                        {{ options.coupon.label ?? 'Coupon Code'|t }}
+                    </label>
+                    <div class="coupon-message-wrapper">
+                        <span id="coupon-message-{{ paymentForm.id }}">
+                        </span>&nbsp;
+                        {% set removeCouponLabel = options.coupon.removeCouponLabel ?? 'Remove'|t %}
+                        <a class="hidden" href="#" id="remove-coupon-{{ paymentForm.id }}">{{ removeCouponLabel }}</a>
+                    </div>
+                </div>
+                <div class="input">
+                    <input type="text"
+                           name="couponCode"
+                           id="couponCode-{{ paymentForm.id }}"
+                           class=""/>
+
+                    <input id="check-coupon-button-{{ paymentForm.id }}" type="submit" value="Check Coupon"/>
+                    <input type="hidden" name="enupalCouponCode" value="">
+                </div>
+            </div>
+        </div>
+        {% set displayTotal = options.coupon.displayTotal ?? false %}
+        {% if displayTotal %}
+            {% set totalAmountLabel = options.coupon.totalAmountLabel ?? 'Total Amount: '|t %}
+            <div class="total-amount-wrapper">
+                <div class="total-amount-label">
+                    {{ totalAmountLabel }}
+                    <span>{{ paymentForm.getCurrencySymbol() }}</span><span id="total-amount-value-{{ paymentForm.id }}" class="total-amount-value"></span>
+                </div>
+            </div>
+        {% endif %}
+
+        <button id="{{ buttonId }}" class="{{ paymentForm.buttonClass }}"><span>{{ paymentForm.getPaymentFormText() }}</span></button>
+    </form>
+
+    {% js %}
+        {# Overrides your stripe elements styles #}
+        {#
+        var enupalStyleOverrides = {
+            base: {
+                color: '#366888',
+                lineHeight: '12px',
+                fontFamily: '"Helvetica Neue", Helvetica, sans-serif',
+                fontSmoothing: 'antialiased',
+                fontSize: '12px',
+                    '::placeholder': {
+                    color: '#aab7c4'
+                }
+            },
+            invalid: {
+                color: '#fa755a',
+                iconColor: '#fa755a'
+            }
+        };
+        #}
+    {% endjs %}
+{% endspaceless %}
