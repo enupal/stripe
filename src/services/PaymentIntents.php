@@ -82,6 +82,21 @@ class PaymentIntents extends Component
         $data['enupalStripe']['paymentType'] = PaymentType::CC;
         $data['enupalStripe']['userId'] = $userId;
 
+        $address = $billing['address'] ?? null;
+
+        if (isset($address['city'])){
+            $data['enupalStripe']['billingAddress'] = [
+                'country' => $address['country'],
+                'zip' => $address['postal_code'],
+                'line1' => $address['line1'],
+                'city' => $address['city'],
+                'state' => $address['state'],
+                'name' => $billing['name']
+            ];
+
+            $data['enupalStripe']['sameAddressToggle'] = 'on';
+        }
+
         $order = StripePlugin::$app->orders->processPayment($data);
 
         return $order;

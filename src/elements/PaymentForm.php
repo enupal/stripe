@@ -694,6 +694,7 @@ class PaymentForm extends Element
     private function getStripeSession($publicData)
     {
         StripePlugin::$app->settings->initializeStripe();
+        $askAddress = $this->enableShippingAddress || $this->enableBillingAddress;
         $data = $publicData['stripe'];
         $params = [
             'payment_method_types' => ['card'],
@@ -715,6 +716,10 @@ class PaymentForm extends Element
             'success_url' => $this->getSiteUrl('enupal/stripe-payments/finish-order?session_id={CHECKOUT_SESSION_ID}'),
             'cancel_url' => $this->getSiteUrl($this->checkoutCancelUrl),
         ];
+
+        if ($askAddress){
+            $params['billing_address_collection'] = 'required';
+        }
 
         if ($data['email']){
             $params['customer_email'] = $data['email'];

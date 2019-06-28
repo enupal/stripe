@@ -31,24 +31,6 @@
             <input type="hidden" name="amountBeforeTax" value>
             <input type="hidden" name='stripeData' value="{{ paymentForm.getPublicData(options) }}">
             <input type="hidden" name='testMode' value>
-            {% if paymentForm.enableShippingAddress and paymentForm.enableCheckout  %}
-                <input type="hidden" name="address[name]" value />
-                <input type="hidden" name="address[country]" value />
-                <input type="hidden" name="address[zip]" value />
-                <input type="hidden" name="address[state]" value />
-                <input type="hidden" name="address[line1]" value />
-                <input type="hidden" name="address[line2]" value />
-                <input type="hidden" name="address[city]" value />
-            {% endif %}
-            {% if paymentForm.enableBillingAddress and paymentForm.enableCheckout  %}
-                <input type="hidden" name="billingAddress[name]" value />
-                <input type="hidden" name="billingAddress[country]" value />
-                <input type="hidden" name="billingAddress[zip]" value />
-                <input type="hidden" name="billingAddress[state]" value />
-                <input type="hidden" name="billingAddress[line1]" value />
-                <input type="hidden" name="billingAddress[line2]" value />
-                <input type="hidden" name="billingAddress[city]" value />
-            {% endif %}
 
             {% for block in paymentForm.enupalStripeBasicFields.all() %}
                 <div class="fields">
