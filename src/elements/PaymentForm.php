@@ -695,9 +695,15 @@ class PaymentForm extends Element
     {
         StripePlugin::$app->settings->initializeStripe();
         $data = $publicData['stripe'];
-        $session = Session::create([
+        $params = [
             'payment_method_types' => ['card'],
-            'client_reference_id' => $this->id,
+            'payment_intent_data' => [
+                'metadata' => [
+                    'stripe_payments_form_id' => $this->id,
+                    'stripe_payments_user_id' => Craft::$app->getUser()->getIdentity()->id ?? null,
+                    'stripe_payments_quantity' => $publicData['quantity']
+                ]
+            ],
             'line_items' => [[
                 'name' => $data['name'],
                 'description' => $data['description'],
@@ -708,7 +714,13 @@ class PaymentForm extends Element
             ]],
             'success_url' => $this->getSiteUrl('enupal/stripe-payments/finish-order?session_id={CHECKOUT_SESSION_ID}'),
             'cancel_url' => $this->getSiteUrl($this->checkoutCancelUrl),
-        ]);
+        ];
+
+        if ($data['email']){
+            $params['customer_email'] = $data['email'];
+        }
+
+        $session = Session::create($params);
 
         return $session;
     }

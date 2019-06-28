@@ -162,7 +162,13 @@ class StripeController extends BaseController
      */
     public function actionFinishOrder()
     {
-        Craft::dd($_GET);
+        $sessionId = $_GET['session_id'] ?? null;
+
+        $checkoutSession = StripePlugin::$app->paymentIntents->getCheckoutSession($sessionId);
+        if ($checkoutSession === null){
+            return $this->redirectToPostedUrl();
+        }
+        // Get the order from the payment intent id
 
         return $this->redirectToPostedUrl();
     }

@@ -35,25 +35,26 @@ class WebhookController extends BaseController
         $order = Stripe::$app->orders->getOrderByStripeId($stripeId);
         $return = [];
 
-        if ($order === null || $stripeId === null) {
-            Stripe::$app->orders->triggerWebhookEvent($eventJson, $order);
-            $return['success'] = false;
-            return $this->asJson($return);
-        }
-        // Let's add a message to the order
-        Stripe::$app->messages->addMessage($order->id, $eventJson['type'], $eventJson);
-
         switch ($eventJson['type']) {
             case 'source.chargeable':
+                if ($order === null){
+                    break;
+                }
                 // iDEAL or SOFORT
                 $type = $eventJson['data']['object']['type'];
                 $order = Stripe::$app->orders->asynchronousCharge($order, $eventJson, $type);
 
                 break;
             case 'source.failed':
+                if ($order === null){
+                    break;
+                }
                 Craft::error('Stripe Payments - Source Failed, order: '.$order->number, __METHOD__);
                 break;
             case 'source.canceled':
+                if ($order === null){
+                    break;
+                }
                 Craft::error('Stripe Payments - Source Canceled,  order: '.$order->number, __METHOD__);
                 break;
             case 'charge.pending':
@@ -61,6 +62,9 @@ class WebhookController extends BaseController
                 // Let's update the order message
                 break;
             case 'charge.succeeded':
+                if ($order === null){
+                    break;
+                }
                 // Finalize the order and trigger order complete event to send a confirmation to the customer over email.
                 if (!$order->isCompleted){
                     $order->isCompleted = true;
@@ -68,11 +72,17 @@ class WebhookController extends BaseController
                 }
                 break;
             case 'charge.failed':
+                if ($order === null){
+                    break;
+                }
                 // Finalize the order and trigger order complete event to send a confirmation to the customer over email.
                 Craft::error('Stripe Payments - Charge Failed,  order: '.$order->number, __METHOD__);
                 break;
 
             case 'charge.captured':
+                if ($order === null){
+                    break;
+                }
                 // Capture Order
                 $object = $eventJson['data']['object'];
                 $order = Stripe::$app->orders->getOrderByStripeId($object['id']);
@@ -88,16 +98,21 @@ class WebhookController extends BaseController
             // New checkout
             case 'checkout.session.completed':
                 // Capture Order
-                $object = $eventJson['data']['object'];
-                $paymentIntentId = $object['payment_intent'];
-                $formId = $object['client_reference_id'];
-                $paymentIntent = Stripe::$app->paymentIntents->getPaymentIntent($paymentIntentId);
+                $checkoutSession = $eventJson['data']['object'];
+                $paymentIntentId = $checkoutSession['payment_intent'];
 
-                if (!Stripe::$app->paymentIntents->createOrderFromPaymentIntent($paymentIntent, $formId)){
-                    Craft::error('Something went worng', __METHOD__);
+                $paymentIntent = Stripe::$app->paymentIntents->getPaymentIntent($paymentIntentId);
+                $order = Stripe::$app->paymentIntents->createOrderFromPaymentIntent($paymentIntent, $checkoutSession);
+                if ($order === null){
+                    Craft::error('Something went wrong creating the Order from checkout session', __METHOD__);
                 }
 
                 break;
+        }
+
+        // Let's add a message to the order
+        if ($order !== null){
+            Stripe::$app->messages->addMessage($order->id, $eventJson['type'], $eventJson);
         }
 
         Stripe::$app->orders->triggerWebhookEvent($eventJson, $order);

@@ -141,6 +141,10 @@ class Orders extends Component
      */
     public function getOrderByStripeId($stripeTransactionId, int $siteId = null)
     {
+        if ($stripeTransactionId === null || $stripeTransactionId == ''){
+            return null;
+        }
+
         $query = Order::find();
         $query->stripeTransactionId($stripeTransactionId);
         $query->siteId($siteId);
@@ -302,12 +306,12 @@ class Orders extends Component
      */
     public function populateOrder($data, $isPending = false)
     {
-        $currentUser = Craft::$app->getUser();
+        $currentUserId = Craft::$app->getUser()->getIdentity()->id ?? null;
         $order = new Order();
         $order->orderStatusId = StripePlugin::$app->orderStatuses->getDefaultOrderStatusId();
         $order->isCompleted = $isPending ? false : true;
         $order->number = $this->getRandomStr();
-        $order->userId = $currentUser ? $currentUser->getId() : null;
+        $order->userId = $data['userId'] ?? $currentUserId;
         $order->email = $data['email'];
         // The amount come in cents, we revert this just before save the order
         $order->totalPrice = $data['amount'];
@@ -490,6 +494,7 @@ class Orders extends Component
         $formId = $data['formId'] ?? null;
         $paymentType = $postData['paymentType'] ?? PaymentType::CC;
         $data['couponCode'] = $postData['enupalCouponCode'] ?? null;
+        $settings = StripePlugin::$app->settings->getSettings();
 
         if (empty($token) || empty($formId)){
             Craft::error('Unable to get the stripe token or formId', __METHOD__);
@@ -528,22 +533,27 @@ class Orders extends Component
         StripePlugin::$app->settings->initializeStripe();
 
         $isNew = false;
-        $customer = $this->getCustomer($order->email, $token, $isNew, $order->testMode);
         $stripeId = null;
 
-        if ($paymentForm->enableSubscriptions){
-            $stripeId = $this->handleSubscription($paymentForm, $customer, $data, $order);
+        if (!$settings->useSca){
+            $customer = $this->getCustomer($order->email, $token, $isNew, $order->testMode);
+            if ($paymentForm->enableSubscriptions){
+                $stripeId = $this->handleSubscription($paymentForm, $customer, $data, $order);
+            }else{
+                $stripeId = $this->handleOneTimePayment($paymentForm, $customer, $data, $token, $isNew, $order);
+            }
+
+            if (is_null($stripeId)){
+                Craft::error('Something went wrong making the charge to Stripe. -CHECK PREVIOUS LOGS-', __METHOD__);
+                return $result;
+            }
+
+            if ($data['couponCode'] && ($paymentType == PaymentType::IDEAL || $paymentType==PaymentType::SOFORT)){
+                $order->totalPrice = $this->convertFromCents($order->totalPrice, $paymentForm->currency);
+            }
         }else{
-            $stripeId = $this->handleOneTimePayment($paymentForm, $customer, $data, $token, $isNew, $order);
-        }
-
-        if (is_null($stripeId)){
-            Craft::error('Something went wrong making the charge to Stripe. -CHECK PREVIOUS LOGS-', __METHOD__);
-            return $result;
-        }
-
-        if ($data['couponCode'] && ($paymentType == PaymentType::IDEAL || $paymentType==PaymentType::SOFORT)){
-            $order->totalPrice = $this->convertFromCents($order->totalPrice, $paymentForm->currency);
+            // The payment intent should be already processed
+            $stripeId = $token;
         }
 
         $order->stripeTransactionId = $stripeId;
