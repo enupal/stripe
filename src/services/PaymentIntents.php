@@ -14,7 +14,6 @@ use Stripe\Checkout\Session;
 use Stripe\PaymentIntent;
 use yii\base\Component;
 use enupal\stripe\Stripe as StripePlugin;
-use yii\web\NotFoundHttpException;
 
 class PaymentIntents extends Component
 {

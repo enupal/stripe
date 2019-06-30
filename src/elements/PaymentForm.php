@@ -13,6 +13,7 @@ use craft\base\Element;
 use craft\behaviors\FieldLayoutBehavior;
 use craft\elements\db\ElementQueryInterface;
 use craft\helpers\Json;
+use enupal\stripe\enums\AmountType;
 use enupal\stripe\models\Settings;
 use enupal\stripe\enums\SubscriptionType;
 use enupal\stripe\Stripe;
@@ -716,6 +717,10 @@ class PaymentForm extends Element
             'success_url' => $this->getSiteUrl('enupal/stripe-payments/finish-order?session_id={CHECKOUT_SESSION_ID}'),
             'cancel_url' => $this->getSiteUrl($this->checkoutCancelUrl),
         ];
+
+        if ($this->amountType == AmountType::ONE_TIME_CUSTOM_AMOUNT){
+            $params['submit_type'] = 'donate';
+        }
 
         if ($askAddress){
             $params['billing_address_collection'] = 'required';
