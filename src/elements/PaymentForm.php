@@ -697,28 +697,43 @@ class PaymentForm extends Element
         StripePlugin::$app->settings->initializeStripe();
         $askAddress = $this->enableShippingAddress || $this->enableBillingAddress;
         $data = $publicData['stripe'];
+        $metadata = [
+            'stripe_payments_form_id' => $this->id,
+            'stripe_payments_user_id' => Craft::$app->getUser()->getIdentity()->id ?? null,
+            'stripe_payments_quantity' => $publicData['quantity']
+        ];
         $params = [
             'payment_method_types' => ['card'],
-            'payment_intent_data' => [
-                'metadata' => [
-                    'stripe_payments_form_id' => $this->id,
-                    'stripe_payments_user_id' => Craft::$app->getUser()->getIdentity()->id ?? null,
-                    'stripe_payments_quantity' => $publicData['quantity']
-                ]
-            ],
-            'line_items' => [[
+
+            'success_url' => $this->getSiteUrl('enupal/stripe-payments/finish-order?session_id={CHECKOUT_SESSION_ID}'),
+            'cancel_url' => $this->getSiteUrl($this->checkoutCancelUrl),
+        ];
+
+        if ($this->enableSubscriptions){
+            $plan = $this->getSinglePlan();
+            $params['subscription_data'] = [
+                'items' => [[
+                    'plan' => $plan['id'],
+                    'quantity' => $publicData['quantity']
+                ]],
+                'metadata' => $metadata
+            ];
+        }else{
+            $params['line_items'] = [[
                 'name' => $data['name'],
                 'description' => $data['description'],
                 'images' => [$data['image']],
                 'amount' => StripePlugin::$app->orders->convertToCents($data['amount'], $data['currency']),
                 'currency' => $data['currency'],
                 'quantity' => $publicData['quantity'],
-            ]],
-            'success_url' => $this->getSiteUrl('enupal/stripe-payments/finish-order?session_id={CHECKOUT_SESSION_ID}'),
-            'cancel_url' => $this->getSiteUrl($this->checkoutCancelUrl),
-        ];
+            ]];
 
-        if ($this->amountType == AmountType::ONE_TIME_CUSTOM_AMOUNT){
+            $params['payment_intent_data'] = [
+                'metadata' => $metadata
+            ];
+        }
+
+        if ($this->amountType == AmountType::ONE_TIME_CUSTOM_AMOUNT && !$this->enableSubscriptions){
             $params['submit_type'] = 'donate';
         }
 

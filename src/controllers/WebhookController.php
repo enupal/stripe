@@ -100,13 +100,23 @@ class WebhookController extends BaseController
                 // Capture Order
                 $checkoutSession = $eventJson['data']['object'];
                 $paymentIntentId = $checkoutSession['payment_intent'];
+                $order = null;
 
-                $paymentIntent = Stripe::$app->paymentIntents->getPaymentIntent($paymentIntentId);
-                $order = Stripe::$app->paymentIntents->createOrderFromPaymentIntent($paymentIntent, $checkoutSession);
+                if ($paymentIntentId === null){
+                    // We have a subscription
+                    $subscriptionId = $checkoutSession['subscription'];
+                    $subscription = Stripe::$app->subscriptions->getStripeSubscription($subscriptionId);
+                    if ($subscription){
+                        $order = Stripe::$app->paymentIntents->createOrderFromSubscription($subscription, $checkoutSession);
+                    }
+                }else{
+                    $paymentIntent = Stripe::$app->paymentIntents->getPaymentIntent($paymentIntentId);
+                    $order = Stripe::$app->paymentIntents->createOrderFromPaymentIntent($paymentIntent, $checkoutSession);
+                }
+
                 if ($order === null){
                     Craft::error('Something went wrong creating the Order from checkout session', __METHOD__);
                 }
-
                 break;
         }
 

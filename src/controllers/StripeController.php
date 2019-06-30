@@ -157,6 +157,7 @@ class StripeController extends BaseController
     }
 
     /**
+     * This action handles the request after Stripe Checkout is done
      * @return \yii\web\Response
      * @throws \Throwable
      * @throws \yii\base\Exception
