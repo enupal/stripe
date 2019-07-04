@@ -397,7 +397,7 @@ class Orders extends Component
         $order->currency = 'EUR';
         $order->formId = $paymentForm->id;
 
-        $redirect = $paymentForm->returnUrl != null ? UrlHelper::siteUrl($paymentForm->returnUrl) : Craft::getAlias(Craft::$app->getSites()->getPrimarySite()->baseUrl);
+        $redirectUrl = $paymentForm->returnUrl != null ? UrlHelper::siteUrl($paymentForm->returnUrl) : Craft::getAlias(Craft::$app->getSites()->getPrimarySite()->baseUrl);
 
         StripePlugin::$app->settings->initializeStripe();
 
@@ -411,7 +411,6 @@ class Orders extends Component
             'amount' => $order->totalPrice,
             'currency' => 'eur',
             'owner' => ['email' => $email],
-            'redirect' => ['return_url' => $redirect],
             'metadata' => $this->getStripeMetadata($data)
         ];
 
@@ -422,6 +421,16 @@ class Orders extends Component
         if (isset($postData['sofortCountry']) && $postData['sofortCountry'] && $order->paymentType == PaymentType::SOFORT){
             $options['sofort']['country'] = $postData['sofortCountry'];
         }
+
+        // Save the order to get the order number
+        if (!StripePlugin::$app->orders->saveOrder($order, false)){
+            Craft::error('Something went wrong saving the Stripe Order: '.json_encode($order->getErrors()), __METHOD__);
+            return $result;
+        }
+
+        $redirectUrl = Craft::$app->getView()->renderObjectTemplate($redirectUrl, $order);
+
+        $options['redirect'] = ['return_url' => $redirectUrl];
 
         $source = Source::create($options);
 
