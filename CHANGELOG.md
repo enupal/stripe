@@ -1,5 +1,10 @@
 # Stripe Payments Changelog
 
+## 1.9.6 - 2019.07.04
+
+### Fixed
+- Fixed wrong return URL on iDEAL payments.
+
 ## 1.9.5 - 2019.06.03
 
 ### Added
