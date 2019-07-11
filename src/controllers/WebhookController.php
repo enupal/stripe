@@ -17,7 +17,7 @@ class WebhookController extends BaseController
     // Disable CSRF validation for the entire controller
     public $enableCsrfValidation = false;
 
-    protected $allowAnonymous = ['actionStripe'];
+    protected $allowAnonymous = true;
 
     /**
      * @return \yii\web\Response
