@@ -1,5 +1,10 @@
 # Stripe Payments Changelog
 
+## 1.9.7 - 2019.07.11
+
+### Added
+- Added support for Craft 3.2
+
 ## 1.9.6 - 2019.07.04
 
 ### Fixed
