@@ -1,5 +1,10 @@
 # Stripe Payments Changelog
 
+## 1.9.8 - 2019.07.18
+
+### Added
+- Added support for storing billing and shipping subscription addresses on Stripe. 
+
 ## 1.9.7 - 2019.07.11
 
 ### Added
