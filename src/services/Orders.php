@@ -1330,9 +1330,26 @@ class Orders extends Component
                 "line1" => $postData['line1'] ?? '',
                 "postal_code" => $postData['zip'] ?? '',
                 "state" => $postData['state'] ?? '',
-            ],
-            "carrier" => "", // could also be updated later https://stripe.com/docs/api/php#update_charge
-            "tracking_number" => ""
+            ]
+        ];
+
+        return $shipping;
+    }
+
+    /**
+     * @param $postData
+     *
+     * @return array
+     */
+    private function getBillingAddress($postData)
+    {
+        // Add billing information if enable
+        $shipping = [
+            "city" => $postData['city'] ?? '',
+            "country" => $postData['country'] ?? '',
+            "line1" => $postData['line1'] ?? '',
+            "postal_code" => $postData['zip'] ?? '',
+            "state" => $postData['state'] ?? '',
         ];
 
         return $shipping;
@@ -1380,6 +1397,28 @@ class Orders extends Component
     {
         $planId = null;
         $stripeId = null;
+
+        $shippingAddress = $data['address'] ?? null;
+        $billingAddress = $data['billingAddress'] ?? null;
+        $sameAddress = $data['sameAddressToggle'] ?? null;
+
+        if ($billingAddress !== null){
+            $params = [
+                'address' => $billingAddress ? $this->getBillingAddress($billingAddress) : []
+            ];
+
+            StripePlugin::$app->customers->updateStripeCustomer($customer->id, $params);
+            if ($sameAddress == 'on'){
+                $shippingAddress = $billingAddress;
+            }
+        }
+
+        if ($shippingAddress !== null){
+            $params = [
+                'shipping' => $shippingAddress ? $this->getShipping($shippingAddress) : []
+            ];
+            StripePlugin::$app->customers->updateStripeCustomer($customer->id, $params);
+        }
 
         if ($paymentForm->subscriptionType == SubscriptionType::SINGLE_PLAN && !$paymentForm->enableCustomPlanAmount){
             $plan = Json::decode($paymentForm->singlePlanInfo, true);
