@@ -965,11 +965,13 @@ class Orders extends Component
      * @param $token
      * @param $order
      * @return \Stripe\ApiResource|null
-     * @throws \Exception
+     * @throws \Throwable
+     * @throws \yii\base\Exception
      */
     private function stripeCharge($data, $paymentForm, $customer, $isNew, $token, $order)
     {
-        $description = Craft::t('enupal-stripe', 'Order from {email}', ['email' => $data['email']]);
+        $settings = StripePlugin::$app->settings->getSettings();
+        $description = Craft::$app->getView()->renderObjectTemplate($settings->chargeDescription, $order);
         $charge = null;
         $addressData = $data['address'] ?? null;
 
