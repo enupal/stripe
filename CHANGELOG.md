@@ -1,5 +1,10 @@
 # Stripe Payments Changelog
 
+## 1.9.9 - 2019.08.10
+
+### Added
+- Added charge description to the default settings. 
+
 ## 1.9.8 - 2019.07.18
 
 ### Added
