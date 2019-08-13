@@ -1,9 +1,14 @@
 # Stripe Payments Changelog
 
+## 1.9.10 - 2019.08.13
+
+### Added
+- Added support for `flat_amount` on plans with multiple tiers.
+
 ## 1.9.9 - 2019.08.10
 
 ### Added
-- Added charge description to the default settings. 
+- Added support to update the charge description in the default settings. 
 
 ## 1.9.8 - 2019.07.18
 
