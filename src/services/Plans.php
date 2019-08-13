@@ -184,19 +184,20 @@ class Plans extends Component
 
         if (isset($plan['billing_scheme']) && $plan['billing_scheme'] == 'tiered'){
             foreach ($plan['tiers'] as $pos => $tier) {
+                $flat = $tier['flat_amount'] ?? 0;
                 // last tier
                 if ($tier['up_to'] === null){
                     if ($quantity > $plan['tiers'][$pos-1]['up_to']){
-                        $amount = $tier['unit_amount'];
+                        $amount = $tier['unit_amount'] + $flat;
                     }
                 }else{
                     if ($quantity <= $tier['up_to']){
                         if ($pos > 0){
                             if ($quantity > $plan['tiers'][$pos-1]['up_to']){
-                                $amount = $tier['unit_amount'];
+                                $amount = $tier['unit_amount'] + $flat;
                             }
                         }else{
-                            $amount = $tier['unit_amount'];
+                            $amount = $tier['unit_amount'] + $flat;
                         }
                     }
                 }
