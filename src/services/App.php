@@ -82,6 +82,11 @@ class App extends Component
      */
     public $coupons;
 
+    /**
+     * @var Checkout
+     */
+    public $checkout;
+
     public function init()
     {
         $this->settings = new Settings();
@@ -98,5 +103,6 @@ class App extends Component
         $this->reports = new Reports();
         $this->coupons = new Coupons();
         $this->paymentIntents = new PaymentIntents();
+        $this->checkout = new Checkout();
     }
 }

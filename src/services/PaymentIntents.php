@@ -40,24 +40,6 @@ class PaymentIntents extends Component
     }
 
     /**
-     * @param $sessionId
-     * @return Session|null
-     */
-    public function getCheckoutSession($sessionId)
-    {
-        $checkoutSession = null;
-
-        try {
-            StripePlugin::$app->settings->initializeStripe();
-            $checkoutSession = Session::retrieve($sessionId);
-        } catch (\Exception $e) {
-            Craft::error('Unable to get checkout session: '.$e->getMessage(), __METHOD__);
-        }
-
-        return $checkoutSession;
-    }
-
-    /**
      * @param PaymentIntent $paymentIntent
      * @param $checkoutSession
      * @return \enupal\stripe\elements\Order|null

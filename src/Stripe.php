@@ -34,7 +34,7 @@ class Stripe extends Plugin
 
     public $hasCpSection = true;
     public $hasCpSettings = true;
-    public $schemaVersion = '1.9.0';
+    public $schemaVersion = '2.0.0';
 
     public function init()
     {
@@ -178,7 +178,9 @@ class Stripe extends Plugin
             'enupal/stripe-payments/finish-order' =>
                 'enupal-stripe/stripe/finish-order',
             'enupal/validate-coupon' =>
-                'enupal-stripe/coupons/validate'
+                'enupal-stripe/coupons/validate',
+            'enupal/stripe/create-checkout-session' =>
+                'enupal-stripe/checkout/create-session'
         ];
     }
 }

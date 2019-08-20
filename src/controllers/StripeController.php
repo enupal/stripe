@@ -168,7 +168,7 @@ class StripeController extends BaseController
         // Lets wait 5 seconds until Stripe is done
         sleep(5);
 
-        $checkoutSession = StripePlugin::$app->paymentIntents->getCheckoutSession($sessionId);
+        $checkoutSession = StripePlugin::$app->checkout->getCheckoutSession($sessionId);
         if ($checkoutSession === null){
             Craft::error('Unable to find the chekout session id',__METHOD__);
             return $this->redirect('/');

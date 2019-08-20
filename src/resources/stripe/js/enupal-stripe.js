@@ -110,16 +110,7 @@ var enupalStripe = {};
                     }
                 }else{
                     e.preventDefault();
-                    if (enupalStripeData.useSca){
-                        var stripe = Stripe(enupalStripeData.pbk);
-                        stripe.redirectToCheckout({
-                            sessionId: enupalStripeData.stripeSession
-                        });
-                        // New checkout
-                    }else{
-                        // Legacy checkout
-                        enupalStripe.submitPayment(enupalButtonElement, enupalStripeData, stripeHandler);
-                    }
+                    enupalStripe.submitPayment(enupalButtonElement, enupalStripeData, stripeHandler);
                 }
             });
         },
@@ -277,8 +268,35 @@ var enupalStripe = {};
             }
         },
 
+        redirectToCheckoutSession: function(enupalButtonElement, enupalStripeDataSubmission) {
+            var data = enupalButtonElement.serializeArray();
+            data.push({name: 'action', value: 'enupal-stripe/checkout/create-session'});
+            data.push({name: 'enupalStripeData', value: JSON.stringify(enupalStripeDataSubmission)});
+
+            $.ajax({
+                type:"POST",
+                url:"enupal/stripe/create-checkout-session",
+                data: data,
+                dataType : 'json',
+                success: function(response) {
+                    if (response.success === true){
+                        var stripe = Stripe(enupalStripeDataSubmission.pbk);
+                        stripe.redirectToCheckout({
+                            sessionId: response.sessionId
+                        });
+                    }else{
+                        console.log("Something went wrong, please contact the admin");
+                    }
+                }.bind(this),
+                error: function(xhr, status, err) {
+                    console.error(xhr, status, err.toString());
+                }.bind(this)
+            });
+        },
+
         submitPayment: function(enupalButtonElement, enupalStripeData, stripeHandler) {
             var enupalStripeDataSubmission = $.extend(true,{},enupalStripeData);
+            var that = this;
             var stripeConfig = enupalStripeDataSubmission.stripe;
             stripeConfig.amount = this.convertToCents(this.getFinalAmount(enupalButtonElement, enupalStripeDataSubmission), stripeConfig.currency);
             enupalButtonElement.find('[name="enupalStripe[amount]"]').val(stripeConfig.amount);
@@ -306,20 +324,31 @@ var enupalStripe = {};
                             if (response.success === true){
                                 stripeConfig.amount = response.finalAmountInCents;
                             }
-                            stripeHandler.open(stripeConfig);
+                            if (enupalStripeData.useSca){
+                                that.redirectToCheckoutSession(enupalButtonElement, enupalStripeDataSubmission);
+                            }else{
+                                stripeHandler.open(stripeConfig);
+                            }
                         }.bind(this),
                         error: function(xhr, status, err) {
                             console.error(xhr, status, err.toString());
                         }.bind(this)
                     });
                 }else{
-                    stripeHandler.open(stripeConfig);
+                    if (enupalStripeData.useSca){
+                        this.redirectToCheckoutSession(enupalButtonElement,enupalStripeDataSubmission);
+                    }else{
+                        stripeHandler.open(stripeConfig);
+                    }
                 }
             }else{
                 // let's open the form
-                stripeHandler.open(stripeConfig);
+                if (enupalStripeData.useSca){
+                    this.redirectToCheckoutSession(enupalButtonElement,enupalStripeDataSubmission);
+                }else{
+                    stripeHandler.open(stripeConfig);
+                }
             }
-
         },
 
         getFinalAmount: function(enupalButtonElement, enupalStripeData){

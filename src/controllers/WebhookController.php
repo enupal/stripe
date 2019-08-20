@@ -12,13 +12,8 @@ use craft\web\Controller as BaseController;
 use Craft;
 use enupal\stripe\Stripe;
 
-class WebhookController extends BaseController
+class WebhookController extends FrontEndController
 {
-    // Disable CSRF validation for the entire controller
-    public $enableCsrfValidation = false;
-
-    protected $allowAnonymous = ['actionStripe'];
-
     /**
      * @return \yii\web\Response
      * @throws \Throwable
