@@ -51,7 +51,7 @@
             {# Fields Logic #}
             {% if not paymentForm.enableSubscriptions  %}
                 {# One time payment logic #}
-                {% if paymentForm.amountType == 1 and not paymentForm.enableCheckout %}
+                {% if paymentForm.amountType == 1%}
                     {% set customLabel = paymentForm.getCustomLabel() %}
                     {% set currencySymbol = paymentForm.getCurrencySymbol() %}
                     {% set customId = 'customAmount-'~paymentForm.id %}
@@ -87,7 +87,7 @@
 
             {% else %}
                 {# Susbscription Pay logic, disable for checkout (new checkout handles donations) #}
-                {% if paymentForm.subscriptionType == 0 and not paymentForm.enableCheckout %}
+                {% if paymentForm.subscriptionType == 0 %}
                     {# Single Plan #}
                     {% if paymentForm.enableCustomPlanAmount %}
                         {% set currencySymbol = paymentForm.getCurrencySymbol() %}

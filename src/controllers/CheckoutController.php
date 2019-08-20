@@ -32,7 +32,7 @@ class CheckoutController extends FrontEndController
             throw new \Exception("Unable to find the formId: ".$formId, __METHOD__);
         }
 
-        $data['stripe']['amount'] = $data['amount'];
+        $data['enupalStripeData']['stripe']['amount'] = $data['amount'];
 
         $form = Stripe::$app->paymentForms->getPaymentFormById($formId);
 
