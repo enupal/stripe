@@ -72,9 +72,9 @@ class Checkout extends Component
         $isCustomAmount = isset($postData['recurringToggle']) && $postData['recurringToggle'] == 'on';
 
         if ($form->enableSubscriptions || $isCustomAmount){
-            $params = $this->handleSubscription($form, $publicData, $metadata, $params, $isCustomAmount);
+            $params = $this->handleSubscription($form, $postData, $metadata, $params, $isCustomAmount);
         }else if (!$isCustomAmount){
-            $params = $this->handleOneTimePayment($form, $publicData, $metadata, $params);
+            $params = $this->handleOneTimePayment($form, $postData, $metadata, $params);
         }
 
         if ($form->amountType == AmountType::ONE_TIME_CUSTOM_AMOUNT && !$form->enableSubscriptions && !$isCustomAmount){
@@ -96,15 +96,16 @@ class Checkout extends Component
 
     /**
      * @param $paymentForm
-     * @param $publicData
+     * @param $postData
      * @param $metadata
      * @param $params
      * @param $isCustomAmount
      * @return null
      * @throws \Exception
      */
-    private function handleSubscription(PaymentForm $paymentForm, $publicData, $metadata, $params, $isCustomAmount = false)
+    private function handleSubscription(PaymentForm $paymentForm, $postData, $metadata, $params, $isCustomAmount = false)
     {
+        $publicData = $postData['enupalStripeData'] ?? null;
         $data = $publicData['stripe'];
         // By default assume that is a single plan
         $plan = $paymentForm->getSinglePlan();
@@ -129,20 +130,13 @@ class Checkout extends Component
         }
 
         if ($paymentForm->subscriptionType == SubscriptionType::MULTIPLE_PLANS) {
-            $planId = $data['enupalMultiPlan'] ?? null;
+            $planId = $postData['enupalMultiPlan'] ?? null;
 
             if (is_null($planId) || empty($planId)){
                 throw new \Exception(Craft::t('enupal-stripe','Plan Id is required'));
             }
 
-            $setupFee = $this->getSetupFeeFromMatrix($planId, $paymentForm);
-
-            if ($setupFee){
-                $this->addOneTimeSetupFee($customer, $setupFee, $paymentForm);
-            }
-
-            $subscription = $this->addPlanToCustomer($customer, $planId, $data, $order);
-            $stripeId = $subscription->id ?? null;
+            $plan = StripePlugin::$app->plans->getStripePlan($planId);
         }
 
         // Override plan if is a custom plan donation
@@ -176,14 +170,15 @@ class Checkout extends Component
 
     /**
      * @param $paymentForm
-     * @param $publicData
+     * @param $postData
      * @param $metadata
      * @param $params
      * @return null
      * @throws \Exception
      */
-    private function handleOneTimePayment(PaymentForm $paymentForm, $publicData, $metadata, $params)
+    private function handleOneTimePayment(PaymentForm $paymentForm, $postData, $metadata, $params)
     {
+        $publicData = $postData['enupalStripeData'] ?? null;
         $data = $publicData['stripe'];
 
         $lineItem = [
