@@ -9,9 +9,11 @@
 namespace enupal\stripe\services;
 
 use Craft;
+use craft\helpers\Json;
 use craft\helpers\UrlHelper;
 use enupal\stripe\elements\PaymentForm;
 use enupal\stripe\enums\AmountType;
+use enupal\stripe\enums\SubscriptionType;
 use enupal\stripe\models\CustomPlan;
 use enupal\stripe\Stripe;
 use enupal\stripe\Stripe as StripePlugin;
@@ -69,45 +71,10 @@ class Checkout extends Component
 
         $isCustomAmount = isset($postData['recurringToggle']) && $postData['recurringToggle'] == 'on';
 
-        if ($publicData['enableSubscriptions'] || $isCustomAmount){
-            $plan = $form->getSinglePlan();
-
-            if ($isCustomAmount){
-                $customPlan = new CustomPlan([
-                    "amountInCents" => $data['amount'],
-                    "interval" => $form->recurringPaymentType,
-                    "email" => $data['email'],
-                    "currency" => $form->currency
-                ]);
-
-                $plan = StripePlugin::$app->plans->createCustomPlan($customPlan);
-            }
-
-            $params['subscription_data'] = [
-                'items' => [[
-                    'plan' => $plan['id'],
-                    'quantity' => $publicData['quantity']
-                ]],
-                'metadata' => $metadata
-            ];
-        }else{
-            $lineItem = [
-                'name' => $data['name'],
-                'description' => $data['description'],
-                'amount' => $data['amount'],
-                'currency' => $data['currency'],
-                'quantity' => $publicData['quantity'],
-            ];
-
-            if ($data['image']){
-                $lineItem['images'] = [$data['image']];
-            }
-
-            $params['line_items'] = [$lineItem];
-
-            $params['payment_intent_data'] = [
-                'metadata' => $metadata
-            ];
+        if ($form->enableSubscriptions || $isCustomAmount){
+            $params = $this->handleSubscription($form, $publicData, $metadata, $params, $isCustomAmount);
+        }else if (!$isCustomAmount){
+            $params = $this->handleOneTimePayment($form, $publicData, $metadata, $params);
         }
 
         if ($form->amountType == AmountType::ONE_TIME_CUSTOM_AMOUNT && !$form->enableSubscriptions && !$isCustomAmount){
@@ -125,6 +92,119 @@ class Checkout extends Component
         $session = Session::create($params);
 
         return $session;
+    }
+
+    /**
+     * @param $paymentForm
+     * @param $publicData
+     * @param $metadata
+     * @param $params
+     * @param $isCustomAmount
+     * @return null
+     * @throws \Exception
+     */
+    private function handleSubscription(PaymentForm $paymentForm, $publicData, $metadata, $params, $isCustomAmount = false)
+    {
+        $data = $publicData['stripe'];
+        // By default assume that is a single plan
+        $plan = $paymentForm->getSinglePlan();
+        $trialPeriodDays = null;
+
+        if ($paymentForm->subscriptionType == SubscriptionType::SINGLE_PLAN && $paymentForm->enableCustomPlanAmount) {
+            if ($data['amount'] > 0){
+                // test what is returning we need a stripe id
+                $customPlan = new CustomPlan([
+                    "amountInCents" => $data['amount'],
+                    "interval" => $paymentForm->customPlanFrequency,
+                    "intervalCount" => $paymentForm->customPlanInterval,
+                    "currency" => $paymentForm->currency
+                ]);
+
+                if ($paymentForm->singlePlanTrialPeriod){
+                    $trialPeriodDays = $paymentForm->singlePlanTrialPeriod;
+                }
+
+                $plan = StripePlugin::$app->plans->createCustomPlan($customPlan);
+            }
+        }
+
+        if ($paymentForm->subscriptionType == SubscriptionType::MULTIPLE_PLANS) {
+            $planId = $data['enupalMultiPlan'] ?? null;
+
+            if (is_null($planId) || empty($planId)){
+                throw new \Exception(Craft::t('enupal-stripe','Plan Id is required'));
+            }
+
+            $setupFee = $this->getSetupFeeFromMatrix($planId, $paymentForm);
+
+            if ($setupFee){
+                $this->addOneTimeSetupFee($customer, $setupFee, $paymentForm);
+            }
+
+            $subscription = $this->addPlanToCustomer($customer, $planId, $data, $order);
+            $stripeId = $subscription->id ?? null;
+        }
+
+        // Override plan if is a custom plan donation
+        if ($isCustomAmount){
+            $customPlan = new CustomPlan([
+                "amountInCents" => $data['amount'],
+                "interval" => $paymentForm->recurringPaymentType,
+                "email" => $data['email'],
+                "currency" => $paymentForm->currency
+            ]);
+
+            $plan = StripePlugin::$app->plans->createCustomPlan($customPlan);
+        }
+
+        $subscriptionData = [
+            'items' => [[
+                'plan' => $plan['id'],
+                'quantity' => $publicData['quantity']
+            ]],
+            'metadata' => $metadata
+        ];
+
+        if ($trialPeriodDays){
+            $subscriptionData['trial_period_days'] = $trialPeriodDays;
+        }
+
+        $params['subscription_data'] = $subscriptionData;
+
+        return $params;
+    }
+
+    /**
+     * @param $paymentForm
+     * @param $publicData
+     * @param $metadata
+     * @param $params
+     * @return null
+     * @throws \Exception
+     */
+    private function handleOneTimePayment(PaymentForm $paymentForm, $publicData, $metadata, $params)
+    {
+        $data = $publicData['stripe'];
+
+        $lineItem = [
+            'name' => $data['name'],
+            'description' => $data['description'],
+            'amount' => $data['amount'],
+            'currency' => $data['currency'],
+            'quantity' => $publicData['quantity'],
+        ];
+
+        if ($data['image']){
+            $lineItem['images'] = [$data['image']];
+        }
+
+        $params['line_items'] = [$lineItem];
+
+        $params['payment_intent_data'] = [
+            'metadata' => $metadata
+        ];
+
+        return $params;
     }
 
     /**

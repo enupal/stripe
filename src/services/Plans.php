@@ -220,7 +220,7 @@ class Plans extends Component
         $currentTime = time();
         $planName = strval($currentTime);
         //Create new plan for this customer:
-        $plan = Plan::create([
+        $params = [
             "amount" => $customPlan->amountInCents,
             "interval" => $customPlan->interval,
             "product" => [
@@ -228,7 +228,17 @@ class Plans extends Component
             ],
             "currency" => $customPlan->currency,
             "id" => $planName
-        ]);
+        ];
+
+        if ($customPlan->intervalCount){
+            $params['interval_count'] = $customPlan->intervalCount;
+        }
+
+        if ($customPlan->trialPeriodDays){
+            $params['trial_period_days'] = $customPlan->trialPeriodDays;
+        }
+
+        $plan = Plan::create($params);
 
         return $plan;
     }

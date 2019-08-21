@@ -31,14 +31,19 @@ class CustomPlan extends Model
     public $interval;
 
     /**
-     * @var string
+     * @var int
      */
-    public $email;
+    public $intervalCount;
 
     /**
      * @var string
      */
     public $currency;
+
+    /**
+     * @var int
+     */
+    public $trialPeriodDays;
 
     // Public Methods
     // =========================================================================

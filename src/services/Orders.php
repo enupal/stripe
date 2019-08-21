@@ -1097,7 +1097,6 @@ class Orders extends Component
         $customPlan = new CustomPlan([
             "amountInCents" => $data['amount'],
             "interval" => $paymentForm->recurringPaymentType,
-            "email" => $data['email'],
             "currency" => $paymentForm->currency
         ]);
 
@@ -1142,8 +1141,6 @@ class Orders extends Component
      */
     private function addCustomPlan($customer, $data, $paymentForm)
     {
-        $currentTime = time();
-        $planName = strval($currentTime);
         $settings = StripePlugin::$app->settings->getSettings();
 
         // Remove tax from amount
@@ -1159,27 +1156,22 @@ class Orders extends Component
             $data['amount'] = $this->convertToCents($beforeFee, $paymentForm->currency);
         }
 
-        $data = [
-            "amount" => $data['amount'],
+        $customPlan = new CustomPlan([
+            "amountInCents" => $data['amount'],
             "interval" => $paymentForm->customPlanFrequency,
-            "interval_count" => $paymentForm->customPlanInterval,
-            "product" => [
-                "name" => "Custom Plan from: " . $data['email'],
-            ],
-            "currency" => $paymentForm->currency,
-            "id" => $planName
-        ];
+            "intervalCount" => $paymentForm->customPlanInterval,
+            "currency" => $paymentForm->currency
+        ]);
 
         if ($paymentForm->singlePlanTrialPeriod){
-            $data['trial_period_days'] = $paymentForm->singlePlanTrialPeriod;
+            $customPlan->trialPeriodDays = $paymentForm->singlePlanTrialPeriod;
         }
 
-        //Create new plan for this customer:
-        Plan::create($data);
+        $plan = StripePlugin::$app->plans->createCustomPlan($customPlan);
 
         // Add the plan to the customer
         $subscriptionSettings = [
-            "plan" => $planName
+            "plan" => $plan['id']
         ];
 
         // Add tax
