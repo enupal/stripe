@@ -9,6 +9,7 @@
 namespace enupal\stripe\services;
 
 use Craft;
+use enupal\stripe\models\CustomPlan;
 use yii\base\Component;
 use enupal\stripe\Stripe as StripePlugin;
 use Stripe\Plan;
@@ -208,5 +209,27 @@ class Plans extends Component
         $amount = StripePlugin::$app->orders->convertFromCents($amount, strtoupper($plan['currency']));
 
         return $amount;
+    }
+
+    /**
+     * @param CustomPlan $customPlan
+     * @return Plan
+     */
+    public function createCustomPlan(CustomPlan $customPlan)
+    {
+        $currentTime = time();
+        $planName = strval($currentTime);
+        //Create new plan for this customer:
+        $plan = Plan::create([
+            "amount" => $customPlan->amountInCents,
+            "interval" => $customPlan->interval,
+            "product" => [
+                "name" => "Custom Plan - " . $planName,
+            ],
+            "currency" => $customPlan->currency,
+            "id" => $planName
+        ]);
+
+        return $plan;
     }
 }

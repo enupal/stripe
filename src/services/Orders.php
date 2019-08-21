@@ -22,6 +22,7 @@ use enupal\stripe\events\OrderCompleteEvent;
 use enupal\stripe\events\OrderRefundEvent;
 use enupal\stripe\events\WebhookEvent;
 use enupal\stripe\models\Address;
+use enupal\stripe\models\CustomPlan;
 use enupal\stripe\Stripe;
 use enupal\stripe\Stripe as StripePlugin;
 use Stripe\Charge;
@@ -1092,31 +1093,28 @@ class Orders extends Component
      */
     private function addRecurringPayment($customer, $data, $paymentForm, $order)
     {
-        $currentTime = time();
-        $planName = strval($currentTime);
         $settings = StripePlugin::$app->settings->getSettings();
+        $customPlan = new CustomPlan([
+            "amountInCents" => $data['amount'],
+            "interval" => $paymentForm->recurringPaymentType,
+            "email" => $data['email'],
+            "currency" => $paymentForm->currency
+        ]);
 
         // Remove tax from amount
         if ($settings->enableTaxes && $settings->tax){
             $currentAmount = $this->convertFromCents($data['amount'], $paymentForm->currency);
             $beforeTax = $currentAmount - $data['taxAmount'];
             $data['amount'] = $this->convertToCents($beforeTax, $paymentForm->currency);
+            $customPlan->amountInCents = $data['amount'];
         }
 
         //Create new plan for this customer:
-        Plan::create([
-            "amount" => $data['amount'],
-            "interval" => $paymentForm->recurringPaymentType,
-            "product" => [
-                "name" => "Plan for recurring payment from: " . $data['email'],
-            ],
-            "currency" => $paymentForm->currency,
-            "id" => $planName
-        ]);
+        $plan = StripePlugin::$app->plans->createCustomPlan($customPlan);
 
         // Add the plan to the customer
         $subscriptionSettings = [
-            "plan" => $planName
+            "plan" => $plan['id']
         ];
 
         // Add tax

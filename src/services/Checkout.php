@@ -12,6 +12,7 @@ use Craft;
 use craft\helpers\UrlHelper;
 use enupal\stripe\elements\PaymentForm;
 use enupal\stripe\enums\AmountType;
+use enupal\stripe\models\CustomPlan;
 use enupal\stripe\Stripe;
 use enupal\stripe\Stripe as StripePlugin;
 use Stripe\Checkout\Session;
@@ -66,8 +67,22 @@ class Checkout extends Component
             'cancel_url' => $this->getSiteUrl($publicData['checkoutCancelUrl']),
         ];
 
-        if ($publicData['enableSubscriptions']){
+        $isCustomAmount = isset($postData['recurringToggle']) && $postData['recurringToggle'] == 'on';
+
+        if ($publicData['enableSubscriptions'] || $isCustomAmount){
             $plan = $form->getSinglePlan();
+
+            if ($isCustomAmount){
+                $customPlan = new CustomPlan([
+                    "amountInCents" => $data['amount'],
+                    "interval" => $form->recurringPaymentType,
+                    "email" => $data['email'],
+                    "currency" => $form->currency
+                ]);
+
+                $plan = StripePlugin::$app->plans->createCustomPlan($customPlan);
+            }
+
             $params['subscription_data'] = [
                 'items' => [[
                     'plan' => $plan['id'],
@@ -95,7 +110,7 @@ class Checkout extends Component
             ];
         }
 
-        if ($form->amountType == AmountType::ONE_TIME_CUSTOM_AMOUNT && !$form->enableSubscriptions){
+        if ($form->amountType == AmountType::ONE_TIME_CUSTOM_AMOUNT && !$form->enableSubscriptions && !$isCustomAmount){
             $params['submit_type'] = 'donate';
         }
 
