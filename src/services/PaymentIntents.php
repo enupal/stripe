@@ -110,7 +110,7 @@ class PaymentIntents extends Component
 
         $amount = $subscription['plan']['amount'] * $quantity;
         if ($invoice){
-            $amount = $invoice['amount_paid'];
+            $amount = $invoice['amount_paid'] == 0 ? $amount: $invoice['amount_paid'];
         }
 
         $data = [];
