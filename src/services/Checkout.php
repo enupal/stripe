@@ -62,7 +62,7 @@ class Checkout extends Component
 
         $metadata = array_merge($metadata, $postData['metadata'] ?? []);
 
-        $params = [
+        $sessionParams = [
             'payment_method_types' => ['card'],
 
             'success_url' => $this->getSiteUrl('enupal/stripe-payments/finish-order?session_id={CHECKOUT_SESSION_ID}'),
@@ -72,24 +72,24 @@ class Checkout extends Component
         $isCustomAmount = isset($postData['recurringToggle']) && $postData['recurringToggle'] == 'on';
 
         if ($form->enableSubscriptions || $isCustomAmount){
-            $params = $this->handleSubscription($form, $postData, $metadata, $params, $isCustomAmount);
+            $sessionParams = $this->handleSubscription($form, $postData, $metadata, $sessionParams, $isCustomAmount);
         }else if (!$isCustomAmount){
-            $params = $this->handleOneTimePayment($form, $postData, $metadata, $params);
+            $sessionParams = $this->handleOneTimePayment($form, $postData, $metadata, $sessionParams);
         }
 
         if ($form->amountType == AmountType::ONE_TIME_CUSTOM_AMOUNT && !$form->enableSubscriptions && !$isCustomAmount){
-            $params['submit_type'] = 'donate';
+            $sessionParams['submit_type'] = 'donate';
         }
 
         if ($askAddress){
-            $params['billing_address_collection'] = 'required';
+            $sessionParams['billing_address_collection'] = 'required';
         }
 
         if ($data['email']){
-            $params['customer_email'] = $data['email'];
+            $sessionParams['customer_email'] = $data['email'];
         }
 
-        $session = Session::create($params);
+        $session = Session::create($sessionParams);
 
         return $session;
     }
@@ -98,12 +98,12 @@ class Checkout extends Component
      * @param $paymentForm
      * @param $postData
      * @param $metadata
-     * @param $params
+     * @param $sessionParams
      * @param $isCustomAmount
      * @return null
      * @throws \Exception
      */
-    private function handleSubscription(PaymentForm $paymentForm, $postData, $metadata, $params, $isCustomAmount = false)
+    private function handleSubscription(PaymentForm $paymentForm, $postData, $metadata, $sessionParams, $isCustomAmount = false)
     {
         $publicData = $postData['enupalStripeData'] ?? null;
         $data = $publicData['stripe'];
@@ -163,20 +163,20 @@ class Checkout extends Component
             $subscriptionData['trial_period_days'] = $trialPeriodDays;
         }
 
-        $params['subscription_data'] = $subscriptionData;
+        $sessionParams['subscription_data'] = $subscriptionData;
 
-        return $params;
+        return $sessionParams;
     }
 
     /**
      * @param $paymentForm
      * @param $postData
      * @param $metadata
-     * @param $params
+     * @param $sessionParams
      * @return null
      * @throws \Exception
      */
-    private function handleOneTimePayment(PaymentForm $paymentForm, $postData, $metadata, $params)
+    private function handleOneTimePayment(PaymentForm $paymentForm, $postData, $metadata, $sessionParams)
     {
         $publicData = $postData['enupalStripeData'] ?? null;
         $data = $publicData['stripe'];
@@ -193,13 +193,13 @@ class Checkout extends Component
             $lineItem['images'] = [$data['image']];
         }
 
-        $params['line_items'] = [$lineItem];
+        $sessionParams['line_items'] = [$lineItem];
 
-        $params['payment_intent_data'] = [
+        $sessionParams['payment_intent_data'] = [
             'metadata' => $metadata
         ];
 
-        return $params;
+        return $sessionParams;
     }
 
     /**
