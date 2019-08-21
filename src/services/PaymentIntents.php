@@ -10,6 +10,7 @@ namespace enupal\stripe\services;
 
 use Craft;
 use enupal\stripe\enums\PaymentType;
+use enupal\stripe\enums\SubscriptionType;
 use enupal\stripe\records\Customer as CustomerRecord;
 use enupal\stripe\Stripe;
 use Stripe\Checkout\Session;
@@ -100,11 +101,26 @@ class PaymentIntents extends Component
     {
         $metadata = $subscription['metadata'];
         $formId = $metadata['stripe_payments_form_id'];
+        $paymentForm = StripePlugin::$app->paymentForms->getPaymentFormById($formId);
         $userId = $metadata['stripe_payments_user_id'];
         $quantity = $metadata['stripe_payments_quantity'];
         $testMode = !$checkoutSession['livemode'];
         $customer = Stripe::$app->customers->getStripeCustomer($subscription['customer']);
         Stripe::$app->customers->registerCustomer($customer, $testMode);
+        $planId = $subscription['plan']['id'];
+
+        if ($paymentForm->subscriptionType == SubscriptionType::SINGLE_PLAN){
+            if ($paymentForm->singlePlanSetupFee){
+                StripePlugin::$app->orders->addOneTimeSetupFee($customer, $paymentForm->singlePlanSetupFee, $paymentForm);
+            }
+        }
+
+        if ($paymentForm->subscriptionType == SubscriptionType::MULTIPLE_PLANS){
+            $setupFee = StripePlugin::$app->orders->getSetupFeeFromMatrix($planId, $paymentForm);
+            if ($setupFee){
+                StripePlugin::$app->orders->addOneTimeSetupFee($customer, $setupFee, $paymentForm);
+            }
+        }
 
         $invoice = Stripe::$app->customers->getStripeInvoice($subscription['latest_invoice']);
 

@@ -1191,7 +1191,7 @@ class Orders extends Component
      * @param $amount
      * @param $paymentForm
      */
-    private function addOneTimeSetupFee($customer, $amount, $paymentForm)
+    public function addOneTimeSetupFee($customer, $amount, $paymentForm)
     {
         InvoiceItem::create(
             [
