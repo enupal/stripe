@@ -88,8 +88,10 @@
 
             if (value == 0){
                 $elementsWrapper.removeClass('hidden');
+                $("#fields-sca-warning").removeClass("hidden");
             }
             else{
+                $("#fields-sca-warning").addClass("hidden");
                 $elementsWrapper.addClass('hidden');
             }
         },

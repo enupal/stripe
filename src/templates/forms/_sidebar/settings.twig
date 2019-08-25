@@ -90,6 +90,10 @@
         errors: stripeForm.getErrors('paymentType'),
     }, paymentTypeInput) }}
 
+    {% if (settings.useSca) and not stripeForm.enableCheckout %}
+        <span id="sca-warning" class="code error">{{ "The card element does not support SCA yet, please make sure to enable Stripe Checkout."|t('enupal-stripe') }}</span>
+    {% endif %}
+
 </div>
 <hr>
 <div id="one-time-payment-wrapper" class="meta {% if stripeForm.enableSubscriptions %} hidden {% endif %}">
