@@ -95,7 +95,16 @@ class Checkout extends Component
         }
 
         if ($data['email']){
-            $sessionParams['customer_email'] = $data['email'];
+        	$customer = StripePlugin::$app->customers->getCustomerByEmail($data['email'], $publicData['testMode']);
+
+	        $sessionParams['customer_email'] = $data['email'];
+        	if ($customer !== null){
+		        $stripeCustomer = StripePlugin::$app->customers->getStripeCustomer($customer->stripeId);
+		        if ($stripeCustomer !== null){
+			        $sessionParams['customer'] = $customer->stripeId;
+			        unset($sessionParams['customer_email']);
+		        }
+	        }
         }
 
         $session = Session::create($sessionParams);

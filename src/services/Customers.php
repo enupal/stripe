@@ -88,4 +88,20 @@ class Customers extends Component
             StripePlugin::$app->customers->createCustomer($customer['email'], $customer['id'], $testMode);
         }
     }
+
+	/**
+	 * @param $customerEmail
+	 * @param $testMode
+	 *
+	 * @return CustomerRecord|null
+	 */
+	public function getCustomerByEmail($customerEmail, $testMode)
+	{
+		$customerRecord = CustomerRecord::findOne([
+			'email' => $customerEmail,
+			'testMode' => $testMode
+		]);
+
+		return $customerRecord;
+	}
 }
