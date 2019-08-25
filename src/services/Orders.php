@@ -30,6 +30,7 @@ use Stripe\Customer;
 use Stripe\Error\Card;
 use Stripe\Invoice;
 use Stripe\InvoiceItem;
+use Stripe\PaymentIntent;
 use Stripe\Plan;
 use Stripe\Refund;
 use Stripe\Source;
@@ -799,7 +800,14 @@ class Orders extends Component
 
         if (!$charge->captured) {
             try {
-                $response = $charge->capture();
+            	if ($charge->payment_intent){
+		            $intent = StripePlugin::$app->paymentIntents->getPaymentIntent($charge->payment_intent);
+		            $paymentIntent = $intent->capture();
+		            $response = $paymentIntent['charges']['data'][0];
+
+	            }else{
+		            $response = $charge->capture();
+	            }
 
                 if (isset($response['captured']) && $response['captured']) {
                     $order->isCompleted = true;

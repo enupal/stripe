@@ -78,6 +78,12 @@ class Checkout extends Component
             $sessionParams = $this->handleSubscription($form, $postData, $metadata, $sessionParams, $isCustomAmount);
         }else if (!$isCustomAmount){
             $sessionParams = $this->handleOneTimePayment($form, $postData, $metadata, $sessionParams);
+
+	        $pluginSettings = StripePlugin::$app->settings->getSettings();
+
+	        if (!$pluginSettings->capture){
+		        $sessionParams['payment_intent_data']['capture_method'] = 'manual';
+	        }
         }
 
         if ($form->amountType == AmountType::ONE_TIME_CUSTOM_AMOUNT && !$form->enableSubscriptions && !$isCustomAmount){
