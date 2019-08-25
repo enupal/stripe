@@ -206,8 +206,16 @@ class Checkout extends Component
             'quantity' => $publicData['quantity'],
         ];
 
+	    $logoAssets = $paymentForm->getLogoAssets();
+	    $logoUrls = [];
+	    if ($logoAssets){
+		    foreach ($logoAssets as $logoAsset){
+			    $logoUrls[] = $logoAsset->getUrl();
+		    }
+	    }
+
         if ($data['image']){
-            $lineItem['images'] = [$data['image']];
+            $lineItem['images'] = $logoUrls;
         }
 
         $sessionParams['line_items'] = [$lineItem];

@@ -565,12 +565,16 @@ class PaymentForm extends Element
     {
         $info = Craft::$app->getInfo();
         $logoUrl = null;
-        $logoAsset = $this->getLogoAsset();
+        $logoAssets = $this->getLogoAssets();
         $calculateFinalAmount = $options['calculateFinalAmount'] ?? true;
         $couponData = $this->getCouponData($options);
 
-        if ($logoAsset){
-            $logoUrl = $logoAsset->getUrl();
+        if ($logoAssets){
+        	foreach ($logoAssets as $logoAsset){
+		        $logoUrl = $logoAsset->getUrl();
+		        // Only the first image for legacy checkout
+		        break;
+	        }
         }
 
         $quantity = (int)($options['quantity'] ?? 1);
@@ -682,21 +686,23 @@ class PaymentForm extends Element
         return json_encode($publicData);
     }
 
-    /**
-     * @return \craft\base\ElementInterface|null
-     */
-    public function getLogoAsset()
+	/**
+	 * @return array
+	 */
+	public function getLogoAssets()
     {
-        $logoElement = null;
+        $logoElement = [];
 
         if ($this->logoImage) {
-            $logo = $this->logoImage;
-            if (is_string($logo)) {
-                $logo = json_decode($this->logoImage);
+            $logos = $this->logoImage;
+            if (is_string($logos)) {
+                $logos = json_decode($this->logoImage);
             }
 
-            if (count($logo)) {
-                $logoElement = Craft::$app->elements->getElementById($logo[0]);
+            if (is_array($logos) && count($logos)) {
+            	foreach ($logos as $logo){
+		            $logoElement[] = Craft::$app->elements->getElementById($logo);
+	            }
             }
         }
 

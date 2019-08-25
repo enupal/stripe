@@ -96,7 +96,7 @@ class PaymentFormsController extends BaseController
             }
         }
 
-        $variables['logoElement'] = [$paymentForm->getLogoAsset()];
+        $variables['logoElement'] = $paymentForm->getLogoAssets();
         $variables['elementType'] = Asset::class;
 
         $variables['formId'] = $formId;
