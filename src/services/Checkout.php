@@ -54,10 +54,13 @@ class Checkout extends Component
         StripePlugin::$app->settings->initializeStripe();
         $askAddress = $publicData['enableShippingAddress'] || $publicData['enableBillingAddress'];
         $data = $publicData['stripe'];
+        $couponCode = $postData['enupalCouponCode'] ?? null;
         $metadata = [
             'stripe_payments_form_id' => $form->id,
             'stripe_payments_user_id' => Craft::$app->getUser()->getIdentity()->id ?? null,
-            'stripe_payments_quantity' => $publicData['quantity']
+            'stripe_payments_quantity' => $publicData['quantity'],
+            'stripe_payments_coupon_code' => $couponCode,
+            'stripe_payments_amount_before_coupon_code' => $data['amount']
         ];
 
         $metadata = array_merge($metadata, $postData['metadata'] ?? []);
@@ -180,6 +183,14 @@ class Checkout extends Component
     {
         $publicData = $postData['enupalStripeData'] ?? null;
         $data = $publicData['stripe'];
+        $couponCode = $postData['enupalCouponCode'] ?? null;
+
+        if ($couponCode !== null){
+            $couponRedeemed = StripePlugin::$app->coupons->applyCouponToAmountInCents($data['amount'], $couponCode, $paymentForm->currency, false);
+            if ($couponRedeemed->isValid){
+                $data['amount'] = $couponRedeemed->finalAmount;
+            }
+        }
 
         $lineItem = [
             'name' => $data['name'],

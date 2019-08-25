@@ -52,6 +52,8 @@ class PaymentIntents extends Component
         $formId = $metadata['stripe_payments_form_id'];
         $userId = $metadata['stripe_payments_user_id'];
         $quantity = $metadata['stripe_payments_quantity'];
+        $couponCode = $metadata['stripe_payments_coupon_code'];
+        $amuntBeforeCoupon = $metadata['stripe_payments_amount_before_coupon_code'];
 
         $charge = $paymentIntent['charges']['data'][0];
         $billing = $charge['billing_details'];
@@ -86,6 +88,18 @@ class PaymentIntents extends Component
         }
 
         $order = StripePlugin::$app->orders->processPayment($data);
+
+        if ($couponCode){
+            $coupon = StripePlugin::$app->coupons->getCoupon($couponCode);
+	        if ($coupon){
+	            $couponAmount = StripePlugin::$app->orders->convertFromCents($amuntBeforeCoupon, $order->currency) - $order->totalPrice;
+                $order->couponCode = $coupon['id'];
+                $order->couponName = $coupon['name'];
+                $order->couponAmount = $couponAmount;
+                $order->couponSnapshot = json_encode($coupon);
+            }
+        }
+
 
         return $order;
     }
