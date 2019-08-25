@@ -11,11 +11,8 @@ namespace enupal\stripe\services;
 use Craft;
 use enupal\stripe\enums\PaymentType;
 use enupal\stripe\enums\SubscriptionType;
-use enupal\stripe\records\Customer as CustomerRecord;
 use enupal\stripe\Stripe;
-use Stripe\Checkout\Session;
 use Stripe\PaymentIntent;
-use Stripe\StripeObject;
 use yii\base\Component;
 use enupal\stripe\Stripe as StripePlugin;
 
@@ -53,7 +50,7 @@ class PaymentIntents extends Component
         $userId = $metadata['stripe_payments_user_id'];
         $quantity = $metadata['stripe_payments_quantity'];
         $couponCode = $metadata['stripe_payments_coupon_code'];
-        $amuntBeforeCoupon = $metadata['stripe_payments_amount_before_coupon_code'];
+        $amountBeforeCoupon = $metadata['stripe_payments_amount_before_coupon'];
 
         $charge = $paymentIntent['charges']['data'][0];
         $billing = $charge['billing_details'];
@@ -92,12 +89,13 @@ class PaymentIntents extends Component
         if ($couponCode){
             $coupon = StripePlugin::$app->coupons->getCoupon($couponCode);
 	        if ($coupon){
-	            $couponAmount = StripePlugin::$app->orders->convertFromCents($amuntBeforeCoupon, $order->currency) - $order->totalPrice;
+	            $couponAmount = StripePlugin::$app->orders->convertFromCents($amountBeforeCoupon, $order->currency) - $order->totalPrice;
                 $order->couponCode = $coupon['id'];
                 $order->couponName = $coupon['name'];
                 $order->couponAmount = $couponAmount;
                 $order->couponSnapshot = json_encode($coupon);
             }
+	        StripePlugin::$app->orders->saveOrder($order);
         }
 
 

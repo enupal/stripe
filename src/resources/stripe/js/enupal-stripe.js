@@ -70,10 +70,7 @@ var enupalStripe = {};
                     enupalStripe.addValuesToForm(enupalButtonElement, args, enupalStripeData);
 
                     // Disable pay button and show a nice UI message
-                    enupalButtonElement.find('#' + paymentFormId)
-                        .prop('disabled', true)
-                        .find('span')
-                        .text(enupalStripeData.paymentButtonProcessingText);
+                    that.showProcessingText(enupalButtonElement, enupalStripeData);
 
                     // Unbind original form submit trigger before calling again to "reset" it and submit normally.
                     enupalButtonElement.unbind('submit', [enupalButtonElement, enupalStripeData]);
@@ -113,6 +110,14 @@ var enupalStripe = {};
                     enupalStripe.submitPayment(enupalButtonElement, enupalStripeData, stripeHandler);
                 }
             });
+        },
+
+        showProcessingText(enupalButtonElement, enupalStripeData)
+        {
+            enupalButtonElement.find('#stripe-payments-submit-button-' + enupalStripeData.paymentFormId)
+                .prop('disabled', true)
+                .find('span')
+                .text(enupalStripeData.paymentButtonProcessingText);
         },
 
         updateTotalAmoutLabel(enupalButtonElement, enupalStripeData)
@@ -269,6 +274,7 @@ var enupalStripe = {};
         },
 
         redirectToCheckoutSession: function(enupalButtonElement, enupalStripeDataSubmission) {
+            this.showProcessingText(enupalButtonElement, enupalStripeDataSubmission);
             var data = enupalButtonElement.serializeArray();
             data.push({name: 'action', value: 'enupal-stripe/checkout/create-session'});
             data.push({name: 'enupalStripeData', value: JSON.stringify(enupalStripeDataSubmission)});

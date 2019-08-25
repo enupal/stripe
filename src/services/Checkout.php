@@ -60,7 +60,7 @@ class Checkout extends Component
             'stripe_payments_user_id' => Craft::$app->getUser()->getIdentity()->id ?? null,
             'stripe_payments_quantity' => $publicData['quantity'],
             'stripe_payments_coupon_code' => $couponCode,
-            'stripe_payments_amount_before_coupon_code' => $data['amount']
+            'stripe_payments_amount_before_coupon' => $data['amount']
         ];
 
         $metadata = array_merge($metadata, $postData['metadata'] ?? []);
