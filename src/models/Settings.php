@@ -21,7 +21,7 @@ class Settings extends Model
     public $liveSecretKey;
     public $testMode = 1;
     public $capture = 1;
-    public $useSca = 1;
+    public $useSca = 0;
     // Globals
     public $returnUrl;
     public $defaultCurrency = 'USD';
