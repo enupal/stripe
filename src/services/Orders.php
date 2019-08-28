@@ -403,7 +403,7 @@ class Orders extends Component
         $order->currency = 'EUR';
         $order->formId = $paymentForm->id;
 
-        $redirect = $paymentForm->returnUrl != null ? UrlHelper::siteUrl($paymentForm->returnUrl) : Craft::getAlias(Craft::$app->getSites()->getPrimarySite()->baseUrl);
+        $redirectUrl = $paymentForm->returnUrl != null ? UrlHelper::siteUrl($paymentForm->returnUrl) : Craft::getAlias(Craft::$app->getSites()->getPrimarySite()->baseUrl);
 
         StripePlugin::$app->settings->initializeStripe();
 
@@ -417,7 +417,6 @@ class Orders extends Component
             'amount' => $order->totalPrice,
             'currency' => 'eur',
             'owner' => ['email' => $email],
-            'redirect' => ['return_url' => $redirect],
             'metadata' => $this->getStripeMetadata($data)
         ];
 
@@ -428,6 +427,16 @@ class Orders extends Component
         if (isset($postData['sofortCountry']) && $postData['sofortCountry'] && $order->paymentType == PaymentType::SOFORT){
             $options['sofort']['country'] = $postData['sofortCountry'];
         }
+
+        // Save the order to get the order number
+        if (!StripePlugin::$app->orders->saveOrder($order, false)){
+            Craft::error('Something went wrong saving the Stripe Order: '.json_encode($order->getErrors()), __METHOD__);
+            return $result;
+        }
+
+        $redirectUrl = Craft::$app->getView()->renderObjectTemplate($redirectUrl, $order);
+
+        $options['redirect'] = ['return_url' => $redirectUrl];
 
         $source = Source::create($options);
 
@@ -975,11 +984,13 @@ class Orders extends Component
      * @param $token
      * @param $order
      * @return \Stripe\ApiResource|null
-     * @throws \Exception
+     * @throws \Throwable
+     * @throws \yii\base\Exception
      */
     private function stripeCharge($data, $paymentForm, $customer, $isNew, $token, $order)
     {
-        $description = Craft::t('enupal-stripe', 'Order from {email}', ['email' => $data['email']]);
+        $settings = StripePlugin::$app->settings->getSettings();
+        $description = Craft::$app->getView()->renderObjectTemplate($settings->chargeDescription, $order);
         $charge = null;
         $addressData = $data['address'] ?? null;
 
@@ -1329,9 +1340,26 @@ class Orders extends Component
                 "line1" => $postData['line1'] ?? '',
                 "postal_code" => $postData['zip'] ?? '',
                 "state" => $postData['state'] ?? '',
-            ],
-            "carrier" => "", // could also be updated later https://stripe.com/docs/api/php#update_charge
-            "tracking_number" => ""
+            ]
+        ];
+
+        return $shipping;
+    }
+
+    /**
+     * @param $postData
+     *
+     * @return array
+     */
+    private function getBillingAddress($postData)
+    {
+        // Add billing information if enable
+        $shipping = [
+            "city" => $postData['city'] ?? '',
+            "country" => $postData['country'] ?? '',
+            "line1" => $postData['line1'] ?? '',
+            "postal_code" => $postData['zip'] ?? '',
+            "state" => $postData['state'] ?? '',
         ];
 
         return $shipping;
@@ -1379,6 +1407,28 @@ class Orders extends Component
     {
         $planId = null;
         $stripeId = null;
+
+        $shippingAddress = $data['address'] ?? null;
+        $billingAddress = $data['billingAddress'] ?? null;
+        $sameAddress = $data['sameAddressToggle'] ?? null;
+
+        if ($billingAddress !== null){
+            $params = [
+                'address' => $billingAddress ? $this->getBillingAddress($billingAddress) : []
+            ];
+
+            StripePlugin::$app->customers->updateStripeCustomer($customer->id, $params);
+            if ($sameAddress == 'on'){
+                $shippingAddress = $billingAddress;
+            }
+        }
+
+        if ($shippingAddress !== null){
+            $params = [
+                'shipping' => $shippingAddress ? $this->getShipping($shippingAddress) : []
+            ];
+            StripePlugin::$app->customers->updateStripeCustomer($customer->id, $params);
+        }
 
         if ($paymentForm->subscriptionType == SubscriptionType::SINGLE_PLAN && !$paymentForm->enableCustomPlanAmount){
             $plan = Json::decode($paymentForm->singlePlanInfo, true);

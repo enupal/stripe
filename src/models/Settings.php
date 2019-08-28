@@ -25,6 +25,7 @@ class Settings extends Model
     // Globals
     public $returnUrl;
     public $defaultCurrency = 'USD';
+    public $chargeDescription = 'Order from {email}';
     // Tax
     public $enableTaxes = 0;
     public $taxType = 0;

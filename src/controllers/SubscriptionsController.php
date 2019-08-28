@@ -14,7 +14,7 @@ use enupal\stripe\Stripe;
 
 class SubscriptionsController extends BaseController
 {
-    protected $allowAnonymous = ['actionRefreshSubscription'];
+    protected $allowAnonymous = true;
 
     /**
      * Get Subscription via ajax

@@ -9,6 +9,31 @@
 ### Fixed
 - Fixed flash message errors in the orders page after delete a payment form.
 
+## 1.9.10 - 2019.08.13
+
+### Added
+- Added support for `flat_amount` on plans with multiple tiers.
+
+## 1.9.9 - 2019.08.10
+
+### Added
+- Added support to update the charge description in the default settings. 
+
+## 1.9.8 - 2019.07.18
+
+### Added
+- Added support for storing billing and shipping subscription addresses on Stripe. 
+
+## 1.9.7 - 2019.07.11
+
+### Added
+- Added support for Craft 3.2
+
+## 1.9.6 - 2019.07.04
+
+### Fixed
+- Fixed wrong return URL on iDEAL payments.
+
 ## 1.9.5 - 2019.06.03
 
 ### Added

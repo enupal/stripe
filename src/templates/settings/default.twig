@@ -118,6 +118,16 @@ If you instead want to cancel the subscription at the end of the current billing
                 offLabel: "Off"|t('enupal-stripe'),
                 errors: settings.getErrors('cancelAtPeriodEnd'),
             }) }}
+
+            <hr>
+            {{ forms.textField({
+                label: "Charge Description"|t('enupal-stripe'),
+                instructions: " It is displayed when in the web interface alongside the charge. Note that if you use Stripe to send automatic email receipts to your customers, your receipt emails will include the description of the charge(s) that they are describing."|t('enupal-stripe'),
+                id: 'chargeDescription',
+                name: 'chargeDescription',
+                value: settings.chargeDescription,
+                errors: settings.getErrors('chargeDescription')
+            }) }}
         {% endnamespace %}
 
     </div>
