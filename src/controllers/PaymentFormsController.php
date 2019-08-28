@@ -114,15 +114,14 @@ class PaymentFormsController extends BaseController
         return $this->renderTemplate('enupal-stripe/forms/_edit', $variables);
     }
 
-    /**
-     * Delete a Stripe Payment Form.
-     *
-     * @return \yii\web\Response
-     * @throws \Exception
-     * @throws \Throwable
-     * @throws \yii\db\Exception
-     * @throws \yii\web\BadRequestHttpException
-     */
+	/**
+	 * Delete a Stripe Payment Form.
+	 *
+	 * @return \yii\web\Response
+	 * @throws \Throwable
+	 * @throws \craft\errors\MissingComponentException
+	 * @throws \yii\web\BadRequestHttpException
+	 */
     public function actionDeleteForm()
     {
         $this->requirePostRequest();

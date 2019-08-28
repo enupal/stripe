@@ -1426,14 +1426,14 @@ class Orders extends Component
         return $stripeId;
     }
 
-    /**
-     * @param $order
-     * @param $paymentForm
-     * @return null|Order
-     * @throws \Throwable
-     * @throws \yii\base\Exception
-     * @throws \yii\db\Exception
-     */
+	/**
+	 * @param $order
+	 * @param $paymentForm
+	 *
+	 * @return null|Order
+	 * @throws \Throwable
+	 * @throws \yii\base\Exception
+	 */
     private function finishOrder($order, $paymentForm)
     {
         $result = null;
