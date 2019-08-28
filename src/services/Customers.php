@@ -14,7 +14,6 @@ use Stripe\Customer;
 use Stripe\Invoice;
 use yii\base\Component;
 use enupal\stripe\records\Customer as CustomerRecord;
-use Craft;
 
 class Customers extends Component
 {
