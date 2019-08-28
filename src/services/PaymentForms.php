@@ -743,7 +743,7 @@ class PaymentForms extends Component
 	        // Delete the orders
 	        $orders = (new Query())
 		        ->select(['id'])
-		        ->from("{{%enupalstripe_orders}}")
+		        ->from(["{{%enupalstripe_orders}}"])
 		        ->where(['formId' => $paymentForm->id])
 		        ->all();
 
@@ -770,6 +770,29 @@ class PaymentForms extends Component
 
         return true;
     }
+
+	/**
+	 * Removes payment forms and related records from the database given the ids
+	 *
+	 * @param $formElements
+	 *
+	 * @return bool
+	 * @throws \Throwable
+	 */
+	public function deleteForms($formElements): bool
+	{
+		foreach ($formElements as $key => $formElement) {
+			$paymentForm = $this->getPaymentFormById($formElement->id);
+
+			if ($paymentForm) {
+				$this->deletePaymentForm($paymentForm);
+			} else {
+				Craft::error("Can't delete the payment form with id: {$formElement->id}", __METHOD__);
+			}
+		}
+
+		return true;
+	}
 
     /**
      * @param $label

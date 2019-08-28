@@ -13,18 +13,16 @@ use craft\base\Element;
 use craft\behaviors\FieldLayoutBehavior;
 use craft\elements\db\ElementQueryInterface;
 use craft\helpers\Json;
-use enupal\stripe\enums\AmountType;
+use enupal\stripe\elements\actions\Delete;
 use enupal\stripe\models\Settings;
 use enupal\stripe\enums\SubscriptionType;
 use enupal\stripe\Stripe;
 use craft\helpers\UrlHelper;
-use craft\elements\actions\Delete;
 
 use enupal\stripe\elements\db\PaymentFormsQuery;
 use enupal\stripe\records\PaymentForm as PaymentFormRecord;
 use enupal\stripe\Stripe as StripePlugin;
 use craft\validators\UniqueValidator;
-use Stripe\Checkout\Session;
 
 /**
  * PaymentForm represents a entry element.
@@ -343,9 +341,7 @@ class PaymentForm extends Element
 
         // Delete
         $actions[] = Craft::$app->getElements()->createAction([
-            'type' => Delete::class,
-            'confirmationMessage' => StripePlugin::t("Are you sure you want to delete this Payment Form, and all of it's orders?"),
-            'successMessage' => StripePlugin::t('Payment Forms deleted.'),
+            'type' => Delete::class
         ]);
 
         return $actions;
