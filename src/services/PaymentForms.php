@@ -10,6 +10,7 @@ namespace enupal\stripe\services;
 
 use Craft;
 use craft\base\Field;
+use craft\db\Query;
 use craft\fields\Dropdown;
 use craft\fields\Lightswitch;
 use craft\fields\Matrix;
@@ -739,6 +740,17 @@ class PaymentForms extends Component
         $transaction = Craft::$app->db->beginTransaction();
 
         try {
+	        // Delete the orders
+	        $orders = (new Query())
+		        ->select(['id'])
+		        ->from("{{%enupalstripe_orders}}")
+		        ->where(['formId' => $paymentForm->id])
+		        ->all();
+
+	        foreach ($orders as $order) {
+		        Craft::$app->elements->deleteElementById($order['id']);
+	        }
+
             // Delete the Payment Form Element
             $success = Craft::$app->elements->deleteElementById($paymentForm->id);
 
