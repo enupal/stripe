@@ -162,7 +162,6 @@ class Checkout extends Component
             $customPlan = new CustomPlan([
                 "amountInCents" => $data['amount'],
                 "interval" => $paymentForm->recurringPaymentType,
-                "email" => $data['email'],
                 "currency" => $paymentForm->currency
             ]);
 
