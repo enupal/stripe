@@ -58,6 +58,9 @@
                     {% set recurringId = 'recurringToggle-'~paymentForm.id %}
                     {# English only #}
                     {% set interval = paymentForm.recurringPaymentType ~ 'ly'  %}
+                    {% if  paymentForm.recurringPaymentType == 'day' %}
+                        {% set interval = 'daily' %}
+                    {% endif %}
                     {% set recurringLabel = 'Make this a '~interval~' payment' %}
                     {% set minimumAmount = paymentForm.amount ? "%.2f"|format(paymentForm.amount) : paymentForm.minimumAmount ? "%.2f"|format(paymentForm.minimumAmount) : '' %}
                     <div class="form-group">
