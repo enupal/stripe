@@ -189,9 +189,12 @@ class StripeController extends BaseController
             return $this->redirect('/');
         }
 
-        $returnUrl = $order->getPaymentForm()->returnUrl;
+        $returnUrl = $order->getPaymentForm()->checkoutSuccessUrl;
+        $url = '/';
 
-        $url = Craft::$app->getView()->renderObjectTemplate($returnUrl, $order);
+        if ($returnUrl){
+            $url = Craft::$app->getView()->renderObjectTemplate($returnUrl, $order);
+        }
 
         return $this->redirect($url);
     }
