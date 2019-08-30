@@ -57,7 +57,7 @@
         id: 'checkoutSuccessUrl',
         name: 'checkoutSuccessUrl',
         value: stripeForm.checkoutSuccessUrl,
-        placeholder: '/thank-you',
+        placeholder: '/thank-you?number={number}',
         autofocus: true,
         errors: stripeForm.getErrors('checkoutSuccessUrl')
     }) }}

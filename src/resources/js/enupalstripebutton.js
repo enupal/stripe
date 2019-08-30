@@ -84,15 +84,23 @@
 
         handleEnableCheckout: function(option) {
             var $elementsWrapper = $("#fields-paymentType-field");
+            var $successUrlWrapper = $("#fields-checkoutSuccessUrl-field");
+            var $cancelUrlWrapper = $("#fields-checkoutCancelUrl-field");
+
             var value = $("input[name='fields[enableCheckout]']").val();
 
             if (value == 0){
                 $elementsWrapper.removeClass('hidden');
                 $("#fields-sca-warning").removeClass("hidden");
+
+                $successUrlWrapper.addClass('hidden');
+                $cancelUrlWrapper.addClass('hidden');
             }
             else{
                 $("#fields-sca-warning").addClass("hidden");
                 $elementsWrapper.addClass('hidden');
+                $successUrlWrapper.removeClass('hidden');
+                $cancelUrlWrapper.removeClass('hidden');
             }
         },
 
