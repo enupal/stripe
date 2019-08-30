@@ -620,6 +620,12 @@ class PaymentForm extends Element
         }
 
         $paymentTypeIds = json_decode($this->paymentType, true);
+        $singlePlanSetupFee = $this->singlePlanSetupFee;
+        if ($this->settings->useSca){
+            // @todo one time fees amounts are not supported in SCA
+            $setupFees = [];
+            $singlePlanSetupFee = '';
+        }
 
         $publicData = [
             'useSca' => $this->settings->useSca,
@@ -640,7 +646,7 @@ class PaymentForm extends Element
             'enableSubscriptions' => $this->enableSubscriptions,
             'subscriptionType' => $this->subscriptionType,
             'subscriptionStyle' => $this->subscriptionStyle,
-            'singleSetupFee' => $this->singlePlanSetupFee,
+            'singleSetupFee' => $singlePlanSetupFee,
             'enableCustomPlanAmount' => $this->enableCustomPlanAmount,
             'multiplePlansAmounts' => $multiplePlansAmounts,
             'setupFees' => $setupFees,

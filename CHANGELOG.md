@@ -3,11 +3,12 @@
 ## WIP
 
 ### Added
-- Added support for new Stripe Checkout which is SCA ready and comes with Apple Play support.
+- Added support for new [Stripe Checkout](https://stripe.com/payments/checkout) which is [SCA](https://stripe.com/payments/strong-customer-authentication) ready and comes with Apple Play support.
 - Added `Use Strong Customer Authentication (SCA)` general setting
 
 ### Fixed
 - Fixed flash message errors in the orders page after delete a payment form.
+- Fixed issue where Processing Text was not showing on some scenarios. 
 
 ## 1.9.10 - 2019.08.13
 

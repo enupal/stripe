@@ -115,9 +115,15 @@ var enupalStripe = {};
         showProcessingText(enupalButtonElement, enupalStripeData)
         {
             enupalButtonElement.find('#stripe-payments-submit-button-' + enupalStripeData.paymentFormId)
-                .prop('disabled', true)
-                .find('span')
+                .prop('disabled', true);
+            if (enupalButtonElement.find('#stripe-payments-submit-button-' + enupalStripeData.paymentFormId).find('span').length){
+                enupalButtonElement.find('#stripe-payments-submit-button-' + enupalStripeData.paymentFormId).find('span')
                 .text(enupalStripeData.paymentButtonProcessingText);
+            }else{
+                enupalButtonElement.find('#stripe-payments-submit-button-' + enupalStripeData.paymentFormId).text(enupalStripeData.paymentButtonProcessingText);
+            }
+
+
         },
 
         updateTotalAmoutLabel(enupalButtonElement, enupalStripeData)

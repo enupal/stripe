@@ -58,8 +58,10 @@ class PaymentIntents extends Component
         $testMode = !$checkoutSession['livemode'];
         $customer = Stripe::$app->customers->getStripeCustomer($paymentIntent['customer']);
         Stripe::$app->customers->registerCustomer($customer, $testMode);
+        $form = Stripe::$app->paymentForms->getPaymentFormById($formId);
 
         $data = [];
+        $data['enupalStripe']['metadata'] = $this->removePaymentIntentMetadata($metadata);
         $data['enupalStripe']['token'] = $charge['id'];
         $data['enupalStripe']['email'] = $billing['email'];
         $data['enupalStripe']['formId'] = $formId;
@@ -68,10 +70,11 @@ class PaymentIntents extends Component
         $data['enupalStripe']['testMode'] = $testMode;
         $data['enupalStripe']['paymentType'] = PaymentType::CC;
         $data['enupalStripe']['userId'] = $userId;
+        $data['enupalStripe']['userId'] = $userId;
 
         $address = $billing['address'] ?? null;
 
-        if (isset($address['city'])){
+        if (isset($address['city']) && ($form->enableBillingAddress || $form->enableShippingAddress)){
             $data['enupalStripe']['billingAddress'] = [
                 'country' => $address['country'],
                 'zip' => $address['postal_code'],
@@ -123,14 +126,15 @@ class PaymentIntents extends Component
 
         if ($paymentForm->subscriptionType == SubscriptionType::SINGLE_PLAN){
             if ($paymentForm->singlePlanSetupFee){
-                StripePlugin::$app->orders->addOneTimeSetupFee($customer, $paymentForm->singlePlanSetupFee, $paymentForm);
+                // @todo One-time setup fee for SCA is not supported yet.
+                // StripePlugin::$app->orders->addOneTimeSetupFee($customer, $paymentForm->singlePlanSetupFee, $paymentForm);
             }
         }
 
         if ($paymentForm->subscriptionType == SubscriptionType::MULTIPLE_PLANS){
             $setupFee = StripePlugin::$app->orders->getSetupFeeFromMatrix($planId, $paymentForm);
             if ($setupFee){
-                StripePlugin::$app->orders->addOneTimeSetupFee($customer, $setupFee, $paymentForm);
+                // StripePlugin::$app->orders->addOneTimeSetupFee($customer, $setupFee, $paymentForm);
             }
         }
 
@@ -142,6 +146,7 @@ class PaymentIntents extends Component
         }
 
         $data = [];
+        $data['enupalStripe']['metadata'] = $this->removePaymentIntentMetadata($metadata);
         $data['enupalStripe']['token'] = $subscription['id'];
         $data['enupalStripe']['email'] = $customer['email'];
         $data['enupalStripe']['formId'] = $formId;
@@ -156,4 +161,18 @@ class PaymentIntents extends Component
         return $order;
     }
 
+    /**
+     * @param $metadata
+     * @return mixed
+     */
+    private function removePaymentIntentMetadata($metadata)
+    {
+        unset($metadata['stripe_payments_form_id']);
+        unset($metadata['stripe_payments_user_id']);
+        unset($metadata['stripe_payments_quantity']);
+        unset($metadata['stripe_payments_coupon_code']);
+        unset($metadata['stripe_payments_amount_before_coupon']);
+
+        return $metadata;
+    }
 }
