@@ -1,6 +1,8 @@
 # Stripe Payments Changelog
 
-## WIP
+## 2.0.0 - 2019.08.30
+
+> {tip} This release adds an initial support for Strong Customer Authentication, to learn more please read our [guide](https://enupal.com/craft-plugins/stripe-payments/docs/getting-started/sca). Enjoy!
 
 ### Added
 - Added support for new [Stripe Checkout](https://stripe.com/payments/checkout) which is [SCA](https://stripe.com/payments/strong-customer-authentication) ready and comes with Apple Play support.
@@ -8,7 +10,7 @@
 
 ### Fixed
 - Fixed flash message errors in the orders page after delete a payment form.
-- Fixed issue where Processing Text was not showing on some scenarios. 
+- Fixed issue where the "Processing Text" value was not showing on some scenarios.
 
 ## 1.9.10 - 2019.08.13
 
