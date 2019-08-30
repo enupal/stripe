@@ -22,6 +22,7 @@ use enupal\stripe\events\OrderCompleteEvent;
 use enupal\stripe\events\OrderRefundEvent;
 use enupal\stripe\events\WebhookEvent;
 use enupal\stripe\models\Address;
+use enupal\stripe\models\CustomPlan;
 use enupal\stripe\Stripe;
 use enupal\stripe\Stripe as StripePlugin;
 use Stripe\Charge;
@@ -29,6 +30,7 @@ use Stripe\Customer;
 use Stripe\Error\Card;
 use Stripe\Invoice;
 use Stripe\InvoiceItem;
+use Stripe\PaymentIntent;
 use Stripe\Plan;
 use Stripe\Refund;
 use Stripe\Source;
@@ -141,6 +143,10 @@ class Orders extends Component
      */
     public function getOrderByStripeId($stripeTransactionId, int $siteId = null)
     {
+        if ($stripeTransactionId === null || $stripeTransactionId == ''){
+            return null;
+        }
+
         $query = Order::find();
         $query->stripeTransactionId($stripeTransactionId);
         $query->siteId($siteId);
@@ -302,12 +308,12 @@ class Orders extends Component
      */
     public function populateOrder($data, $isPending = false)
     {
-        $currentUser = Craft::$app->getUser();
+        $currentUserId = Craft::$app->getUser()->getIdentity()->id ?? null;
         $order = new Order();
         $order->orderStatusId = StripePlugin::$app->orderStatuses->getDefaultOrderStatusId();
         $order->isCompleted = $isPending ? false : true;
         $order->number = $this->getRandomStr();
-        $order->userId = $currentUser ? $currentUser->getId() : null;
+        $order->userId = $data['userId'] ?? $currentUserId;
         $order->email = $data['email'];
         // The amount come in cents, we revert this just before save the order
         $order->totalPrice = $data['amount'];
@@ -499,6 +505,7 @@ class Orders extends Component
         $formId = $data['formId'] ?? null;
         $paymentType = $postData['paymentType'] ?? PaymentType::CC;
         $data['couponCode'] = $postData['enupalCouponCode'] ?? null;
+        $settings = StripePlugin::$app->settings->getSettings();
 
         if (empty($token) || empty($formId)){
             Craft::error('Unable to get the stripe token or formId', __METHOD__);
@@ -537,22 +544,27 @@ class Orders extends Component
         StripePlugin::$app->settings->initializeStripe();
 
         $isNew = false;
-        $customer = $this->getCustomer($order->email, $token, $isNew, $order->testMode);
         $stripeId = null;
 
-        if ($paymentForm->enableSubscriptions){
-            $stripeId = $this->handleSubscription($paymentForm, $customer, $data, $order);
+        if (!$settings->useSca){
+            $customer = $this->getCustomer($order->email, $token, $isNew, $order->testMode);
+            if ($paymentForm->enableSubscriptions){
+                $stripeId = $this->handleSubscription($paymentForm, $customer, $data, $order);
+            }else{
+                $stripeId = $this->handleOneTimePayment($paymentForm, $customer, $data, $token, $isNew, $order);
+            }
+
+            if (is_null($stripeId)){
+                Craft::error('Something went wrong making the charge to Stripe. -CHECK PREVIOUS LOGS-', __METHOD__);
+                return $result;
+            }
+
+            if ($data['couponCode'] && ($paymentType == PaymentType::IDEAL || $paymentType==PaymentType::SOFORT)){
+                $order->totalPrice = $this->convertFromCents($order->totalPrice, $paymentForm->currency);
+            }
         }else{
-            $stripeId = $this->handleOneTimePayment($paymentForm, $customer, $data, $token, $isNew, $order);
-        }
-
-        if (is_null($stripeId)){
-            Craft::error('Something went wrong making the charge to Stripe. -CHECK PREVIOUS LOGS-', __METHOD__);
-            return $result;
-        }
-
-        if ($data['couponCode'] && ($paymentType == PaymentType::IDEAL || $paymentType==PaymentType::SOFORT)){
-            $order->totalPrice = $this->convertFromCents($order->totalPrice, $paymentForm->currency);
+            // The payment intent should be already processed
+            $stripeId = $token;
         }
 
         $order->stripeTransactionId = $stripeId;
@@ -797,7 +809,14 @@ class Orders extends Component
 
         if (!$charge->captured) {
             try {
-                $response = $charge->capture();
+            	if ($charge->payment_intent){
+		            $intent = StripePlugin::$app->paymentIntents->getPaymentIntent($charge->payment_intent);
+		            $paymentIntent = $intent->capture();
+		            $response = $paymentIntent['charges']['data'][0];
+
+	            }else{
+		            $response = $charge->capture();
+	            }
 
                 if (isset($response['captured']) && $response['captured']) {
                     $order->isCompleted = true;
@@ -1093,31 +1112,27 @@ class Orders extends Component
      */
     private function addRecurringPayment($customer, $data, $paymentForm, $order)
     {
-        $currentTime = time();
-        $planName = strval($currentTime);
         $settings = StripePlugin::$app->settings->getSettings();
+        $customPlan = new CustomPlan([
+            "amountInCents" => $data['amount'],
+            "interval" => $paymentForm->recurringPaymentType,
+            "currency" => $paymentForm->currency
+        ]);
 
         // Remove tax from amount
         if ($settings->enableTaxes && $settings->tax){
             $currentAmount = $this->convertFromCents($data['amount'], $paymentForm->currency);
             $beforeTax = $currentAmount - $data['taxAmount'];
             $data['amount'] = $this->convertToCents($beforeTax, $paymentForm->currency);
+            $customPlan->amountInCents = $data['amount'];
         }
 
         //Create new plan for this customer:
-        Plan::create([
-            "amount" => $data['amount'],
-            "interval" => $paymentForm->recurringPaymentType,
-            "product" => [
-                "name" => "Plan for recurring payment from: " . $data['email'],
-            ],
-            "currency" => $paymentForm->currency,
-            "id" => $planName
-        ]);
+        $plan = StripePlugin::$app->plans->createCustomPlan($customPlan);
 
         // Add the plan to the customer
         $subscriptionSettings = [
-            "plan" => $planName
+            "plan" => $plan['id']
         ];
 
         // Add tax
@@ -1145,8 +1160,6 @@ class Orders extends Component
      */
     private function addCustomPlan($customer, $data, $paymentForm)
     {
-        $currentTime = time();
-        $planName = strval($currentTime);
         $settings = StripePlugin::$app->settings->getSettings();
 
         // Remove tax from amount
@@ -1162,27 +1175,22 @@ class Orders extends Component
             $data['amount'] = $this->convertToCents($beforeFee, $paymentForm->currency);
         }
 
-        $data = [
-            "amount" => $data['amount'],
+        $customPlan = new CustomPlan([
+            "amountInCents" => $data['amount'],
             "interval" => $paymentForm->customPlanFrequency,
-            "interval_count" => $paymentForm->customPlanInterval,
-            "product" => [
-                "name" => "Custom Plan from: " . $data['email'],
-            ],
-            "currency" => $paymentForm->currency,
-            "id" => $planName
-        ];
+            "intervalCount" => $paymentForm->customPlanInterval,
+            "currency" => $paymentForm->currency
+        ]);
 
         if ($paymentForm->singlePlanTrialPeriod){
-            $data['trial_period_days'] = $paymentForm->singlePlanTrialPeriod;
+            $customPlan->trialPeriodDays = $paymentForm->singlePlanTrialPeriod;
         }
 
-        //Create new plan for this customer:
-        Plan::create($data);
+        $plan = StripePlugin::$app->plans->createCustomPlan($customPlan);
 
         // Add the plan to the customer
         $subscriptionSettings = [
-            "plan" => $planName
+            "plan" => $plan['id']
         ];
 
         // Add tax
@@ -1202,7 +1210,7 @@ class Orders extends Component
      * @param $amount
      * @param $paymentForm
      */
-    private function addOneTimeSetupFee($customer, $amount, $paymentForm)
+    public function addOneTimeSetupFee($customer, $amount, $paymentForm)
     {
         InvoiceItem::create(
             [
@@ -1468,14 +1476,14 @@ class Orders extends Component
         return $stripeId;
     }
 
-    /**
-     * @param $order
-     * @param $paymentForm
-     * @return null|Order
-     * @throws \Throwable
-     * @throws \yii\base\Exception
-     * @throws \yii\db\Exception
-     */
+	/**
+	 * @param $order
+	 * @param $paymentForm
+	 *
+	 * @return null|Order
+	 * @throws \Throwable
+	 * @throws \yii\base\Exception
+	 */
     private function finishOrder($order, $paymentForm)
     {
         $result = null;

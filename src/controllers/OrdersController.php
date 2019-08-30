@@ -104,15 +104,13 @@ class OrdersController extends BaseController
         return $this->renderTemplate('enupal-stripe/orders/_edit', $variables);
     }
 
-    /**
-     *  Delete a Order.
-     *
-     * @return \yii\web\Response
-     * @throws \Exception
-     * @throws \Throwable
-     * @throws \yii\db\Exception
-     * @throws \yii\web\BadRequestHttpException
-     */
+	/**
+	 *  Delete a Order.
+	 *
+	 * @return \yii\web\Response
+	 * @throws \Throwable
+	 * @throws \yii\web\BadRequestHttpException
+	 */
     public function actionDeleteOrder()
     {
         $this->requirePostRequest();

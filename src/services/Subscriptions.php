@@ -50,12 +50,13 @@ class Subscriptions extends Component
         return $subscriptionModel;
     }
 
-    /**
-     * @param $id
-     * @param bool $cancelAtPediodEnd
-     * @return bool
-     * @throws \Exception
-     */
+	/**
+	 * @param $id
+	 * @param bool $cancelAtPeriodEnd
+	 *
+	 * @return bool
+	 * @throws \Exception
+	 */
     public function cancelStripeSubscription($id, bool $cancelAtPeriodEnd)
     {
         $response = false;
@@ -85,12 +86,11 @@ class Subscriptions extends Component
         return $response;
     }
 
-    /**
-     * @param $id
-     * @param bool $cancelAtPediodEnd
-     * @return bool
-     * @throws \Exception
-     */
+	/**
+	 * @param $id
+	 * @return bool
+	 * @throws \Exception
+	 */
     public function reactivateStripeSubscription($id)
     {
         $response = false;

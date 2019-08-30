@@ -13,11 +13,11 @@ use craft\base\Element;
 use craft\behaviors\FieldLayoutBehavior;
 use craft\elements\db\ElementQueryInterface;
 use craft\helpers\Json;
+use enupal\stripe\elements\actions\Delete;
 use enupal\stripe\models\Settings;
 use enupal\stripe\enums\SubscriptionType;
 use enupal\stripe\Stripe;
 use craft\helpers\UrlHelper;
-use craft\elements\actions\Delete;
 
 use enupal\stripe\elements\db\PaymentFormsQuery;
 use enupal\stripe\records\PaymentForm as PaymentFormRecord;
@@ -53,6 +53,16 @@ class PaymentForm extends Element
      * @var bool
      */
     public $enableCheckout = 1;
+
+    /**
+     * @var string
+     */
+    public $checkoutCancelUrl;
+
+    /**
+     * @var string
+     */
+    public $checkoutSuccessUrl;
 
     /**
      * @var string Payment Type
@@ -331,9 +341,7 @@ class PaymentForm extends Element
 
         // Delete
         $actions[] = Craft::$app->getElements()->createAction([
-            'type' => Delete::class,
-            'confirmationMessage' => StripePlugin::t("Are you sure you want to delete this Payment Form, and all of it's orders?"),
-            'successMessage' => StripePlugin::t('Payment Forms deleted.'),
+            'type' => Delete::class
         ]);
 
         return $actions;
@@ -441,6 +449,8 @@ class PaymentForm extends Element
 
         $record->handle = $this->handle;
         $record->enableCheckout = $this->enableCheckout;
+        $record->checkoutCancelUrl = $this->checkoutCancelUrl;
+        $record->checkoutSuccessUrl = $this->checkoutSuccessUrl;
         $record->paymentType = $this->paymentType;
         $record->currency = $this->currency;
         $record->language = $this->language;
@@ -551,12 +561,16 @@ class PaymentForm extends Element
     {
         $info = Craft::$app->getInfo();
         $logoUrl = null;
-        $logoAsset = $this->getLogoAsset();
+        $logoAssets = $this->getLogoAssets();
         $calculateFinalAmount = $options['calculateFinalAmount'] ?? true;
         $couponData = $this->getCouponData($options);
 
-        if ($logoAsset){
-            $logoUrl = $logoAsset->getUrl();
+        if ($logoAssets){
+        	foreach ($logoAssets as $logoAsset){
+		        $logoUrl = $logoAsset->getUrl();
+		        // Only the first image for legacy checkout
+		        break;
+	        }
         }
 
         $quantity = (int)($options['quantity'] ?? 1);
@@ -606,8 +620,17 @@ class PaymentForm extends Element
         }
 
         $paymentTypeIds = json_decode($this->paymentType, true);
+        $singlePlanSetupFee = $this->singlePlanSetupFee;
+        if ($this->settings->useSca){
+            // @todo one time fees amounts are not supported in SCA
+            $setupFees = [];
+            $singlePlanSetupFee = '';
+        }
 
         $publicData = [
+            'useSca' => $this->settings->useSca,
+            'checkoutSuccessUrl' => $this->checkoutSuccessUrl,
+            'checkoutCancelUrl' => $this->checkoutCancelUrl,
             'paymentFormId' => $this->id,
             'handle' => $this->handle,
             'amountType' => $this->amountType,
@@ -623,7 +646,7 @@ class PaymentForm extends Element
             'enableSubscriptions' => $this->enableSubscriptions,
             'subscriptionType' => $this->subscriptionType,
             'subscriptionStyle' => $this->subscriptionStyle,
-            'singleSetupFee' => $this->singlePlanSetupFee,
+            'singleSetupFee' => $singlePlanSetupFee,
             'enableCustomPlanAmount' => $this->enableCustomPlanAmount,
             'multiplePlansAmounts' => $multiplePlansAmounts,
             'setupFees' => $setupFees,
@@ -636,6 +659,7 @@ class PaymentForm extends Element
             'enableShippingAddress' => $this->enableShippingAddress,
             'enableBillingAddress' => $this->enableBillingAddress,
             'coupon' => $couponData,
+            'quantity' => $quantity,
             'stripe' => [
                 'description' => $this->name,
                 'panelLabel' =>  $this->checkoutButtonText ?? 'Pay {{amount}}',
@@ -664,21 +688,23 @@ class PaymentForm extends Element
         return json_encode($publicData);
     }
 
-    /**
-     * @return \craft\base\ElementInterface|null
-     */
-    public function getLogoAsset()
+	/**
+	 * @return array
+	 */
+	public function getLogoAssets()
     {
-        $logoElement = null;
+        $logoElement = [];
 
         if ($this->logoImage) {
-            $logo = $this->logoImage;
-            if (is_string($logo)) {
-                $logo = json_decode($this->logoImage);
+            $logos = $this->logoImage;
+            if (is_string($logos)) {
+                $logos = json_decode($this->logoImage);
             }
 
-            if (count($logo)) {
-                $logoElement = Craft::$app->elements->getElementById($logo[0]);
+            if (is_array($logos) && count($logos)) {
+            	foreach ($logos as $logo){
+		            $logoElement[] = Craft::$app->elements->getElementById($logo);
+	            }
             }
         }
 

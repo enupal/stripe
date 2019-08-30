@@ -105,6 +105,8 @@
                 required: true
             }) }}
 
+            {% set imagesLimit = settings.useSca ? null : 1 %}
+
             {{ forms.field({
                 label: '<i class="fa fa-picture-o" aria-hidden="true"></i> '~'Logo'|t('enupal-stripe'),
                 instructions: 'An Image of your brand or product. The recommended minimum size is 128x128px. The supported image types are: .gif, .jpeg, and .png.'|t('enupal-slider'),
@@ -117,7 +119,7 @@
                 class: 'logoImage-field',
                 jsClass: 'Craft.AssetSelectInput',
                 selectionLabel: 'Add an image'|t('enupal-stripe'),
-                limit: 1,
+                limit: imagesLimit,
                 viewMode: 'large',
                 criteria: {kind: ['image'], siteId : null}
             })) }}

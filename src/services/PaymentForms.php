@@ -10,6 +10,7 @@ namespace enupal\stripe\services;
 
 use Craft;
 use craft\base\Field;
+use craft\db\Query;
 use craft\fields\Dropdown;
 use craft\fields\Lightswitch;
 use craft\fields\Matrix;
@@ -176,6 +177,9 @@ class PaymentForms extends Component
            $templateFolderOverride = $this->getSitePath($paymentForm->templateOverridesFolder);
         }
 
+        $settings = StripePlugin::$app->settings->getSettings();
+        $mainTemplate = $settings->useSca ? 'paymentFormSca' : 'paymentForm';
+
         // Set our defaults
         $templates['paymentForm'] = $defaultTemplate;
         $templates['address'] = $defaultTemplate;
@@ -185,7 +189,7 @@ class PaymentForms extends Component
         // See if we should override our defaults
         if ($templateFolderOverride) {
 
-            $formTemplate = $templateFolderOverride.DIRECTORY_SEPARATOR.'paymentForm';
+            $formTemplate = $templateFolderOverride.DIRECTORY_SEPARATOR.$mainTemplate;
             $addressTemplate = $templateFolderOverride.DIRECTORY_SEPARATOR.'address';
             $fieldsFolder = $templateFolderOverride.DIRECTORY_SEPARATOR.'fields';
             $multiplePlansFolder = $templateFolderOverride.DIRECTORY_SEPARATOR.'multipleplans';
@@ -662,6 +666,7 @@ class PaymentForms extends Component
         $paymentForm = StripePlugin::$app->paymentForms->getPaymentFormBySku($handle);
         $paymentFormHtml = null;
         $settings = StripePlugin::$app->settings->getSettings();
+        $mainTemplate = $settings->useSca ? 'paymentFormSca' : 'paymentForm';
 
         if ($settings->testMode){
             if (!$settings->testPublishableKey || !$settings->testSecretKey) {
@@ -690,7 +695,11 @@ class PaymentForms extends Component
             $loadAssets = isset($options['loadAssets']) ? $options['loadAssets'] : true;
 
             if ($paymentForm->enableCheckout){
-                $view->registerJsFile("https://checkout.stripe.com/checkout.js");
+                if ($settings->useSca){
+                    $view->registerJsFile("https://js.stripe.com/v3/");
+                }else{
+                    $view->registerJsFile("https://checkout.stripe.com/checkout.js");
+                }
                 if ($loadAssets){
                     $view->registerAssetBundle(StripeAsset::class);
                 }
@@ -704,7 +713,7 @@ class PaymentForms extends Component
             $paymentTypeIds = json_decode($paymentForm->paymentType, true);
 
             $paymentFormHtml = $view->renderTemplate(
-                'paymentForm', [
+                $mainTemplate, [
                     'paymentForm' => $paymentForm,
                     'settings' => $settings,
                     'options' => $options,
@@ -731,6 +740,17 @@ class PaymentForms extends Component
         $transaction = Craft::$app->db->beginTransaction();
 
         try {
+	        // Delete the orders
+	        $orders = (new Query())
+		        ->select(['id'])
+		        ->from(["{{%enupalstripe_orders}}"])
+		        ->where(['formId' => $paymentForm->id])
+		        ->all();
+
+	        foreach ($orders as $order) {
+		        Craft::$app->elements->deleteElementById($order['id']);
+	        }
+
             // Delete the Payment Form Element
             $success = Craft::$app->elements->deleteElementById($paymentForm->id);
 
@@ -750,6 +770,29 @@ class PaymentForms extends Component
 
         return true;
     }
+
+	/**
+	 * Removes payment forms and related records from the database given the ids
+	 *
+	 * @param $formElements
+	 *
+	 * @return bool
+	 * @throws \Throwable
+	 */
+	public function deleteForms($formElements): bool
+	{
+		foreach ($formElements as $key => $formElement) {
+			$paymentForm = $this->getPaymentFormById($formElement->id);
+
+			if ($paymentForm) {
+				$this->deletePaymentForm($paymentForm);
+			} else {
+				Craft::error("Can't delete the payment form with id: {$formElement->id}", __METHOD__);
+			}
+		}
+
+		return true;
+	}
 
     /**
      * @param $label

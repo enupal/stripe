@@ -47,37 +47,36 @@ var enupalStripe = {};
 
             var paymentFormId = 'stripe-payments-submit-button-'+enupalStripeData.paymentFormId;
 
-            // Stripe Checkout handler configuration.
-            // Docs: https://stripe.com/docs/checkout#integration-custom
-            stripeHandler = StripeCheckout.configure({
-                key: enupalStripeData.pbk,
-                token: processStripeToken,
-                opened: function() {
-                },
-                closed: function() {
+            if (!enupalStripeData.useSca) {
+                // Stripe Checkout handler configuration.
+                // Docs: https://stripe.com/docs/checkout#integration-custom
+                stripeHandler = StripeCheckout.configure({
+                    key: enupalStripeData.pbk,
+                    token: processStripeToken,
+                    opened: function() {
+                    },
+                    closed: function() {
+                    }
+                });
+
+                // Callback function to handle StripeCheckout.configure
+                function processStripeToken(token, args) {
+                    // At this point the Stripe Checkout overlay is validated and submitted.
+                    // Set values to hidden elements to pass via POST when submitting the form for payment.
+                    enupalButtonElement.find('[name="enupalStripe[token]"]').val(token.id);
+                    enupalButtonElement.find('[name="enupalStripe[email]"]').val(token.email);
+
+                    // Add others values to form
+                    enupalStripe.addValuesToForm(enupalButtonElement, args, enupalStripeData);
+
+                    // Disable pay button and show a nice UI message
+                    that.showProcessingText(enupalButtonElement, enupalStripeData);
+
+                    // Unbind original form submit trigger before calling again to "reset" it and submit normally.
+                    enupalButtonElement.unbind('submit', [enupalButtonElement, enupalStripeData]);
+
+                    enupalButtonElement.submit();
                 }
-            });
-
-            // Callback function to handle StripeCheckout.configure
-            function processStripeToken(token, args) {
-                // At this point the Stripe Checkout overlay is validated and submitted.
-                // Set values to hidden elements to pass via POST when submitting the form for payment.
-                enupalButtonElement.find('[name="enupalStripe[token]"]').val(token.id);
-                enupalButtonElement.find('[name="enupalStripe[email]"]').val(token.email);
-
-                // Add others values to form
-                enupalStripe.addValuesToForm(enupalButtonElement, args, enupalStripeData);
-
-                // Disable pay button and show a nice UI message
-                enupalButtonElement.find('#'+paymentFormId)
-                    .prop('disabled', true)
-                    .find('span')
-                    .text(enupalStripeData.paymentButtonProcessingText);
-
-                // Unbind original form submit trigger before calling again to "reset" it and submit normally.
-                enupalButtonElement.unbind('submit', [enupalButtonElement, enupalStripeData]);
-
-                enupalButtonElement.submit();
             }
 
             if (enupalStripeData.coupon.enabled){
@@ -111,6 +110,20 @@ var enupalStripe = {};
                     enupalStripe.submitPayment(enupalButtonElement, enupalStripeData, stripeHandler);
                 }
             });
+        },
+
+        showProcessingText(enupalButtonElement, enupalStripeData)
+        {
+            enupalButtonElement.find('#stripe-payments-submit-button-' + enupalStripeData.paymentFormId)
+                .prop('disabled', true);
+            if (enupalButtonElement.find('#stripe-payments-submit-button-' + enupalStripeData.paymentFormId).find('span').length){
+                enupalButtonElement.find('#stripe-payments-submit-button-' + enupalStripeData.paymentFormId).find('span')
+                .text(enupalStripeData.paymentButtonProcessingText);
+            }else{
+                enupalButtonElement.find('#stripe-payments-submit-button-' + enupalStripeData.paymentFormId).text(enupalStripeData.paymentButtonProcessingText);
+            }
+
+
         },
 
         updateTotalAmoutLabel(enupalButtonElement, enupalStripeData)
@@ -266,8 +279,36 @@ var enupalStripe = {};
             }
         },
 
+        redirectToCheckoutSession: function(enupalButtonElement, enupalStripeDataSubmission) {
+            this.showProcessingText(enupalButtonElement, enupalStripeDataSubmission);
+            var data = enupalButtonElement.serializeArray();
+            data.push({name: 'action', value: 'enupal-stripe/checkout/create-session'});
+            data.push({name: 'enupalStripeData', value: JSON.stringify(enupalStripeDataSubmission)});
+
+            $.ajax({
+                type:"POST",
+                url:"enupal/stripe/create-checkout-session",
+                data: data,
+                dataType : 'json',
+                success: function(response) {
+                    if (response.success === true){
+                        var stripe = Stripe(enupalStripeDataSubmission.pbk);
+                        stripe.redirectToCheckout({
+                            sessionId: response.sessionId
+                        });
+                    }else{
+                        console.log("Something went wrong, please contact the admin");
+                    }
+                }.bind(this),
+                error: function(xhr, status, err) {
+                    console.error(xhr, status, err.toString());
+                }.bind(this)
+            });
+        },
+
         submitPayment: function(enupalButtonElement, enupalStripeData, stripeHandler) {
             var enupalStripeDataSubmission = $.extend(true,{},enupalStripeData);
+            var that = this;
             var stripeConfig = enupalStripeDataSubmission.stripe;
             stripeConfig.amount = this.convertToCents(this.getFinalAmount(enupalButtonElement, enupalStripeDataSubmission), stripeConfig.currency);
             enupalButtonElement.find('[name="enupalStripe[amount]"]').val(stripeConfig.amount);
@@ -295,20 +336,31 @@ var enupalStripe = {};
                             if (response.success === true){
                                 stripeConfig.amount = response.finalAmountInCents;
                             }
-                            stripeHandler.open(stripeConfig);
+                            if (enupalStripeData.useSca){
+                                that.redirectToCheckoutSession(enupalButtonElement, enupalStripeDataSubmission);
+                            }else{
+                                stripeHandler.open(stripeConfig);
+                            }
                         }.bind(this),
                         error: function(xhr, status, err) {
                             console.error(xhr, status, err.toString());
                         }.bind(this)
                     });
                 }else{
-                    stripeHandler.open(stripeConfig);
+                    if (enupalStripeData.useSca){
+                        this.redirectToCheckoutSession(enupalButtonElement,enupalStripeDataSubmission);
+                    }else{
+                        stripeHandler.open(stripeConfig);
+                    }
                 }
             }else{
                 // let's open the form
-                stripeHandler.open(stripeConfig);
+                if (enupalStripeData.useSca){
+                    this.redirectToCheckoutSession(enupalButtonElement,enupalStripeDataSubmission);
+                }else{
+                    stripeHandler.open(stripeConfig);
+                }
             }
-
         },
 
         getFinalAmount: function(enupalButtonElement, enupalStripeData){
