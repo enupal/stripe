@@ -529,9 +529,11 @@ class Order extends Element
         return $variants;
     }
 
-    /**
-     * @return string
-     */
+	/**
+	 * @return string
+	 * @throws \Twig\Error\LoaderError
+	 * @throws \Twig\Error\SyntaxError
+	 */
     public function getShippingAddress()
     {
         $addressHtml = '';
@@ -572,9 +574,11 @@ class Order extends Element
         return $address;
     }
 
-    /**
-     * @return string
-     */
+	/**
+	 * @return string
+	 * @throws \Twig\Error\LoaderError
+	 * @throws \Twig\Error\SyntaxError
+	 */
     public function getBillingAddress()
     {
         $addressHtml = '';

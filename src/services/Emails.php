@@ -57,12 +57,15 @@ class Emails extends Component
         }
     }
 
-    /**
-     * @param Order $order
-     * @param $type
-     * @return bool
-     * @throws \yii\base\Exception
-     */
+	/**
+	 * @param Order $order
+	 * @param string $type
+	 *
+	 * @return bool
+	 * @throws \Twig\Error\LoaderError
+	 * @throws \Twig\Error\RuntimeError
+	 * @throws \Twig\Error\SyntaxError
+	 */
     public function sendNotificationEmail(Order $order, $type = self::ADMIN_TYPE)
     {
         $message = $this->getAdminMessage($order);

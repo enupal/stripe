@@ -155,4 +155,44 @@ class StripeController extends BaseController
 
         return $this->redirectToPostedUrl();
     }
+
+    /**
+     * This action handles the request after Stripe Checkout is done
+     * @return \yii\web\Response
+     * @throws \Throwable
+     * @throws \yii\base\Exception
+     */
+    public function actionFinishOrder()
+    {
+        $sessionId = $_GET['session_id'] ?? null;
+        // Lets wait 5 seconds until Stripe is done
+        sleep(5);
+
+        $checkoutSession = StripePlugin::$app->checkout->getCheckoutSession($sessionId);
+        if ($checkoutSession === null){
+            Craft::error('Unable to find the chekout session id',__METHOD__);
+            return $this->redirect('/');
+        }
+        // Get the order from the payment intent id
+        $paymentIntent = StripePlugin::$app->paymentIntents->getPaymentIntent($checkoutSession['payment_intent']);
+        if ($paymentIntent === null){
+            Craft::error('Unable to find the payment intent id: '.$checkoutSession['payment_intent'], __METHOD__);
+            return $this->redirect('/');
+        }
+
+        $charge = $paymentIntent['charges']['data'][0];
+
+        $order = StripePlugin::$app->orders->getOrderByStripeId($charge['id']);
+
+        if ($order === null){
+            Craft::error('Unable to find the order by stripe id: '.$charge['id'], __METHOD__);
+            return $this->redirect('/');
+        }
+
+        $returnUrl = $order->getPaymentForm()->returnUrl;
+
+        $url = Craft::$app->getView()->renderObjectTemplate($returnUrl, $order);
+
+        return $this->redirect($url);
+    }
 }

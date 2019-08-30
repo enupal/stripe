@@ -12,13 +12,8 @@ use craft\web\Controller as BaseController;
 use Craft;
 use enupal\stripe\Stripe;
 
-class CouponsController extends BaseController
+class CouponsController extends FrontEndController
 {
-    // Disable CSRF validation for the entire controller
-    public $enableCsrfValidation = false;
-
-    protected $allowAnonymous = true;
-
     /**
      * @return \yii\web\Response
      * @throws \Throwable

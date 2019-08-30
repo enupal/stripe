@@ -43,12 +43,10 @@ class OrderStatusesController extends BaseController
         ]);
     }
 
-    /**
-     * @return null|\yii\web\Response
-     * @throws \yii\base\Exception
-     * @throws \yii\db\Exception
-     * @throws \yii\web\BadRequestHttpException
-     */
+	/**
+	 * @return null|\yii\web\Response
+	 * @throws \yii\web\BadRequestHttpException
+	 */
     public function actionSave()
     {
         $this->requirePostRequest();
