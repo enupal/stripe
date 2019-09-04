@@ -1,5 +1,10 @@
 # Stripe Payments Changelog
 
+## 2.0.3 - 2019.09.04
+
+### Added
+- Added back the `getLogoAsset` method in the PaymentForm element (returns the first logo)
+
 ## 2.0.2 - 2019.09.04
 
 ### Fixed
