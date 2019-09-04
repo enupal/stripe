@@ -107,6 +107,8 @@ class Checkout extends Component
 	        }
         }
 
+	    $sessionParams['locale'] = $form->language;
+
         $session = Session::create($sessionParams);
 
         return $session;

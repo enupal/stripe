@@ -7,7 +7,7 @@
 
 Stripe Payments allows customers sign up for recurring and one-time payments with Stripe, perfect for orders, donations, subscriptions, and events. Create simple payment forms in seconds easily without coding. For Craft CMS 3.x
 
-![Screenshot](https://enupal.com/assets/docs/stripe-payments-cover-white.png)
+![Screenshot](https://enupal.com/assets/docs/stripe-payments-new-checkout.png)
 
 ## Features
 
