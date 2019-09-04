@@ -1,6 +1,11 @@
 # Stripe Payments Changelog
 
-## 2.0.1 - 2019.08.13
+## 2.0.2 - 2019.09.04
+
+### Fixed
+- Fixed issue where locale was not passed to the new stripe checkout
+
+## 2.0.1 - 2019.08.30
 
 ### Fixed
 - Fixed redirect issue after payment on new stripe checkout.
