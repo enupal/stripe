@@ -711,6 +711,16 @@ class PaymentForm extends Element
         return $logoElement;
     }
 
+	/**
+	 * @return mixed|null
+	 */
+	public function getLogoAsset()
+	{
+		$logoElement = $this->getLogoAssets();
+
+		return $logoElement[0] ?? null;
+	}
+
     /**
      * @param string $default
      *
