@@ -1,5 +1,13 @@
 # Stripe Payments Changelog
 
+## 2.0.5 - 2019.09.07
+
+### Fixed
+- Fixed issue when one time fee is set to 0 
+- Fixed issue when sync subscription orders ([#46])
+
+[#46]: https://github.com/enupal/stripe/issues/46
+
 ## 2.0.4 - 2019.09.07
 
 ### Added
