@@ -160,7 +160,7 @@ class Checkout extends Component
 
             $plan = StripePlugin::$app->plans->getStripePlan($planId);
             $setupFee = StripePlugin::$app->orders->getSetupFeeFromMatrix($planId, $paymentForm);
-            if ($setupFee){
+            if ($setupFee && $setupFee > 0){
                 $oneTineFee = [
                     'amount' =>  Stripe::$app->orders->convertToCents($setupFee, $paymentForm->currency),
                     'currency' => $paymentForm->currency,
@@ -197,7 +197,7 @@ class Checkout extends Component
 
         // One time fees
         if ($paymentForm->subscriptionType == SubscriptionType::SINGLE_PLAN){
-            if ($paymentForm->singlePlanSetupFee){
+            if ($paymentForm->singlePlanSetupFee && $paymentForm->singlePlanSetupFee > 0){
                 $oneTineFee = [
                     'amount' =>  Stripe::$app->orders->convertToCents($paymentForm->singlePlanSetupFee, $paymentForm->currency),
                     'currency' => $paymentForm->currency,
