@@ -26,6 +26,7 @@ class Settings extends Model
     public $returnUrl;
     public $defaultCurrency = 'USD';
     public $chargeDescription = 'Order from {email}';
+    public $oneTimeSetupFeeLabel = 'One time set-up fee';
     // Tax
     public $enableTaxes = 0;
     public $taxType = 0;

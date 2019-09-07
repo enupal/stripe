@@ -128,6 +128,16 @@ If you instead want to cancel the subscription at the end of the current billing
                 value: settings.chargeDescription,
                 errors: settings.getErrors('chargeDescription')
             }) }}
+
+            <hr>
+            {{ forms.textField({
+                label: "One time set-up fee label"|t('enupal-stripe'),
+                instructions: "It is displayed when a one-time setup fee to a subscription and the new Stripe Checkout is enabled"|t('enupal-stripe'),
+                id: 'oneTimeSetupFeeLabel',
+                name: 'oneTimeSetupFeeLabel',
+                value: settings.oneTimeSetupFeeLabel,
+                errors: settings.getErrors('oneTimeSetupFeeLabel')
+            }) }}
         {% endnamespace %}
 
     </div>

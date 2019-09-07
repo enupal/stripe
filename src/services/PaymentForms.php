@@ -446,9 +446,11 @@ class PaymentForms extends Component
             'de' => 'German',
             'it' => 'Italian',
             'ja' => 'Japanese',
-            'no' => 'Norwegian',
+            'nb' => 'Norwegian',
             'es' => 'Spanish',
             'sv' => 'Swedish',
+            'pt' => 'Portuguese',
+            'pl' => 'Polish'
         ];
 
         return $languages;
