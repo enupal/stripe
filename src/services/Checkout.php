@@ -130,6 +130,8 @@ class Checkout extends Component
         // By default assume that is a single plan
         $plan = $paymentForm->getSinglePlan();
         $trialPeriodDays = null;
+        $settings = Stripe::$app->settings->getSettings();
+        $oneTineFee = [];
 
         if ($paymentForm->subscriptionType == SubscriptionType::SINGLE_PLAN && $paymentForm->enableCustomPlanAmount) {
             if ($data['amount'] > 0){
@@ -157,6 +159,15 @@ class Checkout extends Component
             }
 
             $plan = StripePlugin::$app->plans->getStripePlan($planId);
+            $setupFee = StripePlugin::$app->orders->getSetupFeeFromMatrix($planId, $paymentForm);
+            if ($setupFee){
+                $oneTineFee = [
+                    'amount' =>  Stripe::$app->orders->convertToCents($setupFee, $paymentForm->currency),
+                    'currency' => $paymentForm->currency,
+                    'name' => $settings->oneTimeSetupFeeLabel,
+                    'quantity' => 1
+                ];
+            }
         }
 
         // Override plan if is a custom plan donation
@@ -183,6 +194,22 @@ class Checkout extends Component
         }
 
         $sessionParams['subscription_data'] = $subscriptionData;
+
+        // One time fees
+        if ($paymentForm->subscriptionType == SubscriptionType::SINGLE_PLAN){
+            if ($paymentForm->singlePlanSetupFee){
+                $oneTineFee = [
+                    'amount' =>  Stripe::$app->orders->convertToCents($paymentForm->singlePlanSetupFee, $paymentForm->currency),
+                    'currency' => $paymentForm->currency,
+                    'name' => $settings->oneTimeSetupFeeLabel,
+                    'quantity' => 1
+                ];
+            }
+        }
+
+        if ($oneTineFee){
+            $sessionParams['line_items'] = [$oneTineFee];
+        }
 
         return $sessionParams;
     }

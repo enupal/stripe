@@ -116,27 +116,11 @@ class PaymentIntents extends Component
     {
         $metadata = $subscription['metadata'];
         $formId = $metadata['stripe_payments_form_id'];
-        $paymentForm = StripePlugin::$app->paymentForms->getPaymentFormById($formId);
         $userId = $metadata['stripe_payments_user_id'];
         $quantity = $metadata['stripe_payments_quantity'];
         $testMode = !$checkoutSession['livemode'];
         $customer = Stripe::$app->customers->getStripeCustomer($subscription['customer']);
         Stripe::$app->customers->registerCustomer($customer, $testMode);
-        $planId = $subscription['plan']['id'];
-
-        if ($paymentForm->subscriptionType == SubscriptionType::SINGLE_PLAN){
-            if ($paymentForm->singlePlanSetupFee){
-                // @todo One-time setup fee for SCA is not supported yet.
-                // StripePlugin::$app->orders->addOneTimeSetupFee($customer, $paymentForm->singlePlanSetupFee, $paymentForm);
-            }
-        }
-
-        if ($paymentForm->subscriptionType == SubscriptionType::MULTIPLE_PLANS){
-            $setupFee = StripePlugin::$app->orders->getSetupFeeFromMatrix($planId, $paymentForm);
-            if ($setupFee){
-                // StripePlugin::$app->orders->addOneTimeSetupFee($customer, $setupFee, $paymentForm);
-            }
-        }
 
         $invoice = Stripe::$app->customers->getStripeInvoice($subscription['latest_invoice']);
 
