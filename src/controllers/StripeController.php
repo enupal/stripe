@@ -174,18 +174,28 @@ class StripeController extends BaseController
             return $this->redirect('/');
         }
         // Get the order from the payment intent id
-        $paymentIntent = StripePlugin::$app->paymentIntents->getPaymentIntent($checkoutSession['payment_intent']);
-        if ($paymentIntent === null){
-            Craft::error('Unable to find the payment intent id: '.$checkoutSession['payment_intent'], __METHOD__);
+        $stripeId = null;
+        if ($checkoutSession['payment_intent'] !== null){
+            $paymentIntent = StripePlugin::$app->paymentIntents->getPaymentIntent($checkoutSession['payment_intent']);
+            if ($paymentIntent === null){
+                Craft::error('Unable to find the payment intent id: '.$checkoutSession['payment_intent'], __METHOD__);
+                return $this->redirect('/');
+            }
+
+            $stripeId = $paymentIntent['charges']['data'][0];
+        }else if($checkoutSession['subscription'] !== null){
+            $stripeId = $checkoutSession['subscription'];
+        }
+
+        if ($stripeId === null){
+            Craft::error('Unable to find the stripe id from the checkout session: ', __METHOD__);
             return $this->redirect('/');
         }
 
-        $charge = $paymentIntent['charges']['data'][0];
-
-        $order = StripePlugin::$app->orders->getOrderByStripeId($charge['id']);
+        $order = StripePlugin::$app->orders->getOrderByStripeId($stripeId);
 
         if ($order === null){
-            Craft::error('Unable to find the order by stripe id: '.$charge['id'], __METHOD__);
+            Craft::error('Unable to find the order by stripe id: '.$stripeId, __METHOD__);
             return $this->redirect('/');
         }
 
