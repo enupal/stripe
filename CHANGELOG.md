@@ -1,5 +1,16 @@
 # Stripe Payments Changelog
 
+## 2.0.4 - 2019.09.07
+
+### Added
+- Added one-time setup fee to subscriptions when using new Stripe checkout
+- Added Portuguese and Polish languages
+- Added the `oneTimeSetupFeeLabel` setting.
+
+### Fixed
+- Fixed redirect issue after subscription payment on new Stripe Checkout. 
+- Fixed issue when using the Norwegian language 
+
 ## 2.0.3 - 2019.09.04
 
 ### Added
