@@ -1,5 +1,10 @@
 # Stripe Payments Changelog
 
+## 2.0.6 - 2019.09.11
+
+### Added
+- Added API version to `2019-09-09`
+
 ## 2.0.5 - 2019.09.07
 
 ### Fixed
