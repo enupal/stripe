@@ -106,6 +106,7 @@ class Settings extends Component
         if ($privateKey) {
             Stripe::setAppInfo('Craft CMS - '.StripePlugin::getInstance()->name, StripePlugin::getInstance()->version, StripePlugin::getInstance()->documentationUrl, self::STRIPE_PARTNER_ID);
             Stripe::setApiKey($privateKey);
+            Stripe::setApiVersion('2019-09-09');
         }
         else{
             throw new \Exception(Craft::t('enupal-stripe','Unable to get the stripe keys.'));
