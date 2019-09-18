@@ -138,6 +138,7 @@ class PaymentFormsQuery extends ElementQuery
             'enupalstripe_forms.enableCheckout',
             'enupalstripe_forms.checkoutSuccessUrl',
             'enupalstripe_forms.checkoutCancelUrl',
+            'enupalstripe_forms.checkoutSubmitType',
             'enupalstripe_forms.paymentType',
             'enupalstripe_forms.companyName',
             'enupalstripe_forms.currency',

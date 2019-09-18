@@ -72,6 +72,15 @@
         errors: stripeForm.getErrors('checkoutCancelUrl')
     }) }}
 
+    {{ forms.selectField({
+        label: "Checkout Submit Type <span class='info'>Describes the type of transaction being performed by Checkout in order to customize relevant text on the page, such as the submit button. submit_type can only be specified on Checkout Sessions in payment mode, but not Checkout Sessions in subscription or setup mode</span>"|t('enupal-stripe'),
+        id: 'checkoutSubmitType',
+        name: 'checkoutSubmitType',
+        value: stripeForm.checkoutSubmitType,
+        options: craft.enupalstripe.getSubmitTypesAsOptions(),
+        errors: stripeForm.getErrors('checkoutSubmitType')
+    }) }}
+
     {% set paymentTypeInput %}
         <div class="flex">
             <div class="nowrapper">

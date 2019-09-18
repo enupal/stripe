@@ -408,6 +408,14 @@ class StripeVariable extends Behavior
     /**
      * @return array
      */
+    public function getSubmitTypesAsOptions()
+    {
+        return Stripe::$app->checkout->getSubmitTypesAsOptions();
+    }
+
+    /**
+     * @return array
+     */
     public function getSofortCountriesAsOptions()
     {
         return Stripe::$app->paymentForms->getSofortCountriesAsOptions();

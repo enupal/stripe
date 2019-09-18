@@ -1,5 +1,10 @@
 # Stripe Payments Changelog
 
+## 2.1.1 - 2019.09.18
+
+### Added
+- Added the `Checkout Submit Type` setting for when thew new Stripe Checkout is enabled. Supported values are auto, book, donate, or pay
+
 ## 2.0.6 - 2019.09.11
 
 ### Added

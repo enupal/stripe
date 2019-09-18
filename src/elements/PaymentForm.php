@@ -14,6 +14,7 @@ use craft\behaviors\FieldLayoutBehavior;
 use craft\elements\db\ElementQueryInterface;
 use craft\helpers\Json;
 use enupal\stripe\elements\actions\Delete;
+use enupal\stripe\enums\SubmitTypes;
 use enupal\stripe\models\Settings;
 use enupal\stripe\enums\SubscriptionType;
 use enupal\stripe\Stripe;
@@ -63,6 +64,11 @@ class PaymentForm extends Element
      * @var string
      */
     public $checkoutSuccessUrl;
+
+    /**
+     * @var string
+     */
+    public $checkoutSubmitType = SubmitTypes::PAY;
 
     /**
      * @var string Payment Type
@@ -451,6 +457,7 @@ class PaymentForm extends Element
         $record->enableCheckout = $this->enableCheckout;
         $record->checkoutCancelUrl = $this->checkoutCancelUrl;
         $record->checkoutSuccessUrl = $this->checkoutSuccessUrl;
+        $record->checkoutSubmitType = $this->checkoutSubmitType;
         $record->paymentType = $this->paymentType;
         $record->currency = $this->currency;
         $record->language = $this->language;
