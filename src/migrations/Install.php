@@ -9,6 +9,7 @@
 namespace enupal\stripe\migrations;
 
 use craft\db\Migration;
+use enupal\stripe\enums\SubmitTypes;
 
 /**
  * Installation Migration
@@ -59,6 +60,7 @@ class Install extends Migration
             'enableCheckout' => $this->boolean()->defaultValue(true),
             'paymentType' => $this->string(),
             'checkoutCancelUrl' => $this->string(),
+            'checkoutSubmitType' => $this->string()->defaultValue(SubmitTypes::PAY),
             'checkoutSuccessUrl' => $this->string(),
             'currency' => $this->string()->defaultValue('USD'),
             'language' => $this->string()->defaultValue('en'),

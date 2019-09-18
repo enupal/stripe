@@ -86,6 +86,7 @@
             var $elementsWrapper = $("#fields-paymentType-field");
             var $successUrlWrapper = $("#fields-checkoutSuccessUrl-field");
             var $cancelUrlWrapper = $("#fields-checkoutCancelUrl-field");
+            var $submitTypeWrapper = $("#fields-checkoutSubmitType-field");
 
             var value = $("input[name='fields[enableCheckout]']").val();
 
@@ -95,12 +96,14 @@
 
                 $successUrlWrapper.addClass('hidden');
                 $cancelUrlWrapper.addClass('hidden');
+                $submitTypeWrapper.addClass('hidden');
             }
             else{
                 $("#fields-sca-warning").addClass("hidden");
                 $elementsWrapper.addClass('hidden');
                 $successUrlWrapper.removeClass('hidden');
                 $cancelUrlWrapper.removeClass('hidden');
+                $submitTypeWrapper.removeClass('hidden');
             }
         },
 
