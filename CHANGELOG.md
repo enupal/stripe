@@ -1,5 +1,10 @@
 # Stripe Payments Changelog
 
+## 2.1.2 - 2019.11.13
+
+### Fixed
+- Fixed issue when retrieving plans were limit to 10.
+
 ## 2.1.1 - 2019.09.18
 
 ### Added
