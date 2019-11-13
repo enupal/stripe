@@ -25,7 +25,7 @@ class Plans extends Component
      */
     public function getUpdatePlans()
     {
-        $options = $this->getStripePlans();
+        $options = $this->getStripePlans(true);
 
         if (empty($options)){
             return false;
@@ -97,19 +97,33 @@ class Plans extends Component
      * @throws \yii\base\InvalidConfigException
      * @throws \Exception
      */
-    public function getStripePlans()
+    public function getStripePlans($checkDuplicateLabels = false)
     {
         $options = [];
         StripePlugin::$app->settings->initializeStripe();
         $settings =  StripePlugin::$app->settings->getSettings();
-
-        $plans = Plan::all();
+        $startingAfter = null;
+        $plans = Plan::all(['limit' => 50, 'starting_after' => $startingAfter]);
         $option['label'] = 'Select Plan...';
         $option['value'] = '';
         $option['default'] = '';
         array_push($options, $option);
-        if (isset($plans['data'])) {
+
+        while(isset($plans['data']) && is_array($plans['data']))
+        {
             foreach ($plans['data'] as $plan) {
+                $isValid = true;
+                if ($checkDuplicateLabels){
+                    foreach ($options as $option) {
+                        if ($option['label'] === $this->getDefaultPlanName($plan)){
+                            $isValid = false;
+                            break;
+                        }
+                    }
+                }
+                if (!$isValid){
+                    continue;
+                }
                 if ($settings->plansWithNickname){
                     if ($plan['nickname']) {
                         $this->populatePlan($plan, $options);
@@ -117,6 +131,12 @@ class Plans extends Component
                 }else{
                     $this->populatePlan($plan, $options);
                 }
+            }
+            $startingAfter = $plan['id'];
+            if ($plans['has_more']){
+                $plans = Plan::all(['limit' => 50, 'starting_after' => $startingAfter]);
+            }else{
+                $plans = null;
             }
         }
 
