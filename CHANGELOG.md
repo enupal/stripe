@@ -1,5 +1,14 @@
 # Stripe Payments Changelog
 
+## 2.1.3 - 2019.11.21
+
+### Added
+- Added support to display payment errors, e.g: declined cards. [More info](https://enupal.com/craft-plugins/stripe-payments/docs/templating/display-errors)
+
+### Fixed
+- Fixed js error when using IE11
+- Fixed issue displaying more that one payment form on the same page
+
 ## 2.1.2 - 2019.11.13
 
 ### Fixed

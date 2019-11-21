@@ -27,11 +27,9 @@ use enupal\stripe\Stripe;
 use enupal\stripe\Stripe as StripePlugin;
 use Stripe\Charge;
 use Stripe\Customer;
-use Stripe\Error\Card;
+use Stripe\Error\Base;
 use Stripe\Invoice;
 use Stripe\InvoiceItem;
-use Stripe\PaymentIntent;
-use Stripe\Plan;
 use Stripe\Refund;
 use Stripe\Source;
 use yii\base\Component;
@@ -547,7 +545,12 @@ class Orders extends Component
         $stripeId = null;
 
         if (!$settings->useSca){
-            $customer = $this->getCustomer($order->email, $token, $isNew, $order->testMode);
+            $customer = $this->getCustomer($order, $token, $isNew, $order->testMode);
+
+            if (is_null($customer)){
+                return $order;
+            }
+
             if ($paymentForm->enableSubscriptions){
                 $stripeId = $this->handleSubscription($paymentForm, $customer, $data, $order);
             }else{
@@ -556,7 +559,7 @@ class Orders extends Component
 
             if (is_null($stripeId)){
                 Craft::error('Something went wrong making the charge to Stripe. -CHECK PREVIOUS LOGS-', __METHOD__);
-                return $result;
+                return $order;
             }
 
             if ($data['couponCode'] && ($paymentType == PaymentType::IDEAL || $paymentType==PaymentType::SOFORT)){
@@ -668,9 +671,10 @@ class Orders extends Component
      * Stripe Charge given the config array
      *
      * @param $settings
+     * @param Order $order
      * @return null|\Stripe\ApiResource
      */
-    public function charge($settings)
+    public function charge($settings, $order)
     {
         $charge = null;
         $pluginSettings = StripePlugin::$app->settings->getSettings();
@@ -680,30 +684,13 @@ class Orders extends Component
 
         try {
             $charge = Charge::create($settings);
-        } catch (Card $e) {
-            $body = $e->getJsonBody();
-            Craft::error('Stripe - declined error occurred: '.json_encode($body), __METHOD__);
-            $this->throwException($e);
-        } catch (\Stripe\Error\RateLimit $e) {
-            Craft::error('Stripe - Too many requests made to the API too quickly: '.$e->getMessage(), __METHOD__);
-            $this->throwException($e);
-        } catch (\Stripe\Error\InvalidRequest $e) {
-            Craft::error('Stripe - Invalid parameters were supplied to Stripe\'s API: '.$e->getMessage(), __METHOD__);
-            $this->throwException($e);
-        } catch (\Stripe\Error\Authentication $e) {
-            // (maybe changed API keys recently)
-            Craft::error('Stripe - Authentication with Stripe\'s API failed: '.$e->getMessage(), __METHOD__);
-            $this->throwException($e);
-        } catch (\Stripe\Error\ApiConnection $e) {
-            Craft::error('Stripe - Network communication with Stripe failed: '.$e->getMessage(), __METHOD__);
-            $this->throwException($e);
-        } catch (\Stripe\Error\Base $e) {
+        } catch (Base $e) {
             Craft::error('Stripe - an error occurred: '.$e->getMessage(), __METHOD__);
-            $this->throwException($e);
+            $order->addError('stripePayments', $e->getMessage());
         } catch (\Exception $e) {
             // Something else happened, completely unrelated to Stripe
             Craft::error('Stripe - something went wrong: '.$e->getMessage(), __METHOD__);
-            $this->throwException($e);
+            $order->addError('stripePayments', $e->getMessage());
         }
 
         return $charge;
@@ -1015,7 +1002,7 @@ class Orders extends Component
             'shipping' => $addressData ? $this->getShipping($addressData) : []
         ];
 
-        $charge = $this->charge($chargeSettings);
+        $charge = $this->charge($chargeSettings, $order);
 
         return $charge;
     }
@@ -1242,7 +1229,7 @@ class Orders extends Component
     /**
      * Get a Stripe Customer Object
      *
-     * @param $email
+     * @param Order $order
      * @param $token
      * @param $isNew
      * @param bool $testMode
@@ -1250,12 +1237,12 @@ class Orders extends Component
      * @throws \Throwable
      * @throws \yii\db\StaleObjectException
      */
-    private function getCustomer($email, $token, &$isNew, $testMode = true)
+    private function getCustomer($order, $token, &$isNew, $testMode = true)
     {
         $stripeCustomer = null;
         // Check if customer exists
         $customerRecord = CustomerRecord::findOne([
-            'email' => $email,
+            'email' => $order->email,
             'testMode' => $testMode
         ]);
 
@@ -1277,17 +1264,30 @@ class Orders extends Component
         }
 
         if (!isset($stripeCustomer->id)){
-            $stripeCustomer = Customer::create([
-                'email' => $email,
-                'source' => $token
-            ]);
 
-            StripePlugin::$app->customers->createCustomer($email, $stripeCustomer->id, $testMode);
+            try {
+                $stripeCustomer = Customer::create([
+                    'email' => $order->email,
+                    'source' => $token
+                ]);
+            } catch (Base $e) {
+                Craft::error('Stripe Error creating customer: ' . $e->getMessage(), __METHOD__);
+                $order->addError('stripePayments', $e->getMessage());
+                return null;
+            }
+
+            StripePlugin::$app->customers->createCustomer($order->email, $stripeCustomer->id, $testMode);
             $isNew = true;
         }else{
             // Add support for Stripe API 2018-07-27
             $stripeCustomer->source = $token;
-            $stripeCustomer->save();
+            try {
+                $stripeCustomer->save();
+            } catch (Base $e) {
+                Craft::error('Stripe Error saving customer: ' . $e->getMessage(), __METHOD__);
+                $order->addError('stripePayments', $e->getMessage());
+                return null;
+            }
         }
 
         return $stripeCustomer;
@@ -1365,6 +1365,7 @@ class Orders extends Component
         return $shipping;
     }
 
+
     /**
      * @param $paymentForm
      * @param $customer
@@ -1373,7 +1374,8 @@ class Orders extends Component
      * @param $isNew
      * @param $order
      * @return mixed|null
-     * @throws \Exception
+     * @throws \Throwable
+     * @throws \yii\base\Exception
      */
     private function handleOneTimePayment($paymentForm, $customer, $data, $token, $isNew, $order)
     {
