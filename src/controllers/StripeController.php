@@ -72,6 +72,23 @@ class StripeController extends BaseController
             throw new NotFoundHttpException("Unable to process the Payment");
         }
 
+        if ($order->getErrors()){
+            // Respond to ajax requests with JSON
+            if (Craft::$app->getRequest()->getAcceptsJson()) {
+                return $this->asJson([
+                    'success' => false,
+                    'errors' => $order->getErrors(),
+                ]);
+            }
+
+            // Return the form using it's name as a variable on the front-end
+            Craft::$app->getUrlManager()->setRouteParams([
+                $order->getPaymentForm()->handle => $order
+            ]);
+
+            return null;
+        }
+
         return $this->redirectToPostedUrl($order);
     }
 

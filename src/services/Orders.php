@@ -27,7 +27,8 @@ use enupal\stripe\Stripe;
 use enupal\stripe\Stripe as StripePlugin;
 use Stripe\Charge;
 use Stripe\Customer;
-use Stripe\Error\Card;
+use Stripe\Error\Base;
+use Stripe\Error\Card as ErrorCard;
 use Stripe\Invoice;
 use Stripe\InvoiceItem;
 use Stripe\PaymentIntent;
@@ -547,7 +548,12 @@ class Orders extends Component
         $stripeId = null;
 
         if (!$settings->useSca){
-            $customer = $this->getCustomer($order->email, $token, $isNew, $order->testMode);
+            $customer = $this->getCustomer($order, $token, $isNew, $order->testMode);
+
+            if (is_null($customer)){
+                return $order;
+            }
+
             if ($paymentForm->enableSubscriptions){
                 $stripeId = $this->handleSubscription($paymentForm, $customer, $data, $order);
             }else{
@@ -680,7 +686,7 @@ class Orders extends Component
 
         try {
             $charge = Charge::create($settings);
-        } catch (Card $e) {
+        } catch (ErrorCard $e) {
             $body = $e->getJsonBody();
             Craft::error('Stripe - declined error occurred: '.json_encode($body), __METHOD__);
             $this->throwException($e);
@@ -1242,7 +1248,7 @@ class Orders extends Component
     /**
      * Get a Stripe Customer Object
      *
-     * @param $email
+     * @param Order $order
      * @param $token
      * @param $isNew
      * @param bool $testMode
@@ -1250,12 +1256,12 @@ class Orders extends Component
      * @throws \Throwable
      * @throws \yii\db\StaleObjectException
      */
-    private function getCustomer($email, $token, &$isNew, $testMode = true)
+    private function getCustomer($order, $token, &$isNew, $testMode = true)
     {
         $stripeCustomer = null;
         // Check if customer exists
         $customerRecord = CustomerRecord::findOne([
-            'email' => $email,
+            'email' => $order->email,
             'testMode' => $testMode
         ]);
 
@@ -1277,12 +1283,19 @@ class Orders extends Component
         }
 
         if (!isset($stripeCustomer->id)){
-            $stripeCustomer = Customer::create([
-                'email' => $email,
-                'source' => $token
-            ]);
 
-            StripePlugin::$app->customers->createCustomer($email, $stripeCustomer->id, $testMode);
+            try {
+                $stripeCustomer = Customer::create([
+                    'email' => $order->email,
+                    'source' => $token
+                ]);
+            } catch (Base $e) {
+                Craft::error('Stripe Error creating customer: ' . $e->getMessage(), __METHOD__);
+                $order->addError('stripePayments', $e->getMessage());
+                return null;
+            }
+
+            StripePlugin::$app->customers->createCustomer($order->email, $stripeCustomer->id, $testMode);
             $isNew = true;
         }else{
             // Add support for Stripe API 2018-07-27
