@@ -1297,7 +1297,7 @@ class Orders extends Component
      * @param $data
      * @return array
      */
-    private function getStripeMetadata($data)
+    public function getStripeMetadata($data)
     {
         $metadata = [];
         if (isset($data['metadata'])){

@@ -264,6 +264,12 @@ class Checkout extends Component
             'metadata' => $metadata
         ];
 
+        $metadata = StripePlugin::$app->orders->getStripeMetadata($sessionParams['payment_intent_data']);
+
+        $sessionParams['payment_intent_data'] = [
+            'metadata' => $metadata
+        ];
+
         return $sessionParams;
     }
 
