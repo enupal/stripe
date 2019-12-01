@@ -1297,7 +1297,7 @@ class Orders extends Component
      * @param $data
      * @return array
      */
-    private function getStripeMetadata($data)
+    public function getStripeMetadata($data)
     {
         $metadata = [];
         if (isset($data['metadata'])){
@@ -1310,7 +1310,7 @@ class Orders extends Component
                         if ($pos == 0){
                             $value = $val;
                         }else{
-                            $value .= ' - '.$val;
+                            $value .= ', '.$val;
                         }
                         $pos++;
                     }

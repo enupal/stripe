@@ -1,5 +1,10 @@
 # Stripe Payments Changelog
 
+## 2.1.4 - 2019.12.01
+
+### Fixed
+- Fixed issue when using checkboxes field and SCA was enabled
+
 ## 2.1.3 - 2019.11.21
 
 ### Added
