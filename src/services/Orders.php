@@ -1310,7 +1310,7 @@ class Orders extends Component
                         if ($pos == 0){
                             $value = $val;
                         }else{
-                            $value .= ' - '.$val;
+                            $value .= ', '.$val;
                         }
                         $pos++;
                     }
