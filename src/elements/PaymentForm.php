@@ -516,14 +516,17 @@ class PaymentForm extends Element
      */
     public function rules()
     {
-        return [
-            [['name', 'handle'], 'required'],
-            [['paymentType'], 'required', 'when' => function($model) {
-                return $model->enableCheckout != 1;
-            }],
-            [['name', 'handle'], 'string', 'max' => 255],
-            [['name', 'handle'], UniqueValidator::class, 'targetClass' => PaymentFormRecord::class]
-        ];
+        $this->setScenario(self::SCENARIO_DEFAULT);
+        $rules = [];
+        $rules[] = [['name', 'handle'], 'required'];
+        $rules[] = [['paymentType'], 'required', 'when' => function($model) {
+            return $model->enableCheckout != 1;
+        }];
+        $rules[] = [['name', 'handle'], 'string', 'max' => 255];
+        $rules[] = [['name', 'handle'], UniqueValidator::class, 'targetClass' => PaymentFormRecord::class];
+        $rules[] = [['name', 'handle'], 'required'];
+
+        return $rules;
     }
 
     /**
