@@ -511,7 +511,8 @@ class Orders extends Component
         }
 
         $amount = $data['amount'] ?? null;
-        if (empty($amount) || $amount == 'NaN'){
+
+        if ($amount === '' || $amount == 'NaN' || is_null($amount)){
             Craft::error('Unable to get the final amount from the post request', __METHOD__);
             return $result;
         }
@@ -1437,7 +1438,7 @@ class Orders extends Component
             $planId = $plan['id'];
 
             // Lets create an invoice item if there is a setup fee
-            if ($paymentForm->singlePlanSetupFee){
+            if ($paymentForm->singlePlanSetupFee && $paymentForm->singlePlanSetupFee > 0){
                 $this->addOneTimeSetupFee($customer, $paymentForm->singlePlanSetupFee, $paymentForm);
             }
 
