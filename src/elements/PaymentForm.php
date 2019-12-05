@@ -24,6 +24,7 @@ use enupal\stripe\elements\db\PaymentFormsQuery;
 use enupal\stripe\records\PaymentForm as PaymentFormRecord;
 use enupal\stripe\Stripe as StripePlugin;
 use craft\validators\UniqueValidator;
+use yii\base\Model;
 
 /**
  * PaymentForm represents a entry element.
@@ -149,7 +150,7 @@ class PaymentForm extends Element
 
     /**
      * @var Settings
-    */
+     */
     protected $settings;
 
     /**
@@ -169,7 +170,9 @@ class PaymentForm extends Element
     {
         parent::init();
 
-        if (!$this->settings){
+        $this->setScenario(Model::SCENARIO_DEFAULT);
+
+        if (!$this->settings) {
             $this->settings = StripePlugin::$app->settings->getSettings();
         }
 
@@ -188,11 +191,11 @@ class PaymentForm extends Element
         // by default return to the same page
         $returnUrl = '';
 
-        if ($this->returnUrl){
+        if ($this->returnUrl) {
             $returnUrl = $this->getSiteUrl($this->returnUrl);
         }
 
-        if ($order){
+        if ($order) {
             $returnUrl = Craft::$app->getView()->renderObjectTemplate($returnUrl, $order);
         }
 
@@ -227,7 +230,7 @@ class PaymentForm extends Element
      */
     public function getFieldContext(): string
     {
-        return 'enupalStripeForm:'.$this->id;
+        return 'enupalStripeForm:' . $this->id;
     }
 
     /**
@@ -297,7 +300,7 @@ class PaymentForm extends Element
     public function getCpEditUrl()
     {
         return UrlHelper::cpUrl(
-            'enupal-stripe/forms/edit/'.$this->id
+            'enupal-stripe/forms/edit/' . $this->id
         );
     }
 
@@ -444,7 +447,7 @@ class PaymentForm extends Element
             $record = PaymentFormRecord::findOne($this->id);
 
             if (!$record) {
-                throw new \Exception('Invalid PaymentForm ID: '.$this->id);
+                throw new \Exception('Invalid PaymentForm ID: ' . $this->id);
             }
         } else {
             $record->id = $this->id;
@@ -478,8 +481,8 @@ class PaymentForm extends Element
         $record->enableSubscriptions = $this->enableSubscriptions;
         $record->subscriptionType = $this->subscriptionType;
 
-        if ($this->enableSubscriptions){
-            if ($this->subscriptionType == SubscriptionType::SINGLE_PLAN){
+        if ($this->enableSubscriptions) {
+            if ($this->subscriptionType == SubscriptionType::SINGLE_PLAN) {
                 $record->singlePlanSetupFee = $this->singlePlanSetupFee;
                 $record->singlePlanInfo = $this->singlePlanInfo;
                 $record->enableCustomPlanAmount = $this->enableCustomPlanAmount;
@@ -516,12 +519,13 @@ class PaymentForm extends Element
      */
     public function rules()
     {
-        $this->setScenario(self::SCENARIO_DEFAULT);
         $rules = [];
         $rules[] = [['name', 'handle'], 'required'];
-        $rules[] = [['paymentType'], 'required', 'when' => function($model) {
-            return $model->enableCheckout != 1;
-        }];
+        $rules[] = [
+            ['paymentType'], 'required', 'when' => function($model) {
+                return $model->enableCheckout != 1;
+            }
+        ];
         $rules[] = [['name', 'handle'], 'string', 'max' => 255];
         $rules[] = [['name', 'handle'], UniqueValidator::class, 'targetClass' => PaymentFormRecord::class];
         $rules[] = [['name', 'handle'], 'required'];
@@ -537,7 +541,7 @@ class PaymentForm extends Element
      */
     private function getSiteUrl($url)
     {
-        if (UrlHelper::isAbsoluteUrl($url)){
+        if (UrlHelper::isAbsoluteUrl($url)) {
             return $url;
         }
 
@@ -575,37 +579,37 @@ class PaymentForm extends Element
         $calculateFinalAmount = $options['calculateFinalAmount'] ?? true;
         $couponData = $this->getCouponData($options);
 
-        if ($logoAssets){
-        	foreach ($logoAssets as $logoAsset){
-		        $logoUrl = $logoAsset->getUrl();
-		        // Only the first image for legacy checkout
-		        break;
-	        }
+        if ($logoAssets) {
+            foreach ($logoAssets as $logoAsset) {
+                $logoUrl = $logoAsset->getUrl();
+                // Only the first image for legacy checkout
+                break;
+            }
         }
 
         $quantity = (int)($options['quantity'] ?? 1);
 
         $amount = $options['amount'] ?? $this->amount;
-        if ($calculateFinalAmount){
+        if ($calculateFinalAmount) {
             $amount = $amount * $quantity;
         }
         $currency = $this->currency ?? 'USD';
         $multiplePlansAmounts = [];
         $setupFees = [];
 
-        if ($this->enableSubscriptions){
-            if ($this->subscriptionType == SubscriptionType::SINGLE_PLAN){
-                if (!$this->enableCustomPlanAmount){
+        if ($this->enableSubscriptions) {
+            if ($this->subscriptionType == SubscriptionType::SINGLE_PLAN) {
+                if (!$this->enableCustomPlanAmount) {
                     $plan = Json::decode($this->singlePlanInfo, true);
                     $currency = strtoupper($plan['currency']);
                     $amount = StripePlugin::$app->plans->getPlanAmount($plan, $quantity);
                 }
-            }else{
+            } else {
                 // Multiple plans
                 foreach ($this->enupalMultiplePlans as $item) {
-                    if ($item->selectPlan->value){
+                    if ($item->selectPlan->value) {
                         $plan = StripePlugin::$app->plans->getStripePlan($item->selectPlan->value);
-                        if ($plan){
+                        if ($plan) {
                             $multiplePlansAmounts[$plan->id]['amount'] = StripePlugin::$app->plans->getPlanAmount($plan, $quantity);
                             $multiplePlansAmounts[$plan->id]['currency'] = $plan['currency'];
                             $setupFee = StripePlugin::$app->orders->getSetupFeeFromMatrix($plan->id, $this);
@@ -619,13 +623,13 @@ class PaymentForm extends Element
         $currentUser = Craft::$app->getUser()->getIdentity();
         $email = '';
 
-        if ($this->settings->currentUserEmail){
+        if ($this->settings->currentUserEmail) {
             $email = $currentUser->email ?? '';
         }
 
         $applyTax = false;
         // Tax logic - apply just to subscriptions
-        if ($this->enableSubscriptions){
+        if ($this->enableSubscriptions) {
             $applyTax = true;
         }
 
@@ -646,7 +650,7 @@ class PaymentForm extends Element
             'testMode' => $this->settings->testMode,
             'enableRecurringPayment' => (boolean)$this->enableRecurringPayment,
             'recurringPaymentType' => $this->recurringPaymentType,
-            'customAmountLabel' => Craft::$app->view->renderString($this->customAmountLabel ?? '' , ['button' => $this]),
+            'customAmountLabel' => Craft::$app->view->renderString($this->customAmountLabel ?? '', ['button' => $this]),
             // subscriptions
             'enableSubscriptions' => $this->enableSubscriptions,
             'subscriptionType' => $this->subscriptionType,
@@ -667,7 +671,7 @@ class PaymentForm extends Element
             'quantity' => $quantity,
             'stripe' => [
                 'description' => $this->name,
-                'panelLabel' =>  $this->checkoutButtonText ?? 'Pay {{amount}}',
+                'panelLabel' => $this->checkoutButtonText ?? 'Pay {{amount}}',
                 'name' => $this->companyName ?? $info->name,
                 'currency' => $currency,
                 'locale' => $this->language,
@@ -680,23 +684,23 @@ class PaymentForm extends Element
         ];
 
         // Booleans
-        if ($this->enableShippingAddress){
+        if ($this->enableShippingAddress) {
             // 'billingAddress' must be enabled whenever 'shippingAddress' is.
             $publicData['stripe']['shippingAddress'] = true;
             $publicData['stripe']['billingAddress'] = true;
         }
 
-        if ($this->enableBillingAddress){
+        if ($this->enableBillingAddress) {
             $publicData['stripe']['billingAddress'] = true;
         }
 
         return json_encode($publicData);
     }
 
-	/**
-	 * @return array
-	 */
-	public function getLogoAssets()
+    /**
+     * @return array
+     */
+    public function getLogoAssets()
     {
         $logoElement = [];
 
@@ -707,24 +711,24 @@ class PaymentForm extends Element
             }
 
             if (is_array($logos) && count($logos)) {
-            	foreach ($logos as $logo){
-		            $logoElement[] = Craft::$app->elements->getElementById($logo);
-	            }
+                foreach ($logos as $logo) {
+                    $logoElement[] = Craft::$app->elements->getElementById($logo);
+                }
             }
         }
 
         return $logoElement;
     }
 
-	/**
-	 * @return mixed|null
-	 */
-	public function getLogoAsset()
-	{
-		$logoElement = $this->getLogoAssets();
+    /**
+     * @return mixed|null
+     */
+    public function getLogoAsset()
+    {
+        $logoElement = $this->getLogoAssets();
 
-		return $logoElement[0] ?? null;
-	}
+        return $logoElement[0] ?? null;
+    }
 
     /**
      * @param string $default
@@ -735,14 +739,14 @@ class PaymentForm extends Element
      */
     public function getPaymentFormText($default = null)
     {
-        if (is_null($default)){
+        if (is_null($default)) {
             $default = "Pay with card";
         }
 
         $buttonText = Craft::t('site', $default);
 
-        if ($this->buttonText){
-            $buttonText =  Craft::$app->view->renderString($this->buttonText, ['button' => $this]);
+        if ($this->buttonText) {
+            $buttonText = Craft::$app->view->renderString($this->buttonText, ['button' => $this]);
         }
 
         return $buttonText;
@@ -757,7 +761,7 @@ class PaymentForm extends Element
     {
         $text = Craft::t('site', $default);
 
-        if ($this->customAmountLabel){
+        if ($this->customAmountLabel) {
             $text = $this->customAmountLabel;
         }
 
@@ -823,7 +827,7 @@ class PaymentForm extends Element
     {
         $singlePlan = [];
 
-        if ($this->singlePlanInfo){
+        if ($this->singlePlanInfo) {
             $singlePlan = Json::decode($this->singlePlanInfo, true);
             $singlePlan['defaultPlanName'] = Stripe::$app->plans->getDefaultPlanName($singlePlan);
         }
@@ -853,7 +857,7 @@ class PaymentForm extends Element
             'totalAmountLabel' => $options['coupon']['totalAmountLabel'] ?? false,
             'label' => $options['coupon']['label'] ?? Craft::t('site', 'Coupon Code'),
             'successMessage' => $options['coupon']['successMessage'] ?? '{name} - {id}',
-            'errorMessage' => $options['coupon']['errorMessage'] ?? Craft::t('site','This coupon is not valid'),
+            'errorMessage' => $options['coupon']['errorMessage'] ?? Craft::t('site', 'This coupon is not valid'),
         ];
 
         return $couponData;

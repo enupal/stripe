@@ -106,7 +106,10 @@ class WebhookController extends FrontEndController
                     }
                 }else{
                     $paymentIntent = Stripe::$app->paymentIntents->getPaymentIntent($paymentIntentId);
-                    $order = Stripe::$app->paymentIntents->createOrderFromPaymentIntent($paymentIntent, $checkoutSession);
+
+                    if ($paymentIntent){
+                        $order = Stripe::$app->paymentIntents->createOrderFromPaymentIntent($paymentIntent, $checkoutSession);
+                    }
                 }
 
                 if ($order === null){
