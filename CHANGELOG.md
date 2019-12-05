@@ -1,5 +1,11 @@
 # Stripe Payments Changelog
 
+## 2.1.5 - 2019.12.05
+
+### Fixed
+- Fixed issue with the Payment Forms field when `Validate related element` is enabled
+- Fixed error for when processing subscriptions with free plans (zero amounts)
+
 ## 2.1.4 - 2019.12.01
 
 ### Fixed
