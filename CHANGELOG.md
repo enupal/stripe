@@ -1,5 +1,12 @@
 # Stripe Payments Changelog
 
+## WIP
+
+### Added
+- Added `getStripeCustomerByEmail` on the Customers service layer
+- Added `getStripeCustomer` to the enupalStripe variable
+- Added `getPaymentMethod` to the Customers service layer
+
 ## 2.1.5 - 2019.12.05
 
 ### Fixed

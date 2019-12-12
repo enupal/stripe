@@ -173,6 +173,8 @@ class Stripe extends Plugin
     private function getSiteUrlRules()
     {
         return [
+            'enupal-stripe/update-billing-info' =>
+                'enupal-stripe/stripe/update-billing-info',
             'enupal/stripe-payments' =>
                 'enupal-stripe/webhook/stripe',
             'enupal/stripe-payments/finish-order' =>
@@ -180,7 +182,9 @@ class Stripe extends Plugin
             'enupal/validate-coupon' =>
                 'enupal-stripe/coupons/validate',
             'enupal/stripe/create-checkout-session' =>
-                'enupal-stripe/checkout/create-session'
+                'enupal-stripe/checkout/create-session',
+            'enupal/stripe-payments/finish-setup-session' =>
+                'enupal-stripe/stripe/finish-setup-session',
         ];
     }
 }
