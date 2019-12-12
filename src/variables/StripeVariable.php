@@ -675,6 +675,17 @@ class StripeVariable extends Behavior
     }
 
     /**
+     * @return array
+     * @throws \yii\base\InvalidConfigException
+     */
+    public function getStripePlans()
+    {
+        $plans = Stripe::$app->plans->getStripePlans();
+
+        return $plans;
+    }
+
+    /**
      * @param $view
      * @param $inputFilePath
      * @param $templatePath

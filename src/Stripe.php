@@ -185,6 +185,8 @@ class Stripe extends Plugin
                 'enupal-stripe/checkout/create-session',
             'enupal/stripe-payments/finish-setup-session' =>
                 'enupal-stripe/stripe/finish-setup-session',
+            'enupal-stripe/update-subscription' =>
+                'enupal-stripe/stripe/update-subscription',
         ];
     }
 }

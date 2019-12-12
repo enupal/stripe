@@ -1,5 +1,11 @@
 # Stripe Payments Changelog
 
+## WIP
+
+### Added
+- Added support to update subscription via front-end.
+- Added `getStripePlans` to the enupalStripe variable
+
 ## 2.1.6 - 2019.12.11
 
 ### Added

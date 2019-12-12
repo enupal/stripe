@@ -312,4 +312,42 @@ class StripeController extends BaseController
 
         return $this->redirect($returnUrl);
     }
+
+    /**
+     * @return \yii\web\Response|null
+     * @throws \yii\web\BadRequestHttpException
+     */
+    public function actionUpdateSubscription()
+    {
+        $this->requirePostRequest();
+        $request = Craft::$app->getRequest();
+        $planId = $request->getRequiredBodyParam('planId');
+        $subscriptionId = $request->getRequiredBodyParam('subscriptionId');
+
+        $subscription = StripePlugin::$app->customers->updateSubscription($subscriptionId, $planId);
+
+        if (is_null($subscription)) {
+            if (Craft::$app->getRequest()->getAcceptsJson()) {
+                return $this->asJson([
+                    'success' => false,
+                ]);
+            }
+
+            Craft::$app->getUrlManager()->setRouteParams([
+                    'success' => false
+                ]
+            );
+
+            return null;
+        }
+
+        if (Craft::$app->getRequest()->getAcceptsJson()) {
+            return $this->asJson([
+                'success' => true,
+                'subscription' => $subscription
+            ]);
+        }
+
+        return $this->redirectToPostedUrl();
+    }
 }

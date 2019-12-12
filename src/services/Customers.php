@@ -13,6 +13,7 @@ use enupal\stripe\Stripe as StripePlugin;
 use Stripe\Customer;
 use Stripe\Invoice;
 use Stripe\PaymentMethod;
+use Stripe\Subscription;
 use yii\base\Component;
 use enupal\stripe\records\Customer as CustomerRecord;
 
@@ -153,6 +154,7 @@ class Customers extends Component
      */
     public function updateBillingInfo($stripeToken, $customerEmail)
     {
+        StripePlugin::$app->settings->initializeStripe();
         $stripeCustomer = $this->getStripeCustomerByEmail($customerEmail);
 
         if (is_null($stripeCustomer)) {
@@ -180,9 +182,11 @@ class Customers extends Component
      * @param $paymentMethodId
      * @param $customerId
      * @return bool
+     * @throws \Exception
      */
     public function attachPaymentMethodToCustomer($paymentMethodId, $customerId)
     {
+        StripePlugin::$app->settings->initializeStripe();
         $paymentMethod = $this->getPaymentMethod($paymentMethodId);
 
         if ($paymentMethod){
@@ -210,9 +214,11 @@ class Customers extends Component
     /**
      * @param $paymentMethodId
      * @return PaymentMethod|null
+     * @throws \Exception
      */
     public function getPaymentMethod($paymentMethodId)
     {
+        StripePlugin::$app->settings->initializeStripe();
         try {
             $paymentMethod = PaymentMethod::retrieve($paymentMethodId);
         }catch (\Exception $e){
@@ -221,5 +227,42 @@ class Customers extends Component
         }
 
         return $paymentMethod;
+    }
+
+    /**
+     * @param $subscriptionId
+     * @param $planId
+     * @return Subscription|null
+     * @throws \Exception
+     */
+    public function updateSubscription($subscriptionId, $planId)
+    {
+        StripePlugin::$app->settings->initializeStripe();
+
+        try {
+            $settings = StripePlugin::$app->settings->getSettings();
+            $cancelAtPeriodEnd = $settings->cancelAtPeriodEnd;
+            $cancelAtPeriodEnd = filter_var($cancelAtPeriodEnd, FILTER_VALIDATE_BOOLEAN);
+
+            $subscription = Subscription::retrieve($subscriptionId);
+
+            if ($subscription){
+                $subscription = Subscription::update($subscriptionId, [
+                    'cancel_at_period_end' => $cancelAtPeriodEnd,
+                    'items' => [
+                        [
+                            'id' => $subscription->items->data[0]->id,
+                            'plan' => $planId,
+                        ],
+                    ],
+                ]);
+            }
+
+        }catch (\Exception $e){
+            Craft::error($e->getMessage(), __METHOD__);
+            return null;
+        }
+
+        return $subscription;
     }
 }
