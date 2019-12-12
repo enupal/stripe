@@ -19,6 +19,7 @@ use enupal\stripe\models\CustomPlan;
 use enupal\stripe\Stripe;
 use enupal\stripe\Stripe as StripePlugin;
 use Stripe\Checkout\Session;
+use Stripe\SetupIntent;
 use yii\base\Component;
 
 class Checkout extends Component
@@ -313,5 +314,57 @@ class Checkout extends Component
         ];
 
         return $submitTypes;
+    }
+
+    /**
+     * @param $email
+     * @param $successUrl
+     * @param $cancelUrl
+     * @return Session|null
+     * @throws \yii\base\Exception
+     */
+    public function getSetupSession($email, $successUrl, $cancelUrl)
+    {
+        StripePlugin::$app->settings->initializeStripe();
+        $stripeCustomer = StripePlugin::$app->customers->getStripeCustomerByEmail($email);
+
+        if (is_null($stripeCustomer)){
+            return null;
+        }
+
+        $session = Session::create([
+            'payment_method_types' => ['card'],
+            'mode' => 'setup',
+            'customer_email' => $email,
+            'setup_intent_data' => [
+                'metadata' => [
+                    'customer_id' => $stripeCustomer->id,
+                    'success_url' => $successUrl
+                ],
+            ],
+            'success_url' => $this->getSiteUrl('enupal/stripe-payments/finish-setup-session?session_id={CHECKOUT_SESSION_ID}'),
+            'cancel_url' => $this->getSiteUrl($cancelUrl)
+        ]);
+
+        return $session;
+    }
+
+    /**
+     * @param $setupIntentId
+     * @return SetupIntent|null
+     * @throws \Exception
+     */
+    public function getSetupIntent($setupIntentId)
+    {
+        StripePlugin::$app->settings->initializeStripe();
+
+        try{
+            $setupIntent = SetupIntent::retrieve($setupIntentId);
+        }catch (\Exception $e){
+            Craft::error($e->getMessage(), __METHOD__);
+            return null;
+        }
+
+        return $setupIntent;
     }
 }

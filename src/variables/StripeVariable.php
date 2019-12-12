@@ -654,6 +654,18 @@ class StripeVariable extends Behavior
     }
 
     /**
+     * @param $email
+     * @param $successUrl
+     * @param $cancelUrl
+     * @return \Stripe\Checkout\Session|null
+     * @throws \yii\base\Exception
+     */
+    public function getSetupSession($email, $successUrl, $cancelUrl)
+    {
+        return Stripe::$app->checkout->getSetupSession($email, $successUrl, $cancelUrl);
+    }
+
+    /**
      * @param $view
      * @param $inputFilePath
      * @param $templatePath

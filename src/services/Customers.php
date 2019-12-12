@@ -12,6 +12,7 @@ use Craft;
 use enupal\stripe\Stripe as StripePlugin;
 use Stripe\Customer;
 use Stripe\Invoice;
+use Stripe\PaymentMethod;
 use yii\base\Component;
 use enupal\stripe\records\Customer as CustomerRecord;
 
@@ -173,5 +174,36 @@ class Customers extends Component
         }
 
         return $stripeCustomer;
+    }
+
+    /**
+     * @param $paymentMethodId
+     * @param $customerId
+     * @return bool
+     */
+    public function attachPaymentMethodToCustomer($paymentMethodId, $customerId)
+    {
+        $paymentMethod = PaymentMethod::retrieve($paymentMethodId);
+
+        if ($paymentMethod){
+            try {
+                //  Attach the PaymentMethod to the customer
+                $paymentMethod->attach(['customer' => $customerId]);
+                // Set a default payment method for future invoices
+                Customer::update(
+                    $customerId,
+                    [
+                        'invoice_settings' => ['default_payment_method' => $paymentMethodId],
+                    ]
+                );
+
+                return true;
+            } catch (\Exception $e){
+                Craft::error($e->getMessage(), __METHOD__);
+                return false;
+            }
+        }
+
+        return false;
     }
 }
