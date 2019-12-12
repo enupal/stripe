@@ -1,8 +1,9 @@
 # Stripe Payments Changelog
 
-## WIP
+## 2.1.6 - 2019.12.11
 
 ### Added
+- Added support to update card details.
 - Added `getStripeCustomerByEmail` on the Customers service layer
 - Added `getStripeCustomer` to the enupalStripe variable
 - Added `getPaymentMethod` to the Customers service layer
