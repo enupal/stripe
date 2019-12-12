@@ -183,7 +183,7 @@ class Customers extends Component
      */
     public function attachPaymentMethodToCustomer($paymentMethodId, $customerId)
     {
-        $paymentMethod = PaymentMethod::retrieve($paymentMethodId);
+        $paymentMethod = $this->getPaymentMethod($paymentMethodId);
 
         if ($paymentMethod){
             try {
@@ -205,5 +205,21 @@ class Customers extends Component
         }
 
         return false;
+    }
+
+    /**
+     * @param $paymentMethodId
+     * @return PaymentMethod|null
+     */
+    public function getPaymentMethod($paymentMethodId)
+    {
+        try {
+            $paymentMethod = PaymentMethod::retrieve($paymentMethodId);
+        }catch (\Exception $e){
+            Craft::error($e->getMessage(), __METHOD__);
+            return null;
+        }
+
+        return $paymentMethod;
     }
 }

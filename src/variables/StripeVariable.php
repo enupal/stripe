@@ -666,6 +666,15 @@ class StripeVariable extends Behavior
     }
 
     /**
+     * @param $paymentMethodId
+     * @return mixed
+     */
+    public function getPaymentMethod($paymentMethodId)
+    {
+        return Stripe::$app->customers->getPaymentMethod($paymentMethodId);
+    }
+
+    /**
      * @param $view
      * @param $inputFilePath
      * @param $templatePath
