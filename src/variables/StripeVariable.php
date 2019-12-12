@@ -103,6 +103,14 @@ class StripeVariable extends Behavior
     }
 
     /**
+     * @return string
+     */
+    public function getPublishableKey()
+    {
+        return Stripe::$app->settings->getPublishableKey();
+    }
+
+    /**
      * Returns a complete Payment Form for display in template
      *
      * @param string $handle
@@ -633,6 +641,16 @@ class StripeVariable extends Behavior
         $settings = Stripe::$app->settings->getSettings();
 
         return $settings->testMode;
+    }
+
+    /**
+     * @param $email
+     * @return \Stripe\Customer|null
+     * @throws \Exception
+     */
+    public function getStripeCustomer($email)
+    {
+        return Stripe::$app->customers->getStripeCustomerByEmail($email);
     }
 
     /**

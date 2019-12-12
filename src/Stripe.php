@@ -173,6 +173,8 @@ class Stripe extends Plugin
     private function getSiteUrlRules()
     {
         return [
+            'enupal-stripe/update-billing-info' =>
+                'enupal-stripe/stripe/update-billing-info',
             'enupal/stripe-payments' =>
                 'enupal-stripe/webhook/stripe',
             'enupal/stripe-payments/finish-order' =>

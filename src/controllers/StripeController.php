@@ -225,4 +225,42 @@ class StripeController extends BaseController
 
         return $this->redirect($url);
     }
+
+    /**
+     * @return \yii\web\Response|null
+     * @throws \yii\web\BadRequestHttpException
+     */
+    public function actionUpdateBillingInfo()
+    {
+        $this->requirePostRequest();
+        $request = Craft::$app->getRequest();
+        $stripeToken = $request->getRequiredBodyParam('stripeToken');
+        $stripeEmail = $request->getRequiredBodyParam('stripeEmail');
+
+        $stripeCustomer = StripePlugin::$app->customers->updateBillingInfo($stripeToken, $stripeEmail);
+
+        if (is_null($stripeCustomer)) {
+            if (Craft::$app->getRequest()->getAcceptsJson()) {
+                return $this->asJson([
+                    'success' => false,
+                ]);
+            }
+
+            Craft::$app->getUrlManager()->setRouteParams([
+                    'success' => false
+                ]
+            );
+
+            return null;
+        }
+
+        if (Craft::$app->getRequest()->getAcceptsJson()) {
+            return $this->asJson([
+                'success' => true,
+                'stripeCustomer' => $stripeCustomer
+            ]);
+        }
+
+        return $this->redirectToPostedUrl();
+    }
 }
