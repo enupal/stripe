@@ -1,15 +1,15 @@
 # Stripe Payments Changelog
 
-## WIP
+## 2.1.7 - 2019.12.12
 
 ### Added
-- Added support to update subscription via front-end.
+- Added support to update the subscription plan via front-end. [More Info](https://enupal.com/craft-plugins/stripe-payments/docs/templating/update-subscription-plan)
 - Added `getStripePlans` to the enupalStripe variable
 
 ## 2.1.6 - 2019.12.11
 
 ### Added
-- Added support to update card details.
+- Added support to update card details. [More Info](https://enupal.com/craft-plugins/stripe-payments/docs/templating/update-card-info)
 - Added `getStripeCustomerByEmail` on the Customers service layer
 - Added `getStripeCustomer` to the enupalStripe variable
 - Added `getPaymentMethod` to the Customers service layer
