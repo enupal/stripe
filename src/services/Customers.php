@@ -9,6 +9,9 @@
 namespace enupal\stripe\services;
 
 use Craft;
+use craft\db\Query;
+use craft\elements\User;
+use enupal\stripe\elements\Order;
 use enupal\stripe\Stripe as StripePlugin;
 use Stripe\Customer;
 use Stripe\Invoice;
@@ -264,5 +267,24 @@ class Customers extends Component
         }
 
         return $subscription;
+    }
+
+    public function updateCustomerEmail(User $user)
+    {
+        $orders = StripePlugin::$app->orders->getOrdersByUser($user->id);
+        $currentEmail = $user->email;
+        $settings = StripePlugin::$app->settings->getSettings();
+
+        if (count($orders)){
+            /** @var Order $firstOrder */
+            $firstOrder = $orders[0];
+            if ($firstOrder->email != $currentEmail){
+                // We need to update the email in Craft and Stripe
+                /** ... */
+            }
+
+        }
+
+        return true;
     }
 }

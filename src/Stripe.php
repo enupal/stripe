@@ -10,8 +10,10 @@
 namespace enupal\stripe;
 
 use Craft;
+use craft\events\ElementEvent;
 use craft\events\RegisterComponentTypesEvent;
 use craft\events\RegisterUrlRulesEvent;
+use craft\services\Elements;
 use craft\services\Fields;
 use craft\web\UrlManager;
 use enupal\stripe\services\App;
@@ -65,6 +67,10 @@ class Stripe extends Plugin
 
         Event::on(Fields::class, Fields::EVENT_REGISTER_FIELD_TYPES, function(RegisterComponentTypesEvent $event) {
             $event->types[] = StripePaymentFormsField::class;
+        });
+
+        Event::on(Elements::class, Elements::EVENT_AFTER_SAVE_ELEMENT, function(ElementEvent $event) {
+            self::$app->customers->updateCustomerEmail($event->element);
         });
     }
 
