@@ -63,7 +63,8 @@ class Customers extends Component
     public function getStripeCustomerByEmail($email, $testMode = null)
     {
         StripePlugin::$app->settings->initializeStripe();
-        $testMode = is_null($testMode) ? StripePlugin::getInstance()->getSettings()->testMode : $testMode;
+        $settings = StripePlugin::$app->settings->getSettings();
+        $testMode = is_null($testMode) ? $settings->testMode : $testMode;
         $stripeCustomer = null;
 
         $customer = $this->getCustomerByEmail($email, $testMode);
