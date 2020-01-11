@@ -10,6 +10,7 @@
 namespace enupal\stripe;
 
 use Craft;
+use craft\elements\User;
 use craft\events\ElementEvent;
 use craft\events\RegisterComponentTypesEvent;
 use craft\events\RegisterUrlRulesEvent;
@@ -70,7 +71,10 @@ class Stripe extends Plugin
         });
 
         Event::on(Elements::class, Elements::EVENT_AFTER_SAVE_ELEMENT, function(ElementEvent $event) {
-            self::$app->customers->updateCustomerEmail($event->element);
+            $element = $event->element;
+            if (get_class($element) === User::class){
+                self::$app->customers->updateCustomerEmail($event->element);
+            }
         });
     }
 
