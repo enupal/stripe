@@ -71,6 +71,19 @@
             <hr>
 
             {{ forms.lightswitchField({
+                label: 'Update customer email on Stripe'|t('enupal-stripe'),
+                instructions: 'Update the customer email in Stripe if the Craft user email is updated and has orders associated',
+                id: 'updateCustomerEmailOnStripe',
+                name: 'updateCustomerEmailOnStripe',
+                on: settings.updateCustomerEmailOnStripe,
+                onLabel: "On"|t('enupal-stripe'),
+                offLabel: "Off"|t('enupal-stripe'),
+                errors: settings.getErrors('updateCustomerEmailOnStripe'),
+            }) }}
+
+            <hr>
+
+            {{ forms.lightswitchField({
                 label: 'Retrieve plans with a nickname'|t('enupal-stripe'),
                 instructions: 'If enabled Stripe Payments will retrieve just plans that have the nickname set',
                 id: 'plansWithNickname',

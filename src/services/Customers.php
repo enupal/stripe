@@ -12,6 +12,7 @@ use Craft;
 use craft\db\Query;
 use craft\elements\User;
 use enupal\stripe\elements\Order;
+use enupal\stripe\jobs\UpdateEmailAddressOnOrders;
 use enupal\stripe\Stripe as StripePlugin;
 use Stripe\Customer;
 use Stripe\Invoice;
@@ -193,7 +194,7 @@ class Customers extends Component
         StripePlugin::$app->settings->initializeStripe();
         $paymentMethod = $this->getPaymentMethod($paymentMethodId);
 
-        if ($paymentMethod){
+        if ($paymentMethod) {
             try {
                 //  Attach the PaymentMethod to the customer
                 $paymentMethod->attach(['customer' => $customerId]);
@@ -206,7 +207,7 @@ class Customers extends Component
                 );
 
                 return true;
-            } catch (\Exception $e){
+            } catch (\Exception $e) {
                 Craft::error($e->getMessage(), __METHOD__);
                 return false;
             }
@@ -225,7 +226,7 @@ class Customers extends Component
         StripePlugin::$app->settings->initializeStripe();
         try {
             $paymentMethod = PaymentMethod::retrieve($paymentMethodId);
-        }catch (\Exception $e){
+        } catch (\Exception $e) {
             Craft::error($e->getMessage(), __METHOD__);
             return null;
         }
@@ -250,7 +251,7 @@ class Customers extends Component
 
             $subscription = Subscription::retrieve($subscriptionId);
 
-            if ($subscription){
+            if ($subscription) {
                 $subscription = Subscription::update($subscriptionId, [
                     'cancel_at_period_end' => $cancelAtPeriodEnd,
                     'items' => [
@@ -261,8 +262,7 @@ class Customers extends Component
                     ],
                 ]);
             }
-
-        }catch (\Exception $e){
+        } catch (\Exception $e) {
             Craft::error($e->getMessage(), __METHOD__);
             return null;
         }
@@ -277,31 +277,42 @@ class Customers extends Component
      */
     public function updateCustomerEmail(User $user)
     {
-        $orders = StripePlugin::$app->orders->getOrdersByUser($user->id);
-        $currentEmail = $user->email;
         $settings = StripePlugin::$app->settings->getSettings();
 
-        if (count($orders)){
+        if (!$settings->updateCustomerEmailOnStripe){
+            return false;
+        }
+
+        $orders = StripePlugin::$app->orders->getOrdersByUser($user->id);
+        $currentEmail = $user->email;
+
+        if (count($orders)) {
             /** @var Order $firstOrder */
             $firstOrder = $orders[0];
-            if ($firstOrder->email != $currentEmail){
+            if ($firstOrder->email != $currentEmail) {
                 // We need to update the email in Craft and Stripe
                 $customerRecord = $this->getCustomerByEmail($firstOrder->email, $settings->testMode);
                 $params = [
                     'email' => $currentEmail
                 ];
-                if ($customerRecord){
+                if ($customerRecord) {
                     $result = $this->updateStripeCustomer($customerRecord->stripeId, $params);
 
-                    if (!$result){
+                    if (!$result) {
                         Craft::error('Unable to update customer in Stripe', __METHOD__);
                         return false;
                     }
-                    // Check possible scenarios if we do this? should we check all orders?
-                    // Should we add a setting to fire this behavior?
+
                     $customerRecord->email = $currentEmail;
                     $customerRecord->save(false);
                     Craft::info('Customer email updated in Stripe', __METHOD__);
+                    // Update the new email also in the orders
+                    Craft::$app->queue->push(new UpdateEmailAddressOnOrders(
+                        [
+                            'orders' => $orders,
+                            'newEmail' => $currentEmail
+                        ]
+                    ));
                 }
             }
         }
