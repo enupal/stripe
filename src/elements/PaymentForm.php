@@ -621,10 +621,10 @@ class PaymentForm extends Element
         }
 
         $currentUser = Craft::$app->getUser()->getIdentity();
-        $email = '';
+        $email = $options['email'] ?? '';
 
         if ($this->settings->currentUserEmail) {
-            $email = $currentUser->email ?? '';
+            $email = $currentUser->email ?? $email;
         }
 
         $applyTax = false;

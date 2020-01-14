@@ -297,9 +297,11 @@ class Customers extends Component
                         Craft::error('Unable to update customer in Stripe', __METHOD__);
                         return false;
                     }
-
+                    // Check possible scenarios if we do this? should we check all orders?
+                    // Should we add a setting to fire this behavior?
                     $customerRecord->email = $currentEmail;
                     $customerRecord->save(false);
+                    Craft::info('Customer email updated in Stripe', __METHOD__);
                 }
             }
         }
