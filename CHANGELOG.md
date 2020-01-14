@@ -1,5 +1,17 @@
 # Stripe Payments Changelog
 
+## 2.2.0 - 2020.01.14
+
+### Added
+- Added support to pass the email via the options array in the `paymentForm` tag
+- Added the "Update customer email on Stripe" setting for when an user updates their email. ([#65])
+
+### Fixed
+- Fixed bug where if the user double click the payment button it could generate multiple charges. ([#74]) 
+
+[#74]: https://github.com/enupal/stripe/issues/74
+[#65]: https://github.com/enupal/stripe/issues/65
+
 ## 2.1.7 - 2019.12.12
 
 ### Added
