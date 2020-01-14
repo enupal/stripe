@@ -178,7 +178,8 @@
                 </div>
             {% endif %}
             {# End payment method select #}
-            {% set currentEmail = settings.currentUserEmail ? currentUser.email ?? '' : '' %}
+            {% set optionsEmail = options.email ?? '' %}
+            {% set currentEmail = settings.currentUserEmail ? currentUser.email ?? optionsEmail : optionsEmail %}
             <div class="col form-group">
                 <div class="heading">
                     <label for="email-{{ paymentForm.id }}">

@@ -291,6 +291,8 @@ var enupalStripe = {};
                 }else {
                     e.preventDefault();
                     var options = {};
+                    // Disable pay button and show a nice UI message
+                    that.showProcessingText(enupalButtonElement, enupalStripeData);
 
                     if (enupalStripeData.enableBillingAddress){
                         options = {
@@ -317,6 +319,22 @@ var enupalStripe = {};
             });
         },
 
+        showProcessingText(enupalButtonElement, enupalStripeData)
+        {
+            var paymentFormId = 'stripe-payments-submit-button-'+enupalStripeData.paymentFormId;
+
+            enupalButtonElement.find('#' + paymentFormId)
+              .prop('disabled', true);
+            if (enupalButtonElement.find('#' + paymentFormId).find('span').length){
+                enupalButtonElement.find('#' + paymentFormId).find('span')
+                  .text(enupalStripeData.paymentButtonProcessingText);
+            }else{
+                enupalButtonElement.find('#' + paymentFormId).text(enupalStripeData.paymentButtonProcessingText);
+            }
+
+
+        },
+
         submitForm: function(enupalStripeData, enupalButtonElement, paymentFormId, token) {
             var enupalStripeDataSubmission = $.extend(true, {}, enupalStripeData);
             var stripeConfig = enupalStripeDataSubmission.stripe;
@@ -326,11 +344,6 @@ var enupalStripe = {};
             if (token){
                 enupalButtonElement.find('[name="enupalStripe[token]"]').val(token.id);
             }
-            // Disable pay button and show a nice UI message
-            enupalButtonElement.find('#'+paymentFormId)
-                .prop('disabled', true)
-                .find('span')
-                .text(enupalStripeData.paymentButtonProcessingText);
 
             // Unbind original form submit trigger before calling again to "reset" it and submit normally.
             enupalButtonElement.unbind('submit', [enupalButtonElement, enupalStripeData]);
@@ -362,7 +375,8 @@ var enupalStripe = {};
                     return true;
                 }
                 event.preventDefault();
-
+                // Disable pay button and show a nice UI message
+                that.showProcessingText(enupalButtonElement, enupalStripeData);
                 that.submitForm(enupalStripeData, enupalButtonElement, paymentFormId, null);
             });
         },
@@ -381,7 +395,7 @@ var enupalStripe = {};
                     return true;
                 }
                 event.preventDefault();
-
+                that.showProcessingText(enupalButtonElement, enupalStripeData);
                 that.submitForm(enupalStripeData, enupalButtonElement, paymentFormId, null);
             });
         },

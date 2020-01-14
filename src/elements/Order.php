@@ -211,7 +211,7 @@ class Order extends Element
 
         $status = StripePaymentsPlugin::$app->orderStatuses->getOrderStatusById($statusId);
 
-        return $status->color;
+        return $status->handle;
     }
 
     /**
