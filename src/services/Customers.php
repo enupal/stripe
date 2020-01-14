@@ -270,6 +270,11 @@ class Customers extends Component
         return $subscription;
     }
 
+    /**
+     * @param User $user
+     * @return bool
+     * @throws \Exception
+     */
     public function updateCustomerEmail(User $user)
     {
         $orders = StripePlugin::$app->orders->getOrdersByUser($user->id);
@@ -281,9 +286,19 @@ class Customers extends Component
             $firstOrder = $orders[0];
             if ($firstOrder->email != $currentEmail){
                 // We need to update the email in Craft and Stripe
-                /** ... */
-            }
+                $customer = $this->getCustomerByEmail($firstOrder->email, $settings->testMode);
+                $params = [
+                    'email' => $currentEmail
+                ];
+                if ($customer){
+                    $result = $this->updateStripeCustomer($customer->stripeId, $params);
 
+                    if (!$result){
+                        Craft::error('Unable to update customer in Stripe', __METHOD__);
+                        return false;
+                    }
+                }
+            }
         }
 
         return true;

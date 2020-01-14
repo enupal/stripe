@@ -71,9 +71,10 @@ class Stripe extends Plugin
         });
 
         Event::on(Elements::class, Elements::EVENT_AFTER_SAVE_ELEMENT, function(ElementEvent $event) {
-            $element = $event->element;
-            if (get_class($element) === User::class){
-                self::$app->customers->updateCustomerEmail($event->element);
+            /** @var User $user */
+            $user = $event->element;
+            if (get_class($user) === User::class){
+                self::$app->customers->updateCustomerEmail($user);
             }
         });
     }
