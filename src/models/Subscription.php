@@ -34,6 +34,7 @@ class Subscription extends Model
     public $cancelAtPeriodEnd;
     public $meteredId = null;
     public $meteredQuantity;
+    public $customer;
     /**
      * @var InvoiceLineItem
      */
@@ -53,6 +54,7 @@ class Subscription extends Model
         $this->data = $subscription;
         $this->statusHtml = Stripe::$app->subscriptions->getSubscriptionStatusHtml($this->status);
         $this->cancelAtPeriodEnd = $subscription['cancel_at_period_end'];
+        $this->customer = $subscription['customer'];
 
         if ($subscription['plan']['usage_type'] === 'metered'){
             $this->meteredId = $subscription['items']['data'][0]['id'];
@@ -118,6 +120,44 @@ class Subscription extends Model
         );
 
         return $invoice;
+    }
+
+    /**
+     * @return array|null
+     * @throws \Stripe\Error\Api
+     */
+    public function getPaidInvoices()
+    {
+        $stripeCustomerId = $this->customer;
+
+        if ($stripeCustomerId === null){
+            return null;
+        }
+
+        $invoices = Invoice::all([
+            'limit' => 50,
+            'customer' => $stripeCustomerId,
+            'status' => 'paid'
+        ]);
+
+        $finalInvoices = [];
+
+        while(isset($invoices['data']) && is_array($invoices['data']))
+        {
+            foreach ($invoices['data'] as $invoice) {
+                $finalInvoices[] = $invoice;
+            }
+
+            $startingAfter = $invoice['id'];
+
+            if ($invoices['has_more']){
+                $invoices = Invoice::all(['limit' => 50, 'customer' => $stripeCustomerId, 'starting_after' => $startingAfter]);
+            }else{
+                $invoices = null;
+            }
+        }
+
+        return $finalInvoices;
     }
 
     /**

@@ -1,5 +1,10 @@
 # Stripe Payments Changelog
 
+## 2.2.1 - 2020.02.17
+
+### Added
+- Added the `getPaidInvoices` method to the Subscription model. [More Info](https://enupal.com/craft-plugins/stripe-payments/docs/templating/get-all-paid-invoices-from-subscription)
+
 ## 2.2.0 - 2020.01.14
 
 ### Added
