@@ -66,7 +66,7 @@ class PaymentForms extends Component
      * Returns a PaymentForm model if one is found in the database by handle
      *
      * @param string $handle
-     * @param int    $siteId
+     * @param int $siteId
      *
      * @return null|StripeElement
      */
@@ -111,8 +111,8 @@ class PaymentForms extends Component
             }
         }
 
-        if ($paymentForm->enableSubscriptions && $updateSinglePlanInfo){
-            if ($paymentForm->subscriptionType == SubscriptionType::SINGLE_PLAN && $paymentForm->singlePlanInfo){
+        if ($paymentForm->enableSubscriptions && $updateSinglePlanInfo) {
+            if ($paymentForm->subscriptionType == SubscriptionType::SINGLE_PLAN && $paymentForm->singlePlanInfo) {
                 $plan = StripePlugin::$app->plans->getStripePlan($paymentForm->singlePlanInfo);
                 $paymentForm->singlePlanInfo = Json::encode($plan);
             }
@@ -174,7 +174,7 @@ class PaymentForms extends Component
         $defaultTemplate = $this->getEnupalStripePath();
 
         if ($paymentForm->enableTemplateOverrides && $paymentForm->templateOverridesFolder) {
-           $templateFolderOverride = $this->getSitePath($paymentForm->templateOverridesFolder);
+            $templateFolderOverride = $this->getSitePath($paymentForm->templateOverridesFolder);
         }
 
         $settings = StripePlugin::$app->settings->getSettings();
@@ -183,34 +183,34 @@ class PaymentForms extends Component
         // Set our defaults
         $templates['paymentForm'] = $defaultTemplate;
         $templates['address'] = $defaultTemplate;
-        $templates['fields'] = $defaultTemplate.DIRECTORY_SEPARATOR.'fields';
-        $templates['multipleplans'] = $defaultTemplate.DIRECTORY_SEPARATOR.'multipleplans';
+        $templates['fields'] = $defaultTemplate . DIRECTORY_SEPARATOR . 'fields';
+        $templates['multipleplans'] = $defaultTemplate . DIRECTORY_SEPARATOR . 'multipleplans';
 
         // See if we should override our defaults
         if ($templateFolderOverride) {
 
-            $formTemplate = $templateFolderOverride.DIRECTORY_SEPARATOR.$mainTemplate;
-            $addressTemplate = $templateFolderOverride.DIRECTORY_SEPARATOR.'address';
-            $fieldsFolder = $templateFolderOverride.DIRECTORY_SEPARATOR.'fields';
-            $multiplePlansFolder = $templateFolderOverride.DIRECTORY_SEPARATOR.'multipleplans';
-            $basePath = $templateFolderOverride.DIRECTORY_SEPARATOR;
+            $formTemplate = $templateFolderOverride . DIRECTORY_SEPARATOR . $mainTemplate;
+            $addressTemplate = $templateFolderOverride . DIRECTORY_SEPARATOR . 'address';
+            $fieldsFolder = $templateFolderOverride . DIRECTORY_SEPARATOR . 'fields';
+            $multiplePlansFolder = $templateFolderOverride . DIRECTORY_SEPARATOR . 'multipleplans';
+            $basePath = $templateFolderOverride . DIRECTORY_SEPARATOR;
 
             foreach (Craft::$app->getConfig()->getGeneral()->defaultTemplateExtensions as $extension) {
 
-                if (file_exists($formTemplate.'.'.$extension)) {
+                if (file_exists($formTemplate . '.' . $extension)) {
                     $templates['paymentForm'] = $basePath;
                 }
 
-                if (file_exists($addressTemplate.'.'.$extension)) {
+                if (file_exists($addressTemplate . '.' . $extension)) {
                     $templates['address'] = $basePath;
                 }
 
                 if (file_exists($fieldsFolder)) {
-                    $templates['fields'] = $basePath.'fields';
+                    $templates['fields'] = $basePath . 'fields';
                 }
 
                 if (file_exists($multiplePlansFolder)) {
-                    $templates['multipleplans'] = $basePath.'multipleplans';
+                    $templates['multipleplans'] = $basePath . 'multipleplans';
                 }
             }
         }
@@ -226,7 +226,7 @@ class PaymentForms extends Component
      */
     private function getSitePath($path)
     {
-        return Craft::$app->path->getSiteTemplatesPath().DIRECTORY_SEPARATOR.$path;
+        return Craft::$app->path->getSiteTemplatesPath() . DIRECTORY_SEPARATOR . $path;
     }
 
     /**
@@ -249,6 +249,14 @@ class PaymentForms extends Component
         $paymentForm->setAttributes(/** @scrutinizer ignore-type */
             $postFields, false);
 
+        if (isset($postFields[PaymentForms::BASIC_FORM_FIELDS_HANDLE]) && $postFields[PaymentForms::BASIC_FORM_FIELDS_HANDLE]) {
+            $paymentForm->setFieldValue(PaymentForms::BASIC_FORM_FIELDS_HANDLE, $postFields[PaymentForms::BASIC_FORM_FIELDS_HANDLE]);
+        }
+
+        if (isset($postFields[PaymentForms::MULTIPLE_PLANS_HANDLE]) && $postFields[PaymentForms::MULTIPLE_PLANS_HANDLE]) {
+            $paymentForm->setFieldValue(PaymentForms::MULTIPLE_PLANS_HANDLE, $postFields[PaymentForms::MULTIPLE_PLANS_HANDLE]);
+        }
+
         return $paymentForm;
     }
 
@@ -264,9 +272,9 @@ class PaymentForms extends Component
         $separatorsCountToBeErased = strlen($cleanString) - strlen($onlyNumbersString) - 1;
 
         $stringWithCommaOrDot = preg_replace('/([,\.])/', '', $cleanString, $separatorsCountToBeErased);
-        $removedThousendSeparator = preg_replace('/(\.|,)(?=[0-9]{3,}$)/', '',  $stringWithCommaOrDot);
+        $removedThousendSeparator = preg_replace('/(\.|,)(?=[0-9]{3,}$)/', '', $stringWithCommaOrDot);
 
-        return (float) str_replace(',', '.', $removedThousendSeparator);
+        return (float)str_replace(',', '.', $removedThousendSeparator);
     }
 
     /**
@@ -463,7 +471,7 @@ class PaymentForms extends Component
     {
         $options = [
             SubscriptionType::SINGLE_PLAN => Craft::t('enupal-stripe', 'Set single plan'),
-            SubscriptionType::MULTIPLE_PLANS =>  Craft::t('enupal-stripe', 'Customer chooses plan')
+            SubscriptionType::MULTIPLE_PLANS => Craft::t('enupal-stripe', 'Customer chooses plan')
         ];
 
         return $options;
@@ -611,7 +619,7 @@ class PaymentForms extends Component
         $i = 1;
         $band = true;
         do {
-            $newField = $field == "handle" ? $value.$i : $value." ".$i;
+            $newField = $field == "handle" ? $value . $i : $value . " " . $i;
             $paymentForm = $this->getFieldValue($field, $newField);
             if (is_null($paymentForm)) {
                 $band = false;
@@ -670,11 +678,11 @@ class PaymentForms extends Component
         $settings = StripePlugin::$app->settings->getSettings();
         $mainTemplate = $settings->useSca ? 'paymentFormSca' : 'paymentForm';
 
-        if ($settings->testMode){
+        if ($settings->testMode) {
             if (!$settings->testPublishableKey || !$settings->testSecretKey) {
                 return StripePlugin::t("Please add the Stripe API keys in the plugin settings for TEST mode");
             }
-        }else{
+        } else {
             if (!$settings->livePublishableKey || !$settings->liveSecretKey) {
                 return StripePlugin::t("Please add the Stripe API keys in the plugin settings for LIVE mode");
             }
@@ -686,7 +694,7 @@ class PaymentForms extends Component
 
             if (!$paymentForm->hasUnlimitedStock && (int)$paymentForm->quantity <= 0) {
                 $outOfStockMessage = Craft::t('site', 'Out of Stock');
-                $paymentFormHtml = '<span class="error">'.$outOfStockMessage.'</span>';
+                $paymentFormHtml = '<span class="error">' . $outOfStockMessage . '</span>';
 
                 return TemplateHelper::raw($paymentFormHtml);
             }
@@ -696,18 +704,18 @@ class PaymentForms extends Component
             $view->setTemplatesPath($templatePaths['paymentForm']);
             $loadAssets = isset($options['loadAssets']) ? $options['loadAssets'] : true;
 
-            if ($paymentForm->enableCheckout){
-                if ($settings->useSca){
+            if ($paymentForm->enableCheckout) {
+                if ($settings->useSca) {
                     $view->registerJsFile("https://js.stripe.com/v3/");
-                }else{
+                } else {
                     $view->registerJsFile("https://checkout.stripe.com/checkout.js");
                 }
-                if ($loadAssets){
+                if ($loadAssets) {
                     $view->registerAssetBundle(StripeAsset::class);
                 }
-            }else{
+            } else {
                 $view->registerJsFile("https://js.stripe.com/v3/");
-                if ($loadAssets){
+                if ($loadAssets) {
                     $view->registerAssetBundle(StripeElementsAsset::class);
                 }
             }
@@ -742,16 +750,16 @@ class PaymentForms extends Component
         $transaction = Craft::$app->db->beginTransaction();
 
         try {
-	        // Delete the orders
-	        $orders = (new Query())
-		        ->select(['id'])
-		        ->from(["{{%enupalstripe_orders}}"])
-		        ->where(['formId' => $paymentForm->id])
-		        ->all();
+            // Delete the orders
+            $orders = (new Query())
+                ->select(['id'])
+                ->from(["{{%enupalstripe_orders}}"])
+                ->where(['formId' => $paymentForm->id])
+                ->all();
 
-	        foreach ($orders as $order) {
-		        Craft::$app->elements->deleteElementById($order['id']);
-	        }
+            foreach ($orders as $order) {
+                Craft::$app->elements->deleteElementById($order['id']);
+            }
 
             // Delete the Payment Form Element
             $success = Craft::$app->elements->deleteElementById($paymentForm->id);
@@ -773,28 +781,28 @@ class PaymentForms extends Component
         return true;
     }
 
-	/**
-	 * Removes payment forms and related records from the database given the ids
-	 *
-	 * @param $formElements
-	 *
-	 * @return bool
-	 * @throws \Throwable
-	 */
-	public function deleteForms($formElements): bool
-	{
-		foreach ($formElements as $key => $formElement) {
-			$paymentForm = $this->getPaymentFormById($formElement->id);
+    /**
+     * Removes payment forms and related records from the database given the ids
+     *
+     * @param $formElements
+     *
+     * @return bool
+     * @throws \Throwable
+     */
+    public function deleteForms($formElements): bool
+    {
+        foreach ($formElements as $key => $formElement) {
+            $paymentForm = $this->getPaymentFormById($formElement->id);
 
-			if ($paymentForm) {
-				$this->deletePaymentForm($paymentForm);
-			} else {
-				Craft::error("Can't delete the payment form with id: {$formElement->id}", __METHOD__);
-			}
-		}
+            if ($paymentForm) {
+                $this->deletePaymentForm($paymentForm);
+            } else {
+                Craft::error("Can't delete the payment form with id: {$formElement->id}", __METHOD__);
+            }
+        }
 
-		return true;
-	}
+        return true;
+    }
 
     /**
      * @param $label
@@ -1128,7 +1136,7 @@ class PaymentForms extends Component
         $matrixBasicField = Craft::$app->fields->getFieldByHandle(self::BASIC_FORM_FIELDS_HANDLE);
         Craft::$app->getContent()->fieldContext = $currentFieldContext;
 
-        if (!is_null($matrixBasicField)){
+        if (!is_null($matrixBasicField)) {
             // For some reason the field already exits
             return $matrixBasicField;
         }
@@ -1211,7 +1219,7 @@ class PaymentForms extends Component
         $matrixMultiplePlansField = Craft::$app->fields->getFieldByHandle(self::MULTIPLE_PLANS_HANDLE);
         Craft::$app->getContent()->fieldContext = $currentFieldContext;
 
-        if (!is_null($matrixMultiplePlansField)){
+        if (!is_null($matrixMultiplePlansField)) {
             // For some reason the field already exits
             return $matrixMultiplePlansField;
         }
@@ -1268,7 +1276,7 @@ class PaymentForms extends Component
     {
         return [
             'card' => PaymentType::CC,
-            'ideal' => PaymentType::IDEAL ,
+            'ideal' => PaymentType::IDEAL,
             'sofort' => PaymentType::SOFORT,
         ];
     }
@@ -1321,27 +1329,27 @@ class PaymentForms extends Component
     {
         return [
             [
-                'label' => Craft::t('site','Austria'),
+                'label' => Craft::t('site', 'Austria'),
                 'value' => 'AT'
             ],
             [
-                'label' => Craft::t('site','Belgium'),
+                'label' => Craft::t('site', 'Belgium'),
                 'value' => 'BE'
             ],
             [
-                'label' => Craft::t('site','Germany'),
+                'label' => Craft::t('site', 'Germany'),
                 'value' => 'DE'
             ],
             [
-                'label' => Craft::t('site','Italy'),
+                'label' => Craft::t('site', 'Italy'),
                 'value' => 'IT'
             ],
             [
-                'label' => Craft::t('site','Netherlands'),
+                'label' => Craft::t('site', 'Netherlands'),
                 'value' => 'NL'
             ],
             [
-                'label' => Craft::t('site','Spain'),
+                'label' => Craft::t('site', 'Spain'),
                 'value' => 'ES'
             ]
         ];

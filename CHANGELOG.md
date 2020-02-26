@@ -1,5 +1,10 @@
 # Stripe Payments Changelog
 
+## 2.3.0 - 2020.02.26
+
+### Added
+- Added support to Craft 3.4
+
 ## 2.2.1 - 2020.02.17
 
 ### Added
