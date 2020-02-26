@@ -249,11 +249,11 @@ class PaymentForms extends Component
         $paymentForm->setAttributes(/** @scrutinizer ignore-type */
             $postFields, false);
 
-        if (isset($postFields[PaymentForms::BASIC_FORM_FIELDS_HANDLE]) && $postFields[PaymentForms::BASIC_FORM_FIELDS_HANDLE]) {
+        if (isset($postFields[PaymentForms::BASIC_FORM_FIELDS_HANDLE])) {
             $paymentForm->setFieldValue(PaymentForms::BASIC_FORM_FIELDS_HANDLE, $postFields[PaymentForms::BASIC_FORM_FIELDS_HANDLE]);
         }
 
-        if (isset($postFields[PaymentForms::MULTIPLE_PLANS_HANDLE]) && $postFields[PaymentForms::MULTIPLE_PLANS_HANDLE]) {
+        if (isset($postFields[PaymentForms::MULTIPLE_PLANS_HANDLE])) {
             $paymentForm->setFieldValue(PaymentForms::MULTIPLE_PLANS_HANDLE, $postFields[PaymentForms::MULTIPLE_PLANS_HANDLE]);
         }
 
