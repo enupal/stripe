@@ -9,7 +9,10 @@
 namespace enupal\stripe\services;
 
 use Craft;
+use craft\db\Query;
 use enupal\stripe\elements\Order;
+use enupal\stripe\models\SubscriptionGrant;
+use enupal\stripe\records\SubscriptionGrant as SubscriptionGrantRecord;
 use Stripe\Subscription;
 use enupal\stripe\models\Subscription as SubscriptionModel;
 use yii\base\Component;
@@ -177,5 +180,38 @@ class Subscriptions extends Component
         $query->isSubscription = true;
 
         return $query->all();
+    }
+
+    /**
+     * @return array
+     */
+    public function getAllSubscriptionGrants()
+    {
+        $subscriptionGrants = (new Query())
+            ->select(['*'])
+            ->from(["{{%enupalstripe_subscriptiongrants}}"])
+            ->all();
+
+        return $subscriptionGrants;
+    }
+
+    /**
+     * @param $subscriptionGrantId
+     *
+     * @return SubscriptionGrant
+     */
+    public function getSubscriptionGrantById($subscriptionGrantId)
+    {
+        $subscriptionGrant = SubscriptionGrantRecord::find()
+            ->where(['id' => $subscriptionGrantId])
+            ->one();
+
+        $subscriptionGrantModel = new SubscriptionGrant();
+
+        if ($subscriptionGrant) {
+            $subscriptionGrantModel->setAttributes($subscriptionGrant->getAttributes(), false);
+        }
+
+        return $subscriptionGrantModel;
     }
 }

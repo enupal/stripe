@@ -37,7 +37,7 @@ class Stripe extends Plugin
 
     public $hasCpSection = true;
     public $hasCpSettings = true;
-    public $schemaVersion = '2.1.1';
+    public $schemaVersion = '2.3.1';
 
     public function init()
     {
@@ -172,6 +172,9 @@ class Stripe extends Plugin
 
             'enupal-stripe/settings/order-statuses/new' =>
                 'enupal-stripe/order-statuses/edit',
+
+            'enupal-stripe/settings/subscription-grants/new' =>
+                'enupal-stripe/subscription-grants/edit',
 
             'enupal-stripe/settings/order-statuses/<orderStatusId:\d+>' =>
                 'enupal-stripe/order-statuses/edit',
