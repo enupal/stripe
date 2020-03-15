@@ -232,6 +232,7 @@ class Subscriptions extends Component
                         $currentUserGroupIds[] = $userGroup->id;
                     }
                 }
+
                 $grantUserGroupIds = $this->getUserGroupsByPlanId($planId, true);
                 $removedUserGroupIds = array_diff($currentUserGroupIds, $grantUserGroupIds);
                 Craft::$app->getUsers()->assignUserToGroups($user->id, $removedUserGroupIds);

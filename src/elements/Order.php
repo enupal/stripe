@@ -147,14 +147,6 @@ class Order extends Element
     /**
      * @inheritdoc
      */
-    public static function hasStatuses(): bool
-    {
-        return true;
-    }
-
-    /**
-     * @inheritdoc
-     */
     public function getCpEditUrl()
     {
         return UrlHelper::cpUrl(
@@ -181,24 +173,6 @@ class Order extends Element
     public static function find(): ElementQueryInterface
     {
         return new OrdersQuery(get_called_class());
-    }
-
-    /**
-     * Returns a list of statuses for this element type
-     *
-     * @return array
-     */
-    public static function statuses(): array
-    {
-        $statuses = StripePaymentsPlugin::$app->orderStatuses->getAllOrderStatuses();
-        $statusArray = [];
-
-        foreach ($statuses as $status) {
-            $key = $status['handle'].' '.$status['color'];
-            $statusArray[$key] = $status['name'];
-        }
-
-        return $statusArray;
     }
 
     /**
@@ -328,6 +302,7 @@ class Order extends Element
     protected static function defineTableAttributes(): array
     {
         $attributes['number'] = ['label' => StripePaymentsPlugin::t('Order Number')];
+        $attributes['status'] = ['label' => StripePaymentsPlugin::t('Status')];
         $attributes['totalPrice'] = ['label' => StripePaymentsPlugin::t('Total')];
         $attributes['paymentStatus'] = ['label' => StripePaymentsPlugin::t('Payment Status')];
         $attributes['user'] = ['label' => StripePaymentsPlugin::t('User')];
@@ -356,7 +331,7 @@ class Order extends Element
 
     protected static function defineDefaultTableAttributes(string $source): array
     {
-        $attributes = ['number', 'itemName', 'itemSku', 'totalPrice', 'email', 'user', 'paymentStatus', 'dateOrdered'];
+        $attributes = ['number', 'orderStatusId', 'itemName', 'itemSku', 'totalPrice', 'email', 'user', 'paymentStatus', 'dateOrdered'];
 
         return $attributes;
     }
@@ -388,6 +363,10 @@ class Order extends Element
             case 'paymentStatus':
                 {
                     return $this->getPaymentStatusHtml();
+                }
+            case 'status':
+                {
+                    return $this->getStatusHtml();
                 }
             case 'user':
                 {
@@ -652,6 +631,19 @@ class Order extends Element
         }
 
         return $status;
+    }
+
+    /**
+     * @return string
+     */
+    public function getStatusHtml()
+    {
+        $status = StripePaymentsPlugin::$app->orderStatuses->getOrderStatusById($this->orderStatusId);
+        $color = $status->color;
+
+        $html = "<span><span class='status ".$color."'> </span>".$status->name.'</span>';
+
+        return $html;
     }
 
     /**
