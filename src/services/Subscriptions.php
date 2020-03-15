@@ -219,11 +219,23 @@ class Subscriptions extends Component
 
         switch ($eventType) {
             case 'customer.subscription.created':
-                $newUserGroups = $this->getUserGroupsByPlanId($planId);
-                Craft::$app->getUsers()->assignUserToGroups($user->id, $newUserGroups);
+                $grantUserGroupIds = $this->getUserGroupsByPlanId($planId);
+                Craft::$app->getUsers()->assignUserToGroups($user->id, $grantUserGroupIds);
                 break;
 
             case 'customer.subscription.deleted':
+                $userGroups = $user->getGroups();
+                $currentUserGroupIds = [];
+
+                if ($userGroups){
+                    foreach ($userGroups as $userGroup) {
+                        $currentUserGroupIds[] = $userGroup->id;
+                    }
+                }
+                $grantUserGroupIds = $this->getUserGroupsByPlanId($planId, true);
+                $removedUserGroupIds = array_diff($currentUserGroupIds, $grantUserGroupIds);
+                Craft::$app->getUsers()->assignUserToGroups($user->id, $removedUserGroupIds);
+
                 break;
         }
 
@@ -232,15 +244,22 @@ class Subscriptions extends Component
 
     /**
      * @param $planId
+     * @param bool $checkRemoveWhenCanceled
      * @return array
      */
-    public function getUserGroupsByPlanId($planId)
+    public function getUserGroupsByPlanId($planId, $checkRemoveWhenCanceled = false)
     {
         $subscriptionGrants = $this->getSubscriptionGrantsByPlanId($planId);
         $newGroups = [];
 
         foreach ($subscriptionGrants as $subscriptionGrant) {
-            $newGroups[] = $subscriptionGrant['userGroupId'];
+            if ($checkRemoveWhenCanceled){
+                if ($subscriptionGrant['removeWhenCanceled']){
+                    $newGroups[] = $subscriptionGrant['userGroupId'];
+                }
+            }else{
+                $newGroups[] = $subscriptionGrant['userGroupId'];
+            }
         }
 
         return $newGroups;
