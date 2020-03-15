@@ -22,7 +22,6 @@
 
     <input type="hidden" name="action" value="enupal-stripe/subscription-grants/save">
     {{ redirectInput('enupal-stripe/settings/subscription-grants') }}
-
     {% if subscriptionGrant.id %}
         <input type="hidden" name="subscriptionGrantId" value="{{ subscriptionGrant.id }}">
     {% endif %}
@@ -55,6 +54,7 @@
         label: "Plan"|t('enupal-stripe'),
         id: 'planId',
         instructions: 'The Stripe plan',
+        required: true,
         name: 'planId',
         options: craft.enupalStripe.getStripePlans(),
         value: subscriptionGrant.planId
@@ -63,10 +63,17 @@
     {{ forms.selectField({
         label: "User Group"|t('enupal-stripe'),
         id: 'userGroupId',
+        required: true,
         instructions: 'The user group that will be granted to the user when the subscription is created',
         name: 'userGroupId',
         options: userGroups | map((ug) => { value: ug.id, label: ug.name }),
         value: subscriptionGrant.userGroupId
+    }) }}
+
+    {{ forms.lightswitchField({
+        label: "Enabled"|t('enupal-stripe'),
+        name: 'enabled',
+        on:   subscriptionGrant.enabled
     }) }}
 
     {{ forms.lightswitchField({

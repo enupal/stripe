@@ -11,7 +11,7 @@ namespace enupal\stripe\models;
 use craft\base\Model;
 use Craft;
 use craft\validators\UniqueValidator;
-use enupal\stripe\records\OrderStatus as OrderStatusRecord;
+use enupal\stripe\records\SubscriptionGrant as SubscriptionGrantRecord;
 
 class SubscriptionGrant extends Model
 {
@@ -24,6 +24,11 @@ class SubscriptionGrant extends Model
      * @var string
      */
     public $name;
+
+    /**
+     * @var string
+     */
+    public $planName;
 
     /**
      * @var string
@@ -46,7 +51,12 @@ class SubscriptionGrant extends Model
     public $sortOrder;
 
     /**
-     * @var int
+     * @var bool
+     */
+    public $enabled = 1;
+
+    /**
+     * @var bool
      */
     public $removeWhenCanceled = 1;
 
@@ -85,7 +95,8 @@ class SubscriptionGrant extends Model
         return [
             [['name', 'handle'], 'required'],
             [['name', 'handle'], 'string', 'max' => 255],
-            [['handle'], UniqueValidator::class, 'targetClass' => OrderStatusRecord::class],
+            [['planId'], 'required'],
+            [['handle'], UniqueValidator::class, 'targetClass' => SubscriptionGrantRecord::class],
         ];
     }
 }

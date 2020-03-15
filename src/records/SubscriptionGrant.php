@@ -13,8 +13,9 @@ use craft\db\ActiveRecord;
 /**
  * Class SubscriptionGrant record.
  *
- * @property int    $id    ID
- * @property string $name  Name
+ * @property int    $id
+ * @property string $name
+ * @property string $planName
  */
 class SubscriptionGrant extends ActiveRecord
 {

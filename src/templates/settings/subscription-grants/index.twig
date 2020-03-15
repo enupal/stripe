@@ -20,7 +20,8 @@
                 <th scope="col">{{ "Name"|t('enupal-stripe') }}</th>
                 <th scope="col">{{ "Handle"|t('enupal-stripe') }}</th>
                 <th scope="col">{{ "User Group"|t('enupal-stripe') }}</th>
-                <th scope="col">{{ "Plan"|t('enupal-stripe') }}</th>
+                <th scope="col">{{ "Plan Name"|t('enupal-stripe') }}</th>
+                <th scope="col">{{ "Plan Id"|t('enupal-stripe') }}</th>
                 <th scope="col">{{ "Remove when canceled?"|t('enupal-stripe') }}</th>
                 <td class="thin"></td>
             </tr>
@@ -29,23 +30,25 @@
             {% for subscriptionGrant in subscriptionGrants %}
                 <tr data-id="{{ subscriptionGrant.id }}"
                     data-name="{{ subscriptionGrant.name|t('enupal-stripe') }}">
-                    <th scope="row" data-title="{{ 'Name'|t('enupal-stripe') }}"><a
-                                href="{{ url('enupal-stripe/settings/subscription-grants/' ~ subscriptionGrant.id) }}">{{ subscriptionGrant.name }}</a>
+                    <th scope="row" data-title="{{ 'Name'|t('enupal-stripe') }}">
+                        {% set color = subscriptionGrant.enabled ? 'green' : 'white' %}
+                        <a href="{{ url('enupal-stripe/settings/subscription-grants/' ~ subscriptionGrant.id) }}"><span class="enupalStripeStatusLabel"><span class="status {{ color }}"></span> {{ subscriptionGrant.name }}</span></a>
                     </th>
                     <td data-title="{{ 'Handle'|t('enupal-stripe') }}"
                         class="code">{{ subscriptionGrant.handle }}</td>
                     <td data-title="{{ 'Handle'|t('enupal-stripe') }}"
-                        class="code">{{ subscriptionGrant.userGroupId }}</td>
+                        class="code">{{ craft.app.userGroups.getGroupById(subscriptionGrant.userGroupId).name }}</td>
+                    <td data-title="{{ 'Handle'|t('enupal-stripe') }}"
+                        class="code">{{ subscriptionGrant.planName }}</td>
                     <td data-title="{{ 'Handle'|t('enupal-stripe') }}"
                         class="code">{{ subscriptionGrant.planId }}</td>
-                    <td>{% if subscriptionGrant.isDefault %}<span data-icon="check"
+                    <td class="thin">{% if subscriptionGrant.removeWhenCanceled %}<span data-icon="check"
                                                             title="{{ 'Yes'|t('enupal-stripe') }}"></span>
                         {% else %}
                             <span data-icon="check"
                                   title="{{ 'No'|t('enupal-stripe') }}"></span>
                         {% endif %}
                     </td>
-                    <td>
                     <td class="thin">
                             <a class="delete icon"
                                title="{{ 'Delete'|t('enupal-stripe') }}"

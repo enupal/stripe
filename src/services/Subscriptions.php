@@ -196,6 +196,24 @@ class Subscriptions extends Component
     }
 
     /**
+     * @param $id
+     * @return bool
+     * @throws \Throwable
+     * @throws \yii\db\StaleObjectException
+     */
+    public function deleteSubscriptionGrantById($id)
+    {
+        $subscriptionGrant = SubscriptionGrantRecord::findOne(['id' => $id]);
+
+        if ($subscriptionGrant) {
+            $subscriptionGrant->delete();
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
      * @param $subscriptionGrantId
      *
      * @return SubscriptionGrant
@@ -213,5 +231,61 @@ class Subscriptions extends Component
         }
 
         return $subscriptionGrantModel;
+    }
+
+    /**
+     * @param SubscriptionGrant $subscriptionGrant
+     * @return bool
+     * @throws \Exception
+     */
+    public function saveSubscriptionGrant(SubscriptionGrant $subscriptionGrant)
+    {
+        $record = new SubscriptionGrantRecord();
+
+        if ($subscriptionGrant->id) {
+            $record = SubscriptionGrantRecord::findOne($subscriptionGrant->id);
+
+            if (!$record) {
+                throw new \Exception(Craft::t('enupal-stripe', 'No Subscription Grant exists with the id of “{id}”', [
+                    'id' => $subscriptionGrant->id
+                ]));
+            }
+        }
+
+        $record->setAttributes($subscriptionGrant->getAttributes(), false);
+
+        $record->sortOrder = $subscriptionGrant->sortOrder ?: 999;
+
+        $subscriptionGrant->validate();
+
+        if (!$subscriptionGrant->hasErrors()) {
+            if ($subscriptionGrant->planId){
+                $plan = StripePlugin::$app->plans->getStripePlan($subscriptionGrant->planId);
+                if ($plan !== null){
+                    $planName = StripePlugin::$app->plans->getDefaultPlanName($plan);
+                    $record->planName = $planName;
+                }
+            }
+
+            $transaction = Craft::$app->db->beginTransaction();
+
+            try {
+                $record->save(false);
+
+                if (!$subscriptionGrant->id) {
+                    $subscriptionGrant->id = $record->id;
+                }
+
+                $transaction->commit();
+            } catch (\Exception $e) {
+                $transaction->rollback();
+
+                throw $e;
+            }
+
+            return true;
+        }
+
+        return false;
     }
 }

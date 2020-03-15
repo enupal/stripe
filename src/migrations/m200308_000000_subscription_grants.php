@@ -26,6 +26,7 @@ class m200308_000000_subscription_grants extends Migration
             'userGroupId' => $this->integer(),
             'sortOrder' => $this->smallInteger()->unsigned(),
             'removeWhenCanceled' => $this->boolean(),
+            'enabled' => $this->boolean(),
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
             'uid' => $this->uid(),

@@ -47,32 +47,34 @@ class SubscriptionGrantsController extends BaseController
     }
 
     /**
-     * @return null|\yii\web\Response
+     * @return \yii\web\Response|null
      * @throws \yii\web\BadRequestHttpException
      */
     public function actionSave()
     {
         $this->requirePostRequest();
 
-        $id = Craft::$app->request->getBodyParam('orderStatusId');
-        $orderStatus = Stripe::$app->orderStatuses->getOrderStatusById($id);
+        $id = Craft::$app->request->getBodyParam('subscriptionGrantId');
+        $subscriptionGrant = Stripe::$app->subscriptions->getSubscriptionGrantById($id);
 
-        $orderStatus->name = Craft::$app->request->getBodyParam('name');
-        $orderStatus->handle = Craft::$app->request->getBodyParam('handle');
-        $orderStatus->color = Craft::$app->request->getBodyParam('color');
-        $orderStatus->isDefault = Craft::$app->request->getBodyParam('isDefault');
+        $subscriptionGrant->name = Craft::$app->request->getBodyParam('name');
+        $subscriptionGrant->handle = Craft::$app->request->getBodyParam('handle');
+        $subscriptionGrant->planId = Craft::$app->request->getBodyParam('planId');
+        $subscriptionGrant->enabled = Craft::$app->request->getBodyParam('enabled');
+        $subscriptionGrant->userGroupId = Craft::$app->request->getBodyParam('userGroupId');
+        $subscriptionGrant->removeWhenCanceled = Craft::$app->request->getBodyParam('removeWhenCanceled');
 
-        if (!Stripe::$app->orderStatuses->saveOrderStatus($orderStatus)) {
-            Craft::$app->session->setError(Craft::t('enupal-stripe', 'Could not save Order Status.'));
+        if (!Stripe::$app->subscriptions->saveSubscriptionGrant($subscriptionGrant)) {
+            Craft::$app->session->setError(Craft::t('enupal-stripe', 'Could not save Subscription Grant'));
 
             Craft::$app->getUrlManager()->setRouteParams([
-                'orderStatus' => $orderStatus
+                'subscriptionGrant' => $subscriptionGrant
             ]);
 
             return null;
         }
 
-        Craft::$app->session->setNotice(Craft::t('enupal-stripe', 'Order Status saved.'));
+        Craft::$app->session->setNotice(Craft::t('enupal-stripe', 'Subscription Grant saved.'));
 
         return $this->redirectToPostedUrl();
     }
@@ -88,9 +90,9 @@ class SubscriptionGrantsController extends BaseController
     {
         $this->requirePostRequest();
 
-        $orderStatusId = Craft::$app->request->getRequiredBodyParam('id');
+        $subscriptionGrantId = Craft::$app->request->getRequiredBodyParam('id');
 
-        if (!Stripe::$app->orderStatuses->deleteOrderStatusById($orderStatusId)) {
+        if (!Stripe::$app->subscriptions->deleteSubscriptionGrantById($subscriptionGrantId)) {
             return $this->asJson(null);
         }
 
