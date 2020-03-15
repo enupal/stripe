@@ -11,6 +11,7 @@ namespace enupal\stripe\services;
 use Craft;
 use craft\db\Query;
 use enupal\stripe\elements\Order;
+use enupal\stripe\events\WebhookEvent;
 use enupal\stripe\models\SubscriptionGrant;
 use enupal\stripe\records\SubscriptionGrant as SubscriptionGrantRecord;
 use Stripe\Subscription;
@@ -190,6 +191,71 @@ class Subscriptions extends Component
         $subscriptionGrants = (new Query())
             ->select(['*'])
             ->from(["{{%enupalstripe_subscriptiongrants}}"])
+            ->all();
+
+        return $subscriptionGrants;
+    }
+
+    /**
+     * @param WebhookEvent $event
+     * @return bool
+     */
+    public function processSubscriptionGrantEvent(WebhookEvent $event)
+    {
+        $data  = $event->stripeData;
+        $order = $event->order;
+        $eventType = $data['type'] ?? null;
+        $planId = $data['data']['object']['items']['data'][0]['plan']['id'] ?? null;
+
+        if ($order === null) {
+            return false;
+        }
+
+        $user = Craft::$app->getUsers()->getUserByUsernameOrEmail($order->email);
+
+        if ($user === null) {
+            return false;
+        }
+
+        switch ($eventType) {
+            case 'customer.subscription.created':
+                $newUserGroups = $this->getUserGroupsByPlanId($planId);
+                Craft::$app->getUsers()->assignUserToGroups($user->id, $newUserGroups);
+                break;
+
+            case 'customer.subscription.deleted':
+                break;
+        }
+
+        return true;
+    }
+
+    /**
+     * @param $planId
+     * @return array
+     */
+    public function getUserGroupsByPlanId($planId)
+    {
+        $subscriptionGrants = $this->getSubscriptionGrantsByPlanId($planId);
+        $newGroups = [];
+
+        foreach ($subscriptionGrants as $subscriptionGrant) {
+            $newGroups[] = $subscriptionGrant['userGroupId'];
+        }
+
+        return $newGroups;
+    }
+
+    /**
+     * @param $planId
+     * @return array
+     */
+    public function getSubscriptionGrantsByPlanId($planId)
+    {
+        $subscriptionGrants =  (new Query())
+            ->select(['*'])
+            ->from(["{{%enupalstripe_subscriptiongrants}}"])
+            ->where(["planId" => $planId])
             ->all();
 
         return $subscriptionGrants;
