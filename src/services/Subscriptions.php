@@ -253,6 +253,10 @@ class Subscriptions extends Component
         $newGroups = [];
 
         foreach ($subscriptionGrants as $subscriptionGrant) {
+            if (!$subscriptionGrant['enabled']){
+                continue;
+            }
+
             if ($checkRemoveWhenCanceled){
                 if ($subscriptionGrant['removeWhenCanceled']){
                     $newGroups[] = $subscriptionGrant['userGroupId'];
