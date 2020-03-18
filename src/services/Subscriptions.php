@@ -220,7 +220,10 @@ class Subscriptions extends Component
         switch ($eventType) {
             case 'customer.subscription.created':
                 $grantUserGroupIds = $this->getUserGroupsByPlanId($planId);
-                Craft::$app->getUsers()->assignUserToGroups($user->id, $grantUserGroupIds);
+                if ($grantUserGroupIds){
+                    Craft::$app->getUsers()->assignUserToGroups($user->id, $grantUserGroupIds);
+                    Craft::info("Groups (".json_encode($grantUserGroupIds).") added to user: ".$user->username, __METHOD__);
+                }
                 break;
 
             case 'customer.subscription.deleted':
@@ -236,6 +239,7 @@ class Subscriptions extends Component
                 $grantUserGroupIds = $this->getUserGroupsByPlanId($planId, true);
                 $removedUserGroupIds = array_diff($currentUserGroupIds, $grantUserGroupIds);
                 Craft::$app->getUsers()->assignUserToGroups($user->id, $removedUserGroupIds);
+                Craft::info("Groups (".json_encode($grantUserGroupIds).") removed to user: ".$user->username, __METHOD__);
 
                 break;
         }
