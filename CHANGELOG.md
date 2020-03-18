@@ -1,5 +1,11 @@
 # Stripe Payments Changelog
 
+## 2.4.0 - 2020.03.18
+
+### Added
+- Added support for subscription grants to assign and remove user groups for when subscriptions are created or deleted. [More Info](https://enupal.com/craft-plugins/stripe-payments/docs/stripe-payment-forms/subscription-grants)
+- Added support to pass custom plans options. [More info](https://enupal.com/craft-plugins/stripe-payments/docs/templating/paymentform#custom-plans-options)
+
 ## 2.3.1 - 2020.02.26
 
 ### Improved
