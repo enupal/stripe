@@ -23,6 +23,15 @@
             {% if paymentForm.enableSubscriptions %}
                 <input type="hidden" name="planId" value>
             {% endif %}
+            {% if options.customFrequency is defined %}
+                <input type="hidden" name="customFrequency" value="{{ options.customFrequency }}">
+            {% endif %}
+            {% if options.customInterval is defined %}
+                <input type="hidden" name="customInterval" value="{{ options.customInterval }}">
+            {% endif %}
+            {% if options.customTrialPeriodDays is defined %}
+                <input type="hidden" name="customTrialPeriodDays" value="{{ options.customTrialPeriodDays }}">
+            {% endif %}
             <input type="hidden" name="email" value />
             <input type="hidden" name="formId" value="{{ paymentForm.id }}" />
             <input type="hidden" name="amount" value />

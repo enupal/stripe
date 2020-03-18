@@ -1165,20 +1165,23 @@ class Orders extends Component
 
         $customPlan = new CustomPlan([
             "amountInCents" => $data['amount'],
-            "interval" => $paymentForm->customPlanFrequency,
-            "intervalCount" => $paymentForm->customPlanInterval,
+            "interval" => $data['customFrequency'] ?? $paymentForm->customPlanFrequency,
+            "intervalCount" => $data['customInterval'] ?? $paymentForm->customPlanInterval,
             "currency" => $paymentForm->currency
         ]);
 
-        if ($paymentForm->singlePlanTrialPeriod){
-            $customPlan->trialPeriodDays = $paymentForm->singlePlanTrialPeriod;
+        $trialPeriodDays = $data['customTrialPeriodDays'] ?? $paymentForm->singlePlanTrialPeriod;
+
+        if ($trialPeriodDays){
+            $customPlan->trialPeriodDays = $trialPeriodDays;
         }
 
         $plan = StripePlugin::$app->plans->createCustomPlan($customPlan);
 
         // Add the plan to the customer
         $subscriptionSettings = [
-            "plan" => $plan['id']
+            "plan" => $plan['id'],
+            "trial_from_plan" => true
         ];
 
         // Add tax
