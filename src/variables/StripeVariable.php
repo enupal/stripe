@@ -438,6 +438,14 @@ class StripeVariable extends Behavior
     }
 
     /**
+     * @return array
+     */
+    public function getAllSubscriptionGrants()
+    {
+        return Stripe::$app->subscriptions->getAllSubscriptionGrants();
+    }
+
+    /**
      * @param $orderId
      * @return array|\enupal\stripe\records\Message[]|null
      */

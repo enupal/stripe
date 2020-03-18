@@ -9,7 +9,11 @@
 namespace enupal\stripe\services;
 
 use Craft;
+use craft\db\Query;
 use enupal\stripe\elements\Order;
+use enupal\stripe\events\WebhookEvent;
+use enupal\stripe\models\SubscriptionGrant;
+use enupal\stripe\records\SubscriptionGrant as SubscriptionGrantRecord;
 use Stripe\Subscription;
 use enupal\stripe\models\Subscription as SubscriptionModel;
 use yii\base\Component;
@@ -177,5 +181,201 @@ class Subscriptions extends Component
         $query->isSubscription = true;
 
         return $query->all();
+    }
+
+    /**
+     * @return array
+     */
+    public function getAllSubscriptionGrants()
+    {
+        $subscriptionGrants = (new Query())
+            ->select(['*'])
+            ->from(["{{%enupalstripe_subscriptiongrants}}"])
+            ->all();
+
+        return $subscriptionGrants;
+    }
+
+    /**
+     * @param WebhookEvent $event
+     * @return bool
+     */
+    public function processSubscriptionGrantEvent(WebhookEvent $event)
+    {
+        $data  = $event->stripeData;
+        $order = $event->order;
+        $eventType = $data['type'] ?? null;
+        $planId = $data['data']['object']['items']['data'][0]['plan']['id'] ?? null;
+
+        if ($order === null) {
+            return false;
+        }
+
+        $user = Craft::$app->getUsers()->getUserByUsernameOrEmail($order->email);
+
+        if ($user === null) {
+            return false;
+        }
+
+        switch ($eventType) {
+            case 'customer.subscription.created':
+                $grantUserGroupIds = $this->getUserGroupsByPlanId($planId);
+                Craft::$app->getUsers()->assignUserToGroups($user->id, $grantUserGroupIds);
+                break;
+
+            case 'customer.subscription.deleted':
+                $userGroups = $user->getGroups();
+                $currentUserGroupIds = [];
+
+                if ($userGroups){
+                    foreach ($userGroups as $userGroup) {
+                        $currentUserGroupIds[] = $userGroup->id;
+                    }
+                }
+
+                $grantUserGroupIds = $this->getUserGroupsByPlanId($planId, true);
+                $removedUserGroupIds = array_diff($currentUserGroupIds, $grantUserGroupIds);
+                Craft::$app->getUsers()->assignUserToGroups($user->id, $removedUserGroupIds);
+
+                break;
+        }
+
+        return true;
+    }
+
+    /**
+     * @param $planId
+     * @param bool $checkRemoveWhenCanceled
+     * @return array
+     */
+    public function getUserGroupsByPlanId($planId, $checkRemoveWhenCanceled = false)
+    {
+        $subscriptionGrants = $this->getSubscriptionGrantsByPlanId($planId);
+        $newGroups = [];
+
+        foreach ($subscriptionGrants as $subscriptionGrant) {
+            if (!$subscriptionGrant['enabled']){
+                continue;
+            }
+
+            if ($checkRemoveWhenCanceled){
+                if ($subscriptionGrant['removeWhenCanceled']){
+                    $newGroups[] = $subscriptionGrant['userGroupId'];
+                }
+            }else{
+                $newGroups[] = $subscriptionGrant['userGroupId'];
+            }
+        }
+
+        return $newGroups;
+    }
+
+    /**
+     * @param $planId
+     * @return array
+     */
+    public function getSubscriptionGrantsByPlanId($planId)
+    {
+        $subscriptionGrants =  (new Query())
+            ->select(['*'])
+            ->from(["{{%enupalstripe_subscriptiongrants}}"])
+            ->where(["planId" => $planId])
+            ->all();
+
+        return $subscriptionGrants;
+    }
+
+    /**
+     * @param $id
+     * @return bool
+     * @throws \Throwable
+     * @throws \yii\db\StaleObjectException
+     */
+    public function deleteSubscriptionGrantById($id)
+    {
+        $subscriptionGrant = SubscriptionGrantRecord::findOne(['id' => $id]);
+
+        if ($subscriptionGrant) {
+            $subscriptionGrant->delete();
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * @param $subscriptionGrantId
+     *
+     * @return SubscriptionGrant
+     */
+    public function getSubscriptionGrantById($subscriptionGrantId)
+    {
+        $subscriptionGrant = SubscriptionGrantRecord::find()
+            ->where(['id' => $subscriptionGrantId])
+            ->one();
+
+        $subscriptionGrantModel = new SubscriptionGrant();
+
+        if ($subscriptionGrant) {
+            $subscriptionGrantModel->setAttributes($subscriptionGrant->getAttributes(), false);
+        }
+
+        return $subscriptionGrantModel;
+    }
+
+    /**
+     * @param SubscriptionGrant $subscriptionGrant
+     * @return bool
+     * @throws \Exception
+     */
+    public function saveSubscriptionGrant(SubscriptionGrant $subscriptionGrant)
+    {
+        $record = new SubscriptionGrantRecord();
+
+        if ($subscriptionGrant->id) {
+            $record = SubscriptionGrantRecord::findOne($subscriptionGrant->id);
+
+            if (!$record) {
+                throw new \Exception(Craft::t('enupal-stripe', 'No Subscription Grant exists with the id of “{id}”', [
+                    'id' => $subscriptionGrant->id
+                ]));
+            }
+        }
+
+        $record->setAttributes($subscriptionGrant->getAttributes(), false);
+
+        $record->sortOrder = $subscriptionGrant->sortOrder ?: 999;
+
+        $subscriptionGrant->validate();
+
+        if (!$subscriptionGrant->hasErrors()) {
+            if ($subscriptionGrant->planId){
+                $plan = StripePlugin::$app->plans->getStripePlan($subscriptionGrant->planId);
+                if ($plan !== null){
+                    $planName = StripePlugin::$app->plans->getDefaultPlanName($plan);
+                    $record->planName = $planName;
+                }
+            }
+
+            $transaction = Craft::$app->db->beginTransaction();
+
+            try {
+                $record->save(false);
+
+                if (!$subscriptionGrant->id) {
+                    $subscriptionGrant->id = $record->id;
+                }
+
+                $transaction->commit();
+            } catch (\Exception $e) {
+                $transaction->rollback();
+
+                throw $e;
+            }
+
+            return true;
+        }
+
+        return false;
     }
 }

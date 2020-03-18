@@ -17,7 +17,9 @@ use craft\events\RegisterUrlRulesEvent;
 use craft\services\Elements;
 use craft\services\Fields;
 use craft\web\UrlManager;
+use enupal\stripe\events\WebhookEvent;
 use enupal\stripe\services\App;
+use enupal\stripe\services\Orders;
 use yii\base\Event;
 use craft\web\twig\variables\CraftVariable;
 use enupal\stripe\fields\StripePaymentForms as StripePaymentFormsField;
@@ -37,7 +39,7 @@ class Stripe extends Plugin
 
     public $hasCpSection = true;
     public $hasCpSettings = true;
-    public $schemaVersion = '2.1.1';
+    public $schemaVersion = '2.3.2';
 
     public function init()
     {
@@ -76,6 +78,10 @@ class Stripe extends Plugin
             if (get_class($user) === User::class){
                 self::$app->customers->updateCustomerEmail($user);
             }
+        });
+
+        Event::on(Orders::class, Orders::EVENT_AFTER_PROCESS_WEBHOOK, function(WebhookEvent $e) {
+            self::$app->subscriptions->processSubscriptionGrantEvent($e);
         });
     }
 
@@ -172,6 +178,11 @@ class Stripe extends Plugin
 
             'enupal-stripe/settings/order-statuses/new' =>
                 'enupal-stripe/order-statuses/edit',
+
+            'enupal-stripe/settings/subscription-grants/new' =>
+                'enupal-stripe/subscription-grants/edit',
+            'enupal-stripe/settings/subscription-grants/<subscriptionGrantId:\d+>' =>
+                'enupal-stripe/subscription-grants/edit',
 
             'enupal-stripe/settings/order-statuses/<orderStatusId:\d+>' =>
                 'enupal-stripe/order-statuses/edit',
