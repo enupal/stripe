@@ -1,0 +1,77 @@
+{% extends "enupal-stripe/_layouts/settings" %}
+{% set title = "Subscription Grants"|t('enupal-stripe') %}
+{% set subscriptionGrants = craft.enupalStripe.getAllSubscriptionGrants() %}
+
+{% block actionButton %}
+    <div class="buttons">
+        <a id="newsubscriptiongrant"
+           href="{{ url('enupal-stripe/settings/subscription-grants/new') }}"
+           class="btn submit add icon">
+            {{ "New Subscription Grant"|t('enupal-stripe') }}
+        </a>
+    </div>
+{% endblock %}
+
+{% set content %}
+    {% if subscriptionGrants|length %}
+        <table id="subscriptionGrants" class="data fullwidth collapsible">
+            <thead>
+            <tr>
+                <th scope="col">{{ "Name"|t('enupal-stripe') }}</th>
+                <th scope="col">{{ "Handle"|t('enupal-stripe') }}</th>
+                <th scope="col">{{ "User Group"|t('enupal-stripe') }}</th>
+                <th scope="col">{{ "Plan Name"|t('enupal-stripe') }}</th>
+                <th scope="col">{{ "Plan Id"|t('enupal-stripe') }}</th>
+                <th scope="col">{{ "Remove when canceled?"|t('enupal-stripe') }}</th>
+                <td class="thin"></td>
+            </tr>
+            </thead>
+            <tbody>
+            {% for subscriptionGrant in subscriptionGrants %}
+                <tr data-id="{{ subscriptionGrant.id }}"
+                    data-name="{{ subscriptionGrant.name|t('enupal-stripe') }}">
+                    <th scope="row" data-title="{{ 'Name'|t('enupal-stripe') }}">
+                        {% set color = subscriptionGrant.enabled ? 'green' : 'white' %}
+                        <a href="{{ url('enupal-stripe/settings/subscription-grants/' ~ subscriptionGrant.id) }}"><span class="enupalStripeStatusLabel"><span class="status {{ color }}"></span> {{ subscriptionGrant.name }}</span></a>
+                    </th>
+                    <td data-title="{{ 'Handle'|t('enupal-stripe') }}"
+                        class="code">{{ subscriptionGrant.handle }}</td>
+                    <td data-title="{{ 'Handle'|t('enupal-stripe') }}"
+                        class="code">{{ craft.app.userGroups.getGroupById(subscriptionGrant.userGroupId).name }}</td>
+                    <td data-title="{{ 'Handle'|t('enupal-stripe') }}"
+                        class="code">{{ subscriptionGrant.planName }}</td>
+                    <td data-title="{{ 'Handle'|t('enupal-stripe') }}"
+                        class="code">{{ subscriptionGrant.planId }}</td>
+                    <td class="thin">{% if subscriptionGrant.removeWhenCanceled %}<span data-icon="check"
+                                                            title="{{ 'Yes'|t('enupal-stripe') }}"></span>
+                        {% else %}
+                            <span data-icon="check"
+                                  title="{{ 'No'|t('enupal-stripe') }}"></span>
+                        {% endif %}
+                    </td>
+                    <td class="thin">
+                            <a class="delete icon"
+                               title="{{ 'Delete'|t('enupal-stripe') }}"
+                               role="button"></a>
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <code>{{ "No results found. Please create your first subscription grant clicking the top right button."|t }}</code>
+    {% endif %}
+
+{% endset %}
+
+{% js %}
+    new Craft.AdminTable({
+    tableSelector: '#subscriptionGrants',
+    newObjectBtnSelector: '#newsubscriptiongrant',
+    deleteAction: 'enupal-stripe/subscription-grants/delete',
+    minObjects: 1,
+    confirmDeleteMessage: '{{ "Are you sure you want to delete the Subscription Grant “{name}”?"|t('enupal-stripe') }}',
+    deleteFailMessage: '{{ "Unable to delete subscription grant"|t('enupal-stripe') }}'
+    });
+{% endjs %}
+

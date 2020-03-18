@@ -9,8 +9,6 @@
 
 {% import "_includes/forms" as forms %}
 <div class="meta">
-    <h6>{{ 'General'|t('enupal-stripe') }}</h6>
-
     {{ forms.textField({
         first: true,
         label: "Handle <span class='info'>How you’ll refer to this Stripe Form in the templates.</span>"|t('enupal-stripe'),
@@ -104,9 +102,8 @@
     {% endif %}
 
 </div>
-<hr>
+
 <div id="one-time-payment-wrapper" class="meta {% if stripeForm.enableSubscriptions %} hidden {% endif %}">
-    <h6>{{ 'One Time Payment'|t('enupal-stripe') }}</h6>
 
     {{ forms.selectField({
         label: "Amount Type"|t('enupal-stripe'),
@@ -165,9 +162,8 @@
         value: stripeForm.recurringPaymentType
     }) }}
 </div>
-<hr>
+
 <div class="meta">
-    <h6>{{ 'Inventory'|t('enupal-stripe') }}</h6>
     {% set stockInput %}
         <div class="flex">
             <div class="textwrapper">
@@ -197,10 +193,8 @@
         errors: stripeForm.getErrors('hasUnlimitedStock')|merge(stripeForm.getErrors('quantity')),
     }, stockInput) }}
 </div>
-<hr>
-<div class="meta">
-    <h6>{{ 'Shipping'|t('enupal-stripe') }}</h6>
 
+<div class="meta">
     {{ forms.lightswitchField({
         label: "Shipping Address <span class='info'>Enables buyers to specify the Shipping Address</span>"|t('enupal-stripe'),
         id: 'enableShippingAddress',
@@ -222,10 +216,8 @@
         on: stripeForm.verifyZip
     }) }}
 </div>
-<hr>
-<div class="meta">
-    <h6>{{ 'Advanced'|t('enupal-stripe') }}</h6>
 
+<div class="meta">
     {{ forms.textField({
         label: "Return URL <span class='info'>Redirect buyers' to this URL after they complete their payments</span>"|t('enupal-stripe'),
         id: 'returnUrl',

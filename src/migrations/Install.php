@@ -225,6 +225,21 @@ class Install extends Migration
             'dateUpdated' => $this->dateTime()->notNull(),
             'uid' => $this->uid(),
         ]);
+
+        $this->createTable("{{%enupalstripe_subscriptiongrants}}", [
+            'id' => $this->primaryKey(),
+            'name' => $this->string()->notNull(),
+            'handle' => $this->string()->notNull(),
+            'planId' => $this->string()->notNull(),
+            'planName' => $this->string(),
+            'userGroupId' => $this->integer(),
+            'sortOrder' => $this->smallInteger()->unsigned(),
+            'removeWhenCanceled' => $this->boolean(),
+            'enabled' => $this->boolean(),
+            'dateCreated' => $this->dateTime()->notNull(),
+            'dateUpdated' => $this->dateTime()->notNull(),
+            'uid' => $this->uid(),
+        ]);
     }
 
     /**
@@ -261,6 +276,7 @@ class Install extends Migration
         $this->createIndex(null, '{{%enupalstripe_countries}}', 'iso', true);
         $this->createIndex(null, '{{%enupalstripe_orders}}', 'billingAddressId', false);
         $this->createIndex(null, '{{%enupalstripe_orders}}', 'shippingAddressId', false);
+        $this->createIndex(null, "{{%enupalstripe_subscriptiongrants}}", 'userGroupId', false);
     }
 
     /**
@@ -305,6 +321,7 @@ class Install extends Migration
         $this->addForeignKey(null, '{{%enupalstripe_addresses}}', ['countryId'], '{{%enupalstripe_countries}}', ['id'], 'SET NULL');
         $this->addForeignKey(null, '{{%enupalstripe_orders}}', ['billingAddressId'], '{{%enupalstripe_addresses}}', ['id'], 'SET NULL');
         $this->addForeignKey(null, '{{%enupalstripe_orders}}', ['shippingAddressId'], '{{%enupalstripe_addresses}}', ['id'], 'SET NULL');
+        $this->addForeignKey(null, "{{%enupalstripe_subscriptiongrants}}", ['userGroupId'], "{{%usergroups}}", ['id'], 'CASCADE');
     }
 
     /**
