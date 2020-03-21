@@ -53,7 +53,8 @@ class PaymentIntents extends Component
         $amountBeforeCoupon = $metadata['stripe_payments_amount_before_coupon'];
 
         $charge = $paymentIntent['charges']['data'][0];
-        $billing = $charge['billing_details'];
+        $billing = $charge['billing_details'] ?? null;
+        $shipping = $charge['shipping'] ?? null;
 
         $testMode = !$checkoutSession['livemode'];
         $customer = Stripe::$app->customers->getStripeCustomer($paymentIntent['customer']);
@@ -72,23 +73,32 @@ class PaymentIntents extends Component
         $data['enupalStripe']['userId'] = $userId;
         $data['enupalStripe']['userId'] = $userId;
 
-        $address = $billing['address'] ?? null;
+        $billingAddress = $billing['address'] ?? null;
+        $shippingAddress = $shipping['address'] ?? null;
 
-        if (isset($address['city']) && ($form->enableBillingAddress || $form->enableShippingAddress)){
+        if (isset($billingAddress['city']) && ($form->enableBillingAddress)){
             $data['enupalStripe']['billingAddress'] = [
-                'country' => $address['country'],
-                'zip' => $address['postal_code'],
-                'line1' => $address['line1'],
-                'city' => $address['city'],
-                'state' => $address['state'],
-                'name' => $billing['name']
+                'country' => $billingAddress['country'],
+                'zip' => $billingAddress['postal_code'],
+                'line1' => $billingAddress['line1'],
+                'city' => $billingAddress['city'],
+                'state' => $billingAddress['state'],
+                'name' => $billing['name'] ?? ''
             ];
+        }
 
-            $data['enupalStripe']['sameAddressToggle'] = 'on';
+        if (isset($shippingAddress['city']) && ($form->enableShippingAddress)){
+            $data['enupalStripe']['address'] = [
+                'country' => $shippingAddress['country'],
+                'zip' => $shippingAddress['postal_code'],
+                'line1' => $shippingAddress['line1'],
+                'city' => $shippingAddress['city'],
+                'state' => $shippingAddress['state'],
+                'name' => $shipping['name'] ?? ''
+            ];
         }
 
         $order = StripePlugin::$app->orders->processPayment($data);
-
         if ($couponCode){
             $coupon = StripePlugin::$app->coupons->getCoupon($couponCode);
 	        if ($coupon){
@@ -119,6 +129,7 @@ class PaymentIntents extends Component
         $userId = $metadata['stripe_payments_user_id'];
         $quantity = $metadata['stripe_payments_quantity'];
         $testMode = !$checkoutSession['livemode'];
+        $shippingAddress = $checkoutSession['shipping']['address'] ?? null;
         $customer = Stripe::$app->customers->getStripeCustomer($subscription['customer']);
         Stripe::$app->customers->registerCustomer($customer, $testMode);
 
@@ -139,6 +150,11 @@ class PaymentIntents extends Component
         $data['enupalStripe']['testMode'] = $testMode;
         $data['enupalStripe']['paymentType'] = PaymentType::CC;
         $data['enupalStripe']['userId'] = $userId;
+
+        if ($shippingAddress){
+            $shippingAddress['name'] = $checkoutSession['shipping']['name'] ?? '';
+            $data['enupalStripe']['address'] = $shippingAddress;
+        }
 
         $order = StripePlugin::$app->orders->processPayment($data);
 
