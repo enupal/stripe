@@ -140,13 +140,15 @@ class Checkout extends Component
                 // test what is returning we need a stripe id
                 $customPlan = new CustomPlan([
                     "amountInCents" => $data['amount'],
-                    "interval" => $paymentForm->customPlanFrequency,
-                    "intervalCount" => $paymentForm->customPlanInterval,
+                    "interval" =>  $postData['customFrequency'] ?? $paymentForm->customPlanFrequency,
+                    "intervalCount" => $postData['customInterval'] ?? $paymentForm->customPlanInterval,
                     "currency" => $paymentForm->currency
                 ]);
 
-                if ($paymentForm->singlePlanTrialPeriod) {
-                    $trialPeriodDays = $paymentForm->singlePlanTrialPeriod;
+                $finalTrialPeriodDays = $postData['customTrialPeriodDays'] ?? $paymentForm->singlePlanTrialPeriod;
+
+                if ($finalTrialPeriodDays) {
+                    $trialPeriodDays = $finalTrialPeriodDays;
                 }
 
                 $plan = StripePlugin::$app->plans->createCustomPlan($customPlan);
