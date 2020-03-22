@@ -84,6 +84,7 @@
 
         handleEnableCheckout: function(option) {
             var $elementsWrapper = $("#fields-paymentType-field");
+            var $checkoutElementsWrapper = $("#fields-checkoutPaymentType-field");
             var $successUrlWrapper = $("#fields-checkoutSuccessUrl-field");
             var $cancelUrlWrapper = $("#fields-checkoutCancelUrl-field");
             var $submitTypeWrapper = $("#fields-checkoutSubmitType-field");
@@ -94,6 +95,7 @@
                 $elementsWrapper.removeClass('hidden');
                 $("#fields-sca-warning").removeClass("hidden");
 
+                $checkoutElementsWrapper.addClass('hidden');
                 $successUrlWrapper.addClass('hidden');
                 $cancelUrlWrapper.addClass('hidden');
                 $submitTypeWrapper.addClass('hidden');
@@ -101,6 +103,7 @@
             else{
                 $("#fields-sca-warning").addClass("hidden");
                 $elementsWrapper.addClass('hidden');
+                $checkoutElementsWrapper.removeClass('hidden');
                 $successUrlWrapper.removeClass('hidden');
                 $cancelUrlWrapper.removeClass('hidden');
                 $submitTypeWrapper.removeClass('hidden');

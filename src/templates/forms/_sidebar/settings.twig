@@ -50,6 +50,24 @@
         on: stripeForm.enableCheckout
     }) }}
 
+    {% set checkoutPaymentTypeInput %}
+        <div class="flex">
+            <div class="nowrapper">
+                {{ forms.checkboxGroup({
+                    name: "checkoutPaymentType",
+                    options : availableCheckoutPaymentTypes,
+                    values: checkoutPaymentTypeIdes
+                }) }}
+            </div>
+        </div>
+    {% endset %}
+
+    {{ forms.field({
+        id: 'checkoutPaymentType',
+        label: "Payment Method <span class='info'>Remember to have the proper currency, e.g iDEAL only accepts EUR</span>"|t('enupal-stripe'),
+        errors: stripeForm.getErrors('checkoutPaymentType'),
+    }, checkoutPaymentTypeInput) }}
+
     {{ forms.textField({
         label: "Checkout Success URL <span class='info'>Redirect buyers' to this URL after they complete their payments</span>"|t('enupal-stripe'),
         id: 'checkoutSuccessUrl',

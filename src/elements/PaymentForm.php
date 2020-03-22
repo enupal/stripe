@@ -77,6 +77,11 @@ class PaymentForm extends Element
     public $paymentType;
 
     /**
+     * @var string
+     */
+    public $checkoutPaymentType = '["card"]';
+
+    /**
      * @var string Currency
      */
     public $currency;
@@ -462,6 +467,7 @@ class PaymentForm extends Element
         $record->checkoutSuccessUrl = $this->checkoutSuccessUrl;
         $record->checkoutSubmitType = $this->checkoutSubmitType;
         $record->paymentType = $this->paymentType;
+        $record->checkoutPaymentType = $this->checkoutPaymentType;
         $record->currency = $this->currency;
         $record->language = $this->language;
         $record->amountType = $this->amountType;
@@ -524,6 +530,12 @@ class PaymentForm extends Element
         $rules[] = [
             ['paymentType'], 'required', 'when' => function($model) {
                 return $model->enableCheckout != 1;
+            }
+        ];
+        $rules[] = [
+            ['checkoutPaymentType'], 'required', 'when' => function($model) {
+                $settings = StripePlugin::$app->settings->getSettings();
+                return $model->enableCheckout && $settings->useSca;
             }
         ];
         $rules[] = [['name', 'handle'], 'string', 'max' => 255];
@@ -827,8 +839,14 @@ class PaymentForm extends Element
     {
         $singlePlan = [];
 
+        // Saving with errors
+        if (substr($this->singlePlanInfo, 0, 5) === 'plan_') {
+            $plan = Stripe::$app->plans->getStripePlan($this->singlePlanInfo);
+            $this->singlePlanInfo = json_encode($plan);
+        }
+
         if ($this->singlePlanInfo) {
-            $singlePlan = Json::decode($this->singlePlanInfo, true);
+            $singlePlan = json_decode($this->singlePlanInfo, true);
             $singlePlan['defaultPlanName'] = Stripe::$app->plans->getDefaultPlanName($singlePlan);
         }
 

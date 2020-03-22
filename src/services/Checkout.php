@@ -67,9 +67,11 @@ class Checkout extends Component
         ];
 
         $metadata = array_merge($metadata, $postData['metadata'] ?? []);
+        $paymentMethods = json_decode($form->checkoutPaymentType, true);
+        $paymentMethods = $paymentMethods ?? ['card'];
 
         $sessionParams = [
-            'payment_method_types' => ['card'],
+            'payment_method_types' => $paymentMethods,
 
             'success_url' => $this->getSiteUrl('enupal/stripe-payments/finish-order?session_id={CHECKOUT_SESSION_ID}'),
             'cancel_url' => $this->getSiteUrl($publicData['checkoutCancelUrl']),
