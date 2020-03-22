@@ -20,6 +20,7 @@ use craft\fields\Table;
 use craft\helpers\FileHelper;
 use craft\helpers\Json;
 use craft\helpers\UrlHelper;
+use enupal\stripe\enums\CheckoutPaymentType;
 use enupal\stripe\enums\PaymentType;
 use enupal\stripe\enums\SubscriptionType;
 use enupal\stripe\web\assets\StripeAsset;
@@ -1266,6 +1267,18 @@ class PaymentForms extends Component
             PaymentType::CC => 'Card',
             PaymentType::IDEAL => 'iDEAL',
             PaymentType::SOFORT => 'SOFORT',
+        ];
+    }
+
+    /**
+     * @return array
+     */
+    public function getCheckoutPaymentTypes()
+    {
+        return [
+            CheckoutPaymentType::CC => 'Card',
+            CheckoutPaymentType::IDEAL => 'iDEAL',
+            CheckoutPaymentType::FPX => 'FPX',
         ];
     }
 

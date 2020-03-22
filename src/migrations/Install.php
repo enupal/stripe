@@ -59,6 +59,7 @@ class Install extends Migration
             'handle' => $this->string()->notNull(),
             'enableCheckout' => $this->boolean()->defaultValue(true),
             'paymentType' => $this->string(),
+            'checkoutPaymentType' => $this->string(),
             'checkoutCancelUrl' => $this->string(),
             'checkoutSubmitType' => $this->string()->defaultValue(SubmitTypes::PAY),
             'checkoutSuccessUrl' => $this->string(),

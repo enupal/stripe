@@ -23,6 +23,7 @@ use craft\records\Element;
  * @property bool $checkoutSuccessUrl
  * @property bool $checkoutSubmitType
  * @property string $paymentType
+ * @property string $checkoutPaymentType
  * @property string $currency
  * @property string $language
  * @property integer $amountType

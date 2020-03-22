@@ -281,7 +281,11 @@ var enupalStripe = {};
 
         redirectToCheckoutSession: function(enupalButtonElement, enupalStripeDataSubmission) {
             this.showProcessingText(enupalButtonElement, enupalStripeDataSubmission);
+            var lineItems = enupalButtonElement.find('[name="enupalStripe[enupalLineItems]"]').val();
             var data = enupalButtonElement.serializeArray();
+            if (lineItems){
+                data.push({name: 'enupalStripe[enupalLineItems]', value: lineItems});
+            }
             data.push({name: 'action', value: 'enupal-stripe/checkout/create-session'});
             data.push({name: 'enupalStripeData', value: JSON.stringify(enupalStripeDataSubmission)});
 

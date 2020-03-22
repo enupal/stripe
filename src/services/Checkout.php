@@ -54,7 +54,8 @@ class Checkout extends Component
         $publicData = $postData['enupalStripeData'] ?? null;
 
         StripePlugin::$app->settings->initializeStripe();
-        $askAddress = $publicData['enableShippingAddress'] || $publicData['enableBillingAddress'];
+        $askShippingAddress = $publicData['enableShippingAddress'] ?? false;
+        $askBillingAddress = $publicData['enableBillingAddress'] ?? false;
         $data = $publicData['stripe'];
         $couponCode = $postData['enupalCouponCode'] ?? null;
         $metadata = [
@@ -66,9 +67,11 @@ class Checkout extends Component
         ];
 
         $metadata = array_merge($metadata, $postData['metadata'] ?? []);
+        $paymentMethods = json_decode($form->checkoutPaymentType, true);
+        $paymentMethods = $paymentMethods ?? ['card'];
 
         $sessionParams = [
-            'payment_method_types' => ['card'],
+            'payment_method_types' => $paymentMethods,
 
             'success_url' => $this->getSiteUrl('enupal/stripe-payments/finish-order?session_id={CHECKOUT_SESSION_ID}'),
             'cancel_url' => $this->getSiteUrl($publicData['checkoutCancelUrl']),
@@ -92,8 +95,14 @@ class Checkout extends Component
             $sessionParams['submit_type'] = $form->checkoutSubmitType;
         }
 
-        if ($askAddress) {
+        if ($askBillingAddress) {
             $sessionParams['billing_address_collection'] = 'required';
+        }
+
+        if ($askShippingAddress) {
+            $sessionParams['shipping_address_collection'] = [
+                'allowed_countries' => $this->getShippingCountries()
+            ];
         }
 
         if ($data['email']) {
@@ -110,6 +119,16 @@ class Checkout extends Component
         }
 
         $sessionParams['locale'] = $form->language;
+
+        $customLineItems = $postData['enupalLineItems'] ?? null;
+
+        if ($customLineItems){;
+            $customLineItemsArray = json_decode($customLineItems, true);
+
+            if ($customLineItemsArray){
+                $sessionParams['line_items'] = array_merge($sessionParams['line_items'], $customLineItemsArray);
+            }
+        }
 
         $session = Session::create($sessionParams);
 
@@ -133,20 +152,22 @@ class Checkout extends Component
         $plan = $paymentForm->getSinglePlan();
         $trialPeriodDays = null;
         $settings = Stripe::$app->settings->getSettings();
-        $oneTineFee = [];
+        $oneTimeFee = [];
 
         if ($paymentForm->subscriptionType == SubscriptionType::SINGLE_PLAN && $paymentForm->enableCustomPlanAmount) {
             if ($data['amount'] > 0) {
                 // test what is returning we need a stripe id
                 $customPlan = new CustomPlan([
                     "amountInCents" => $data['amount'],
-                    "interval" => $paymentForm->customPlanFrequency,
-                    "intervalCount" => $paymentForm->customPlanInterval,
+                    "interval" =>  $postData['customFrequency'] ?? $paymentForm->customPlanFrequency,
+                    "intervalCount" => $postData['customInterval'] ?? $paymentForm->customPlanInterval,
                     "currency" => $paymentForm->currency
                 ]);
 
-                if ($paymentForm->singlePlanTrialPeriod) {
-                    $trialPeriodDays = $paymentForm->singlePlanTrialPeriod;
+                $finalTrialPeriodDays = $postData['customTrialPeriodDays'] ?? $paymentForm->singlePlanTrialPeriod;
+
+                if ($finalTrialPeriodDays) {
+                    $trialPeriodDays = $finalTrialPeriodDays;
                 }
 
                 $plan = StripePlugin::$app->plans->createCustomPlan($customPlan);
@@ -163,7 +184,7 @@ class Checkout extends Component
             $plan = StripePlugin::$app->plans->getStripePlan($planId);
             $setupFee = StripePlugin::$app->orders->getSetupFeeFromMatrix($planId, $paymentForm);
             if ($setupFee && $setupFee > 0) {
-                $oneTineFee = [
+                $oneTimeFee = [
                     'amount' => Stripe::$app->orders->convertToCents($setupFee, $paymentForm->currency),
                     'currency' => $paymentForm->currency,
                     'name' => $settings->oneTimeSetupFeeLabel,
@@ -202,7 +223,7 @@ class Checkout extends Component
         // One time fees
         if ($paymentForm->subscriptionType == SubscriptionType::SINGLE_PLAN) {
             if ($paymentForm->singlePlanSetupFee && $paymentForm->singlePlanSetupFee > 0) {
-                $oneTineFee = [
+                $oneTimeFee = [
                     'amount' => Stripe::$app->orders->convertToCents($paymentForm->singlePlanSetupFee, $paymentForm->currency),
                     'currency' => $paymentForm->currency,
                     'name' => $settings->oneTimeSetupFeeLabel,
@@ -211,8 +232,8 @@ class Checkout extends Component
             }
         }
 
-        if ($oneTineFee) {
-            $sessionParams['line_items'] = [$oneTineFee];
+        if ($oneTimeFee) {
+            $sessionParams['line_items'] = [$oneTimeFee];
         }
 
         return $sessionParams;
@@ -232,7 +253,7 @@ class Checkout extends Component
         $data = $publicData['stripe'];
         $couponCode = $postData['enupalCouponCode'] ?? null;
 
-        if ($couponCode !== null) {
+        if ($couponCode) {
             $couponRedeemed = StripePlugin::$app->coupons->applyCouponToAmountInCents($data['amount'], $couponCode, $paymentForm->currency, false);
             if ($couponRedeemed->isValid) {
                 $data['amount'] = $couponRedeemed->finalAmount;
@@ -366,5 +387,10 @@ class Checkout extends Component
         }
 
         return $setupIntent;
+    }
+
+    public function getShippingCountries()
+    {
+        return ["AC", "AD", "AE", "AF", "AG", "AI", "AL", "AM", "AO", "AQ", "AR", "AT", "AU", "AW", "AX", "AZ", "BA", "BB", "BD", "BE", "BF", "BG", "BH", "BI", "BJ", "BL", "BM", "BN", "BO", "BQ", "BR", "BS", "BT", "BV", "BW", "BY", "BZ", "CA", "CD", "CF", "CG", "CH", "CI", "CK", "CL", "CM", "CN", "CO", "CR", "CV", "CW", "CY", "CZ", "DE", "DJ", "DK", "DM", "DO", "DZ", "EC", "EE", "EG", "EH", "ER", "ES", "ET", "FI", "FJ", "FK", "FO", "FR", "GA", "GB", "GD", "GE", "GF", "GG", "GH", "GI", "GL", "GM", "GN", "GP", "GQ", "GR", "GS", "GT", "GU", "GW", "GY", "HK", "HN", "HR", "HT", "HU", "ID", "IE", "IL", "IM", "IN", "IO", "IQ", "IS", "IT", "JE", "JM", "JO", "JP", "KE", "KG", "KH", "KI", "KM", "KN", "KR", "KW", "KY", "KZ", "LA", "LB", "LC", "LI", "LK", "LR", "LS", "LT", "LU", "LV", "LY", "MA", "MC", "MD", "ME", "MF", "MG", "MK", "ML", "MM", "MN", "MO", "MQ", "MR", "MS", "MT", "MU", "MV", "MW", "MX", "MY", "MZ", "NA", "NC", "NE", "NG", "NI", "NL", "NO", "NP", "NR", "NU", "NZ", "OM", "PA", "PE", "PF", "PG", "PH", "PK", "PL", "PM", "PN", "PR", "PS", "PT", "PY", "QA", "RE", "RO", "RS", "RU", "RW", "SA", "SB", "SC", "SE", "SG", "SH", "SI", "SJ", "SK", "SL", "SM", "SN", "SO", "SR", "SS", "ST", "SV", "SX", "SZ", "TA", "TC", "TD", "TF", "TG", "TH", "TJ", "TK", "TL", "TM", "TN", "TO", "TR", "TT", "TV", "TW", "TZ", "UA", "UG", "US", "UY", "UZ", "VA", "VC", "VE", "VG", "VN", "VU", "WF", "WS", "XK", "YE", "YT", "ZA", "ZM", "ZW", "ZZ"];
     }
 }
