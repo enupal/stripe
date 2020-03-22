@@ -120,6 +120,16 @@ class Checkout extends Component
 
         $sessionParams['locale'] = $form->language;
 
+        $customLineItems = $postData['enupalLineItems'] ?? null;
+
+        if ($customLineItems){;
+            $customLineItemsArray = json_decode($customLineItems, true);
+
+            if ($customLineItemsArray){
+                $sessionParams['line_items'] = array_merge($sessionParams['line_items'], $customLineItemsArray);
+            }
+        }
+
         $session = Session::create($sessionParams);
 
         return $session;
@@ -142,7 +152,7 @@ class Checkout extends Component
         $plan = $paymentForm->getSinglePlan();
         $trialPeriodDays = null;
         $settings = Stripe::$app->settings->getSettings();
-        $oneTineFee = [];
+        $oneTimeFee = [];
 
         if ($paymentForm->subscriptionType == SubscriptionType::SINGLE_PLAN && $paymentForm->enableCustomPlanAmount) {
             if ($data['amount'] > 0) {
@@ -174,7 +184,7 @@ class Checkout extends Component
             $plan = StripePlugin::$app->plans->getStripePlan($planId);
             $setupFee = StripePlugin::$app->orders->getSetupFeeFromMatrix($planId, $paymentForm);
             if ($setupFee && $setupFee > 0) {
-                $oneTineFee = [
+                $oneTimeFee = [
                     'amount' => Stripe::$app->orders->convertToCents($setupFee, $paymentForm->currency),
                     'currency' => $paymentForm->currency,
                     'name' => $settings->oneTimeSetupFeeLabel,
@@ -213,7 +223,7 @@ class Checkout extends Component
         // One time fees
         if ($paymentForm->subscriptionType == SubscriptionType::SINGLE_PLAN) {
             if ($paymentForm->singlePlanSetupFee && $paymentForm->singlePlanSetupFee > 0) {
-                $oneTineFee = [
+                $oneTimeFee = [
                     'amount' => Stripe::$app->orders->convertToCents($paymentForm->singlePlanSetupFee, $paymentForm->currency),
                     'currency' => $paymentForm->currency,
                     'name' => $settings->oneTimeSetupFeeLabel,
@@ -222,8 +232,8 @@ class Checkout extends Component
             }
         }
 
-        if ($oneTineFee) {
-            $sessionParams['line_items'] = [$oneTineFee];
+        if ($oneTimeFee) {
+            $sessionParams['line_items'] = [$oneTimeFee];
         }
 
         return $sessionParams;
