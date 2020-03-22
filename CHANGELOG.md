@@ -1,5 +1,17 @@
 # Stripe Payments Changelog
 
+## 2.5.0 - 2020.03.22
+
+### Added
+- Added support for PHP 7.4
+- Added support for Shipping Address on New Stripe Checkout
+- Added support to pass line items when using the New Stripe Checkout. [More Info](https://enupal.com/craft-plugins/stripe-payments/docs/templating/paymentform#custom-line-items)
+- Added support for one-time [iDEAL](https://stripe.com/docs/payments/checkout/one-time/ideal) payments (common payment method in the Netherlands)  using the new Stripe Checkout
+- Added support for one-time [FPX](https://stripe.com/docs/payments/checkout/one-time/fpx#enable-fpx) payments (common payment method in Malaysia) using the new Stripe Checkout
+
+### Updated
+- Updated `stripe/stripe-php` requirement to ^7.0.0 
+
 ## 2.4.0 - 2020.03.18
 
 ### Added
