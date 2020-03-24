@@ -1,5 +1,10 @@
 # Stripe Payments Changelog
 
+## 2.5.1 - 2020.03.24
+
+### Updated
+- Updated support for `stripe/stripe-php` to `^6.6|^7.0` to avoid conflicts with other pluginss
+
 ## 2.5.0 - 2020.03.22
 
 ### Added
