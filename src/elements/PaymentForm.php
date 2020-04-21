@@ -657,7 +657,7 @@ class PaymentForm extends Element
             'amountType' => $this->amountType,
             'customerQuantity' => $this->customerQuantity ? (boolean)$this->customerQuantity : false,
             'buttonText' => $this->buttonText,
-            'paymentButtonProcessingText' => $this->paymentButtonProcessingText ? $this->getPaymentFormText($this->paymentButtonProcessingText) : $this->getPaymentFormText(),
+            'paymentButtonProcessingText' => $this->paymentButtonProcessingText ? $this->paymentButtonProcessingText : $this->getPaymentFormText(),
             'pbk' => $this->getPublishableKey(),
             'testMode' => $this->settings->testMode,
             'enableRecurringPayment' => (boolean)$this->enableRecurringPayment,
