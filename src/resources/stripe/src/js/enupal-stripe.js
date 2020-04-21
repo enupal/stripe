@@ -33,10 +33,15 @@ var enupalStripe = {};
             // get the form ID
             var enupalStripeData = $.parseJSON($(enupalButtonElement).find('[name="enupalStripe[stripeData]"]').val());
 
+            enupalStripeData.lineItems = enupalButtonElement.find('[name="enupalStripe[enupalLineItems]"]').val();
+            enupalStripeData.removeDefaultItem = enupalButtonElement.find('[name="enupalStripe[enupalRemoveDefaultItem]"]').val();
+
             //  Firefox is cached for some reason when we empty the hidden input.
             if (navigator.userAgent.indexOf("Firefox") < 0) {
                 // reset our values
                 $(enupalButtonElement).find('[name="enupalStripe[stripeData]"]').val('');
+                enupalButtonElement.find('[name="enupalStripe[enupalLineItems]"]').val('');
+                enupalButtonElement.find('[name="enupalStripe[enupalRemoveDefaultItem]"]').val('');
             }
 
             this.finalData.finalAmount = enupalStripeData.stripe.amount;
@@ -281,11 +286,11 @@ var enupalStripe = {};
 
         redirectToCheckoutSession: function(enupalButtonElement, enupalStripeDataSubmission) {
             this.showProcessingText(enupalButtonElement, enupalStripeDataSubmission);
-            var lineItems = enupalButtonElement.find('[name="enupalStripe[enupalLineItems]"]').val();
             var data = enupalButtonElement.serializeArray();
-            if (lineItems){
-                data.push({name: 'enupalStripe[enupalLineItems]', value: lineItems});
-            }
+            
+            data.push({name: 'enupalStripe[enupalLineItems]', value: enupalStripeDataSubmission.lineItems});
+            data.push({name: 'enupalStripe[enupalRemoveDefaultItem]', value: enupalStripeDataSubmission.removeDefaultItem});
+
             data.push({name: 'action', value: 'enupal-stripe/checkout/create-session'});
             data.push({name: 'enupalStripeData', value: JSON.stringify(enupalStripeDataSubmission)});
 
