@@ -124,8 +124,8 @@ class SettingsController extends BaseController
             'defaultStatusId' => $settings->syncDefaultStatusId,
             'syncIfUserExists' => $settings->syncIfUserExists,
             'enableDateRange' => $settings->syncEnabledDateRange,
-            'startDate' => $settings->syncStartDate->date ?? null,
-            'endDate' => $settings->syncEndDate->date ?? null
+            'startDate' => $settings->syncStartDate ? $settings->syncStartDate->format('Y-m-d H:i:s') : null,
+            'endDate' => $settings->syncEndDate ? $settings->syncEndDate->format('Y-m-d H:i:s') : null
         ];
         if ($settings->syncType == 1){
             Craft::$app->queue->push(new SyncOneTimePayments($defaultSettings));

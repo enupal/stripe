@@ -59,7 +59,6 @@ class SyncOneTimePayments extends BaseJob implements RetryableJobInterface
 
         try{
             $params = [];
-
             if ($this->enableDateRange){
                 $startDate = strtotime($this->startDate);
                 $endDate = strtotime($this->endDate);
@@ -73,7 +72,6 @@ class SyncOneTimePayments extends BaseJob implements RetryableJobInterface
             }
 
             $charges = Charge::all($params);
-
             $step = 0;
             $failed = 0;
 
@@ -134,9 +132,21 @@ class SyncOneTimePayments extends BaseJob implements RetryableJobInterface
                             $newOrder->shippingAddressId = $addressId;
                         }
                     }
-
                     if (isset($charge['billing'])){
                         $addressId = StripePlugin::$app->addresses->getAddressIdFromCharge($charge['billing']);
+                        if ($addressId){
+                            $newOrder->billingAddressId = $addressId;
+                        }
+                    }
+                    // new address format
+                    if (isset($charge['shipping']) && !$newOrder->shippingAddressId){
+                        $addressId = StripePlugin::$app->addresses->getNewAddressIdFromCharge($charge['shipping']);
+                        if ($addressId){
+                            $newOrder->shippingAddressId = $addressId;
+                        }
+                    }
+                    if (isset($charge['billing_details']) && !$newOrder->billingAddressId){
+                        $addressId = StripePlugin::$app->addresses->getNewAddressIdFromCharge($charge['billing_details']);
                         if ($addressId){
                             $newOrder->billingAddressId = $addressId;
                         }
