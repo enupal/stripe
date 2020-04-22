@@ -394,6 +394,14 @@ class StripeVariable extends Behavior
     }
 
     /**
+     * @return  array
+     */
+    public function getVariables()
+    {
+        return Stripe::$app->paymentForms->getFieldVariables();
+    }
+
+    /**
      * @param $email
      * @return null|string
      */

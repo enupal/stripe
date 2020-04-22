@@ -162,7 +162,7 @@ class Emails extends Component
         $message->setHtmlBody($htmlBody);
         $message->setTextBody($textBody);
         $message->setReplyTo($settings->customerNotificationReplyToEmail);
-        $emails = [$order->email];
+        $emails = [trim($order->email)];
         $message->setTo($emails);
 
         return $message;
@@ -219,8 +219,8 @@ class Emails extends Component
         $message->setHtmlBody($htmlBody);
         $message->setTextBody($textBody);
         $message->setReplyTo($settings->adminNotificationReplyToEmail);
-
-        $emails = explode(",", $settings->adminNotificationRecipients);
+        // Get emails without blank spaces
+        $emails = preg_split('/(\s*,*\s*)*,+(\s*,*\s*)*/', $settings->adminNotificationRecipients);
         $message->setTo($emails);
 
         return $message;

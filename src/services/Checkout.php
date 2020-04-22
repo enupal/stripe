@@ -121,11 +121,15 @@ class Checkout extends Component
         $sessionParams['locale'] = $form->language;
 
         $customLineItems = $postData['enupalLineItems'] ?? null;
+        $removeDefaultItem = $postData['enupalRemoveDefaultItem'] ?? false;
 
-        if ($customLineItems){;
+        if ($customLineItems){
             $customLineItemsArray = json_decode($customLineItems, true);
 
             if ($customLineItemsArray){
+                if ($removeDefaultItem) {
+                    $sessionParams['line_items'] = [];
+                }
                 $sessionParams['line_items'] = array_merge($sessionParams['line_items'], $customLineItemsArray);
             }
         }

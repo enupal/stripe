@@ -238,4 +238,36 @@ class Addresses extends Component
 
         return $orderId;
     }
+
+    /**
+     * @param $data
+     * @return int|null
+     */
+    public function getNewAddressIdFromCharge($data)
+    {
+        $orderId = null;
+        $address = new Address();
+        $address->firstName = $data['name'] ?? null;
+        $countryId = null;
+
+        if (isset($data['address']['country'])){
+            $country = Stripe::$app->countries->getCountryByIso($data['address']['country']);
+            if ($country){
+                $countryId = $country->id;
+            }
+
+        }
+
+        $address->countryId = $countryId;
+        $address->city = $data['address']['city'] ?? null;
+        $address->stateName = $data['address']['state'] ?? null;
+        $address->address1 = $data['address']['line1'] ?? null;
+        $address->zipCode = $data['address']['postal_code'] ?? null;
+
+        if (Stripe::$app->addresses->saveAddress($address, true)){
+            $orderId = $address->id;
+        }
+
+        return $orderId;
+    }
 }

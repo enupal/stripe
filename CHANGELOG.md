@@ -1,9 +1,24 @@
 # Stripe Payments Changelog
 
+## 2.6.0 - 2020.04.22
+
+### Added
+- Added `removeDefaultItem` option for the New Stripe Checkout ([#84]) [More Info](https://enupal.com/craft-plugins/stripe-payments/docs/templating/paymentform#custom-line-items)
+- Added `getVariables()` to get all variables added from `{%- do craft.enupalStripe.addVariables({foo:'bar'}) -%}`
+
+### Fixed
+- Fixed issue when saving several admin notification emails
+- Fixed issue saving shipping and billing addresses on Sync workflow. ([#87])
+- Fixed issue where "Payment Button Processing Text" was not displaying on some scenarios. ([#86])
+
+[#86]: https://github.com/enupal/stripe/issues/86
+[#87]: https://github.com/enupal/stripe/issues/87
+[#84]: https://github.com/enupal/stripe/issues/84
+
 ## 2.5.1 - 2020.03.24
 
 ### Updated
-- Updated support for `stripe/stripe-php` to `^6.6|^7.0` to avoid conflicts with other pluginss
+- Updated support for `stripe/stripe-php` to `^6.6|^7.0` to avoid conflicts with other plugins
 
 ## 2.5.0 - 2020.03.22
 
