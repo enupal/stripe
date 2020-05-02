@@ -1,5 +1,12 @@
 # Stripe Payments Changelog
 
+## 2.6.1 - 2020.05.02
+
+### Fixed
+- Fixed issue when redirecting checkout success URL (new Stripe Checkout) ([#75])
+
+[#75]: https://github.com/enupal/stripe/issues/75
+
 ## 2.6.0 - 2020.04.22
 
 ### Added
