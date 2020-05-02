@@ -200,7 +200,7 @@ class StripeController extends BaseController
                 return $this->redirect('/');
             }
 
-            $stripeId = $paymentIntent['charges']['data'][0];
+            $stripeId = $paymentIntent['charges']['data'][0]['id'];
         } else if ($checkoutSession['subscription'] !== null) {
             $stripeId = $checkoutSession['subscription'];
         }
