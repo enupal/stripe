@@ -41,7 +41,7 @@ Stripe Payments allows customers sign up for recurring and one-time payments wit
 
 ## Documentation
 
-https://enupal.com/craft-plugins/stripe-payments/docs
+https://docs.enupal.com/stripe-payments/
 
 ## Stripe Payments Support
 
