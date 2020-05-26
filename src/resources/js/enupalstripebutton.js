@@ -88,12 +88,17 @@
             var $successUrlWrapper = $("#fields-checkoutSuccessUrl-field");
             var $cancelUrlWrapper = $("#fields-checkoutCancelUrl-field");
             var $submitTypeWrapper = $("#fields-checkoutSubmitType-field");
+            var $returnUrlForm = $("#fields-returnUrl-field");
 
             var value = $("input[name='fields[enableCheckout]']").val();
+            var useSca = $("input[name='useSca']").val();
 
             if (value == 0){
                 $elementsWrapper.removeClass('hidden');
                 $("#fields-sca-warning").removeClass("hidden");
+                if (useSca){
+                    $returnUrlForm.removeClass("hidden");
+                }
 
                 $checkoutElementsWrapper.addClass('hidden');
                 $successUrlWrapper.addClass('hidden');
@@ -107,6 +112,9 @@
                 $successUrlWrapper.removeClass('hidden');
                 $cancelUrlWrapper.removeClass('hidden');
                 $submitTypeWrapper.removeClass('hidden');
+                if (useSca){
+                    $returnUrlForm.addClass("hidden");
+                }
             }
         },
 

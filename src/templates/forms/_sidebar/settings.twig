@@ -62,11 +62,13 @@
         </div>
     {% endset %}
 
-    {{ forms.field({
-        id: 'checkoutPaymentType',
-        label: "Payment Method <span class='info'>Remember to have the proper currency, e.g iDEAL only accepts EUR</span>"|t('enupal-stripe'),
-        errors: stripeForm.getErrors('checkoutPaymentType'),
-    }, checkoutPaymentTypeInput) }}
+    {% if (settings.useSca) and stripeForm.enableCheckout %}
+        {{ forms.field({
+            id: 'checkoutPaymentType',
+            label: "Payment Method <span class='info'>Remember to have the proper currency, e.g iDEAL only accepts EUR</span>"|t('enupal-stripe'),
+            errors: stripeForm.getErrors('checkoutPaymentType'),
+        }, checkoutPaymentTypeInput) }}
+    {% endif %}
 
     {{ forms.textField({
         label: "Checkout Success URL <span class='info'>Redirect buyers' to this URL after they complete their payments</span>"|t('enupal-stripe'),
