@@ -301,8 +301,8 @@
                            name="couponCode"
                            id="couponCode-{{ paymentForm.id }}"
                            class=""/>
-
-                    <input id="check-coupon-button-{{ paymentForm.id }}" type="submit" value="Check Coupon"/>
+                    {% set checkCouponLabel = options.coupon.checkCouponLabel ?? 'Check Coupon'|t %}
+                    <input id="check-coupon-button-{{ paymentForm.id }}" type="submit" value="{{ checkCouponLabel }}"/>
                     <input type="hidden" name="enupalCouponCode" value="">
                 </div>
             </div>

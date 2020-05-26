@@ -219,12 +219,11 @@ class Addresses extends Component
         $address->city = $data['address_city'] ?? null;
         $countryId = null;
 
-        if (isset($data['address_country'])){
+        if (isset($data['address_country']) && $data['address_country']){
             $country = Stripe::$app->countries->getCountryByIso($data['address_country']);
             if ($country){
                 $countryId = $country->id;
             }
-
         }
 
         $address->countryId = $countryId;
@@ -250,12 +249,11 @@ class Addresses extends Component
         $address->firstName = $data['name'] ?? null;
         $countryId = null;
 
-        if (isset($data['address']['country'])){
+        if (isset($data['address']['country']) && $data['address']['country']){
             $country = Stripe::$app->countries->getCountryByIso($data['address']['country']);
             if ($country){
                 $countryId = $country->id;
             }
-
         }
 
         $address->countryId = $countryId;

@@ -1,5 +1,24 @@
 # Stripe Payments Changelog
 
+## 2.6.2 - 2020.05.26
+
+### Added
+- Added checkCouponLabel to options and translation tag ([#96])
+
+### Fixed
+- Fixed address error when syncing orders ([#92])
+- Fixed UI issues when SCA is enabled on editing payment form
+
+[#96]: https://github.com/enupal/stripe/issues/96
+[#92]: https://github.com/enupal/stripe/issues/92
+
+## 2.6.1 - 2020.05.02
+
+### Fixed
+- Fixed issue when redirecting checkout success URL (new Stripe Checkout) ([#75])
+
+[#75]: https://github.com/enupal/stripe/issues/75
+
 ## 2.6.0 - 2020.04.22
 
 ### Added
