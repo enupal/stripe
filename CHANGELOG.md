@@ -1,5 +1,11 @@
 # Stripe Payments Changelog
 
+## 2.6.3 - 2020.05.29
+
+### Fixed
+- Fixed UI issue on editing payment form
+- Fixed issue on new Stripe Checkout if Item Name is empty on payment form
+
 ## 2.6.2 - 2020.05.26
 
 ### Added
