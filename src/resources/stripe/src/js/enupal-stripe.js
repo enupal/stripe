@@ -296,7 +296,7 @@ var enupalStripe = {};
 
             $.ajax({
                 type:"POST",
-                url:"enupal/stripe/create-checkout-session",
+                url:"/enupal/stripe/create-checkout-session",
                 data: data,
                 dataType : 'json',
                 success: function(response) {
