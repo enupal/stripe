@@ -96,7 +96,7 @@
             if (value == 0){
                 $elementsWrapper.removeClass('hidden');
                 $("#fields-sca-warning").removeClass("hidden");
-                if (useSca){
+                if (useSca == 1){
                     $returnUrlForm.removeClass("hidden");
                 }
 
@@ -109,11 +109,20 @@
                 $("#fields-sca-warning").addClass("hidden");
                 $elementsWrapper.addClass('hidden');
                 $checkoutElementsWrapper.removeClass('hidden');
-                $successUrlWrapper.removeClass('hidden');
-                $cancelUrlWrapper.removeClass('hidden');
-                $submitTypeWrapper.removeClass('hidden');
-                if (useSca){
+
+                $successUrlWrapper.addClass('hidden');
+                $cancelUrlWrapper.addClass('hidden');
+                $submitTypeWrapper.addClass('hidden');
+
+                if (useSca == 1){
                     $returnUrlForm.addClass("hidden");
+                    $successUrlWrapper.removeClass('hidden');
+                    $cancelUrlWrapper.removeClass('hidden');
+                    $submitTypeWrapper.removeClass('hidden');
+                }else {
+                    $successUrlWrapper.addClass('hidden');
+                    $cancelUrlWrapper.addClass('hidden');
+                    $submitTypeWrapper.addClass('hidden');
                 }
             }
         },
