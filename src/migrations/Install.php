@@ -41,6 +41,7 @@ class Install extends Migration
         $this->dropTableIfExists('{{%enupalstripe_orderstatuses}}');
         $this->dropTableIfExists('{{%enupalstripe_addresses}}');
         $this->dropTableIfExists('{{%enupalstripe_countries}}');
+        $this->dropTableIfExists('{{%enupalstripe_subscriptiongrants}}');
 
         return true;
     }
