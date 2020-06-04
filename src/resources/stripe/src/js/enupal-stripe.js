@@ -247,17 +247,17 @@ var enupalStripe = {};
             if (enupalStripeData.stripe.shippingAddress){
                 var suffix = 'shipping';
                 var namespace = 'address';
-                this.setAddressToenupal--hiddenValues(suffix, namespace, args, enupalButtonElement)
+                this.setAddressToHiddenValues(suffix, namespace, args, enupalButtonElement)
             }
 
             if (enupalStripeData.stripe.billingAddress){
                 var suffix = 'billing';
                 var namespace = 'billingAddress';
-                this.setAddressToenupal--hiddenValues(suffix, namespace, args, enupalButtonElement)
+                this.setAddressToHiddenValues(suffix, namespace, args, enupalButtonElement)
             }
         },
 
-        setAddressToenupal--hiddenValues(suffix, namespace, args, enupalButtonElement)
+        setAddressToHiddenValues(suffix, namespace, args, enupalButtonElement)
         {
             if (args[suffix+'_name']) {
                 enupalButtonElement.find('[name="enupalStripe['+namespace+'][name]"]').val(args[suffix+'_name']);
