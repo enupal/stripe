@@ -59,7 +59,7 @@ var enupalStripe = {};
 
             var that = this;
 
-            //  Firefox is cached for some reason when we empty the hidden input.
+            //  Firefox is cached for some reason when we empty the enupal--hidden input.
             if (navigator.userAgent.indexOf("Firefox") < 0) {
                 // reset our values
                 $(enupalButtonElement).find('[name="enupalStripe[stripeData]"]').val('');
@@ -88,18 +88,18 @@ var enupalStripe = {};
                     var paymentType = this.value;
                     if (paymentType == 1){// Credit Card
                         paymentTypeInput.val(paymentType);
-                        ccWrapper.removeClass('hidden');
-                        idealWrapper.addClass('hidden');
-                        sofortWrapper.addClass('hidden');
+                        ccWrapper.removeClass('enupal--hidden');
+                        idealWrapper.addClass('enupal--hidden');
+                        sofortWrapper.addClass('enupal--hidden');
                     }else if (paymentType == 2){// iDEAL
-                        idealWrapper.removeClass('hidden');
-                        ccWrapper.addClass('hidden');
-                        sofortWrapper.addClass('hidden');
+                        idealWrapper.removeClass('enupal--hidden');
+                        ccWrapper.addClass('enupal--hidden');
+                        sofortWrapper.addClass('enupal--hidden');
                         paymentTypeInput.val(paymentType);
                     }else if (paymentType == 3){// SOFORT
-                        sofortWrapper.removeClass('hidden');
-                        idealWrapper.addClass('hidden');
-                        ccWrapper.addClass('hidden');
+                        sofortWrapper.removeClass('enupal--hidden');
+                        idealWrapper.addClass('enupal--hidden');
+                        ccWrapper.addClass('enupal--hidden');
                         paymentTypeInput.val(paymentType);
                     }
                 });
@@ -109,9 +109,9 @@ var enupalStripe = {};
                 var shippingAddressWrapper = enupalButtonElement.find('.shippingAddressContainer');
                 $("#sameAddressToggle-"+enupalStripeData.paymentFormId).change(function() {
                     if(this.checked) {
-                        shippingAddressWrapper.addClass('hidden');
+                        shippingAddressWrapper.addClass('enupal--hidden');
                     }else{
-                        shippingAddressWrapper.removeClass('hidden');
+                        shippingAddressWrapper.removeClass('enupal--hidden');
                     }
                 });
             }
@@ -136,20 +136,20 @@ var enupalStripe = {};
             for ( var i = 0, l = pTypes.length; i < l; i++ ) {
                 if (pTypes[i] == 1){// Credit Card
                     if (i == 0){
-                        enupalButtonElement.find('.cc-wrapper').removeClass('hidden');
+                        enupalButtonElement.find('.cc-wrapper').removeClass('enupal--hidden');
                         paymentTypeInput.val(pTypes[i]);
                     }
                     this.createCardElement(stripe, enupalStripeData, elements, enupalButtonElement);
                 }else if (pTypes[i] == 2){// iDEAL
                     if (i == 0){
-                        enupalButtonElement.find('.ideal-wrapper').removeClass('hidden');
+                        enupalButtonElement.find('.ideal-wrapper').removeClass('enupal--hidden');
                         paymentTypeInput.val(pTypes[i]);
                     }
                     this.createIdealElement(stripe, enupalStripeData, enupalButtonElement, elements);
                 }else if (pTypes[i] == 3){// SOFORT
                     if (i == 0){
-                        enupalButtonElement.find('.ideal-wrapper').removeClass('hidden');
-                        enupalButtonElement.find('.cc-wrapper').removeClass('hidden');
+                        enupalButtonElement.find('.ideal-wrapper').removeClass('enupal--hidden');
+                        enupalButtonElement.find('.cc-wrapper').removeClass('enupal--hidden');
                         paymentTypeInput.val(pTypes[i]);
                     }
 
@@ -179,7 +179,7 @@ var enupalStripe = {};
             if ($couponMessage){
                 $couponMessage.text('');
             }
-            $removeCoupon.addClass("hidden");
+            $removeCoupon.addClass("enupal--hidden");
 
             enupalButtonElement.find('[name="enupalCouponCode"]').val('');
             that.updateTotalAmoutLabel(enupalButtonElement, enupalStripeData);
@@ -218,7 +218,7 @@ var enupalStripe = {};
                     if (response.success === true){
                         $couponMessage.removeClass('coupon-error');
                         $couponMessage.text(response.successMessage);
-                        $removeCoupon.removeClass('hidden');
+                        $removeCoupon.removeClass('enupal--hidden');
 
                         if ($totalMessage){
                             $totalMessage.text(response.finalAmount);
@@ -226,7 +226,7 @@ var enupalStripe = {};
                         enupalButtonElement.find('[name="enupalCouponCode"]').val(response.coupon.id);
                     }else{
                         $couponMessage.addClass('coupon-error');
-                        $removeCoupon.addClass('hidden');
+                        $removeCoupon.addClass('enupal--hidden');
                         $couponMessage.text(enupalStripeData.coupon.errorMessage);
                     }
                     $couponButton.prop('disabled', false);

@@ -27,12 +27,12 @@
             var liveWrapper = $("#settings-liveKeys");
 
             if (value == 1){
-                testWrapper.removeClass('hidden');
-                liveWrapper.addClass('hidden');
+                testWrapper.removeClass('enupal--hidden');
+                liveWrapper.addClass('enupal--hidden');
             }
             else{
-                testWrapper.addClass('hidden');
-                liveWrapper.removeClass('hidden');
+                testWrapper.addClass('enupal--hidden');
+                liveWrapper.removeClass('enupal--hidden');
             }
         },
     });

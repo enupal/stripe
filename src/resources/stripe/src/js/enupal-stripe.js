@@ -36,7 +36,7 @@ var enupalStripe = {};
             enupalStripeData.lineItems = enupalButtonElement.find('[name="enupalStripe[enupalLineItems]"]').val();
             enupalStripeData.removeDefaultItem = enupalButtonElement.find('[name="enupalStripe[enupalRemoveDefaultItem]"]').val();
 
-            //  Firefox is cached for some reason when we empty the hidden input.
+            //  Firefox is cached for some reason when we empty the enupal--hidden input.
             if (navigator.userAgent.indexOf("Firefox") < 0) {
                 // reset our values
                 $(enupalButtonElement).find('[name="enupalStripe[stripeData]"]').val('');
@@ -67,7 +67,7 @@ var enupalStripe = {};
                 // Callback function to handle StripeCheckout.configure
                 function processStripeToken(token, args) {
                     // At this point the Stripe Checkout overlay is validated and submitted.
-                    // Set values to hidden elements to pass via POST when submitting the form for payment.
+                    // Set values to enupal--hidden elements to pass via POST when submitting the form for payment.
                     enupalButtonElement.find('[name="enupalStripe[token]"]').val(token.id);
                     enupalButtonElement.find('[name="enupalStripe[email]"]').val(token.email);
 
@@ -171,7 +171,7 @@ var enupalStripe = {};
             if ($couponMessage){
                 $couponMessage.text('');
             }
-            $removeCoupon.addClass("hidden");
+            $removeCoupon.addClass("enupal--hidden");
 
             enupalButtonElement.find('[name="enupalCouponCode"]').val('');
             that.updateTotalAmoutLabel(enupalButtonElement, enupalStripeData);
@@ -210,7 +210,7 @@ var enupalStripe = {};
                     if (response.success === true){
                         $couponMessage.removeClass('coupon-error');
                         $couponMessage.text(response.successMessage);
-                        $removeCoupon.removeClass('hidden');
+                        $removeCoupon.removeClass('enupal--hidden');
 
                         if ($totalMessage){
                             $totalMessage.text(response.finalAmount);
@@ -218,7 +218,7 @@ var enupalStripe = {};
                         enupalButtonElement.find('[name="enupalCouponCode"]').val(response.coupon.id);
                     }else{
                         $couponMessage.addClass('coupon-error');
-                        $removeCoupon.addClass('hidden');
+                        $removeCoupon.addClass('enupal--hidden');
                         $couponMessage.text(enupalStripeData.coupon.errorMessage);
                     }
                     $couponButton.prop('disabled', false);
@@ -247,17 +247,17 @@ var enupalStripe = {};
             if (enupalStripeData.stripe.shippingAddress){
                 var suffix = 'shipping';
                 var namespace = 'address';
-                this.setAddressToHiddenValues(suffix, namespace, args, enupalButtonElement)
+                this.setAddressToenupal--hiddenValues(suffix, namespace, args, enupalButtonElement)
             }
 
             if (enupalStripeData.stripe.billingAddress){
                 var suffix = 'billing';
                 var namespace = 'billingAddress';
-                this.setAddressToHiddenValues(suffix, namespace, args, enupalButtonElement)
+                this.setAddressToenupal--hiddenValues(suffix, namespace, args, enupalButtonElement)
             }
         },
 
-        setAddressToHiddenValues(suffix, namespace, args, enupalButtonElement)
+        setAddressToenupal--hiddenValues(suffix, namespace, args, enupalButtonElement)
         {
             if (args[suffix+'_name']) {
                 enupalButtonElement.find('[name="enupalStripe['+namespace+'][name]"]').val(args[suffix+'_name']);

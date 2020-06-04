@@ -65,7 +65,7 @@ Craft.StripeButton.OrderTableView = Craft.TableElementIndexView.extend({
             this.$chartExplorer = $chartExplorer;
             this.$totalValue = $totalValue;
             this.$chartContainer = $('<div class="chart-container"></div>').appendTo($chartExplorer);
-            this.$spinner = $('<div class="spinner hidden" />').prependTo($chartHeader);
+            this.$spinner = $('<div class="spinner enupal--hidden" />').prependTo($chartHeader);
             this.$error = $('<div class="error"></div>').appendTo(this.$chartContainer);
             this.$chart = $('<div class="chart"></div>').appendTo(this.$chartContainer);
 
@@ -198,19 +198,19 @@ Craft.StripeButton.OrderTableView = Craft.TableElementIndexView.extend({
             requestData.currency = this.currency;
 
             if (requestData.source.includes('orderStatusId:')) {
-                this.$exportButton.removeClass('hidden');
+                this.$exportButton.removeClass('enupal--hidden');
             }else{
                 if (!requestData.source.includes('*')) {
-                    this.$exportButton.addClass('hidden');
+                    this.$exportButton.addClass('enupal--hidden');
                 }
             }
 
-            this.$spinner.removeClass('hidden');
-            this.$error.addClass('hidden');
+            this.$spinner.removeClass('enupal--hidden');
+            this.$error.addClass('enupal--hidden');
             this.$chart.removeClass('error');
 
             Craft.postActionRequest('enupal-stripe/charts/get-revenue-data', requestData, $.proxy(function(response, textStatus) {
-                this.$spinner.addClass('hidden');
+                this.$spinner.addClass('enupal--hidden');
                 if (textStatus === 'success' && typeof(response.error) === 'undefined') {
                     if (!this.chart) {
                         this.chart = new Craft.charts.Area(this.$chart);
@@ -237,7 +237,7 @@ Craft.StripeButton.OrderTableView = Craft.TableElementIndexView.extend({
                     }
 
                     this.$error.html(msg);
-                    this.$error.removeClass('hidden');
+                    this.$error.removeClass('enupal--hidden');
                     this.$chart.addClass('error');
                 }
             }, this));

@@ -63,10 +63,10 @@
             var value = $("input[name='fields[enableCustomPlanAmount]']").val();
 
             if (value == 0){
-                $wrapper.removeClass('hidden');
+                $wrapper.removeClass('enupal--hidden');
             }
             else{
-                $wrapper.addClass('hidden');
+                $wrapper.addClass('enupal--hidden');
             }
         },
 
@@ -75,10 +75,10 @@
             var value = $("input[name='fields[enableSubscriptions]']").val();
 
             if (value == 0){
-                $oneTimeWrapper.removeClass('hidden');
+                $oneTimeWrapper.removeClass('enupal--hidden');
             }
             else{
-                $oneTimeWrapper.addClass('hidden');
+                $oneTimeWrapper.addClass('enupal--hidden');
             }
         },
 
@@ -94,35 +94,35 @@
             var useSca = $("input[name='useSca']").val();
 
             if (value == 0){
-                $elementsWrapper.removeClass('hidden');
-                $("#fields-sca-warning").removeClass("hidden");
+                $elementsWrapper.removeClass('enupal--hidden');
+                $("#fields-sca-warning").removeClass("enupal--hidden");
                 if (useSca == 1){
-                    $returnUrlForm.removeClass("hidden");
+                    $returnUrlForm.removeClass("enupal--hidden");
                 }
 
-                $checkoutElementsWrapper.addClass('hidden');
-                $successUrlWrapper.addClass('hidden');
-                $cancelUrlWrapper.addClass('hidden');
-                $submitTypeWrapper.addClass('hidden');
+                $checkoutElementsWrapper.addClass('enupal--hidden');
+                $successUrlWrapper.addClass('enupal--hidden');
+                $cancelUrlWrapper.addClass('enupal--hidden');
+                $submitTypeWrapper.addClass('enupal--hidden');
             }
             else{
-                $("#fields-sca-warning").addClass("hidden");
-                $elementsWrapper.addClass('hidden');
-                $checkoutElementsWrapper.removeClass('hidden');
+                $("#fields-sca-warning").addClass("enupal--hidden");
+                $elementsWrapper.addClass('enupal--hidden');
+                $checkoutElementsWrapper.removeClass('enupal--hidden');
 
-                $successUrlWrapper.addClass('hidden');
-                $cancelUrlWrapper.addClass('hidden');
-                $submitTypeWrapper.addClass('hidden');
+                $successUrlWrapper.addClass('enupal--hidden');
+                $cancelUrlWrapper.addClass('enupal--hidden');
+                $submitTypeWrapper.addClass('enupal--hidden');
 
                 if (useSca == 1){
-                    $returnUrlForm.addClass("hidden");
-                    $successUrlWrapper.removeClass('hidden');
-                    $cancelUrlWrapper.removeClass('hidden');
-                    $submitTypeWrapper.removeClass('hidden');
+                    $returnUrlForm.addClass("enupal--hidden");
+                    $successUrlWrapper.removeClass('enupal--hidden');
+                    $cancelUrlWrapper.removeClass('enupal--hidden');
+                    $submitTypeWrapper.removeClass('enupal--hidden');
                 }else {
-                    $successUrlWrapper.addClass('hidden');
-                    $cancelUrlWrapper.addClass('hidden');
-                    $submitTypeWrapper.addClass('hidden');
+                    $successUrlWrapper.addClass('enupal--hidden');
+                    $cancelUrlWrapper.addClass('enupal--hidden');
+                    $submitTypeWrapper.addClass('enupal--hidden');
                 }
             }
         },
@@ -132,10 +132,10 @@
             var value = $("input[name='fields[enableTemplateOverrides]']").val();
 
             if (value == 0){
-                $templateOverridesWrapper.addClass('hidden');
+                $templateOverridesWrapper.addClass('enupal--hidden');
             }
             else{
-                $templateOverridesWrapper.removeClass('hidden');
+                $templateOverridesWrapper.removeClass('enupal--hidden');
             }
         },
 
@@ -146,12 +146,12 @@
 
             var that = this;
 
-            this.$refreshPlansButton.addClass('disabled').siblings('.spinner').removeClass('hidden');
+            this.$refreshPlansButton.addClass('disabled').siblings('.spinner').removeClass('enupal--hidden');
 
             var $planSelect = $("#fields-singlePlanInfo");
 
             Craft.postActionRequest('enupal-stripe/payment-forms/refresh-plans', {}, function(response, textStatus) {
-                that.$refreshPlansButton.removeClass('disabled').siblings('.spinner').addClass('hidden');
+                that.$refreshPlansButton.removeClass('disabled').siblings('.spinner').addClass('enupal--hidden');
                 if (textStatus === 'success') {
                     if ("error" in response ){
                         Craft.cp.displayError(Craft.t('enupal-stripe', response.error));
@@ -210,11 +210,11 @@
             var $multipleSubscriptionWrapper = $("#fields-multiple-subscriptions-wrapper");
 
             if (value == 0) {
-                $singleSubscriptionWrapper.removeClass('hidden');
-                $multipleSubscriptionWrapper.addClass('hidden');
+                $singleSubscriptionWrapper.removeClass('enupal--hidden');
+                $multipleSubscriptionWrapper.addClass('enupal--hidden');
             }else{
-                $singleSubscriptionWrapper.addClass('hidden');
-                $multipleSubscriptionWrapper.removeClass('hidden');
+                $singleSubscriptionWrapper.addClass('enupal--hidden');
+                $multipleSubscriptionWrapper.removeClass('enupal--hidden');
             }
         },
 
@@ -225,11 +225,11 @@
 
             if (value == 1){
                 recurringTitle.text("RECURRING PAYMENT");
-                this.$recurringTypeField.removeClass('hidden');
+                this.$recurringTypeField.removeClass('enupal--hidden');
             }
             else{
                 recurringTitle.text("ONE TIME PAYMENT");
-                this.$recurringTypeField.addClass('hidden');
+                this.$recurringTypeField.addClass('enupal--hidden');
             }
         },
 
@@ -242,19 +242,19 @@
             var recurringValue = this.$recurringToggle.val();
 
             if (value == '0'){
-                $fieldWrapper.addClass('hidden');
+                $fieldWrapper.addClass('enupal--hidden');
                 amountLabel.text("Amount");
-                this.$minimumAmountField.addClass('hidden');
-                this.$recurringToggleField.addClass('hidden');
-                this.$recurringTypeField.addClass('hidden');
+                this.$minimumAmountField.addClass('enupal--hidden');
+                this.$recurringToggleField.addClass('enupal--hidden');
+                this.$recurringTypeField.addClass('enupal--hidden');
             }
             else{
-                $fieldWrapper.removeClass('hidden');
+                $fieldWrapper.removeClass('enupal--hidden');
                 amountLabel.text("Default Amount");
-                this.$minimumAmountField.removeClass('hidden');
-                this.$recurringToggleField.removeClass('hidden');
+                this.$minimumAmountField.removeClass('enupal--hidden');
+                this.$recurringToggleField.removeClass('enupal--hidden');
                 if (recurringValue == 1) {
-                    this.$recurringTypeField.removeClass('hidden');
+                    this.$recurringTypeField.removeClass('enupal--hidden');
                 }
             }
         },

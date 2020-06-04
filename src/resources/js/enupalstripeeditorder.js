@@ -41,7 +41,7 @@
 
             var that = this;
 
-            this.$refreshSubscriptionButton.addClass('disabled').siblings('.spinner').removeClass('hidden');
+            this.$refreshSubscriptionButton.addClass('disabled').siblings('.spinner').removeClass('enupal--hidden');
 
             var data = {
                 'subscriptionId' : $("#subscriptionId").val()
@@ -49,7 +49,7 @@
             that.$cancelSubscriptionButton.addClass('disabled');
 
             Craft.postActionRequest('enupal-stripe/subscriptions/refresh-subscription', data, function(response, textStatus) {
-                that.$refreshSubscriptionButton.removeClass('disabled').siblings('.spinner').addClass('hidden');
+                that.$refreshSubscriptionButton.removeClass('disabled').siblings('.spinner').addClass('enupal--hidden');
                 if (textStatus === 'success') {
                     if ("error" in response ){
                         Craft.cp.displayError(Craft.t('enupal-stripe', response.error));
@@ -64,19 +64,19 @@
                         $("#subs-status").html(subscription.statusHtml);
                         $("#subs-quantity").text(subscription.quantity);
                         if (!subscription.cancelAtPeriodEnd){
-                            that.$reactivateSubscriptionButtonWrapper.addClass('hidden');
+                            that.$reactivateSubscriptionButtonWrapper.addClass('enupal--hidden');
                             $("#cancel-title").text(Craft.t('enupal-stripe', ''));
-                            $("#canceled-at").addClass("hidden");
-                            $("#subs-cancel").removeClass("hidden");
+                            $("#canceled-at").addClass("enupal--hidden");
+                            $("#subs-cancel").removeClass("enupal--hidden");
                         }
 
                         if (subscription.canceledAt !== null){
                             $("#cancel-title").text(Craft.t('enupal-stripe', 'Canceled at'));
-                            $("#canceled-at").removeClass("hidden");
-                            $("#subs-cancel").addClass("hidden");
+                            $("#canceled-at").removeClass("enupal--hidden");
+                            $("#subs-cancel").addClass("enupal--hidden");
                             $("#canceled-at").text(subscription.canceledAt);
                             if (subscription.cancelAtPeriodEnd){
-                                that.$reactivateSubscriptionButtonWrapper.removeClass('hidden');
+                                that.$reactivateSubscriptionButtonWrapper.removeClass('enupal--hidden');
                             }
                         }else{
                             that.$cancelSubscriptionButton.removeClass('disabled');
@@ -99,14 +99,14 @@
 
             var that = this;
 
-            this.$cancelSubscriptionButton.addClass('disabled').siblings('.spinner').removeClass('hidden');
+            this.$cancelSubscriptionButton.addClass('disabled').siblings('.spinner').removeClass('enupal--hidden');
 
             var data = {
                 'subscriptionId' : $("#subscriptionId").val()
             };
 
             Craft.postActionRequest('enupal-stripe/subscriptions/cancel-subscription', data, function(response, textStatus) {
-                that.$cancelSubscriptionButton.removeClass('disabled').siblings('.spinner').addClass('hidden');
+                that.$cancelSubscriptionButton.removeClass('disabled').siblings('.spinner').addClass('enupal--hidden');
                 if (textStatus === 'success') {
                     if ("error" in response ){
                         Craft.cp.displayError(Craft.t('enupal-stripe', response.error));
@@ -132,14 +132,14 @@
 
             var that = this;
 
-            this.$reactivateSubscriptionButton.addClass('disabled').siblings('.spinner').removeClass('hidden');
+            this.$reactivateSubscriptionButton.addClass('disabled').siblings('.spinner').removeClass('enupal--hidden');
 
             var data = {
                 'subscriptionId' : $("#subscriptionId").val()
             };
 
             Craft.postActionRequest('enupal-stripe/subscriptions/reactivate-subscription', data, function(response, textStatus) {
-                that.$reactivateSubscriptionButton.removeClass('disabled').siblings('.spinner').addClass('hidden');
+                that.$reactivateSubscriptionButton.removeClass('disabled').siblings('.spinner').addClass('enupal--hidden');
                 if (textStatus === 'success') {
                     if ("error" in response ){
                         Craft.cp.displayError(Craft.t('enupal-stripe', response.error));
@@ -165,14 +165,14 @@
 
             var that = this;
 
-            this.$refundButton.addClass('disabled').siblings('.spinner').removeClass('hidden');
+            this.$refundButton.addClass('disabled').siblings('.spinner').removeClass('enupal--hidden');
 
             var data = {
                 'orderNumber' : $("#fields-order-number-short").text()
             };
 
             Craft.postActionRequest('enupal-stripe/orders/refund-payment', data, function(response, textStatus) {
-                that.$refundButton.removeClass('disabled').siblings('.spinner').addClass('hidden');
+                that.$refundButton.removeClass('disabled').siblings('.spinner').addClass('enupal--hidden');
                 if (textStatus === 'success') {
                     if ("error" in response ){
                         Craft.cp.displayError(Craft.t('enupal-stripe', response.error));
@@ -200,14 +200,14 @@
 
             var that = this;
 
-            this.$captureButton.addClass('disabled').siblings('.spinner').removeClass('hidden');
+            this.$captureButton.addClass('disabled').siblings('.spinner').removeClass('enupal--hidden');
 
             var data = {
                 'orderNumber' : $("#fields-order-number-short").text()
             };
 
             Craft.postActionRequest('enupal-stripe/orders/capture-payment', data, function(response, textStatus) {
-                that.$captureButton.removeClass('disabled').siblings('.spinner').addClass('hidden');
+                that.$captureButton.removeClass('disabled').siblings('.spinner').addClass('enupal--hidden');
                 if (textStatus === 'success') {
                     if ("error" in response ){
                         Craft.cp.displayError(Craft.t('enupal-stripe', response.error));
