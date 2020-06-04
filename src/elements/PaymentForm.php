@@ -585,7 +585,6 @@ class PaymentForm extends Element
      */
     public function getPublicData($options = null)
     {
-        $info = Craft::$app->getInfo();
         $logoUrl = null;
         $logoAssets = $this->getLogoAssets();
         $calculateFinalAmount = $options['calculateFinalAmount'] ?? true;
@@ -684,7 +683,7 @@ class PaymentForm extends Element
             'stripe' => [
                 'description' => $this->name,
                 'panelLabel' => $this->checkoutButtonText ?? 'Pay {{amount}}',
-                'name' => $this->companyName ?? $info->name,
+                'name' => empty($this->companyName) ? $this->name : $this->companyName,
                 'currency' => $currency,
                 'locale' => $this->language,
                 'amount' => $amount,
