@@ -631,28 +631,6 @@ class PaymentForms extends Component
     }
 
     /**
-     * Delete all fields created when installing
-     */
-    public function deleteVariantFields()
-    {
-        $currentFieldContext = Craft::$app->getContent()->fieldContext;
-        Craft::$app->getContent()->fieldContext = StripePlugin::$app->settings->getFieldContext();
-
-        $matrixBasicField = Craft::$app->fields->getFieldByHandle(self::BASIC_FORM_FIELDS_HANDLE);
-        $matrixMultiplePlans = Craft::$app->fields->getFieldByHandle(self::MULTIPLE_PLANS_HANDLE);
-
-        if ($matrixBasicField) {
-            Craft::$app->fields->deleteFieldById($matrixBasicField->id);
-        }
-
-        if ($matrixMultiplePlans) {
-            Craft::$app->fields->deleteFieldById($matrixMultiplePlans->id);
-        }
-        // Give back the current field context
-        Craft::$app->getContent()->fieldContext = $currentFieldContext;
-    }
-
-    /**
      * Create a secuencial string for the "name" and "handle" fields if they are already taken
      *
      * @param string
