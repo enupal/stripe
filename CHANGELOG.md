@@ -3,17 +3,17 @@
 ## 2.7.0 - 2020.06.06
 
 ### Added
-- Added `itemName`, `itemDescription`, `checkoutSuccessUrl` and `checkoutCancelUrl` to [options](https://docs.enupal.com/stripe-payments/templating/paymentform.html#options) (useful for Stripe Checkout) ([88])([83])
+- Added `itemName`, `itemDescription`, `checkoutSuccessUrl` and `checkoutCancelUrl` to [options](https://docs.enupal.com/stripe-payments/templating/paymentform.html#options) (useful for Stripe Checkout) ([#88])([#83])
 
 ### Fixed
 - Fixed issue where Stripe errors where not displayed on front-end
 - Fixed coupon issue on Asynchronous Payments (iDEAL, Sofort)
 - Fixed issue where required fields not showing error messages only on Safari browsers and card elements
-- Fixed issue when `useProjectConfigFile` is enabled ([94]) ([49]) ([37])
+- Fixed issue when `useProjectConfigFile` is enabled ([#94]) ([#49]) ([#37])
 
 ### Updated
 - Updated front-end css class from `hidden` to `enupal-hidden`
-- Updated front-end amount field increments from `.01` to `1` ([99])
+- Updated front-end amount field increments from `.01` to `1` ([#99])
 
 [#94]: https://github.com/enupal/stripe/issues/94
 [#49]: https://github.com/enupal/stripe/issues/49
