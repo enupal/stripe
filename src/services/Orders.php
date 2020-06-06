@@ -685,9 +685,6 @@ class Orders extends Component
 
         try {
             $charge = Charge::create($settings);
-        } catch (Base $e) {
-            Craft::error('Stripe - an error occurred: '.$e->getMessage(), __METHOD__);
-            $order->addError('stripePayments', $e->getMessage());
         } catch (\Exception $e) {
             // Something else happened, completely unrelated to Stripe
             Craft::error('Stripe - something went wrong: '.$e->getMessage(), __METHOD__);
@@ -1274,7 +1271,7 @@ class Orders extends Component
                     'email' => $order->email,
                     'source' => $token
                 ]);
-            } catch (Base $e) {
+            } catch (\Exception $e) {
                 Craft::error('Stripe Error creating customer: ' . $e->getMessage(), __METHOD__);
                 $order->addError('stripePayments', $e->getMessage());
                 return null;
@@ -1287,7 +1284,7 @@ class Orders extends Component
             $stripeCustomer->source = $token;
             try {
                 $stripeCustomer->save();
-            } catch (Base $e) {
+            } catch (\Exception $e) {
                 Craft::error('Stripe Error saving customer: ' . $e->getMessage(), __METHOD__);
                 $order->addError('stripePayments', $e->getMessage());
                 return null;
@@ -1405,7 +1402,7 @@ class Orders extends Component
      * @param $paymentForm
      * @param $customer
      * @param $data
-     * @param $order
+     * @param Order $order
      * @return null
      * @throws \Exception
      */
@@ -1417,6 +1414,7 @@ class Orders extends Component
         $shippingAddress = $data['address'] ?? null;
         $billingAddress = $data['billingAddress'] ?? null;
         $sameAddress = $data['sameAddressToggle'] ?? null;
+        $isIncomplete = false;
 
         if ($billingAddress !== null){
             $params = [
@@ -1447,6 +1445,7 @@ class Orders extends Component
 
             // Either single plan or multiple plans the user should select one plan and plan id should be available in the post request
             $subscription = $this->addPlanToCustomer($customer, $planId, $data, $order);
+            $isIncomplete = $this->getSubscriptionIsIncomplete($subscription->status);
             $stripeId = $subscription->id ?? null;
         }
 
@@ -1458,6 +1457,7 @@ class Orders extends Component
                 }
                 // test what is returning we need a stripe id
                 $subscription = $this->addCustomPlan($customer, $data, $paymentForm);
+                $isIncomplete = $this->getSubscriptionIsIncomplete($subscription->status);
                 $stripeId = $subscription->id ?? null;
             }
         }
@@ -1476,10 +1476,25 @@ class Orders extends Component
             }
 
             $subscription = $this->addPlanToCustomer($customer, $planId, $data, $order);
+            $isIncomplete = $this->getSubscriptionIsIncomplete($subscription->status);
             $stripeId = $subscription->id ?? null;
         }
 
+        if ($isIncomplete) {
+            $order->addError('stripePayments', Craft::t('site', 'An error occurred while processing the card. Try again later or with a different payment method'));
+            return null;
+        }
+
         return $stripeId;
+    }
+
+    /**
+     * @param $status
+     * @return bool
+     */
+    private function getSubscriptionIsIncomplete($status)
+    {
+        return $status === 'incomplete' ? true : false;
     }
 
 	/**
