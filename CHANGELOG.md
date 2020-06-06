@@ -1,5 +1,12 @@
 # Stripe Payments Changelog
 
+## WIP
+
+### Fixed
+- Fixed coupon issue on Asynchronous Payments (iDEAL, Sofort)
+- Fixed issue where required fields not showing error messages only on Safari browsers and card elements
+- Fixed issue when enabling project config file.
+
 ## 2.6.3 - 2020.05.29
 
 ### Fixed
