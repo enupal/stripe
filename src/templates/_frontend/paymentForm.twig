@@ -173,7 +173,7 @@
 
             {% if paymentForm.enableShippingAddress  %}
                 {%- set address = craft.enupalStripe.displayAddress(paymentForm)  %}
-                <div id="shippingAddressContainer-{{ paymentForm.id }}" class="shippingAddressContainer {% if hideShipping %} hidden {% endif %}">
+                <div id="shippingAddressContainer-{{ paymentForm.id }}" class="shippingAddressContainer {% if hideShipping %} enupal-hidden {% endif %}">
                     {{ address|raw }}
                 </div>
             {% endif %}
@@ -222,7 +222,7 @@
                 {# Credit Card #}
                 {% set isHidden = paymentTypeIds|length > 1 ? true : false %}
                 {% if paymentTypeId == 1 %}
-                    <div class="form-row cc-wrapper form-group {% if isHidden %}hidden{% endif %}">
+                    <div class="form-row cc-wrapper form-group {% if isHidden %}enupal-hidden{% endif %}">
                         <label for="card-element-{{ paymentForm.id }}">
                             {{ "Credit or debit card"|t }}
                         </label>
@@ -234,7 +234,7 @@
                 {# IDeal #}
                 {% elseif paymentTypeId == 2 %}
                     <input type="hidden" name='idealBank' value>
-                    <div class="form-row inline ideal-wrapper {% if isHidden %}hidden{% endif %}">
+                    <div class="form-row inline ideal-wrapper {% if isHidden %}enupal-hidden{% endif %}">
                         <div class="form-row">
                             <label for="ideal-bank-element-{{ paymentForm.id }}">
                                 {{ "iDEAL Bank"|t }}
@@ -248,7 +248,7 @@
                 {# SOFORT #}
                 {% elseif paymentTypeId == 3 %}
                     {% set sofortCountries = craft.enupalStripe.getSofortCountriesAsOptions() %}
-                    <div class="form-row inline sofort-wrapper {% if isHidden %}hidden{% endif %}">
+                    <div class="form-row inline sofort-wrapper {% if isHidden %}enupal-hidden{% endif %}">
                         <div class="form-group">
                             <div class="heading">
                                 <label for="sofortCountry-{{ paymentForm.id }}">
@@ -283,7 +283,7 @@
         {% endif %}
 
         {% set isCouponEnabled = options.coupon.enabled ?? false %}
-        <div class="coupons-wrapper {% if not isCouponEnabled %} hidden {% endif %}">
+        <div class="coupons-wrapper {% if not isCouponEnabled %} enupal-hidden {% endif %}">
             <div class="form-group">
                 <div class="heading">
                     <label for="couponCode-{{ paymentForm.id }}">
@@ -293,7 +293,7 @@
                         <span id="coupon-message-{{ paymentForm.id }}">
                         </span>&nbsp;
                         {% set removeCouponLabel = options.coupon.removeCouponLabel ?? 'Remove'|t %}
-                        <a class="hidden" href="#" id="remove-coupon-{{ paymentForm.id }}">{{ removeCouponLabel }}</a>
+                        <a class="enupal-hidden" href="#" id="remove-coupon-{{ paymentForm.id }}">{{ removeCouponLabel }}</a>
                     </div>
                 </div>
                 <div class="input">

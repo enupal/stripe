@@ -23,7 +23,7 @@ class StripeAsset extends AssetBundle
         // when this asset bundle is registered
         if ($settings->loadCss) {
             $this->css = [
-                'stripe/css/enupal-button.min.css'
+                'stripe/dist/css/enupal-button.min.css'
             ];
         }
 
