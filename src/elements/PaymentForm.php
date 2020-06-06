@@ -34,6 +34,7 @@ use yii\base\Model;
  */
 class PaymentForm extends Element
 {
+    const SESSION_CHECKOUT_SUCCESS_URL = 'enupalCheckoutSuccessUrl';
     /**
      * @inheritdoc
      */
@@ -647,6 +648,12 @@ class PaymentForm extends Element
         $paymentTypeIds = json_decode($this->paymentType, true);
         $singlePlanSetupFee = $this->singlePlanSetupFee;
 
+        $itemDescription = $options['itemDescription'] ?? $this->name;
+        $itemName = empty($this->companyName) ? $this->name : $this->companyName;
+        $itemName = $options['itemName'] ?? $itemName;
+        $checkoutSuccessUrl = $options['checkoutSuccessUrl'] ?? $this->checkoutSuccessUrl;
+        Craft::$app->getSession()->set(self::SESSION_CHECKOUT_SUCCESS_URL, $checkoutSuccessUrl);
+
         $publicData = [
             'useSca' => $this->settings->useSca,
             'checkoutSuccessUrl' => $this->checkoutSuccessUrl,
@@ -681,9 +688,9 @@ class PaymentForm extends Element
             'coupon' => $couponData,
             'quantity' => $quantity,
             'stripe' => [
-                'description' => $this->name,
+                'description' => $itemDescription,
                 'panelLabel' => $this->checkoutButtonText ?? 'Pay {{amount}}',
-                'name' => empty($this->companyName) ? $this->name : $this->companyName,
+                'name' => $itemName,
                 'currency' => $currency,
                 'locale' => $this->language,
                 'amount' => $amount,

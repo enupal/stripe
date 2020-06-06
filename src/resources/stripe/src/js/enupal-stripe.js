@@ -171,7 +171,7 @@ var enupalStripe = {};
             if ($couponMessage){
                 $couponMessage.text('');
             }
-            $removeCoupon.addClass("hidden");
+            $removeCoupon.addClass("enupal-hidden");
 
             enupalButtonElement.find('[name="enupalCouponCode"]').val('');
             that.updateTotalAmoutLabel(enupalButtonElement, enupalStripeData);
@@ -210,7 +210,7 @@ var enupalStripe = {};
                     if (response.success === true){
                         $couponMessage.removeClass('coupon-error');
                         $couponMessage.text(response.successMessage);
-                        $removeCoupon.removeClass('hidden');
+                        $removeCoupon.removeClass('enupal-hidden');
 
                         if ($totalMessage){
                             $totalMessage.text(response.finalAmount);
@@ -218,7 +218,7 @@ var enupalStripe = {};
                         enupalButtonElement.find('[name="enupalCouponCode"]').val(response.coupon.id);
                     }else{
                         $couponMessage.addClass('coupon-error');
-                        $removeCoupon.addClass('hidden');
+                        $removeCoupon.addClass('enupal-hidden');
                         $couponMessage.text(enupalStripeData.coupon.errorMessage);
                     }
                     $couponButton.prop('disabled', false);

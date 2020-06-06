@@ -151,4 +151,20 @@ class Settings extends Component
 
         return $context;
     }
+
+    /**
+     * @return bool|string
+     */
+    public function getPrimarySiteUrl()
+    {
+        $primarySite = (new Query())
+            ->select(['baseUrl'])
+            ->from(['{{%sites}}'])
+            ->where(['primary' => 1])
+            ->one();
+
+        $primarySiteUrl = Craft::getAlias($primarySite['baseUrl']);
+
+        return Craft::parseEnv(Craft::getAlias(rtrim(trim($primarySiteUrl), "/")));
+    }
 }

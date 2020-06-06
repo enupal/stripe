@@ -568,43 +568,70 @@ class PaymentForms extends Component
     }
 
     /**
+     * Delete all fields created when installing
+     */
+    public function deleteVariantFields()
+    {
+        $currentFieldContext = Craft::$app->getContent()->fieldContext;
+
+        $stripeFields = (new Query())
+            ->select(['id'])
+            ->from(["{{%fields}}"])
+            ->where(['like', 'context', 'enupalStripe:'])
+            ->all();
+
+        Craft::$app->getContent()->fieldContext = StripePlugin::$app->settings->getFieldContext();
+
+        if ($stripeFields) {
+            foreach ($stripeFields as $stripeField) {
+                if (Craft::$app->fields->deleteFieldById($stripeField['id'])){
+                    Craft::info('Stripe Payments Field deleted: '.$stripeField['id'], __METHOD__);
+                } else{
+                    Craft::info('Unable to delete Stripe Payments Field: '.$stripeField['id'], __METHOD__);
+                }
+            }
+        }
+
+        // Give back the current field context
+        Craft::$app->getContent()->fieldContext = $currentFieldContext;
+
+        // Delete also from project config
+        $fields = Craft::$app->projectConfig->get('enupalStripe.fields');
+        if (is_array($fields) && $fields) {
+            Craft::$app->projectConfig->remove('enupalStripe.fields');
+        }
+    }
+
+    /**
      * Add the default two Matrix fields for variants
      *
      * @throws \Throwable
      */
     public function createDefaultVariantFields()
     {
-        $matrixBasicField = $this->createFormFieldsMatrixField();
-        $multiplePlansMatrixField = $this->createMultiplePlansMatrixField();
-        // Save our fields
-        $currentFieldContext = Craft::$app->getContent()->fieldContext;
-        Craft::$app->getContent()->fieldContext = StripePlugin::$app->settings->getFieldContext();
-        Craft::$app->fields->saveField($matrixBasicField);
-        Craft::$app->fields->saveField($multiplePlansMatrixField);
-        // Give back the current field context
-        Craft::$app->getContent()->fieldContext = $currentFieldContext;
+        // Delete old variant fields as we may update fields on it
+        $this->deleteVariantFields();
+
+        $this->createFormFieldsMatrixField();
+        $this->createMultiplePlansMatrixField();
     }
 
-    /**
-     * Delete all fields created when installing
-     */
-    public function deleteVariantFields()
+    private function saveMatrixFieldOnProjectConfig($field)
     {
-        $currentFieldContext = Craft::$app->getContent()->fieldContext;
-        Craft::$app->getContent()->fieldContext = StripePlugin::$app->settings->getFieldContext();
+        $field->context = StripePlugin::$app->settings->getFieldContext();
 
-        $matrixBasicField = Craft::$app->fields->getFieldByHandle(self::BASIC_FORM_FIELDS_HANDLE);
-        $matrixMultiplePlans = Craft::$app->fields->getFieldByHandle(self::MULTIPLE_PLANS_HANDLE);
-
-        if ($matrixBasicField) {
-            Craft::$app->fields->deleteFieldById($matrixBasicField->id);
+        if (!$field->beforeSave($field->getIsNew())) {
+            throw new \Exception('The Matrix field doesn\'t want to be saved');
         }
 
-        if ($matrixMultiplePlans) {
-            Craft::$app->fields->deleteFieldById($matrixMultiplePlans->id);
+        if (!$field->validate()) {
+            throw new \Exception('The Matrix field couldn\'t be saved due to a validation error');
         }
-        // Give back the current field context
-        Craft::$app->getContent()->fieldContext = $currentFieldContext;
+
+        Craft::$app->fields->prepFieldForSave($field);
+        $configData = Craft::$app->fields->createFieldConfig($field);
+
+        Craft::$app->projectConfig->set("enupalStripe.fields.$field->uid", $configData, "Save Stripe Payments Stripe field “{$field->handle}”");
     }
 
     /**
@@ -824,8 +851,9 @@ class PaymentForms extends Component
     }
 
     /**
-     * @return \craft\base\FieldInterface
+     * @return bool
      * @throws \yii\db\Exception
+     * @throws \Exception
      */
     private function createFormFieldsMatrixField()
     {
@@ -1132,14 +1160,11 @@ class PaymentForms extends Component
             ]
         ];
 
-        $currentFieldContext = Craft::$app->getContent()->fieldContext;
-        Craft::$app->getContent()->fieldContext = StripePlugin::$app->settings->getFieldContext();
-        $matrixBasicField = Craft::$app->fields->getFieldByHandle(self::BASIC_FORM_FIELDS_HANDLE);
-        Craft::$app->getContent()->fieldContext = $currentFieldContext;
+        $matrixBasicField = $this->getStripeMatrixFieldFromDb(self::BASIC_FORM_FIELDS_HANDLE);
 
         if (!is_null($matrixBasicField)) {
             // For some reason the field already exits
-            return $matrixBasicField;
+            return true;
         }
 
         // Our basic fields is a matrix field
@@ -1153,12 +1178,25 @@ class PaymentForms extends Component
             'translationMethod' => Field::TRANSLATION_METHOD_SITE,
         ]);
 
+        $this->saveMatrixFieldOnProjectConfig($matrixBasicField);
+
+        return true;
+    }
+
+    public function getStripeMatrixFieldFromDb($handle)
+    {
+        $currentFieldContext = Craft::$app->getContent()->fieldContext;
+        Craft::$app->getContent()->fieldContext = StripePlugin::$app->settings->getFieldContext();
+        $matrixBasicField = Craft::$app->fields->getFieldByHandle($handle);
+        Craft::$app->getContent()->fieldContext = $currentFieldContext;
+
         return $matrixBasicField;
     }
 
     /**
-     * @return \craft\base\FieldInterface
+     * @return bool
      * @throws \yii\db\Exception
+     * @throws \Exception
      */
     private function createMultiplePlansMatrixField()
     {
@@ -1215,14 +1253,11 @@ class PaymentForms extends Component
             ]
         ];
 
-        $currentFieldContext = Craft::$app->getContent()->fieldContext;
-        Craft::$app->getContent()->fieldContext = StripePlugin::$app->settings->getFieldContext();
-        $matrixMultiplePlansField = Craft::$app->fields->getFieldByHandle(self::MULTIPLE_PLANS_HANDLE);
-        Craft::$app->getContent()->fieldContext = $currentFieldContext;
+        $matrixMultiplePlansField = $this->getStripeMatrixFieldFromDb(self::MULTIPLE_PLANS_HANDLE);
 
         if (!is_null($matrixMultiplePlansField)) {
             // For some reason the field already exits
-            return $matrixMultiplePlansField;
+            return true;
         }
 
         // Our multiple plans matrix field
@@ -1237,7 +1272,9 @@ class PaymentForms extends Component
             'translationMethod' => Field::TRANSLATION_METHOD_SITE,
         ]);
 
-        return $matrixMultiplePlansField;
+        $this->saveMatrixFieldOnProjectConfig($matrixMultiplePlansField);
+
+        return true;
     }
 
     /**
