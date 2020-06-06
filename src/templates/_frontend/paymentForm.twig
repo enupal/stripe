@@ -126,7 +126,7 @@
                     <div class="form-group">
                         <div class="enupal-input-icon">
                             <i>{{ currencySymbol }}</i>
-                            <input type="number" class="form-control" id="{{ customId }}" name="customPlanAmount" min="{{ "%.2f"|format(paymentForm.customPlanMinimumAmount) }}" value="{{ minimumAmount }}" step=".01">
+                            <input type="number" class="form-control" id="{{ customId }}" name="customPlanAmount" min="{{ "%.2f"|format(paymentForm.customPlanMinimumAmount) }}" value="{{ minimumAmount }}" step="1">
                         </div>
                     </div>
                 {% endif %}
@@ -214,7 +214,7 @@
                     </label>
                 </div>
                 <div class="input">
-                    <input id="email-{{ paymentForm.id }}" type="email" name="stripeElementEmail" placeholder="jenny@example.com" required value="{{ currentEmail }}">
+                    <input id="email-{{ paymentForm.id }}" type="email" name="stripeElementEmail" placeholder="jenny@example.com" required aria-required="true" value="{{ currentEmail }}">
                 </div>
             </div>
 

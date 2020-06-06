@@ -83,6 +83,24 @@ class Stripe extends Plugin
         Event::on(Orders::class, Orders::EVENT_AFTER_PROCESS_WEBHOOK, function(WebhookEvent $e) {
             self::$app->subscriptions->processSubscriptionGrantEvent($e);
         });
+
+        Craft::$app->projectConfig
+            ->onAdd("enupalStripe.fields.{uid}", [$this, 'handleChangedField'])
+            ->onUpdate("enupalStripe.fields{uid}", [$this, 'handleChangedField'])
+            ->onRemove("enupalStripe.fields.{uid}", [$this, 'handleDeletedField']);
+    }
+
+    public function handleChangedField(\craft\events\ConfigEvent $event)
+    {
+        $data = $event->newValue;
+        $fieldUid = $event->tokenMatches[0];
+        Craft::$app->fields->applyFieldSave($fieldUid, $data,  self::$app->settings->getFieldContext());
+    }
+
+    public function handleDeletedField(\craft\events\ConfigEvent $event)
+    {
+        $fieldUid = $event->tokenMatches[0];
+        Craft::$app->fields->applyFieldDelete($fieldUid);
     }
 
     /**
@@ -100,6 +118,7 @@ class Stripe extends Plugin
     protected function afterUninstall()
     {
         Stripe::$app->paymentForms->deleteVariantFields();
+        Craft::$app->projectConfig->rebuild();
     }
 
     /**

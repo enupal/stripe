@@ -10,6 +10,7 @@ namespace enupal\stripe\migrations;
 
 use craft\db\Migration;
 use enupal\stripe\enums\SubmitTypes;
+use Craft;
 
 /**
  * Installation Migration
@@ -41,6 +42,7 @@ class Install extends Migration
         $this->dropTableIfExists('{{%enupalstripe_orderstatuses}}');
         $this->dropTableIfExists('{{%enupalstripe_addresses}}');
         $this->dropTableIfExists('{{%enupalstripe_countries}}');
+        $this->dropTableIfExists('{{%enupalstripe_subscriptiongrants}}');
 
         return true;
     }
