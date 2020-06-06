@@ -10,6 +10,7 @@ namespace enupal\stripe\migrations;
 
 use craft\db\Migration;
 use enupal\stripe\enums\SubmitTypes;
+use Craft;
 
 /**
  * Installation Migration

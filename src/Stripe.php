@@ -117,7 +117,8 @@ class Stripe extends Plugin
      */
     protected function afterUninstall()
     {
-        Craft::$app->projectConfig->remove('enupalStripe.fields');
+        Stripe::$app->paymentForms->deleteVariantFields();
+        Craft::$app->projectConfig->rebuild();
     }
 
     /**

@@ -568,48 +568,52 @@ class PaymentForms extends Component
     }
 
     /**
+     * Delete all fields created when installing
+     */
+    public function deleteVariantFields()
+    {
+        $currentFieldContext = Craft::$app->getContent()->fieldContext;
+
+        $stripeFields = (new Query())
+            ->select(['id'])
+            ->from(["{{%fields}}"])
+            ->where(['like', 'context', 'enupalStripe:'])
+            ->all();
+
+        Craft::$app->getContent()->fieldContext = StripePlugin::$app->settings->getFieldContext();
+
+        if ($stripeFields) {
+            foreach ($stripeFields as $stripeField) {
+                if (Craft::$app->fields->deleteFieldById($stripeField['id'])){
+                    Craft::info('Stripe Payments Field deleted: '.$stripeField['id'], __METHOD__);
+                } else{
+                    Craft::info('Unable to delete Stripe Payments Field: '.$stripeField['id'], __METHOD__);
+                }
+            }
+        }
+
+        // Give back the current field context
+        Craft::$app->getContent()->fieldContext = $currentFieldContext;
+
+        // Delete also from project config
+        $fields = Craft::$app->projectConfig->get('enupalStripe.fields');
+        if (is_array($fields) && $fields) {
+            Craft::$app->projectConfig->remove('enupalStripe.fields');
+        }
+    }
+
+    /**
      * Add the default two Matrix fields for variants
      *
      * @throws \Throwable
      */
     public function createDefaultVariantFields()
     {
-        $fields = Craft::$app->projectConfig->get('enupalStripe.fields');
-        $createBasicField = true;
-        $createMultiplePlansField = true;
+        // Delete old variant fields as we may update fields on it
+        $this->deleteVariantFields();
 
-        if (is_array($fields) && $fields) {
-            foreach ($fields as $uid => $field) {
-                if ($field['handle'] === self::BASIC_FORM_FIELDS_HANDLE || $field['handle'] === self::MULTIPLE_PLANS_HANDLE){
-                    $matrixBasicField = $this->getStripeMatrixFieldFromDb(self::BASIC_FORM_FIELDS_HANDLE);
-                    $multiplePlansField = $this->getStripeMatrixFieldFromDb(self::MULTIPLE_PLANS_HANDLE);
-
-                    if (is_null($matrixBasicField) || is_null($multiplePlansField)) {
-                        // For some reason the field is in the config file but not db lets just remove the field from config file
-                        Craft::$app->projectConfig->remove('enupalStripe.fields');
-                        $createBasicField = true;
-                        $createMultiplePlansField = true;
-                        break;
-                    }
-
-                    if ($field['handle'] === self::BASIC_FORM_FIELDS_HANDLE){
-                        $createBasicField = false;
-                    }
-
-                    if ($field['handle'] === self::MULTIPLE_PLANS_HANDLE){
-                        $createMultiplePlansField = false;
-                    }
-                }
-            }
-        }
-
-        if ($createBasicField) {
-            $this->createFormFieldsMatrixField();
-        }
-
-        if ($createMultiplePlansField) {
-            $this->createMultiplePlansMatrixField();
-        }
+        $this->createFormFieldsMatrixField();
+        $this->createMultiplePlansMatrixField();
     }
 
     private function saveMatrixFieldOnProjectConfig($field)

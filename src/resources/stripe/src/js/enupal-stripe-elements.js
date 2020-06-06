@@ -283,6 +283,18 @@ var enupalStripe = {};
                 }
 
                 if (!form.checkValidity()) {
+                    var isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+                    if (isSafari){
+                        $('#'+form.id+' :input:visible[required="required"]').each(function () {
+                            if (!this.validity.valid) {
+                                $(this).focus();
+                                $(this).attr("placeholder", this.validationMessage).addClass('placeholderError');
+                                $(this).val(''); // clear value so it shows error message on Placeholder.
+                                return false;
+                            }
+                        });
+                    }
+
                     if (form.reportValidity) {
                         form.reportValidity();
                     } else {

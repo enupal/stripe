@@ -401,11 +401,11 @@ class Orders extends Component
         $order->currency = 'EUR';
         $order->formId = $paymentForm->id;
 
-        $redirectUrl = $paymentForm->returnUrl != null ? UrlHelper::siteUrl($paymentForm->returnUrl) : Craft::getAlias(Craft::$app->getSites()->getPrimarySite()->baseUrl);
+        $redirectUrl = $paymentForm->returnUrl != null ? UrlHelper::siteUrl($paymentForm->returnUrl) : StripePlugin::$app->settings->getPrimarySiteUrl();
 
         StripePlugin::$app->settings->initializeStripe();
 
-        if (!is_null($data['couponCode'])){
+        if (isset($data['couponCode']) && $data['couponCode']){
             $isSubscription = $paymentForm->enableSubscriptions ?? false;
             $this->applyCouponToOrder($data, $order, $isSubscription);
         }
@@ -435,7 +435,6 @@ class Orders extends Component
         $redirectUrl = Craft::$app->getView()->renderObjectTemplate($redirectUrl, $order);
 
         $options['redirect'] = ['return_url' => $redirectUrl];
-
         $source = Source::create($options);
 
         $order->stripeTransactionId = $source->id;
