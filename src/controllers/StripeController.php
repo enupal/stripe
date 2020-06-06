@@ -9,6 +9,7 @@
 namespace enupal\stripe\controllers;
 
 use craft\web\Controller as BaseController;
+use enupal\stripe\elements\PaymentForm;
 use enupal\stripe\enums\PaymentType;
 use enupal\stripe\Stripe as StripePlugin;
 use Craft;
@@ -217,7 +218,8 @@ class StripeController extends BaseController
             return $this->redirect('/');
         }
 
-        $returnUrl = $order->getPaymentForm()->checkoutSuccessUrl;
+        $sessionSuccessUrl = Craft::$app->getSession()->get(PaymentForm::SESSION_CHECKOUT_SUCCESS_URL);
+        $returnUrl = $sessionSuccessUrl ? $sessionSuccessUrl : $order->getPaymentForm()->checkoutSuccessUrl;
         $url = '/';
 
         if ($returnUrl) {
