@@ -13,3 +13,4 @@
 - PHP version:
 - Database driver & version:
 - Plugin version:
+- Is [SCA](https://docs.enupal.com/stripe-payments/getting-started/sca.html) and Stripe Checkout enabled?:
