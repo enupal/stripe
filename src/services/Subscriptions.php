@@ -219,11 +219,22 @@ class Subscriptions extends Component
 
         switch ($eventType) {
             case 'customer.subscription.created':
-                $grantUserGroupIds = $this->getUserGroupsByPlanId($planId);
-                if ($grantUserGroupIds){
-                    Craft::$app->getUsers()->assignUserToGroups($user->id, $grantUserGroupIds);
-                    Craft::info("Groups (".json_encode($grantUserGroupIds).") added to user: ".$user->username, __METHOD__);
+                $this->handleSubscriptionGrants($planId, $user);
+                break;
+            // If SCA is enabled the subscription will be available here.
+            case 'checkout.session.completed':
+                /** @var \enupal\stripe\models\Subscription $subscription */
+                $subscription = $order->getSubscription();
+                $user = Craft::$app->getUsers()->getUserByUsernameOrEmail($order->email);
+
+                if ($subscription && $user) {
+                    $id = $subscription->data->plan->id ?? null;
+
+                    if ($id){
+                        $this->handleSubscriptionGrants($id, $user);
+                    }
                 }
+
                 break;
 
             case 'customer.subscription.deleted':
@@ -245,6 +256,19 @@ class Subscriptions extends Component
         }
 
         return true;
+    }
+
+    /**
+     * @param $planId
+     * @param $user
+     */
+    private function handleSubscriptionGrants($planId, $user)
+    {
+        $grantUserGroupIds = $this->getUserGroupsByPlanId($planId, $user);
+        if ($grantUserGroupIds){
+            Craft::$app->getUsers()->assignUserToGroups($user->id, $grantUserGroupIds);
+            Craft::info("Groups (".json_encode($grantUserGroupIds).") added to user: ".$user->username, __METHOD__);
+        }
     }
 
     /**
