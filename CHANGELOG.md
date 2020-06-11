@@ -1,5 +1,12 @@
 # Stripe Payments Changelog
 
+## 2.7.1 - 2020.06.11
+
+### Fixed
+- Fixed subscription grants not working when SCA is enabled ([#105])
+
+[#105]: https://github.com/enupal/stripe/issues/105
+
 ## 2.7.0 - 2020.06.06
 
 ### Added
