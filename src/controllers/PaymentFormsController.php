@@ -110,8 +110,8 @@ class PaymentFormsController extends BaseController
         $variables['availablePaymentTypes'] =  Stripe::$app->paymentForms->getPaymentTypes();
         $variables['availableCheckoutPaymentTypes'] =  Stripe::$app->paymentForms->getCheckoutPaymentTypes();
 
-        $variables['paymentTypeIdes'] = json_decode($paymentForm->paymentType, true);
-        $variables['checkoutPaymentTypeIdes'] = json_decode($paymentForm->checkoutPaymentType, true);
+        $variables['paymentTypeIdes'] = is_array($paymentForm->paymentType) ? $paymentForm->paymentType : json_decode($paymentForm->paymentType, true);
+        $variables['checkoutPaymentTypeIdes'] = is_array($paymentForm->checkoutPaymentType) ? $paymentForm->checkoutPaymentType : json_decode($paymentForm->checkoutPaymentType, true);
 
         return $this->renderTemplate('enupal-stripe/forms/_edit', $variables);
     }
