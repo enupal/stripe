@@ -243,6 +243,47 @@ class Install extends Migration
             'dateUpdated' => $this->dateTime()->notNull(),
             'uid' => $this->uid(),
         ]);
+
+        $this->createTable('{{%enupalstripe_connect}}', [
+            'id' => $this->primaryKey(),
+            'vendorId' => $this->integer()->notNull()->unique(),
+            'products' => $this->string()->notNull(),
+            // all, stripe, commerce
+            'productType' => $this->string()->notNull(),
+            'allProducts' => $this->boolean(),
+            'rate' => $this->decimal(14, 4)->defaultValue(0),
+            //
+            'dateCreated' => $this->dateTime()->notNull(),
+            'dateUpdated' => $this->dateTime()->notNull(),
+            'uid' => $this->uid()
+        ]);
+
+        $this->createTable('{{%enupalstripe_vendors}}', [
+            'id' => $this->primaryKey(),
+            'userId' => $this->integer()->notNull(),
+            'stripeId' => $this->string(),
+            'paymentType' => $this->string(),
+            'skipAdminReview' => $this->boolean()->defaultValue(false),
+            'vendorRate' => $this->decimal(14, 4)->defaultValue(0),
+            //
+            'dateCreated' => $this->dateTime()->notNull(),
+            'dateUpdated' => $this->dateTime()->notNull(),
+            'uid' => $this->uid()
+        ]);
+        // For each connect that match it will be a unique commission
+        $this->createTable('{{%enupalstripe_commissions}}', [
+            'id' => $this->primaryKey(),
+            'orderId' => $this->integer()->notNull(),
+            'vendorId' => $this->integer()->notNull(),
+            'status' => $this->string(),
+            'totalPrice' => $this->decimal(14, 4)->defaultValue(0),
+            'currency' => $this->string(),
+            'datePaid' => $this->dateTime(),
+            //
+            'dateCreated' => $this->dateTime()->notNull(),
+            'dateUpdated' => $this->dateTime()->notNull(),
+            'uid' => $this->uid()
+        ]);
     }
 
     /**
@@ -280,6 +321,46 @@ class Install extends Migration
         $this->createIndex(null, '{{%enupalstripe_orders}}', 'billingAddressId', false);
         $this->createIndex(null, '{{%enupalstripe_orders}}', 'shippingAddressId', false);
         $this->createIndex(null, "{{%enupalstripe_subscriptiongrants}}", 'userGroupId', false);
+        $this->createIndex(
+            $this->db->getIndexName(
+                '{{%enupalstripe_connect}}',
+                'vendorId',
+                false, true
+            ),
+            '{{%enupalstripe_connect}}',
+            'vendorId',
+            false
+        );
+        $this->createIndex(
+            $this->db->getIndexName(
+                '{{%enupalstripe_vendors}}',
+                'userId',
+                false, true
+            ),
+            '{{%enupalstripe_vendors}}',
+            'userId',
+            false
+        );
+        $this->createIndex(
+            $this->db->getIndexName(
+                '{{%enupalstripe_commissions}}',
+                'orderId',
+                false, true
+            ),
+            '{{%enupalstripe_commissions}}',
+            'orderId',
+            false
+        );
+        $this->createIndex(
+            $this->db->getIndexName(
+                '{{%enupalstripe_commissions}}',
+                'vendorId',
+                false, true
+            ),
+            '{{%enupalstripe_commissions}}',
+            'vendorId',
+            false
+        );
     }
 
     /**
@@ -325,6 +406,48 @@ class Install extends Migration
         $this->addForeignKey(null, '{{%enupalstripe_orders}}', ['billingAddressId'], '{{%enupalstripe_addresses}}', ['id'], 'SET NULL');
         $this->addForeignKey(null, '{{%enupalstripe_orders}}', ['shippingAddressId'], '{{%enupalstripe_addresses}}', ['id'], 'SET NULL');
         $this->addForeignKey(null, "{{%enupalstripe_subscriptiongrants}}", ['userGroupId'], "{{%usergroups}}", ['id'], 'CASCADE');
+        $this->addForeignKey(
+            $this->db->getForeignKeyName(
+                '{{%enupalstripe_connect}}', 'id'
+            ),
+            '{{%enupalstripe_connect}}', 'id',
+            '{{%elements}}', 'id', 'CASCADE', null
+        );
+        $this->addForeignKey(
+            $this->db->getForeignKeyName(
+                '{{%enupalstripe_vendors}}', 'id'
+            ),
+            '{{%enupalstripe_vendors}}', 'id',
+            '{{%elements}}', 'id', 'CASCADE', null
+        );
+        $this->addForeignKey(
+            $this->db->getForeignKeyName(
+                '{{%enupalstripe_commissions}}', 'id'
+            ),
+            '{{%enupalstripe_commissions}}', 'id',
+            '{{%elements}}', 'id', 'CASCADE', null
+        );
+        $this->addForeignKey(
+            $this->db->getForeignKeyName(
+                '{{%enupalstripe_connect}}', 'vendorId'
+            ),
+            '{{%enupalstripe_connect}}', 'vendorId',
+            '{{%enupalstripe_vendors}}', 'id', 'CASCADE', null
+        );
+        $this->addForeignKey(
+            $this->db->getForeignKeyName(
+                '{{%enupalstripe_commissions}}', 'orderId'
+            ),
+            '{{%enupalstripe_commissions}}', 'orderId',
+            '{{%elements}}', 'id', 'CASCADE', null
+        );
+        $this->addForeignKey(
+            $this->db->getForeignKeyName(
+                '{{%enupalstripe_commissions}}', 'vendorId'
+            ),
+            '{{%enupalstripe_commissions}}', 'vendorId',
+            '{{%elements}}', 'id', 'CASCADE', null
+        );
     }
 
     /**

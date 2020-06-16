@@ -66,6 +66,9 @@ class Settings extends Model
     public $syncStartDate;
     public $syncEndDate;
 
+    // Connect
+    public $enableConnect = 0;
+
     public $cancelAtPeriodEnd = false;
 
     /**
