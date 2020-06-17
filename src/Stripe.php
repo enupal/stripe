@@ -135,7 +135,7 @@ class Stripe extends Plugin
     public function getCpNavItem()
     {
         $parent = parent::getCpNavItem();
-        return array_merge($parent, [
+        $navs = [
             'subnav' => [
                 'orders' => [
                     "label" => self::t("Orders"),
@@ -148,13 +148,34 @@ class Stripe extends Plugin
                 'coupons' => [
                     "label" => self::t("Coupons"),
                     "url" => 'enupal-stripe/coupons'
-                ],
-                'settings' => [
-                    "label" => self::t("Settings"),
-                    "url" => 'enupal-stripe/settings'
                 ]
             ]
-        ]);
+        ];
+
+        $settings = $this->getSettings();
+
+        if ($settings->enableConnect){
+            $navs['subnav']['connect'] = [
+                "label" => self::t("Connect"),
+                "url" => 'enupal-stripe/connect'
+            ];
+            $navs['subnav']['commissions'] = [
+                "label" => self::t("Commissions"),
+                "url" => 'enupal-stripe/commissions'
+            ];
+            $navs['subnav']['vendors'] = [
+                "label" => self::t("Vendors"),
+                "url" => 'enupal-stripe/vendors'
+            ];
+        }
+
+        $navs['subnav']['settings'] = [
+            "label" => self::t("Settings"),
+            "url" => 'enupal-stripe/settings'
+        ];
+
+
+        return array_merge($parent, $navs);
     }
 
     /**

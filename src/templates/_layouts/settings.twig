@@ -27,6 +27,13 @@
             </li>
 
             <li>
+                <a href="{{ cpUrl('enupal-stripe/settings/connect') }}"
+                   {% if selectedSidebarItem == 'connect' %}class="sel"{% endif %}><i
+                            class="fa fa-shopping-bag fa-fw" aria-hidden="true"></i>&nbsp;{{ "Connect"|t('enupal-stripe') }}
+                </a>
+            </li>
+
+            <li>
                 <a href="{{ cpUrl('enupal-stripe/settings/order-statuses') }}"
                    {% if selectedSidebarItem == 'order-statuses' %}class="sel"{% endif %}><i
                             class="fa fa-check-circle fa-fw" aria-hidden="true"></i>&nbsp;{{ "Order Statuses"|t('enupal-stripe') }}

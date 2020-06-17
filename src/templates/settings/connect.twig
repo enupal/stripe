@@ -1,0 +1,52 @@
+{#
+/**
+ * Stripe Payments plugin for Craft CMS 3.x
+ *
+ * @link      https://enupal.com/
+ * @copyright Copyright (c) 2018 Enupal LLC
+ */
+#}
+
+{% extends "enupal-stripe/_layouts/settings" %}
+{% import "_includes/forms" as forms %}
+
+{% set settings = settings is defined ? settings : craft.enupalStripe.getSettings() %}
+{% set fullPageForm = true %}
+{% set saveShortcutRedirect = 'enupal-stripe/settings/connect' %}
+
+{% set savePaymentForm %}
+    <div class="buttons">
+        <input class="btn submit" type="submit" value="{{ 'Save'|t }}">
+    </div>
+{% endset %}
+
+{% set content %}
+    <input type="hidden" name="action"
+           value="enupal-stripe/settings/save-settings">
+
+    <div id="settings-cp">
+
+        {% namespace 'settings' %}
+            {{ forms.field({
+                label: "Stripe Connect Settings"|t('enupal-stripe')|upper,
+                instructions : 'Marketplaces and platforms use Stripe Connect to accept money and pay out to third parties.'
+            }, null) }}
+            <hr>
+            {% set mode = settings.testMode ? 'test' : 'live' %}
+
+            {{ forms.lightswitchField({
+                label: 'Enable Connect'|t('enupal-stripe'),
+                instructions: 'Enable or disable globally for all vendors',
+                id: 'enableConnect',
+                name: 'enableConnect',
+                on: settings.enableConnect,
+                onLabel: "On"|t('enupal-stripe'),
+                offLabel: "Off"|t('enupal-stripe'),
+                errors: settings.getErrors('enableConnect')
+            }) }}
+
+        {% endnamespace %}
+
+    </div>
+
+{% endset %}
