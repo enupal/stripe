@@ -43,6 +43,9 @@ class Install extends Migration
         $this->dropTableIfExists('{{%enupalstripe_addresses}}');
         $this->dropTableIfExists('{{%enupalstripe_countries}}');
         $this->dropTableIfExists('{{%enupalstripe_subscriptiongrants}}');
+        $this->dropTableIfExists('{{%enupalstripe_connect}}');
+        $this->dropTableIfExists('{{%enupalstripe_vendors}}');
+        $this->dropTableIfExists('{{%enupalstripe_commissions}}');
 
         return true;
     }
@@ -262,6 +265,7 @@ class Install extends Migration
             'id' => $this->primaryKey(),
             'userId' => $this->integer()->notNull(),
             'stripeId' => $this->string(),
+            // On checkout - Manually
             'paymentType' => $this->string(),
             'skipAdminReview' => $this->boolean()->defaultValue(false),
             'vendorRate' => $this->decimal(14, 4)->defaultValue(0),
@@ -275,6 +279,8 @@ class Install extends Migration
             'id' => $this->primaryKey(),
             'orderId' => $this->integer()->notNull(),
             'vendorId' => $this->integer()->notNull(),
+            // Order class namespace
+            'orderType' => $this->string()->notNull(),
             'status' => $this->string(),
             'totalPrice' => $this->decimal(14, 4)->defaultValue(0),
             'currency' => $this->string(),
