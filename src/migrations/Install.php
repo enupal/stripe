@@ -251,7 +251,7 @@ class Install extends Migration
             'id' => $this->primaryKey(),
             'vendorId' => $this->integer()->notNull()->unique(),
             'products' => $this->string()->notNull(),
-            // all, stripe, commerce
+            // Stripe Payment Form or Craft Commerce Product
             'productType' => $this->string()->notNull(),
             'allProducts' => $this->boolean(),
             'rate' => $this->decimal(14, 4)->defaultValue(0),
@@ -281,7 +281,7 @@ class Install extends Migration
             'vendorId' => $this->integer()->notNull(),
             // Order class namespace
             'orderType' => $this->string()->notNull(),
-            'status' => $this->string(),
+            'commissionStatus' => $this->string(),
             'totalPrice' => $this->decimal(14, 4)->defaultValue(0),
             'currency' => $this->string(),
             'datePaid' => $this->dateTime(),
