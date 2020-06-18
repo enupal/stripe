@@ -1,5 +1,20 @@
 # Stripe Payments Changelog
 
+## 2.7.2 - 2020.06.18
+
+### Updated
+- Updated to the autosuggest field on template override setting in customer/admin notification email settings ([#108])
+
+### Fixed
+- Fixed issue where `checkoutCancelUrl` via options was not working  ([#83])
+- Fixed issue where payment description was not added on Stripe when SCA is enabled ([#107])
+- Fixed issue where the payment form was submitted when pressing enter ([#109])
+
+[#83]: https://github.com/enupal/stripe/issues/83
+[#107]: https://github.com/enupal/stripe/issues/107
+[#109]: https://github.com/enupal/stripe/issues/109
+[#108]: https://github.com/enupal/stripe/issues/108
+
 ## 2.7.1 - 2020.06.11
 
 ### Fixed

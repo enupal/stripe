@@ -140,11 +140,12 @@ class Emails extends Component
         $extensions = ['.html', '.twig'];
 
         if ($settings->customerTemplateOverride){
+            $customerTemplateOverride = Craft::parseEnv($settings->customerTemplateOverride);
             // let's check if the file exists
-            $overridePath = $originalPath.DIRECTORY_SEPARATOR.$settings->customerTemplateOverride;
+            $overridePath = $originalPath.DIRECTORY_SEPARATOR.$customerTemplateOverride;
             foreach ($extensions as $extension) {
                 if (file_exists($overridePath.$extension)){
-                    $templateOverride = $settings->customerTemplateOverride;
+                    $templateOverride = $customerTemplateOverride;
                     $template = $templateOverride;
                 }
             }
@@ -198,10 +199,11 @@ class Emails extends Component
 
         if ($settings->adminTemplateOverride){
             // let's check if the file exists
-            $overridePath = $originalPath.DIRECTORY_SEPARATOR.$settings->adminTemplateOverride;
+            $adminTemplateOverride = Craft::parseEnv($settings->adminTemplateOverride);
+            $overridePath = $originalPath.DIRECTORY_SEPARATOR.$adminTemplateOverride;
             foreach ($extensions as $extension) {
                 if (file_exists($overridePath.$extension)){
-                    $templateOverride = $settings->adminTemplateOverride;
+                    $templateOverride = $adminTemplateOverride;
                     $template = $templateOverride;
                 }
             }
