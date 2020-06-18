@@ -194,6 +194,7 @@ class StripeController extends BaseController
         }
         // Get the order from the payment intent id
         $stripeId = null;
+        $paymentIntent = null;
         if ($checkoutSession['payment_intent'] !== null) {
             $paymentIntent = StripePlugin::$app->paymentIntents->getPaymentIntent($checkoutSession['payment_intent']);
             if ($paymentIntent === null) {
@@ -218,7 +219,16 @@ class StripeController extends BaseController
             return $this->redirect('/');
         }
 
+        if ($paymentIntent){
+            try {
+                StripePlugin::$app->paymentIntents->updateDescriptionToPaymentIntent($paymentIntent, $order);
+            }catch (\Exception $e){
+                Craft::error('Unable to update description to payment intent', __METHOD__);
+            }
+        }
+
         $sessionSuccessUrl = Craft::$app->getSession()->get(PaymentForm::SESSION_CHECKOUT_SUCCESS_URL);
+        Craft::$app->getSession()->remove(PaymentForm::SESSION_CHECKOUT_SUCCESS_URL);
         $returnUrl = $sessionSuccessUrl ? $sessionSuccessUrl : $order->getPaymentForm()->checkoutSuccessUrl;
         $url = '/';
 

@@ -652,12 +652,13 @@ class PaymentForm extends Element
         $itemName = empty($this->companyName) ? $this->name : $this->companyName;
         $itemName = $options['itemName'] ?? $itemName;
         $checkoutSuccessUrl = $options['checkoutSuccessUrl'] ?? $this->checkoutSuccessUrl;
+        $checkoutCancelUrl = $options['checkoutCancelUrl'] ?? $this->checkoutCancelUrl;
         Craft::$app->getSession()->set(self::SESSION_CHECKOUT_SUCCESS_URL, $checkoutSuccessUrl);
 
         $publicData = [
             'useSca' => $this->settings->useSca,
             'checkoutSuccessUrl' => $this->checkoutSuccessUrl,
-            'checkoutCancelUrl' => $this->checkoutCancelUrl,
+            'checkoutCancelUrl' => $checkoutCancelUrl,
             'paymentFormId' => $this->id,
             'handle' => $this->handle,
             'amountType' => $this->amountType,

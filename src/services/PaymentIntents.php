@@ -39,6 +39,21 @@ class PaymentIntents extends Component
 
     /**
      * @param PaymentIntent $paymentIntent
+     * @param $order
+     * @throws \Stripe\Exception\ApiErrorException
+     * @throws \Throwable
+     * @throws \yii\base\Exception
+     */
+    public function updateDescriptionToPaymentIntent(PaymentIntent $paymentIntent, $order)
+    {
+        $settings = StripePlugin::$app->settings->getSettings();
+        $description = Craft::$app->getView()->renderObjectTemplate($settings->chargeDescription, $order);
+        PaymentIntent::update($paymentIntent->id, ['description' => $description]);
+    }
+
+
+    /**
+     * @param PaymentIntent $paymentIntent
      * @param $checkoutSession
      * @return \enupal\stripe\elements\Order|null
      * @throws \Throwable

@@ -23,6 +23,13 @@ var enupalStripe = {};
             this.paymentFormsList.each(function() {
                 var enupalButtonElement = $(this);
                 enupalStripe.initializeForm(enupalButtonElement);
+                // Prevent submit the form with the enter key
+                $(this).keydown(function(event){
+                    if(event.keyCode === 13) {
+                        event.preventDefault();
+                        return false;
+                    }
+                });
             });
         },
 
