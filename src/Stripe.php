@@ -144,10 +144,6 @@ class Stripe extends Plugin
                 'forms' => [
                     "label" => self::t("Payment Forms"),
                     "url" => 'enupal-stripe/forms'
-                ],
-                'coupons' => [
-                    "label" => self::t("Coupons"),
-                    "url" => 'enupal-stripe/coupons'
                 ]
             ]
         ];
@@ -155,13 +151,13 @@ class Stripe extends Plugin
         $settings = $this->getSettings();
 
         if ($settings->enableConnect){
-            $navs['subnav']['connect'] = [
-                "label" => self::t("Connect"),
-                "url" => 'enupal-stripe/connect'
-            ];
             $navs['subnav']['commissions'] = [
                 "label" => self::t("Commissions"),
                 "url" => 'enupal-stripe/commissions'
+            ];
+            $navs['subnav']['connect'] = [
+                "label" => self::t("Connect"),
+                "url" => 'enupal-stripe/connects'
             ];
             $navs['subnav']['vendors'] = [
                 "label" => self::t("Vendors"),
@@ -169,11 +165,15 @@ class Stripe extends Plugin
             ];
         }
 
+        $navs['subnav']['coupons'] = [
+            "label" => self::t("Coupons"),
+            "url" => 'enupal-stripe/coupons'
+        ];
+
         $navs['subnav']['settings'] = [
             "label" => self::t("Settings"),
             "url" => 'enupal-stripe/settings'
         ];
-
 
         return array_merge($parent, $navs);
     }
