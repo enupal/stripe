@@ -68,6 +68,8 @@ class Settings extends Model
 
     // Connect
     public $enableConnect = 0;
+    // What field is used to store the Vendor Name? by default id. Twig allowed
+    public $vendorNameFormat;
 
     public $cancelAtPeriodEnd = false;
 

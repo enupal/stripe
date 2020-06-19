@@ -244,4 +244,23 @@ class Vendor extends Element
     {
         return Craft::$app->getUsers()->getUserById($this->userId);
     }
+
+    /**
+     * @return string
+     * @throws \Throwable
+     * @throws \yii\base\Exception
+     */
+    public function getVendorName()
+    {
+        $vendorName = '';
+        $user = $this->getUser();
+        $settings = StripePlugin::$app->settings->getSettings();
+
+        if ($user !== null){
+            $format = empty($settings->vendorNameFormat) ? '{username}' : $settings->vendorNameFormat;
+            $vendorName = Craft::$app->getView()->renderObjectTemplate($format, $user);
+        }
+
+        return $vendorName;
+    }
 }

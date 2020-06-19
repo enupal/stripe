@@ -45,6 +45,16 @@
                 errors: settings.getErrors('enableConnect')
             }) }}
 
+            {{ forms.textField({
+                label: "Test Publishable Key"|t('enupal-stripe'),
+                instructions: "What fields are used to display the vendor name? by default username will be used"|t('enupal-stripe'),
+                placeholder: "{firstName} - {username}",
+                id: 'vendorNameFormat',
+                name: 'vendorNameFormat',
+                value: settings.vendorNameFormat,
+                errors: settings.getErrors('vendorNameFormat')
+            }) }}
+
         {% endnamespace %}
 
     </div>
