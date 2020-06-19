@@ -13,24 +13,26 @@ use craft\base\Element;
 use craft\elements\db\ElementQueryInterface;
 use craft\helpers\UrlHelper;
 use craft\elements\actions\Delete;
-use enupal\stripe\elements\db\ConnectQuery;
-use enupal\stripe\records\Connect as ConnectRecord;
+use enupal\stripe\elements\db\CommissionsQuery;
+use enupal\stripe\records\Commission as CommissionRecord;
 use enupal\stripe\Stripe as StripePlugin;
 use enupal\stripe\Stripe;
 
 /**
- * Connect represents a entry element.
+ * Commission represents a entry element.
  */
-class Connect extends Element
+class Commission extends Element
 {
     // General - Properties
     // =========================================================================
     public $id;
-    public $vendorId;
-    public $products;
-    public $productType;
-    public $allProducts;
-    public $rate;
+    public $orderId;
+    public $connectId;
+    public $orderType;
+    public $commissionStatus;
+    public $totalPrice;
+    public $currency;
+    public $datePaid;
 
     /**
      * Returns the element type name.
@@ -39,7 +41,7 @@ class Connect extends Element
      */
     public static function displayName(): string
     {
-        return StripePlugin::t('Connect');
+        return StripePlugin::t('Commissions');
     }
 
     /**
@@ -47,7 +49,7 @@ class Connect extends Element
      */
     public static function refHandle()
     {
-        return 'connect';
+        return 'commission';
     }
 
     /**
@@ -80,7 +82,7 @@ class Connect extends Element
     public function getCpEditUrl()
     {
         return UrlHelper::cpUrl(
-            'enupal-stripe/connect/edit/'.$this->id
+            'enupal-stripe/commission/edit/'.$this->id
         );
     }
 
@@ -98,11 +100,11 @@ class Connect extends Element
     /**
      * @inheritdoc
      *
-     * @return ConnectQuery The newly created [[ConnectQuery]] instance.
+     * @return CommissionsQuery The newly created [[CommissionsQuery]] instance.
      */
     public static function find(): ElementQueryInterface
     {
-        return new ConnectQuery(get_called_class());
+        return new CommissionsQuery(get_called_class());
     }
 
     /**
@@ -115,7 +117,7 @@ class Connect extends Element
         $sources = [
             [
                 'key' => '*',
-                'label' => StripePlugin::t('All Connects'),
+                'label' => StripePlugin::t('All Commissions'),
             ]
         ];
 
@@ -132,8 +134,8 @@ class Connect extends Element
         // Delete
         $actions[] = Craft::$app->getElements()->createAction([
             'type' => Delete::class,
-            'confirmationMessage' => StripePlugin::t('Are you sure you want to delete the selected connects?'),
-            'successMessage' => StripePlugin::t('Connects deleted.'),
+            'confirmationMessage' => StripePlugin::t('Are you sure you want to delete the selected commissions?'),
+            'successMessage' => StripePlugin::t('Commissions deleted.'),
         ]);
 
         return $actions;
@@ -144,7 +146,7 @@ class Connect extends Element
      */
     protected static function defineSearchableAttributes(): array
     {
-        return ['vendorId', 'products'];
+        return ['orderId', 'connectId', 'datePaid'];
     }
 
     /**
@@ -153,7 +155,7 @@ class Connect extends Element
     protected static function defineSortOptions(): array
     {
         $attributes = [
-            'rate' => StripePlugin::t('Rate')
+            'totalPrice' => StripePlugin::t('totalPrice')
         ];
 
         return $attributes;
@@ -164,18 +166,19 @@ class Connect extends Element
      */
     protected static function defineTableAttributes(): array
     {
-        $attributes['vendorId'] = ['label' => StripePlugin::t('Vendor')];
-        $attributes['product'] = ['label' => StripePlugin::t('Product')];
-        $attributes['productTypes'] = ['label' => StripePlugin::t('Product Types')];
-        $attributes['rate'] = ['label' => StripePlugin::t('Rate')];
-        $attributes['allProducts'] = ['label' => StripePlugin::t('All Products')];
+        $attributes['orderId'] = ['label' => StripePlugin::t('Order')];
+        $attributes['connectId'] = ['label' => StripePlugin::t('Connect')];
+        $attributes['orderType'] = ['label' => StripePlugin::t('Order Type')];
+        $attributes['commissionStatus'] = ['label' => StripePlugin::t('Status')];
+        $attributes['totalPrice'] = ['label' => StripePlugin::t('Total')];
+        $attributes['datePaid'] = ['label' => StripePlugin::t('Date Paid')];
 
         return $attributes;
     }
 
     protected static function defineDefaultTableAttributes(string $source): array
     {
-        $attributes = ['vendorId', 'product', 'productTypes', 'rate', 'allProducts'];
+        $attributes = ['orderId', 'connectId', 'orderType', 'commissionStatus', 'totalPrice', 'datePaid'];
 
         return $attributes;
     }
@@ -204,23 +207,25 @@ class Connect extends Element
      */
     public function afterSave(bool $isNew)
     {
-        // Get the Connect record
+        // Get the Commission record
         if (!$isNew) {
-            $record = ConnectRecord::findOne($this->id);
+            $record = CommissionRecord::findOne($this->id);
 
             if (!$record) {
-                throw new \Exception('Invalid Connect ID: '.$this->id);
+                throw new \Exception('Invalid Commission ID: '.$this->id);
             }
         } else {
-            $record = new ConnectRecord();
+            $record = new CommissionRecord();
             $record->id = $this->id;
         }
 
-        $record->vendorId = $this->vendorId;
-        $record->products = $this->products;
-        $record->productType = $this->productType;
-        $record->allProducts = $this->allProducts;
-        $record->rate = $this->rate;
+        $record->orderId = $this->orderId;
+        $record->connectId = $this->connectId;
+        $record->orderType = $this->orderType;
+        $record->commissionStatus = $this->commissionStatus;
+        $record->totalPrice = $this->totalPrice;
+        $record->datePaid = $this->datePaid;
+        $record->currency = $this->currency;
         $record->save(false);
 
         parent::afterSave($isNew);
@@ -232,17 +237,23 @@ class Connect extends Element
     public function rules()
     {
         return [
-            [['vendorId', 'products', 'productType', 'rate'], 'required']
+            [['orderId', 'connectId', 'orderType', 'commissionStatus'], 'required']
         ];
     }
 
     /**
-     * @return Vendor|null
+     * @return \craft\base\ElementInterface|null
      */
-    public function getVendor()
+    public function getOrder()
     {
-        $vendor = StripePlugin::$app->vendors->getVendorById($this->vendorId);
+        return Craft::$app->getElements()->getElementById($this->orderId);
+    }
 
-        return $vendor;
+    /**
+     * @return Connect|null
+     */
+    public function getConnect()
+    {
+        return StripePlugin::$app->connects->getConnectById($this->connectId);
     }
 }

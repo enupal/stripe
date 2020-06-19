@@ -16,14 +16,14 @@ use craft\records\Element;
  * Class Commissions record.
  * @property $id
  * @property $orderId
- * @property $vendorId
+ * @property $connectId
  * @property $orderType
  * @property $commissionStatus
  * @property $totalPrice
  * @property $currency
  * @property $datePaid
  */
-class Commissions extends ActiveRecord
+class Commission extends ActiveRecord
 {
     /**
      * @inheritdoc

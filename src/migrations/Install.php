@@ -249,7 +249,7 @@ class Install extends Migration
 
         $this->createTable('{{%enupalstripe_connect}}', [
             'id' => $this->primaryKey(),
-            'vendorId' => $this->integer()->notNull()->unique(),
+            'vendorId' => $this->integer()->notNull(),
             'products' => $this->string()->notNull(),
             // Stripe Payment Form or Craft Commerce Product
             'productType' => $this->string()->notNull(),
@@ -278,7 +278,7 @@ class Install extends Migration
         $this->createTable('{{%enupalstripe_commissions}}', [
             'id' => $this->primaryKey(),
             'orderId' => $this->integer()->notNull(),
-            'vendorId' => $this->integer()->notNull(),
+            'connectId' => $this->integer()->notNull(),
             // Order class namespace
             'orderType' => $this->string()->notNull(),
             'commissionStatus' => $this->string(),
@@ -360,11 +360,11 @@ class Install extends Migration
         $this->createIndex(
             $this->db->getIndexName(
                 '{{%enupalstripe_commissions}}',
-                'vendorId',
+                'connectId',
                 false, true
             ),
             '{{%enupalstripe_commissions}}',
-            'vendorId',
+            'connectId',
             false
         );
     }
@@ -449,10 +449,10 @@ class Install extends Migration
         );
         $this->addForeignKey(
             $this->db->getForeignKeyName(
-                '{{%enupalstripe_commissions}}', 'vendorId'
+                '{{%enupalstripe_commissions}}', 'connectId'
             ),
-            '{{%enupalstripe_commissions}}', 'vendorId',
-            '{{%elements}}', 'id', 'CASCADE', null
+            '{{%enupalstripe_commissions}}', 'connectId',
+            '{{%enupalstripe_connect}}', 'id', 'CASCADE', null
         );
     }
 

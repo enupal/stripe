@@ -11,26 +11,27 @@ namespace enupal\stripe\elements;
 use Craft;
 use craft\base\Element;
 use craft\elements\db\ElementQueryInterface;
+use craft\elements\User;
 use craft\helpers\UrlHelper;
 use craft\elements\actions\Delete;
-use enupal\stripe\elements\db\ConnectQuery;
-use enupal\stripe\records\Connect as ConnectRecord;
+use enupal\stripe\elements\db\VendorsQuery;
+use enupal\stripe\records\Vendor as VendorRecord;
 use enupal\stripe\Stripe as StripePlugin;
 use enupal\stripe\Stripe;
 
 /**
- * Connect represents a entry element.
+ * Vendor represents a entry element.
  */
-class Connect extends Element
+class Vendor extends Element
 {
     // General - Properties
     // =========================================================================
     public $id;
-    public $vendorId;
-    public $products;
-    public $productType;
-    public $allProducts;
-    public $rate;
+    public $userId;
+    public $stripeId;
+    public $paymentType;
+    public $skipAdminReview;
+    public $vendorRate;
 
     /**
      * Returns the element type name.
@@ -39,7 +40,7 @@ class Connect extends Element
      */
     public static function displayName(): string
     {
-        return StripePlugin::t('Connect');
+        return StripePlugin::t('Vendors');
     }
 
     /**
@@ -80,7 +81,7 @@ class Connect extends Element
     public function getCpEditUrl()
     {
         return UrlHelper::cpUrl(
-            'enupal-stripe/connect/edit/'.$this->id
+            'enupal-stripe/vendor/edit/'.$this->id
         );
     }
 
@@ -98,11 +99,11 @@ class Connect extends Element
     /**
      * @inheritdoc
      *
-     * @return ConnectQuery The newly created [[ConnectQuery]] instance.
+     * @return VendorsQuery The newly created [[VendorsQuery]] instance.
      */
     public static function find(): ElementQueryInterface
     {
-        return new ConnectQuery(get_called_class());
+        return new VendorsQuery(get_called_class());
     }
 
     /**
@@ -115,7 +116,7 @@ class Connect extends Element
         $sources = [
             [
                 'key' => '*',
-                'label' => StripePlugin::t('All Connects'),
+                'label' => StripePlugin::t('All Vendors'),
             ]
         ];
 
@@ -132,8 +133,8 @@ class Connect extends Element
         // Delete
         $actions[] = Craft::$app->getElements()->createAction([
             'type' => Delete::class,
-            'confirmationMessage' => StripePlugin::t('Are you sure you want to delete the selected connects?'),
-            'successMessage' => StripePlugin::t('Connects deleted.'),
+            'confirmationMessage' => StripePlugin::t('Are you sure you want to delete the selected vendors?'),
+            'successMessage' => StripePlugin::t('Vendors deleted.'),
         ]);
 
         return $actions;
@@ -144,7 +145,7 @@ class Connect extends Element
      */
     protected static function defineSearchableAttributes(): array
     {
-        return ['vendorId', 'products'];
+        return ['userId', 'stripeId', 'paymentType'];
     }
 
     /**
@@ -153,7 +154,7 @@ class Connect extends Element
     protected static function defineSortOptions(): array
     {
         $attributes = [
-            'rate' => StripePlugin::t('Rate')
+            'vendorRate' => StripePlugin::t('Rate')
         ];
 
         return $attributes;
@@ -164,18 +165,18 @@ class Connect extends Element
      */
     protected static function defineTableAttributes(): array
     {
-        $attributes['vendorId'] = ['label' => StripePlugin::t('Vendor')];
-        $attributes['product'] = ['label' => StripePlugin::t('Product')];
-        $attributes['productTypes'] = ['label' => StripePlugin::t('Product Types')];
-        $attributes['rate'] = ['label' => StripePlugin::t('Rate')];
-        $attributes['allProducts'] = ['label' => StripePlugin::t('All Products')];
+        $attributes['userId'] = ['label' => StripePlugin::t('User')];
+        $attributes['stripeId'] = ['label' => StripePlugin::t('Stripe Id')];
+        $attributes['paymentType'] = ['label' => StripePlugin::t('Payment Type')];
+        $attributes['vendorRate'] = ['label' => StripePlugin::t('Vendor Rate')];
+        $attributes['skipAdminReview'] = ['label' => StripePlugin::t('Skip Admin Review')];
 
         return $attributes;
     }
 
     protected static function defineDefaultTableAttributes(string $source): array
     {
-        $attributes = ['vendorId', 'product', 'productTypes', 'rate', 'allProducts'];
+        $attributes = ['userId', 'stripeId', 'paymentType', 'vendorRate', 'skipAdminReview'];
 
         return $attributes;
     }
@@ -204,23 +205,23 @@ class Connect extends Element
      */
     public function afterSave(bool $isNew)
     {
-        // Get the Connect record
+        // Get the Vendor record
         if (!$isNew) {
-            $record = ConnectRecord::findOne($this->id);
+            $record = VendorRecord::findOne($this->id);
 
             if (!$record) {
-                throw new \Exception('Invalid Connect ID: '.$this->id);
+                throw new \Exception('Invalid Vendor ID: '.$this->id);
             }
         } else {
-            $record = new ConnectRecord();
+            $record = new VendorRecord();
             $record->id = $this->id;
         }
 
-        $record->vendorId = $this->vendorId;
-        $record->products = $this->products;
-        $record->productType = $this->productType;
-        $record->allProducts = $this->allProducts;
-        $record->rate = $this->rate;
+        $record->userId = $this->userId;
+        $record->stripeId = $this->stripeId;
+        $record->paymentType = $this->paymentType;
+        $record->skipAdminReview = $this->skipAdminReview;
+        $record->vendorRate = $this->vendorRate;
         $record->save(false);
 
         parent::afterSave($isNew);
@@ -232,17 +233,15 @@ class Connect extends Element
     public function rules()
     {
         return [
-            [['vendorId', 'products', 'productType', 'rate'], 'required']
+            [['userId']]
         ];
     }
 
     /**
-     * @return Vendor|null
+     * @return User|null
      */
-    public function getVendor()
+    public function getUser()
     {
-        $vendor = StripePlugin::$app->vendors->getVendorById($this->vendorId);
-
-        return $vendor;
+        return Craft::$app->getUsers()->getUserById($this->userId);
     }
 }
