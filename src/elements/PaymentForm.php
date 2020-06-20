@@ -202,7 +202,7 @@ class PaymentForm extends Element
         }
 
         if ($order) {
-            $returnUrl = Craft::$app->getView()->renderObjectTemplate($returnUrl, $order);
+            $returnUrl = Craft::$app->View()->renderObjectTemplate($returnUrl, $order);
         }
 
         return $returnUrl;

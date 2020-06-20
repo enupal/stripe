@@ -70,6 +70,8 @@ class Settings extends Model
     public $enableConnect = 0;
     // What field is used to store the Vendor Name? by default id. Twig allowed
     public $vendorNameFormat;
+    // What boolean user field could help to filter users on Vendor creation
+    public $vendorUserFieldFilter;
 
     public $cancelAtPeriodEnd = false;
 

@@ -12,7 +12,9 @@
 {% set elementType = 'enupal\\stripe\\elements\\Vendor' %}
 {% do view.registerAssetBundle("enupal\\stripe\\web\\assets\\FontAwesomeAsset") %}
 
-{% block content %}
-    {{ parent() }}
+{% block actionButton %}
+    <div class="buttons">
+        <a class="btn submit add icon" href="{{ url('enupal-stripe/vendors/new') }}">{{ "New Vendor"|t('enupal-stripe') }}</a>
+    </div>
 {% endblock %}
 

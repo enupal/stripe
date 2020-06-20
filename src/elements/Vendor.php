@@ -81,7 +81,7 @@ class Vendor extends Element
     public function getCpEditUrl()
     {
         return UrlHelper::cpUrl(
-            'enupal-stripe/vendor/edit/'.$this->id
+            'enupal-stripe/vendors/edit/'.$this->id
         );
     }
 
@@ -93,7 +93,7 @@ class Vendor extends Element
     /** @noinspection PhpInconsistentReturnPointsInspection */
     public function __toString()
     {
-        return $this->id;
+        return $this->getVendorName();
     }
 
     /**
@@ -183,17 +183,19 @@ class Vendor extends Element
 
     /**
      * @inheritdoc
-     * @throws \yii\base\InvalidConfigException
+     * @param string $attribute
+     * @return string
+     * @throws \Throwable
+     * @throws \yii\base\Exception
      * @throws \yii\base\InvalidConfigException
      */
     protected function tableAttributeHtml(string $attribute): string
     {
         switch ($attribute) {
-            case 'itemName':
+            case 'stripeId':
             {
-                //return $this->getPaymentForm()->name;
+                return empty($this->stripeId) ? '-' : $this->stripeId;
             }
-
         }
 
         return parent::tableAttributeHtml($attribute);
@@ -233,7 +235,7 @@ class Vendor extends Element
     public function rules()
     {
         return [
-            [['userId']]
+            [['userId'], 'required']
         ];
     }
 
@@ -242,7 +244,11 @@ class Vendor extends Element
      */
     public function getUser()
     {
-        return Craft::$app->getUsers()->getUserById($this->userId);
+        if ($this->userId) {
+            return Craft::$app->getUsers()->getUserById($this->userId);
+        }
+
+        return null;
     }
 
     /**

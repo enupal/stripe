@@ -61,23 +61,35 @@
 {% endblock %}
 
 {% block content %}
-<div id="tab1">
-    {{ forms.field({
-        label: '<i class="fa fa-user-o" aria-hidden="true"></i> '~'Vendor'|t('enupal-slider'),
-        instructions: 'User that represents the vendor owner'|t('enupal-slider'),
-        id: 'vendorId'
-    }, forms.elementSelect({
-        elements: vendorElement,
-        elementType: elementType,
-        sources: sources,
-        id: 'vendorId',
-        name: 'vendorId',
-        class: 'vendorId-field',
-        jsClass: 'Craft.AssetSelectInput',
-        selectionLabel: 'Add User'|t('enupal-slider'),
-        limit: 1,
-        viewMode: 'large'
-    })) }}
+    {% namespace 'fields' %}
+        <div id="tab1">
+            {{ forms.field({
+                label: '<i class="fa fa-user-o" aria-hidden="true"></i> '~'Vendor'|t('enupal-stripe'),
+                instructions: 'User that represents the vendor owner'|t('enupal-stripe'),
+                id: 'userId',
+                errors: vendor.getErrors('userId')
+            }, forms.elementSelect({
+                elements: [userElement],
+                elementType: elementType,
+                criteria: criteria,
+                id: 'userId',
+                name: 'userId',
+                class: 'userId-field',
+                selectionLabel: 'Add User'|t('enupal-stripe'),
+                limit: 1,
+                viewMode: 'large'
+            })) }}
 
-</div>
+            {{ forms.selectField({
+                label: "Payment Type"|t('enupal-stripe'),
+                instructions: 'When the payout should be sent?
+'|t('enupal-stripe'),
+                id: 'paymentType',
+                name: 'paymentType',
+                options: paymentTypeOptions,
+                value: vendor.paymentType
+            }) }}
+
+        </div>
+    {% endnamespace %}
 {% endblock %}

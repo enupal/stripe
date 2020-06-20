@@ -1,0 +1,30 @@
+{#
+/**
+ * Stripe Payments plugin for Craft CMS 3.x
+ *
+ * @link      https://enupal.com/
+ * @copyright Copyright (c) 2018 Enupal LLC
+ */
+#}
+
+{% import "_includes/forms" as forms %}
+<div class="meta">
+
+    {{ forms.lightswitchField({
+        label: "Enabled"|t('enupal-stripe'),
+        id: 'enabled',
+        name: 'enabled',
+        on: vendor.enabled
+    }) }}
+
+    {{ forms.textField({
+        label: "Stripe Id"|t('enupal-stripe'),
+        id: 'stripeId',
+        name: 'stripeId',
+        readonly: true,
+        value: vendor.stripeId,
+        placeholder: vendor.stripeId is empty ? 'Not linked yet' : '',
+        autofocus: true,
+        errors: vendor.getErrors('stripeId')
+    }) }}
+</div>

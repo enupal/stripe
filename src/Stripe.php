@@ -184,6 +184,7 @@ class Stripe extends Plugin
      * @throws \Twig\Error\LoaderError
      * @throws \Twig\Error\RuntimeError
      * @throws \Twig\Error\SyntaxError
+     * @throws \yii\base\Exception
      */
     protected function settingsHtml()
     {
@@ -226,6 +227,12 @@ class Stripe extends Plugin
 
             'enupal-stripe/settings/order-statuses/<orderStatusId:\d+>' =>
                 'enupal-stripe/order-statuses/edit',
+
+            'enupal-stripe/vendors/new' =>
+                'enupal-stripe/vendors/edit-vendor',
+
+            'enupal-stripe/vendors/edit/<vendorId:\d+>' =>
+                'enupal-stripe/vendors/edit-vendor',
         ];
     }
 

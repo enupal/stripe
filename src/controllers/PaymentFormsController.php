@@ -73,7 +73,7 @@ class PaymentFormsController extends BaseController
      */
     public function actionEditForm(int $formId = null, PaymentFormElement $paymentForm = null)
     {
-        // Immediately create a new Slider
+        // Immediately create a new payment form
         if ($formId === null) {
             $paymentForm = Stripe::$app->paymentForms->createNewPaymentForm();
 
