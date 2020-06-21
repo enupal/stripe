@@ -10,6 +10,7 @@ namespace enupal\stripe\elements;
 
 use Craft;
 use craft\base\Element;
+use craft\elements\actions\Restore;
 use craft\elements\db\ElementQueryInterface;
 use craft\elements\User;
 use craft\helpers\UrlHelper;

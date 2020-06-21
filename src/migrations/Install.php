@@ -43,9 +43,9 @@ class Install extends Migration
         $this->dropTableIfExists('{{%enupalstripe_addresses}}');
         $this->dropTableIfExists('{{%enupalstripe_countries}}');
         $this->dropTableIfExists('{{%enupalstripe_subscriptiongrants}}');
+        $this->dropTableIfExists('{{%enupalstripe_commissions}}');
         $this->dropTableIfExists('{{%enupalstripe_connect}}');
         $this->dropTableIfExists('{{%enupalstripe_vendors}}');
-        $this->dropTableIfExists('{{%enupalstripe_commissions}}');
 
         return true;
     }

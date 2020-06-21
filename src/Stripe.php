@@ -155,7 +155,7 @@ class Stripe extends Plugin
                 "label" => self::t("Commissions"),
                 "url" => 'enupal-stripe/commissions'
             ];
-            $navs['subnav']['connect'] = [
+            $navs['subnav']['connects'] = [
                 "label" => self::t("Connect"),
                 "url" => 'enupal-stripe/connects'
             ];

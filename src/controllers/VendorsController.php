@@ -111,46 +111,27 @@ class VendorsController extends BaseController
     }
 
     /**
-     * Delete a Stripe Vendor.
+     * Delete a Vendor.
      *
      * @return \yii\web\Response
      * @throws \Throwable
      * @throws \craft\errors\MissingComponentException
      * @throws \yii\web\BadRequestHttpException
      */
-    public function actionDeleteForm()
+    public function actionDeleteVendor()
     {
         $this->requirePostRequest();
 
         $request = Craft::$app->getRequest();
 
         $vendorId = $request->getRequiredBodyParam('vendorId');
-        $vendor = Stripe::$app->paymentForms->getPaymentFormById($vendorId);
+        $vendor = Stripe::$app->vendors->getVendorById($vendorId);
 
         // @TODO - handle errors
-        Stripe::$app->paymentForms->deletePaymentForm($vendor);
+        Stripe::$app->vendors->deleteVendor($vendor);
 
-        Craft::$app->getSession()->setNotice(Stripe::t('Payment form deleted.'));
+        Craft::$app->getSession()->setNotice(Stripe::t('Vendor deleted.'));
 
         return $this->redirectToPostedUrl($vendor);
-    }
-
-    /**
-     * Retrieve all stripe plans as options for dropdown select field
-     *
-     * @return \yii\web\Response
-     */
-    public function actionRefreshPlans()
-    {
-        try {
-            $this->requirePostRequest();
-            $this->requireAcceptsJson();
-
-            $plans = Stripe::$app->plans->getStripePlans();
-        } catch (\Throwable $e) {
-            return $this->asErrorJson($e->getMessage());
-        }
-
-        return $this->asJson(['success'=> true, 'plans' => $plans]);
     }
 }

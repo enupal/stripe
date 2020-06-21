@@ -9,6 +9,7 @@
 namespace enupal\stripe\services;
 
 use craft\db\Query;
+use enupal\stripe\elements\Connect;
 use enupal\stripe\elements\Vendor as VendorElement;
 use yii\base\Component;
 use Craft;
@@ -96,5 +97,47 @@ class Vendors extends Component
             $postFields, false);
 
         return $vendor;
+    }
+
+    /**
+     * @param VendorElement $vendor
+     *
+     * @return bool
+     * @throws \Throwable
+     */
+    public function deleteVendor(VendorElement $vendor)
+    {
+        $transaction = Craft::$app->db->beginTransaction();
+
+        try {
+            // Delete the connects
+            $connects = (new Query())
+                ->select(['id'])
+                ->from(["{{%enupalstripe_connect}}"])
+                ->where(['vendorId' => $vendor->id])
+                ->all();
+
+            foreach ($connects as $connect) {
+                Craft::$app->elements->deleteElementById($connect['id'], Connect::class, null, true);
+            }
+
+            // Delete the Vendor
+            $success = Craft::$app->elements->deleteElementById($vendor->id, VendorElement::class,null, true);
+
+            if (!$success) {
+                $transaction->rollback();
+                Craft::error("Couldn’t delete Vendor", __METHOD__);
+
+                return false;
+            }
+
+            $transaction->commit();
+        } catch (\Exception $e) {
+            $transaction->rollback();
+
+            throw $e;
+        }
+
+        return true;
     }
 }
