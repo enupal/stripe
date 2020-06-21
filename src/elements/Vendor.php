@@ -235,7 +235,8 @@ class Vendor extends Element
     public function rules()
     {
         return [
-            [['userId'], 'required']
+            [['userId'], 'required'],
+            [['vendorRate'], 'number', 'min'=> '1', 'max'=>'100', 'numberPattern' => '/^\d+(.\d{1,2})?$/'],
         ];
     }
 

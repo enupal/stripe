@@ -254,7 +254,7 @@ class Install extends Migration
             // Stripe Payment Form or Craft Commerce Product
             'productType' => $this->string()->notNull(),
             'allProducts' => $this->boolean(),
-            'rate' => $this->decimal(14, 4)->defaultValue(0),
+            'rate' => $this->decimal(14, 2)->defaultValue(0),
             //
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
@@ -268,7 +268,7 @@ class Install extends Migration
             // On checkout - Manually
             'paymentType' => $this->string(),
             'skipAdminReview' => $this->boolean()->defaultValue(false),
-            'vendorRate' => $this->decimal(14, 4)->defaultValue(0),
+            'vendorRate' => $this->decimal(14, 2)->defaultValue(0),
             //
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
