@@ -95,4 +95,23 @@ class Connects extends Component
 
         return $isInstalled;
     }
+
+    /**
+     * @param Connect $vendor
+     *
+     * @return Connect
+     */
+    public function populateConnectFromPost(Connect $vendor)
+    {
+        $request = Craft::$app->getRequest();
+
+        $postFields = $request->getBodyParam('fields');
+
+        $postFields['vendorId'] = is_array($postFields['vendorId']) ? $postFields['vendorId'][0] : $postFields['vendorId'];
+
+        $vendor->setAttributes(/** @scrutinizer ignore-type */
+            $postFields, false);
+
+        return $vendor;
+    }
 }

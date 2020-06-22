@@ -43,7 +43,7 @@ class ConnectsController extends BaseController
         $connect = Stripe::$app->connects->populateConnectFromPost($connect);
 
         // Save it
-        if (!Stripe::$app->connects->saveConnect($connect)) {
+        if (!Craft::$app->elements->saveElement($connect)) {
             Craft::$app->getSession()->setError(Craft::t('enupal-stripe','Couldn’t save connect'));
 
             Craft::$app->getUrlManager()->setRouteParams([
