@@ -17,8 +17,8 @@ class m200617_000000_add_stripe_connect extends Migration
     {
         $this->createTable('{{%enupalstripe_connect}}', [
             'id' => $this->primaryKey(),
-            'vendorId' => $this->integer()->notNull(),
-            'products' => $this->string()->notNull(),
+            'vendorId' => $this->integer(),
+            'products' => $this->string(),
             // Stripe Payment Form or Craft Commerce Product
             'productType' => $this->string()->notNull(),
             'allProducts' => $this->boolean(),

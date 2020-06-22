@@ -154,9 +154,7 @@ class Vendor extends Element
      */
     protected static function defineSortOptions(): array
     {
-        $attributes = [
-            'vendorRate' => StripePlugin::t('Rate')
-        ];
+        $attributes = [];
 
         return $attributes;
     }
@@ -169,7 +167,6 @@ class Vendor extends Element
         $attributes['userId'] = ['label' => StripePlugin::t('User')];
         $attributes['stripeId'] = ['label' => StripePlugin::t('Stripe Id')];
         $attributes['paymentType'] = ['label' => StripePlugin::t('Payment Type')];
-        $attributes['vendorRate'] = ['label' => StripePlugin::t('Vendor Rate')];
         $attributes['skipAdminReview'] = ['label' => StripePlugin::t('Skip Admin Review')];
 
         return $attributes;
@@ -177,7 +174,7 @@ class Vendor extends Element
 
     protected static function defineDefaultTableAttributes(string $source): array
     {
-        $attributes = ['userId', 'stripeId', 'paymentType', 'vendorRate', 'skipAdminReview'];
+        $attributes = ['userId', 'stripeId', 'paymentType', 'skipAdminReview'];
 
         return $attributes;
     }
@@ -224,7 +221,6 @@ class Vendor extends Element
         $record->stripeId = $this->stripeId;
         $record->paymentType = $this->paymentType;
         $record->skipAdminReview = $this->skipAdminReview;
-        $record->vendorRate = $this->vendorRate;
         $record->save(false);
 
         parent::afterSave($isNew);
@@ -237,7 +233,6 @@ class Vendor extends Element
     {
         return [
             [['userId'], 'required'],
-            [['vendorRate'], 'number', 'min'=> '1', 'max'=>'100', 'numberPattern' => '/^\d+(.\d{1,2})?$/'],
         ];
     }
 

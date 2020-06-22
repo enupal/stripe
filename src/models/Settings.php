@@ -72,6 +72,7 @@ class Settings extends Model
     public $vendorNameFormat;
     // What boolean user field could help to filter users on Vendor creation
     public $vendorUserFieldFilter;
+    public $globalRate = 1;
 
     public $cancelAtPeriodEnd = false;
 
@@ -155,6 +156,11 @@ class Settings extends Model
                 // A number and two decimals
                 ['tax'],
                 'number', 'min'=> '1', 'max'=>'100' , 'on' => 'taxes', 'numberPattern' => '/^\d+(.\d{1,2})?$/',
+            ],
+            [
+                // A number and two decimals
+                ['globalRate'],
+                'number', 'min'=> '1', 'max'=>'100' , 'on' => 'connect', 'numberPattern' => '/^\d+(.\d{1,2})?$/',
             ]
         ];
     }

@@ -702,6 +702,14 @@ class StripeVariable extends Behavior
     }
 
     /**
+     * @return array
+     */
+    public function getConnectProductTypes()
+    {
+        return Stripe::$app->connects->getConnectProductTypesAsOptions();
+    }
+
+    /**
      * @param $view
      * @param $inputFilePath
      * @param $templatePath

@@ -233,6 +233,12 @@ class Stripe extends Plugin
 
             'enupal-stripe/vendors/edit/<vendorId:\d+>' =>
                 'enupal-stripe/vendors/edit-vendor',
+
+            'enupal-stripe/connects/new' =>
+                'enupal-stripe/connects/edit-connect',
+
+            'enupal-stripe/connects/edit/<connectId:\d+>' =>
+                'enupal-stripe/connects/edit-connect',
         ];
     }
 

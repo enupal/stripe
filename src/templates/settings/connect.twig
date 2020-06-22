@@ -23,7 +23,7 @@
 {% set content %}
     <input type="hidden" name="action"
            value="enupal-stripe/settings/save-settings">
-
+    <input type="hidden" name="stripeScenario" value="connect">
     <div id="settings-cp">
 
         {% namespace 'settings' %}
@@ -53,6 +53,21 @@
                 name: 'vendorNameFormat',
                 value: settings.vendorNameFormat,
                 errors: settings.getErrors('vendorNameFormat')
+            }) }}
+
+
+
+            {{ forms.textField({
+                first: true,
+                label: "Global Commission"|t('enupal-stripe'),
+                id: 'globalRate',
+                instructions: "Percentage of the total sale price that the vendor receives. This is a positive decimal (with at most two decimal places) between 1 and 100"|t('enupal-stripe'),
+                name: 'globalRate',
+                placeholder: 'Enter percentage',
+                unit: '%',
+                value: settings.globalRate|number_format(2, '.'),
+                errors: settings.getErrors('globalRate'),
+                autofocus: true,
             }) }}
 
         {% endnamespace %}

@@ -246,7 +246,7 @@ class PaymentForm extends Element
      */
     public static function displayName(): string
     {
-        return StripePlugin::t('Stripe PaymentForms');
+        return StripePlugin::t('Stripe Payment Forms');
     }
 
     /**

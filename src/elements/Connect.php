@@ -241,8 +241,10 @@ class Connect extends Element
      */
     public function getVendor()
     {
-        $vendor = StripePlugin::$app->vendors->getVendorById($this->vendorId);
+        if ($this->vendorId){
+            return StripePlugin::$app->vendors->getVendorById($this->vendorId);
+        }
 
-        return $vendor;
+        return null;
     }
 }

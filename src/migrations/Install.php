@@ -249,8 +249,8 @@ class Install extends Migration
 
         $this->createTable('{{%enupalstripe_connect}}', [
             'id' => $this->primaryKey(),
-            'vendorId' => $this->integer()->notNull(),
-            'products' => $this->string()->notNull(),
+            'vendorId' => $this->integer(),
+            'products' => $this->string(),
             // Stripe Payment Form or Craft Commerce Product
             'productType' => $this->string()->notNull(),
             'allProducts' => $this->boolean(),
@@ -265,7 +265,6 @@ class Install extends Migration
             'id' => $this->primaryKey(),
             'userId' => $this->integer()->notNull(),
             'stripeId' => $this->string(),
-            // On checkout - Manually
             'paymentType' => $this->string(),
             'skipAdminReview' => $this->boolean()->defaultValue(false),
             'vendorRate' => $this->decimal(14, 2)->defaultValue(0),
