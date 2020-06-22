@@ -8,7 +8,9 @@
 
 namespace enupal\stripe\services;
 
+use craft\db\Query;
 use craft\services\Plugins;
+use enupal\stripe\elements\Commission;
 use enupal\stripe\elements\Connect;
 use enupal\stripe\elements\PaymentForm;
 use enupal\stripe\Stripe;
@@ -97,11 +99,11 @@ class Connects extends Component
     }
 
     /**
-     * @param Connect $vendor
+     * @param Connect $connect
      *
      * @return Connect
      */
-    public function populateConnectFromPost(Connect $vendor)
+    public function populateConnectFromPost(Connect $connect)
     {
         $request = Craft::$app->getRequest();
 
@@ -109,9 +111,51 @@ class Connects extends Component
 
         $postFields['vendorId'] = is_array($postFields['vendorId']) ? $postFields['vendorId'][0] : $postFields['vendorId'];
 
-        $vendor->setAttributes(/** @scrutinizer ignore-type */
+        $connect->setAttributes(/** @scrutinizer ignore-type */
             $postFields, false);
 
-        return $vendor;
+        return $connect;
+    }
+
+    /**
+     * @param Connect $connect
+     *
+     * @return bool
+     * @throws \Throwable
+     */
+    public function deleteConnect(Connect $connect)
+    {
+        $transaction = Craft::$app->db->beginTransaction();
+
+        try {
+            // Delete the commissions
+            $commissions = (new Query())
+                ->select(['id'])
+                ->from(["{{%enupalstripe_commissions}}"])
+                ->where(['connectId' => $connect->id])
+                ->all();
+
+            foreach ($commissions as $commission) {
+                Craft::$app->elements->deleteElementById($commission['id'], Commission::class, null, true);
+            }
+
+            // Delete the Connect
+            $success = Craft::$app->elements->deleteElementById($connect->id, Connect::class,null, true);
+
+            if (!$success) {
+                $transaction->rollback();
+                Craft::error("Couldn’t delete Connect", __METHOD__);
+
+                return false;
+            }
+
+            $transaction->commit();
+        } catch (\Exception $e) {
+            $transaction->rollback();
+
+            throw $e;
+        }
+
+        return true;
     }
 }

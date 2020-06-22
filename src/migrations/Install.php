@@ -278,6 +278,7 @@ class Install extends Migration
             'id' => $this->primaryKey(),
             'orderId' => $this->integer()->notNull(),
             'connectId' => $this->integer()->notNull(),
+            'stripeId' => $this->string(),
             // Order class namespace
             'orderType' => $this->string()->notNull(),
             'commissionStatus' => $this->string(),

@@ -28,6 +28,7 @@ class Commission extends Element
     public $id;
     public $orderId;
     public $connectId;
+    public $stripeId;
     public $orderType;
     public $commissionStatus;
     public $totalPrice;
@@ -146,7 +147,7 @@ class Commission extends Element
      */
     protected static function defineSearchableAttributes(): array
     {
-        return ['orderId', 'connectId', 'datePaid'];
+        return ['orderId', 'connectId', 'stripeId', 'datePaid'];
     }
 
     /**
@@ -168,6 +169,7 @@ class Commission extends Element
     {
         $attributes['orderId'] = ['label' => StripePlugin::t('Order')];
         $attributes['connectId'] = ['label' => StripePlugin::t('Connect')];
+        $attributes['stripeId'] = ['label' => StripePlugin::t('Stripe Id')];
         $attributes['orderType'] = ['label' => StripePlugin::t('Order Type')];
         $attributes['commissionStatus'] = ['label' => StripePlugin::t('Status')];
         $attributes['totalPrice'] = ['label' => StripePlugin::t('Total')];
@@ -178,7 +180,7 @@ class Commission extends Element
 
     protected static function defineDefaultTableAttributes(string $source): array
     {
-        $attributes = ['orderId', 'connectId', 'orderType', 'commissionStatus', 'totalPrice', 'datePaid'];
+        $attributes = ['orderId', 'connectId', 'stripeId', 'orderType', 'commissionStatus', 'totalPrice', 'datePaid'];
 
         return $attributes;
     }
@@ -221,6 +223,7 @@ class Commission extends Element
 
         $record->orderId = $this->orderId;
         $record->connectId = $this->connectId;
+        $record->stripeId = $this->stripeId;
         $record->orderType = $this->orderType;
         $record->commissionStatus = $this->commissionStatus;
         $record->totalPrice = $this->totalPrice;

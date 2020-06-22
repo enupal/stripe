@@ -47,6 +47,7 @@ class m200617_000000_add_stripe_connect extends Migration
             'id' => $this->primaryKey(),
             'orderId' => $this->integer()->notNull(),
             'connectId' => $this->integer()->notNull(),
+            'stripeId' => $this->string(),
             // Order class namespace
             'orderType' => $this->string()->notNull(),
             'commissionStatus' => $this->string(),
