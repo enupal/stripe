@@ -80,7 +80,7 @@ class Connect extends Element
     public function getCpEditUrl()
     {
         return UrlHelper::cpUrl(
-            'enupal-stripe/connect/edit/'.$this->id
+            'enupal-stripe/connects/edit/'.$this->id
         );
     }
 
@@ -165,8 +165,8 @@ class Connect extends Element
     protected static function defineTableAttributes(): array
     {
         $attributes['vendorId'] = ['label' => StripePlugin::t('Vendor')];
-        $attributes['product'] = ['label' => StripePlugin::t('Product')];
-        $attributes['productTypes'] = ['label' => StripePlugin::t('Product Types')];
+        $attributes['productType'] = ['label' => StripePlugin::t('Product Type')];
+        $attributes['products'] = ['label' => StripePlugin::t('Products')];
         $attributes['rate'] = ['label' => StripePlugin::t('Rate')];
         $attributes['allProducts'] = ['label' => StripePlugin::t('All Products')];
 
@@ -175,7 +175,7 @@ class Connect extends Element
 
     protected static function defineDefaultTableAttributes(string $source): array
     {
-        $attributes = ['vendorId', 'product', 'productTypes', 'rate', 'allProducts'];
+        $attributes = ['vendorId', 'productType', 'rate', 'products', 'allProducts'];
 
         return $attributes;
     }
@@ -188,11 +188,16 @@ class Connect extends Element
     protected function tableAttributeHtml(string $attribute): string
     {
         switch ($attribute) {
-            case 'itemName':
+            case 'productType':
             {
-                //return $this->getPaymentForm()->name;
+                return $this->productType::displayName();
             }
-
+            case 'products':
+            {
+                $products = is_string($this->products) ? json_decode($this->products, true) : $this->products;
+                $products = empty($products) ? [] : $products;
+                return count($products);
+            }
         }
 
         return parent::tableAttributeHtml($attribute);

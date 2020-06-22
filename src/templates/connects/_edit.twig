@@ -80,6 +80,23 @@
                 viewMode: 'large'
             })) }}
 
+            {{ forms.field({
+                label: 'Vendor'|t('enupal-stripe'),
+                instructions: 'Vendor to send the commission'|t('enupal-stripe'),
+                id: 'vendorId',
+                errors: connect.getErrors('vendorId')
+            }, forms.elementSelect({
+                elements: [connect.getVendor()],
+                elementType: vendorElementType,
+                limit: 1,
+                id: 'vendorId',
+                name: 'vendorId',
+                class: 'vendorId-field',
+                selectionLabel: 'Add Vendor'|t('enupal-stripe'),
+                limit: null,
+                viewMode: 'large'
+            })) }}
+
             {{ forms.textField({
                 first: true,
                 label: "Commission"|t('enupal-stripe'),

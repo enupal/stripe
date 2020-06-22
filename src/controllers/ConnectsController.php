@@ -13,6 +13,7 @@ use Craft;
 use craft\helpers\UrlHelper;
 use craft\web\Controller as BaseController;
 use enupal\stripe\elements\Connect as ConnectElement;
+use enupal\stripe\elements\Vendor;
 use enupal\stripe\Stripe;
 use yii\web\NotFoundHttpException;
 
@@ -106,7 +107,7 @@ class ConnectsController extends BaseController
             foreach ($connect->products as $product) {
                 $product = Craft::$app->getElements()->getElementById($product, $connect->productType);
                 if ($product !== null){
-                    $products[] = $product->id;
+                    $products[] = $product;
                 }
             }
         }
@@ -120,6 +121,7 @@ class ConnectsController extends BaseController
         $variables['settings'] = $settings;
         $variables['productTypeName'] = $connect->productType::displayName();
         $variables['products'] = $products;
+        $variables['vendorElementType'] = Vendor::class;
 
         return $this->renderTemplate('enupal-stripe/connects/_edit', $variables);
     }
