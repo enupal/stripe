@@ -97,7 +97,7 @@ class Settings extends Model
                 'required', 'on' => 'general', 'when' => function($model) {
                 $configSettings = Stripe::$app->settings->getConfigSettings();
                 $isRequired = isset($configSettings['liveSecretKey']) ? false : true;
-                return !$model->testMode &&  $isRequired;
+                return !$model->testMode && $isRequired;
             }
             ],
             [
@@ -113,7 +113,7 @@ class Settings extends Model
                 'required', 'on' => 'general', 'when' => function($model) {
                     $configSettings = Stripe::$app->settings->getConfigSettings();
                     $isRequired = isset($configSettings['liveClientId']) ? false : true;
-                    return $model->testMode && $isRequired;
+                    return !$model->testMode && $isRequired;
                 }
             ],
             [

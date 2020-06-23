@@ -92,7 +92,12 @@ class Connect extends Element
     /** @noinspection PhpInconsistentReturnPointsInspection */
     public function __toString()
     {
-        return $this->id;
+        $name = $this->id;
+
+        if ($this->vendorId) {
+            $name = $this->getVendor()->getVendorName();
+        }
+        return $name;
     }
 
     /**

@@ -188,9 +188,9 @@ class Connects extends Component
             return $params;
         }
 
+        Craft::info('Processing commission for '.$vendor->id);
         $platformFeeRate = 100 - $connect->rate;
         $finalAmount = 0;
-        $currency = $form->currency;
 
         foreach ($params['line_items'] as $line_item) {
             $finalAmount += $line_item['amount'];

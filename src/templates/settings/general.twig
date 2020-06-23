@@ -103,7 +103,7 @@
                 {% if settings.enableConnect %}
                     {% if not configSettings.testClientId is defined %}
                         {{ forms.passwordField({
-                            label: "Client Id"|t('enupal-stripe'),
+                            label: "Test Client Id"|t('enupal-stripe'),
                             instructions: "This key starts with <strong>ca_</strong>"|t('enupal-stripe'),
                             id: 'testClientId',
                             name: 'testClientId',
@@ -114,6 +114,9 @@
                     {% else %}
                         <div class="instructions"><p><b>Test Client Id</b> was successfully loaded from config file</p></div>
                     {% endif %}
+                    <h4>Please add the following Redirect URL when retrieving the Client Id key under the <a
+                                href="https://dashboard.stripe.com/test/settings/applications" target="_blank">connect settings</a> </h4>
+                    <input type="text" class="text ltr fullwidth" readonly value="{{ craft.enupalStripe.callbackUrl() }}">
                 {% endif %}
             </div>
             <div id="liveKeys" class="{%  if settings.testMode %} hidden {% endif %}">
@@ -157,6 +160,10 @@
                     {% else %}
                         <div class="instructions"><p><b>Live Client Id</b> was successfully loaded from config file</p></div>
                     {% endif %}
+
+                    <h4>Please add the following Redirect URL when retrieving the Client Id key under the <a
+                                href="https://dashboard.stripe.com/settings/applications" target="_blank">connect settings</a> </h4>
+                    <input type="text" class="text ltr fullwidth" readonly value="{{ craft.enupalStripe.callbackUrl() }}">
                 {% endif %}
             </div>
 

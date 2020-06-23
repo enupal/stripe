@@ -18,6 +18,7 @@ use enupal\stripe\Stripe;
 use craft\helpers\Template as TemplateHelper;
 use DateTime;
 use Craft;
+use Psy\Util\Str;
 use yii\base\Behavior;
 
 /**
@@ -707,6 +708,22 @@ class StripeVariable extends Behavior
     public function getConnectProductTypes()
     {
         return Stripe::$app->connects->getConnectProductTypesAsOptions();
+    }
+
+    public function getVendor()
+    {
+        $currentUser = Craft::$app->getUser()->getIdentity();
+        $vendor = Stripe::$app->vendors->getVendorByUserId($currentUser->id);
+
+        return $vendor;
+    }
+
+    /**
+     * @return string
+     */
+    public function getCallbackUrl()
+    {
+        return Stripe::$app->settings->getCallbackUrl();
     }
 
     /**

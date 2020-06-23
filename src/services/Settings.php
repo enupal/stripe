@@ -180,4 +180,12 @@ class Settings extends Component
 
         return Craft::parseEnv(Craft::getAlias(rtrim(trim($primarySiteUrl), "/")));
     }
+
+    /**
+     * @return string
+     */
+    public function getCallbackUrl()
+    {
+        return $this->getPrimarySiteUrl()."/enupal-stripe/authorize-oauth";
+    }
 }
