@@ -92,7 +92,7 @@ class Commissions extends Component
      * @param $paymentFormId
      * @return array|ElementInterface[]|null
      */
-    public function getConnectsByPaymentFormId($paymentFormId)
+    public function getConnectByPaymentFormId($paymentFormId)
     {
         $query = Connect::find();
 
@@ -100,7 +100,7 @@ class Commissions extends Component
         $query->andWhere(Db::parseParam(
             'enupalstripe_connect.productType', PaymentForm::class));
 
-        return $query->all();
+        return $query->one();
     }
 
     /**
@@ -109,7 +109,7 @@ class Commissions extends Component
     public function processStripePaymentsOrder(StripePaymentsOrder $order)
     {
         $paymentForm = $order->getPaymentForm();
-        $connects = $this->getConnectsByPaymentFormId($paymentForm->id);
+        $connects = $this->getConnectByPaymentFormId($paymentForm->id);
 
         /** @var Connect $connect */
         foreach ($connects as $connect) {

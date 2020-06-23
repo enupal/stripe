@@ -17,7 +17,6 @@ use craft\events\RegisterUrlRulesEvent;
 use craft\services\Elements;
 use craft\services\Fields;
 use craft\web\UrlManager;
-use enupal\stripe\events\OrderCompleteEvent;
 use enupal\stripe\events\WebhookEvent;
 use enupal\stripe\services\App;
 use enupal\stripe\services\Orders;
@@ -83,10 +82,6 @@ class Stripe extends Plugin
 
         Event::on(Orders::class, Orders::EVENT_AFTER_PROCESS_WEBHOOK, function(WebhookEvent $e) {
             self::$app->subscriptions->processSubscriptionGrantEvent($e);
-        });
-
-        Event::on(Orders::class, Orders::EVENT_AFTER_ORDER_COMPLETE, function(OrderCompleteEvent $e) {
-            self::$app->commissions->processStripePaymentsOrder($e->order);
         });
 
         Craft::$app->projectConfig
@@ -267,6 +262,10 @@ class Stripe extends Plugin
                 'enupal-stripe/stripe/finish-setup-session',
             'enupal-stripe/update-subscription' =>
                 'enupal-stripe/stripe/update-subscription',
+            'enupal-stripe/get-oauth-link' =>
+                'enupal-stripe/utilities/get-oauth-link',
+            'enupal-stripe/authorize-oauth' =>
+                'enupal-stripe/utilities/authorize-oauth',
         ];
     }
 }

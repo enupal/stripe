@@ -73,6 +73,8 @@ class Settings extends Model
     // What boolean user field could help to filter users on Vendor creation
     public $vendorUserFieldFilter;
     public $globalRate = 1;
+    public $liveClientId;
+    public $testClientId;
 
     public $cancelAtPeriodEnd = false;
 
@@ -103,6 +105,22 @@ class Settings extends Model
                 'required', 'on' => 'general', 'when' => function($model) {
                     $configSettings = Stripe::$app->settings->getConfigSettings();
                     $isRequired = isset($configSettings['testPublishableKey']) ? false : true;
+                    return $model->testMode && $isRequired;
+                }
+            ],
+            [
+                ['liveClientId'],
+                'required', 'on' => 'general', 'when' => function($model) {
+                    $configSettings = Stripe::$app->settings->getConfigSettings();
+                    $isRequired = isset($configSettings['liveClientId']) ? false : true;
+                    return $model->testMode && $isRequired;
+                }
+            ],
+            [
+                ['testClientId'],
+                'required', 'on' => 'general', 'when' => function($model) {
+                    $configSettings = Stripe::$app->settings->getConfigSettings();
+                    $isRequired = isset($configSettings['testClientId']) ? false : true;
                     return $model->testMode && $isRequired;
                 }
             ],

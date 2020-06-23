@@ -72,61 +72,92 @@
             }) }}
             <hr>
             <div id="testKeys" class="{% if not settings.testMode %} hidden {% endif %}">
-            {% if not configSettings.testPublishableKey is defined %}
-                {{ forms.textField({
-                    label: "Test Publishable Key"|t('enupal-stripe'),
-                    instructions: "This key starts with <strong>pk_test</strong>"|t('enupal-stripe'),
-                    id: 'testPublishableKey',
-                    name: 'testPublishableKey',
-                    value: settings.testPublishableKey,
-                    autofocus: true,
-                    errors: settings.getErrors('testPublishableKey')
-                }) }}
-            {% else %}
-                <div class="instructions"><p><b>Test Publishable Key</b> was successfully loaded from config file</p></div>
-            {% endif %}
+                {% if not configSettings.testPublishableKey is defined %}
+                    {{ forms.textField({
+                        label: "Test Publishable Key"|t('enupal-stripe'),
+                        instructions: "This key starts with <strong>pk_test</strong>"|t('enupal-stripe'),
+                        id: 'testPublishableKey',
+                        name: 'testPublishableKey',
+                        value: settings.testPublishableKey,
+                        autofocus: true,
+                        errors: settings.getErrors('testPublishableKey')
+                    }) }}
+                {% else %}
+                    <div class="instructions"><p><b>Test Publishable Key</b> was successfully loaded from config file</p></div>
+                {% endif %}
 
-            {% if not configSettings.testPublishableKey is defined %}
-                {{ forms.passwordField({
-                    label: "Test Secret Key"|t('enupal-stripe'),
-                    instructions: "This key starts with <strong>sk_test</strong>"|t('enupal-stripe'),
-                    id: 'testSecretKey',
-                    name: 'testSecretKey',
-                    value: settings.testSecretKey,
-                    autofocus: true,
-                    errors: settings.getErrors('testSecretKey')
-                }) }}
-            {% else %}
-                <div class="instructions"><p><b>Test Secret Key</b> was successfully loaded from config file</p></div>
-            {% endif %}
+                {% if not configSettings.testPublishableKey is defined %}
+                    {{ forms.passwordField({
+                        label: "Test Secret Key"|t('enupal-stripe'),
+                        instructions: "This key starts with <strong>sk_test</strong>"|t('enupal-stripe'),
+                        id: 'testSecretKey',
+                        name: 'testSecretKey',
+                        value: settings.testSecretKey,
+                        autofocus: true,
+                        errors: settings.getErrors('testSecretKey')
+                    }) }}
+                {% else %}
+                    <div class="instructions"><p><b>Test Secret Key</b> was successfully loaded from config file</p></div>
+                {% endif %}
+
+                {% if settings.enableConnect %}
+                    {% if not configSettings.testClientId is defined %}
+                        {{ forms.passwordField({
+                            label: "Client Id"|t('enupal-stripe'),
+                            instructions: "This key starts with <strong>ca_</strong>"|t('enupal-stripe'),
+                            id: 'testClientId',
+                            name: 'testClientId',
+                            value: settings.testClientId,
+                            autofocus: true,
+                            errors: settings.getErrors('testClientId')
+                        }) }}
+                    {% else %}
+                        <div class="instructions"><p><b>Test Client Id</b> was successfully loaded from config file</p></div>
+                    {% endif %}
+                {% endif %}
             </div>
             <div id="liveKeys" class="{%  if settings.testMode %} hidden {% endif %}">
-            {% if not configSettings.livePublishableKey is defined %}
-                {{ forms.textField({
-                    label: "Live Publishable Key"|t('enupal-stripe'),
-                    instructions: "This key starts with <strong>pk_live</strong>"|t('enupal-stripe'),
-                    id: 'livePublishableKey',
-                    name: 'livePublishableKey',
-                    value: settings.livePublishableKey,
-                    autofocus: true,
-                    errors: settings.getErrors('livePublishableKey')
-                }) }}
-            {% else %}
-                <div class="instructions"><p><b>Live Publishable Key</b> was successfully loaded from config file</p></div>
-            {% endif %}
-            {% if not configSettings.liveSecretKey is defined %}
-                {{ forms.passwordField({
-                    label: "Live Secret Key"|t('enupal-stripe'),
-                    instructions: "This key starts with <strong>sk_live</strong>"|t('enupal-stripe'),
-                    id: 'liveSecretKey',
-                    name: 'liveSecretKey',
-                    value: settings.liveSecretKey,
-                    autofocus: true,
-                    errors: settings.getErrors('liveSecretKey')
-                }) }}
-            {% else %}
-                <div class="instructions"><p><b>Live Secret Key</b> was successfully loaded from config file</p></div>
-            {% endif %}
+                {% if not configSettings.livePublishableKey is defined %}
+                    {{ forms.textField({
+                        label: "Live Publishable Key"|t('enupal-stripe'),
+                        instructions: "This key starts with <strong>pk_live</strong>"|t('enupal-stripe'),
+                        id: 'livePublishableKey',
+                        name: 'livePublishableKey',
+                        value: settings.livePublishableKey,
+                        autofocus: true,
+                        errors: settings.getErrors('livePublishableKey')
+                    }) }}
+                {% else %}
+                    <div class="instructions"><p><b>Live Publishable Key</b> was successfully loaded from config file</p></div>
+                {% endif %}
+                {% if not configSettings.liveSecretKey is defined %}
+                    {{ forms.passwordField({
+                        label: "Live Secret Key"|t('enupal-stripe'),
+                        instructions: "This key starts with <strong>sk_live</strong>"|t('enupal-stripe'),
+                        id: 'liveSecretKey',
+                        name: 'liveSecretKey',
+                        value: settings.liveSecretKey,
+                        autofocus: true,
+                        errors: settings.getErrors('liveSecretKey')
+                    }) }}
+                {% else %}
+                    <div class="instructions"><p><b>Live Secret Key</b> was successfully loaded from config file</p></div>
+                {% endif %}
+                {% if settings.enableConnect %}
+                    {% if not configSettings.liveClientId is defined %}
+                        {{ forms.passwordField({
+                            label: "Client Id"|t('enupal-stripe'),
+                            instructions: "This key starts with <strong>ca_</strong>"|t('enupal-stripe'),
+                            id: 'liveClientId',
+                            name: 'liveClientId',
+                            value: settings.liveClientId,
+                            autofocus: true,
+                            errors: settings.getErrors('liveClientId')
+                        }) }}
+                    {% else %}
+                        <div class="instructions"><p><b>Live Client Id</b> was successfully loaded from config file</p></div>
+                    {% endif %}
+                {% endif %}
             </div>
 
         {% endnamespace %}

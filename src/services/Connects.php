@@ -13,7 +13,9 @@ use craft\services\Plugins;
 use enupal\stripe\elements\Commission;
 use enupal\stripe\elements\Connect;
 use enupal\stripe\elements\PaymentForm;
-use enupal\stripe\Stripe;
+use enupal\stripe\Stripe as StripePlugin;
+use Stripe\Exception\OAuth\InvalidGrantException;
+use Stripe\OAuth;
 use yii\base\Component;
 use Craft;
 
@@ -73,7 +75,7 @@ class Connects extends Component
      */
     public function createNewConnect(string $productType): Connect
     {
-        $settings = Stripe::$app->settings->getSettings();
+        $settings = StripePlugin::$app->settings->getSettings();
         $connect = new Connect();
 
         $connect->productType = $productType;
@@ -157,5 +159,75 @@ class Connects extends Component
         }
 
         return true;
+    }
+
+    /**
+     * @param $params
+     * @param PaymentForm $form
+     * @return mixed
+     */
+    public function processSessionParams($params, PaymentForm $form)
+    {
+        /** @var Connect $connect */
+        $connect = StripePlugin::$app->commissions->getConnectByPaymentFormId($form->id);
+
+        if (is_null($connect)) {
+            // No connect for this payment form
+            return $params;
+        }
+
+        $vendor = $connect->getVendor();
+
+        if (is_null($vendor)) {
+            Craft::error('Unable to process commission as vendor does not exists');
+            return $params;
+        }
+
+        if (empty($vendor->stripeId)) {
+            Craft::error('Unable to process commission as vendor does not have a Stripe account linked');
+            return $params;
+        }
+
+        $platformFeeRate = 100 - $connect->rate;
+        $finalAmount = 0;
+        $currency = $form->currency;
+
+        foreach ($params['line_items'] as $line_item) {
+            $finalAmount += $line_item['amount'];
+        }
+
+        $platformFee = $finalAmount * ($platformFeeRate / 100);
+
+        $params['payment_intent_data']['application_fee_amount'] = $platformFee;
+        $params['payment_intent_data']['transfer_data'] = [
+            'destination' => $vendor->stripeId
+        ];
+
+        return $params;
+    }
+
+    /**
+     * @param $code
+     * @return mixed|null
+     * @throws \Exception
+     */
+    public function getStripeUserIdFromCode($code)
+    {
+        StripePlugin::$app->settings->initializeStripe();
+
+        try {
+            $stripeResponse =  OAuth::token([
+                'grant_type' => 'authorization_code',
+                'code' => $code,
+            ]);
+        } catch (InvalidGrantException $e) {
+            Craft::error('Invalid authorization code: ' . $code, __METHOD__);
+            return null;
+        } catch (\Exception $e) {
+            Craft::error('An unknown error occurred. '.$e->getMessage(), __METHOD__);
+            return null;
+        }
+
+        return $stripeResponse->stripe_user_id;
     }
 }

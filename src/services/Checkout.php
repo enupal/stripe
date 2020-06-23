@@ -42,7 +42,6 @@ class Checkout extends Component
         return $checkoutSession;
     }
 
-
     /**
      * @param PaymentForm $form
      * @param $postData
@@ -133,6 +132,8 @@ class Checkout extends Component
                 $sessionParams['line_items'] = array_merge($sessionParams['line_items'], $customLineItemsArray);
             }
         }
+
+        $sessionParams = Stripe::$app->connects->processSessionParams($sessionParams, $form);
 
         $session = Session::create($sessionParams);
 

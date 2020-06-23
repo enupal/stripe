@@ -34,6 +34,18 @@ class Vendors extends Component
     }
 
     /**
+     * @param $userId
+     * @return array|\craft\base\ElementInterface|null
+     */
+    public function getVendorByUserId($userId)
+    {
+        $query = VendorElement::find();
+        $query->userId = $userId;
+
+        return $query->one();
+    }
+
+    /**
      * @return array
      */
     public function getVendorUsersIds()
