@@ -104,6 +104,7 @@ class Commissions extends Component
     }
 
     /**
+     * Process transfer for when Separate Charges are enabled
      * @param StripePaymentsOrder $order
      */
     public function processStripePaymentsOrder(StripePaymentsOrder $order)
@@ -156,6 +157,22 @@ class Commissions extends Component
             $amountInCents = Stripe::$app->orders->convertToCents($commission->totalPrice, $commission->currency);
         }
 
+        //@todo add transfer
+
         return true;
+    }
+
+    public function checkForCommissions(StripePaymentsOrder $order)
+    {
+        if (!$order->isCompleted) {
+            return false;
+        }
+
+        if ($order->isSubscription) {
+            // @todo add support for subscriptions
+            return false;
+        }
+
+        //@todo check commissions for direct charges and destionation charges, the data should be in the charge object
     }
 }

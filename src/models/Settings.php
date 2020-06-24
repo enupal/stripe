@@ -75,6 +75,9 @@ class Settings extends Model
     public $globalRate = 1;
     public $liveClientId;
     public $testClientId;
+    // Direct, destination or separate
+    // only on separate we can have more than one vendor by each product
+    public $chargeType;
 
     public $cancelAtPeriodEnd = false;
 
