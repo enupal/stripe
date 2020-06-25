@@ -40,6 +40,21 @@ class Commissions extends Component
     }
 
     /**
+     * Returns a Commission model if one is found in the database by stripe id
+     *
+     * @param $stripeId
+     *
+     * @return null|ElementInterface
+     */
+    public function getCommissionByStripeId($stripeId)
+    {
+        $query = Commission::find();
+        $query->stripeId = $stripeId;
+
+        return $query->one();
+    }
+
+    /**
      * @param $commission Commission
      * @param $triggerEvent boolean
      *
@@ -89,28 +104,13 @@ class Commissions extends Component
     }
 
     /**
-     * @param $paymentFormId
-     * @return array|ElementInterface[]|null
-     */
-    public function getConnectByPaymentFormId($paymentFormId)
-    {
-        $query = Connect::find();
-
-        $query->andWhere(['like', 'products', '%"'.$paymentFormId . '"%', false]);
-        $query->andWhere(Db::parseParam(
-            'enupalstripe_connect.productType', PaymentForm::class));
-
-        return $query->one();
-    }
-
-    /**
      * Process transfer for when Separate Charges are enabled
      * @param StripePaymentsOrder $order
      */
     public function processStripePaymentsOrder(StripePaymentsOrder $order)
     {
         $paymentForm = $order->getPaymentForm();
-        $connects = $this->getConnectByPaymentFormId($paymentForm->id);
+        $connects = Stripe::$app->connects->getConnectByPaymentFormId($paymentForm->id);
 
         /** @var Connect $connect */
         foreach ($connects as $connect) {
@@ -162,6 +162,15 @@ class Commissions extends Component
         return true;
     }
 
+
+    /**
+     * This will check commissions for Direct Charges nad Destination Charges
+     * @param StripePaymentsOrder $order
+     * @return bool
+     * @throws \Throwable
+     * @throws \craft\errors\ElementNotFoundException
+     * @throws \yii\base\Exception
+     */
     public function checkForCommissions(StripePaymentsOrder $order)
     {
         if (!$order->isCompleted) {
@@ -173,6 +182,52 @@ class Commissions extends Component
             return false;
         }
 
-        //@todo check commissions for direct charges and destionation charges, the data should be in the charge object
+        $paymentForm = $order->getPaymentForm();
+        $chargeId = Stripe::$app->orders->getChargeIdFromOrder($order);
+        $charge = Stripe::$app->orders->getCharge($chargeId);
+        $stripeAccountId = $charge->destination;
+        $commission = $this->getCommissionByStripeId($charge->id);
+
+        if ($commission !== null) {
+            Craft::info('This commission was already registered', __METHOD__);
+            return false;
+        }
+
+        if ($stripeAccountId === null) {
+            Craft::error('Unable to get the destination from Charge', __METHOD__);
+            return false;
+        }
+
+        $vendor = Stripe::$app->vendors->getVendorByStripeId($stripeAccountId);
+
+        if ($vendor === null) {
+            Craft::error('Unable to find vendor with account id: '.$stripeAccountId, __METHOD__);
+            return false;
+        }
+
+        $connect = Stripe::$app->connects->getConnectByPaymentFormId($paymentForm->id, $vendor->id);
+
+        if ($connect === null) {
+            Craft::error('Unable to find the connect associated to vendor: '.$vendor->id, __METHOD__);
+            return false;
+        }
+
+        $commission = new Commission();
+        $commission->stripeId = $charge->id;
+        $commission->orderId = $order->id;
+        $commission->orderType = StripePaymentsOrder::class;
+        $commission->connectId = $connect->id;
+        $commission->totalPrice = Stripe::$app->orders->convertFromCents($charge->amount - $charge->application_fee_amount, $order->currency);
+        $commission->currency = $order->currency;
+        $now = Db::prepareDateForDb(new \DateTime());
+        $commission->datePaid = $now;
+        $commission->commissionStatus = self::STATUS_PAID;
+
+        if (!Craft::$app->elements->saveElement($commission)) {
+            Craft::error('Unable to save commission: '.json_encode($commission->getErrors()), __METHOD__);
+            return false;
+        }
+
+        return true;
     }
 }

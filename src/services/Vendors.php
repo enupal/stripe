@@ -46,6 +46,18 @@ class Vendors extends Component
     }
 
     /**
+     * @param $stripeId
+     * @return array|\craft\base\ElementInterface|null
+     */
+    public function getVendorByStripeId($stripeId)
+    {
+        $query = VendorElement::find();
+        $query->stripeId = $stripeId;
+
+        return $query->one();
+    }
+
+    /**
      * @return array
      */
     public function getVendorUsersIds()

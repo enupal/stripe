@@ -8,7 +8,9 @@
 
 namespace enupal\stripe\services;
 
+use craft\base\ElementInterface;
 use craft\db\Query;
+use craft\helpers\Db;
 use craft\services\Plugins;
 use enupal\stripe\elements\Commission;
 use enupal\stripe\elements\Connect;
@@ -169,7 +171,7 @@ class Connects extends Component
     public function processSessionParams($params, PaymentForm $form)
     {
         /** @var Connect $connect */
-        $connect = StripePlugin::$app->commissions->getConnectByPaymentFormId($form->id);
+        $connect = StripePlugin::$app->connects->getConnectByPaymentFormId($form->id);
 
         if (is_null($connect)) {
             // No connect for this payment form
@@ -229,5 +231,26 @@ class Connects extends Component
         }
 
         return $stripeResponse->stripe_user_id;
+    }
+
+    /**
+     * @param $paymentFormId
+     * @param $vendorId
+     * @return array|ElementInterface[]|null
+     */
+    public function getConnectByPaymentFormId($paymentFormId, $vendorId = null)
+    {
+        $query = Connect::find();
+
+        $query->andWhere(['like', 'products', '%"'.$paymentFormId . '"%', false]);
+        $query->andWhere(Db::parseParam(
+            'enupalstripe_connect.productType', PaymentForm::class));
+
+        if ($vendorId !== null) {
+            $query->andWhere(Db::parseParam(
+                'enupalstripe_connect.vendorId', $vendorId));
+        }
+
+        return $query->one();
     }
 }
