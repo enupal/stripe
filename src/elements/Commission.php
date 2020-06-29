@@ -249,7 +249,7 @@ class Commission extends Element
      */
     public function getOrder()
     {
-        return Craft::$app->getElements()->getElementById($this->orderId);
+        return Craft::$app->getElements()->getElementById($this->orderId, $this->orderType);
     }
 
     /**

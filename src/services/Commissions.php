@@ -186,12 +186,6 @@ class Commissions extends Component
         $chargeId = Stripe::$app->orders->getChargeIdFromOrder($order);
         $charge = Stripe::$app->orders->getCharge($chargeId);
         $stripeAccountId = $charge->destination;
-        $commission = $this->getCommissionByStripeId($charge->id);
-
-        if ($commission !== null) {
-            Craft::info('This commission was already registered', __METHOD__);
-            return false;
-        }
 
         if ($stripeAccountId === null) {
             Craft::error('Unable to get the destination from Charge', __METHOD__);
@@ -223,7 +217,7 @@ class Commissions extends Component
         $commission->datePaid = $now;
         $commission->commissionStatus = self::STATUS_PAID;
 
-        if (!Craft::$app->elements->saveElement($commission)) {
+        if (!$this->saveCommission($commission)) {
             Craft::error('Unable to save commission: '.json_encode($commission->getErrors()), __METHOD__);
             return false;
         }
