@@ -164,6 +164,8 @@ class Connects extends Component
     }
 
     /**
+     * This will split payments on destination charges.
+     * @todo Remove if we only go with Separate Charges
      * @param $params
      * @param PaymentForm $form
      * @return mixed
@@ -252,5 +254,28 @@ class Connects extends Component
         }
 
         return $query->one();
+    }
+
+    /**
+     * @param $paymentFormId
+     * @param $vendorId
+     * @return array|ElementInterface[]|null
+     */
+    public function getConnectsByPaymentFormId($paymentFormId, $vendorId = null)
+    {
+        $query = Connect::find();
+
+        $query->andWhere(['like', 'products', '%"'.$paymentFormId . '"%', false]);
+        $query->andWhere(Db::parseParam(
+            'enupalstripe_connect.productType', PaymentForm::class));
+        $query->andWhere(Db::parseParam(
+            'enupalstripe_connect.allProducts', false));
+
+        if ($vendorId !== null) {
+            $query->andWhere(Db::parseParam(
+                'enupalstripe_connect.vendorId', $vendorId));
+        }
+
+        return $query->all();
     }
 }

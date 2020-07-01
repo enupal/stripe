@@ -162,9 +162,89 @@ class Commissions extends Component
         return true;
     }
 
+    /**
+     * After Order is completed we will process transfer if the setting is set to on checkout
+     * @param StripePaymentsOrder $order
+     * @return bool
+     * @throws \Throwable
+     * @throws \craft\errors\ElementNotFoundException
+     * @throws \yii\base\Exception
+     */
+    public function processSeparateCharges(StripePaymentsOrder $order)
+    {
+        if (!$order->isCompleted) {
+            return false;
+        }
+
+        if ($order->isSubscription) {
+            // @todo add support for subscriptions
+            return false;
+        }
+
+        $paymentForm = $order->getPaymentForm();
+        $chargeId = Stripe::$app->orders->getChargeIdFromOrder($order);
+        $charge = Stripe::$app->orders->getCharge($chargeId);
+        $stripeAccountId = $charge->destination;
+
+        $connects = Stripe::$app->connects->getConnectsByPaymentFormId($paymentForm->id);
+
+        if (empty($connects)) {
+            // No connects for this payment form
+            return false;
+        }
+
+        foreach ($connects as $connect) {
+            $vendor = $connect->getVendor();
+
+            if (is_null($vendor)) {
+                Craft::error('Unable to process commission as vendor does not exists');
+                continue;
+            }
+
+            if (empty($vendor->stripeId)) {
+                Craft::error('Unable to process commission as vendor does not have a Stripe account linked');
+                continue;
+            }
+
+            $vendorAmount = $order->totalPrice * ($connect->rate / 100);
+
+            $commission = $this->createPendingCommission($order, $connect, $vendorAmount, $order->currency,StripePaymentsOrder::class);
+            
+        }
+
+        return true;
+    }
 
     /**
-     * This will check commissions for Direct Charges nad Destination Charges
+     * @param $order
+     * @param $connect
+     * @param $orderType
+     * @param $totalPriceInCents
+     * @param $currency
+     * @return Commission
+     * @throws \Throwable
+     */
+    public function createPendingCommission($order, $connect, $totalPriceInCents, $currency, $orderType)
+    {
+        $commission = new Commission();
+        $commission->orderId = $order->id;
+        $commission->orderType = $orderType;
+        $commission->connectId = $connect->id;
+        $commission->currency = $currency;
+        $commission->totalPrice = Stripe::$app->orders->convertFromCents($totalPriceInCents, $currency);
+        $commission->commissionStatus = self::STATUS_PENDING;
+
+        if (!$this->saveCommission($commission)) {
+            Craft::error('Unable to save commission: '.json_encode($commission->getErrors()), __METHOD__);
+            throw new \Exception('Unable to save commission, please check your logs');
+        }
+
+        return $commission;
+    }
+
+    /**
+     * This will check commissions for Direct Charges and Destination Charges
+     * @todo remove if we go only with Separate charges
      * @param StripePaymentsOrder $order
      * @return bool
      * @throws \Throwable

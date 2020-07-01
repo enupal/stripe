@@ -253,7 +253,7 @@ class Install extends Migration
             'products' => $this->string(),
             // Stripe Payment Form or Craft Commerce Product
             'productType' => $this->string()->notNull(),
-            'allProducts' => $this->boolean(),
+            'allProducts' => $this->boolean()->defaultValue(false),
             'rate' => $this->decimal(14, 2)->defaultValue(0),
             //
             'dateCreated' => $this->dateTime()->notNull(),

@@ -86,7 +86,8 @@ class Stripe extends Plugin
         });
 
         Event::on(Orders::class, Orders::EVENT_AFTER_ORDER_COMPLETE, function(OrderCompleteEvent $e) {
-            self::$app->commissions->checkForCommissions($e->order);
+            //self::$app->commissions->checkForCommissions($e->order);
+            self::$app->commissions->processSeparateCharges($e->order);
         });
 
         Craft::$app->projectConfig
