@@ -86,7 +86,6 @@ class PaymentIntents extends Component
         $data['enupalStripe']['testMode'] = $testMode;
         $data['enupalStripe']['paymentType'] = PaymentType::CC;
         $data['enupalStripe']['userId'] = $userId;
-        $data['enupalStripe']['userId'] = $userId;
 
         $billingAddress = $billing['address'] ?? null;
         $shippingAddress = $shipping['address'] ?? null;
@@ -125,7 +124,6 @@ class PaymentIntents extends Component
             }
 	        StripePlugin::$app->orders->saveOrder($order);
         }
-
 
         return $order;
     }
@@ -187,6 +185,7 @@ class PaymentIntents extends Component
         unset($metadata['stripe_payments_quantity']);
         unset($metadata['stripe_payments_coupon_code']);
         unset($metadata['stripe_payments_amount_before_coupon']);
+        unset($metadata['stripe_payments_transfer_group']);
 
         return $metadata;
     }

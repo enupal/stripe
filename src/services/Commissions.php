@@ -14,10 +14,12 @@ use enupal\stripe\elements\Commission;
 use enupal\stripe\elements\Connect;
 use enupal\stripe\elements\Order as StripePaymentsOrder;
 use enupal\stripe\elements\PaymentForm;
+use enupal\stripe\elements\Vendor;
 use enupal\stripe\events\CommissionPaidEvent;
 use enupal\stripe\Stripe;
 use yii\base\Component;
 use Craft;
+use Stripe\Transfer;
 
 class Commissions extends Component
 {
@@ -68,7 +70,7 @@ class Commissions extends Component
             $commissionRecord = $this->getCommissionById($commission->id);
 
             if (is_null($commissionRecord)) {
-                throw new \Exception(StripePlugin::t('No Commission exists with the ID “{id}”', ['id' => $commission->id]));
+                throw new \Exception(Craft::t('enupal-stripe','No Commission exists with the ID “{id}”', ['id' => $commission->id]));
             }
         }
 
@@ -104,39 +106,12 @@ class Commissions extends Component
     }
 
     /**
-     * Process transfer for when Separate Charges are enabled
-     * @param StripePaymentsOrder $order
-     */
-    public function processStripePaymentsOrder(StripePaymentsOrder $order)
-    {
-        $paymentForm = $order->getPaymentForm();
-        $connects = Stripe::$app->connects->getConnectByPaymentFormId($paymentForm->id);
-
-        /** @var Connect $connect */
-        foreach ($connects as $connect) {
-            if (!$order->isCompleted) {
-                continue;
-            }
-
-            $commission = new Commission();
-            $commission->totalPrice = $order->totalPrice * ($connect->rate / 100);
-            $commission->connectId = $connect->id;
-            $commission->orderId = $order->id;
-            $commission->currency = strtoupper($order->currency);
-            $commission->commissionStatus = self::STATUS_PENDING;
-            $commission->orderType = StripePaymentsOrder::class;
-
-            $result = $this->processCommission($commission);
-            // @todo add message about commission
-        }
-    }
-
-    /**
      * @param Commission $commission
-     * @param bool $totalIsInCents
+     * @param string $transferGroup
      * @return bool
+     * @throws \Throwable
      */
-    public function processCommission(Commission $commission, $totalIsInCents = false)
+    public function processTransfer(Commission $commission, $transferGroup)
     {
         $connect = $commission->getConnect();
         $vendor = $connect->getVendor();
@@ -151,19 +126,32 @@ class Commissions extends Component
             return false;
         }
 
-        $amountInCents = $commission->totalPrice;
+        $amountInCents = Stripe::$app->orders->convertToCents($commission->totalPrice, $commission->currency);
 
-        if (!$totalIsInCents) {
-            $amountInCents = Stripe::$app->orders->convertToCents($commission->totalPrice, $commission->currency);
+        try {
+            $transfer = Transfer::create([
+                'amount' => $amountInCents,
+                'currency' => strtolower($commission->currency),
+                'destination' => $vendor->stripeId,
+                'transfer_group' => $transferGroup,
+            ]);
+        } catch (\Exception $e){
+            Craft::error('Unable to process transfer: '.$e->getMessage(), __METHOD__);
+            return false;
         }
 
-        //@todo add transfer
+        if ($transfer->id) {
+            $commission->commissionStatus = Commissions::STATUS_PAID;
+            $commission->stripeId = $transfer->id;
+            $commission->datePaid = Db::prepareDateForDb(new \DateTime());
+            $this->saveCommission($commission);
+        }
 
         return true;
     }
 
     /**
-     * After Order is completed we will process transfer if the setting is set to on checkout
+     * After Order is completed we will process transfers if the setting is set to on checkout
      * @param StripePaymentsOrder $order
      * @return bool
      * @throws \Throwable
@@ -182,10 +170,6 @@ class Commissions extends Component
         }
 
         $paymentForm = $order->getPaymentForm();
-        $chargeId = Stripe::$app->orders->getChargeIdFromOrder($order);
-        $charge = Stripe::$app->orders->getCharge($chargeId);
-        $stripeAccountId = $charge->destination;
-
         $connects = Stripe::$app->connects->getConnectsByPaymentFormId($paymentForm->id);
 
         if (empty($connects)) {
@@ -193,7 +177,24 @@ class Commissions extends Component
             return false;
         }
 
+        $chargeId = Stripe::$app->orders->getChargeIdFromOrder($order);
+        $charge = Stripe::$app->orders->getCharge($chargeId);
+
+        if (!isset($charge['id'])) {
+            Craft::error('Unable to process connect transfer as the Charge id does not exists', __METHOD__);
+            return false;
+        }
+
+        $metadata = $charge['metadata'];
+        $transferGroup = $metadata['stripe_payments_transfer_group'] ?? null;
+
+        if ($transferGroup === null) {
+            Craft::error('Unable to process connect transfer as the transferGroup is not set in metadata', __METHOD__);
+            return false;
+        }
+
         foreach ($connects as $connect) {
+            /** @var Vendor $vendor */
             $vendor = $connect->getVendor();
 
             if (is_null($vendor)) {
@@ -209,7 +210,10 @@ class Commissions extends Component
             $vendorAmount = $order->totalPrice * ($connect->rate / 100);
 
             $commission = $this->createPendingCommission($order, $connect, $vendorAmount, $order->currency,StripePaymentsOrder::class);
-            
+
+            if ($vendor->paymentType === Vendors::PAYMENT_TYPE_ON_CHECKOUT) {
+                $this->processTransfer($commission, $transferGroup);
+            }
         }
 
         return true;
@@ -219,19 +223,19 @@ class Commissions extends Component
      * @param $order
      * @param $connect
      * @param $orderType
-     * @param $totalPriceInCents
+     * @param $totalPrice
      * @param $currency
      * @return Commission
      * @throws \Throwable
      */
-    public function createPendingCommission($order, $connect, $totalPriceInCents, $currency, $orderType)
+    public function createPendingCommission($order, $connect, $totalPrice, $currency, $orderType)
     {
         $commission = new Commission();
         $commission->orderId = $order->id;
         $commission->orderType = $orderType;
         $commission->connectId = $connect->id;
         $commission->currency = $currency;
-        $commission->totalPrice = Stripe::$app->orders->convertFromCents($totalPriceInCents, $currency);
+        $commission->totalPrice = $totalPrice;
         $commission->commissionStatus = self::STATUS_PENDING;
 
         if (!$this->saveCommission($commission)) {
