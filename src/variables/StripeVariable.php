@@ -727,6 +727,19 @@ class StripeVariable extends Behavior
     }
 
     /**
+     * @return array
+     */
+    public function getBooleanUserFields()
+    {
+        return Stripe::$app->vendors->getBooleanUserFieldsAsOptions();
+    }
+
+    public function getCraftUserGroups()
+    {
+        return Craft::$app->getUserGroups()->getAllGroups();
+    }
+
+    /**
      * @param $view
      * @param $inputFilePath
      * @param $templatePath

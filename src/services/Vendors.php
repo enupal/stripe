@@ -8,7 +8,10 @@
 
 namespace enupal\stripe\services;
 
+use craft\base\Field;
 use craft\db\Query;
+use craft\elements\User;
+use craft\fields\Lightswitch;
 use enupal\stripe\elements\Connect;
 use enupal\stripe\elements\Vendor as VendorElement;
 use yii\base\Component;
@@ -163,5 +166,57 @@ class Vendors extends Component
         }
 
         return true;
+    }
+
+    /**
+     * This function will register a vendor with basic info if has a field or user group associated to vendors
+     * @param User $user
+     */
+    public function processUserActivation(User $user)
+    {
+        $userGroups = Craft::$app->userGroups->getGroupsByUserId($user->id);
+    }
+
+    /**
+     * @return array
+     */
+    public function getBooleanUserFields()
+    {
+        $booleanFields = [];
+        $user = new User();
+        $fieldLayout = $user->getFieldLayout();
+        $fields = $fieldLayout->getFields();
+
+        foreach ($fields as $field) {
+            if ($field instanceof Lightswitch) {
+                $booleanFields[] = $field;
+            }
+        }
+
+        return $booleanFields;
+    }
+
+    /**
+     * @return array
+     */
+    public function getBooleanUserFieldsAsOptions()
+    {
+        $booleanFields = $this->getBooleanUserFields();
+        $options = [];
+
+        $options[] = [
+            'label' => 'Select a field',
+            'value' => ''
+        ];
+
+        /** @var Field $booleanField */
+        foreach ($booleanFields as $booleanField) {
+            $options[] = [
+                'label' => $booleanField->name. ' ('.$booleanField->handle.')',
+                'value' => $booleanField->id
+            ];
+        }
+
+        return $options;
     }
 }

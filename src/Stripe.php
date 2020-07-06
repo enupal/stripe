@@ -14,8 +14,10 @@ use craft\elements\User;
 use craft\events\ElementEvent;
 use craft\events\RegisterComponentTypesEvent;
 use craft\events\RegisterUrlRulesEvent;
+use craft\events\UserEvent;
 use craft\services\Elements;
 use craft\services\Fields;
+use craft\services\Users;
 use craft\web\UrlManager;
 use enupal\stripe\events\OrderCompleteEvent;
 use enupal\stripe\events\WebhookEvent;
@@ -86,8 +88,11 @@ class Stripe extends Plugin
         });
 
         Event::on(Orders::class, Orders::EVENT_AFTER_ORDER_COMPLETE, function(OrderCompleteEvent $e) {
-            //self::$app->commissions->checkForCommissions($e->order);
             self::$app->commissions->processSeparateCharges($e->order);
+        });
+
+        Event::on(Users::class, Users::EVENT_AFTER_ACTIVATE_USER, function(UserEvent $e) {
+            self::$app->vendors->processUserActivation($e->user);
         });
 
         Craft::$app->projectConfig

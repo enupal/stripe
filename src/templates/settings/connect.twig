@@ -55,8 +55,6 @@
                 errors: settings.getErrors('vendorNameFormat')
             }) }}
 
-
-
             {{ forms.textField({
                 first: true,
                 label: "Global Commission"|t('enupal-stripe'),
@@ -68,6 +66,35 @@
                 value: settings.globalRate|number_format(2, '.'),
                 errors: settings.getErrors('globalRate'),
                 autofocus: true,
+            }) }}
+
+            <hr>
+            {{ forms.field({
+                label: "Vendor Settings"|t('enupal-stripe')|upper,
+                instructions : 'Who is a vendor? Allow auto vendor registration if a new User has a Lightswitch field or has a specific user group:'
+            }, null) }}
+            <hr>
+            {% set userGroups = craft.enupalStripe.getCraftUserGroups() %}
+            {% set userGroups = userGroups | map((ug) => { value: ug.id, label: ug.name }) %}
+
+            {% set userGroupsOptions = [{label: 'Select a user group', value: ''}]|merge(userGroups) %}
+            {{ forms.selectField({
+                label: "User Group"|t('enupal-stripe'),
+                id: 'vendorUserGroupId',
+                instructions: 'The user group that is assciated to Vendors',
+                name: 'vendorUserGroupId;',
+                options: userGroupsOptions,
+            value: settings.vendorUserGroupId
+            }) }}
+
+            {% set booleanUserFields = craft.enupalStripe.getBooleanUserFields() %}
+            {{ forms.selectField({
+                label: "Lightswitch User field"|t('enupal-stripe'),
+                id: 'vendorUserFieldHandle;',
+                instructions: 'The Lightswitch field that identifies a Vendor when is TRUE',
+                name: 'vendorUserFieldHandle;;',
+                options: booleanUserFields,
+                value: settings.vendorUserGroupId
             }) }}
 
         {% endnamespace %}
