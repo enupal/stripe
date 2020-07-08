@@ -9,6 +9,7 @@
 namespace enupal\stripe\models;
 
 use craft\base\Model;
+use enupal\stripe\services\Vendors;
 use enupal\stripe\Stripe;
 
 
@@ -71,9 +72,11 @@ class Settings extends Model
     // What field is used to store the Vendor Name? by default id. Twig allowed
     public $vendorNameFormat;
     // What boolean user field could help to filter users on Vendor creation
-    public $vendorUserFieldHandle;
+    public $vendorUserFieldId;
     // What user group id help to filter users on Vendor creation
     public $vendorUserGroupId;
+    public $vendorPaymentType = Vendors::PAYMENT_TYPE_MANUALLY;
+    public $vendorSkipAdminReview = 0;
     public $globalRate = 1;
     public $liveClientId;
     public $testClientId;

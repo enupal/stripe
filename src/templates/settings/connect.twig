@@ -90,11 +90,11 @@
             {% set booleanUserFields = craft.enupalStripe.getBooleanUserFields() %}
             {{ forms.selectField({
                 label: "Lightswitch User field"|t('enupal-stripe'),
-                id: 'vendorUserFieldHandle;',
+                id: 'vendorUserFieldId',
                 instructions: 'The Lightswitch field that identifies a Vendor when is TRUE',
-                name: 'vendorUserFieldHandle;;',
+                name: 'vendorUserFieldId',
                 options: booleanUserFields,
-                value: settings.vendorUserGroupId
+                value: settings.vendorUserFieldId
             }) }}
 
         {% endnamespace %}

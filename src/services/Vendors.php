@@ -14,6 +14,7 @@ use craft\elements\User;
 use craft\fields\Lightswitch;
 use enupal\stripe\elements\Connect;
 use enupal\stripe\elements\Vendor as VendorElement;
+use enupal\stripe\Stripe;
 use yii\base\Component;
 use Craft;
 
@@ -169,12 +170,70 @@ class Vendors extends Component
     }
 
     /**
-     * This function will register a vendor with basic info if has a field or user group associated to vendors
      * @param User $user
+     * @return bool
+     * @throws \Throwable
+     * @throws \craft\errors\ElementNotFoundException
+     * @throws \yii\base\Exception
      */
     public function processUserActivation(User $user)
     {
-        $userGroups = Craft::$app->userGroups->getGroupsByUserId($user->id);
+        $settings = Stripe::$app->settings->getSettings();
+        $registerVendor = false;
+
+        if (!$settings->enableConnect) {
+            return false;
+        }
+
+        if ($settings->vendorUserGroupId) {
+            $userGroups = Craft::$app->userGroups->getGroupsByUserId($user->id);
+
+            foreach ($userGroups as $userGroup) {
+                if ($userGroup['id'] === $settings->vendorUserGroupId) {
+                    $registerVendor = true;
+                }
+            }
+        }
+
+        if ($settings->vendorUserFieldId) {
+            $field = Craft::$app->getFields()->getFieldByid($settings->vendorUserFieldId);
+
+            if ($user->getFieldValue($field->handle)) {
+                $registerVendor = true;
+            }
+        }
+
+        if ($registerVendor) {
+            if ($this->registerDefaultVendor($user)) {
+                Craft::info('Default vendor was registered successfully');
+            }
+        }
+    }
+
+    /**
+     * @param User $user
+     * @return bool
+     * @throws \Throwable
+     * @throws \craft\errors\ElementNotFoundException
+     * @throws \yii\base\Exception
+     */
+    public function registerDefaultVendor(User $user)
+    {
+        $settings = Stripe::$app->settings->getSettings();
+        $vendor = new VendorElement();
+
+        $vendor->userId = $user->id;
+        $vendor->paymentType = $settings->vendorPaymentType;
+        $vendor->skipAdminReview = $settings->vendorSkipAdminReview;
+        $vendor->vendorRate = $settings->globalRate;
+        $vendor->enabled = false;
+
+        if (!Craft::$app->elements->saveElement($vendor)) {
+            Craft::error('Unable to save default vendor: '.json_encode($vendor->getErrors()), __METHOD__);
+            return false;
+        }
+
+        return true;
     }
 
     /**
