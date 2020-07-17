@@ -185,7 +185,6 @@ class PaymentIntents extends Component
         unset($metadata['stripe_payments_quantity']);
         unset($metadata['stripe_payments_coupon_code']);
         unset($metadata['stripe_payments_amount_before_coupon']);
-        unset($metadata['stripe_payments_transfer_group']);
 
         return $metadata;
     }

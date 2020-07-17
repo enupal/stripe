@@ -78,13 +78,6 @@ class Checkout extends Component
             'cancel_url' => $this->getSiteUrl($publicData['checkoutCancelUrl']),
         ];
 
-        /** @todo remove if we go we transfers
-        if ($pluginSettings->enableConnect) {
-            $metadata['stripe_payments_transfer_group'] = $transferGroup;
-            $sessionParams['payment_intent_data']['transfer_group'] = $transferGroup;
-        }
-         **/
-
         $isCustomAmount = isset($postData['recurringToggle']) && $postData['recurringToggle'] == 'on';
 
         if ($form->enableSubscriptions || $isCustomAmount) {

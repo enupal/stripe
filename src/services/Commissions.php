@@ -107,11 +107,10 @@ class Commissions extends Component
 
     /**
      * @param Commission $commission
-     * @param string $transferGroup
      * @return bool
      * @throws \Throwable
      */
-    public function processTransfer(Commission $commission, $transferGroup)
+    public function processTransfer(Commission $commission)
     {
         $connect = $commission->getConnect();
         $vendor = $connect->getVendor();
@@ -132,8 +131,7 @@ class Commissions extends Component
             $transfer = Transfer::create([
                 'amount' => $amountInCents,
                 'currency' => strtolower($commission->currency),
-                'destination' => $vendor->stripeId,
-                'transfer_group' => $transferGroup,
+                'destination' => $vendor->stripeId
             ]);
         } catch (\Exception $e){
             Craft::error('Unable to process transfer: '.$e->getMessage(), __METHOD__);
@@ -185,14 +183,6 @@ class Commissions extends Component
             return false;
         }
 
-        $metadata = $charge['metadata'];
-        $transferGroup = $metadata['stripe_payments_transfer_group'] ?? null;
-
-        if ($transferGroup === null) {
-            Craft::error('Unable to process connect transfer as the transferGroup is not set in metadata', __METHOD__);
-            return false;
-        }
-
         foreach ($connects as $connect) {
             /** @var Vendor $vendor */
             $vendor = $connect->getVendor();
@@ -212,7 +202,7 @@ class Commissions extends Component
             $commission = $this->createPendingCommission($order, $connect, $vendorAmount, $order->currency,StripePaymentsOrder::class);
 
             if ($vendor->paymentType === Vendors::PAYMENT_TYPE_ON_CHECKOUT) {
-                $this->processTransfer($commission, $transferGroup);
+                $this->processTransfer($commission);
             }
         }
 
