@@ -598,6 +598,49 @@ class PaymentForms extends Component
     }
 
     /**
+     * @param null $vendorId
+     * @return array|\craft\base\ElementInterface[]|null
+     */
+    public function getPaymentFormsByVendor($vendorId = null)
+    {
+        $vendor = StripePlugin::$app->vendors->getCurrentVendor();
+
+        if ($vendorId !== null) {
+            $vendor = StripePlugin::$app->vendors->getVendorById((int)$vendorId);
+        }
+
+        if ($vendor === null) {
+            return null;
+        }
+
+        $paymentFormIdsArray = [];
+
+        $connects = StripePlugin::$app->connects->getConnectsByVendorId($vendor->id);
+
+        if (empty($connects)) {
+            return null;
+        }
+
+        foreach ($connects as $connect) {
+            if ($connect->products) {
+                $productsArray = json_decode($connect->products, true);
+                foreach ($productsArray as $item) {
+                    $paymentFormIdsArray[$item] = 1;
+                }
+            }
+        }
+
+        if (empty($paymentFormIdsArray)) {
+            return null;
+        }
+
+        $paymentFormIds   = array_keys($paymentFormIdsArray);
+        $paymentFormQuery = PaymentForm::find();
+
+        return $paymentFormQuery->where(['elements.id' => $paymentFormIds])->status(null)->all();
+    }
+
+    /**
      * This service allows add the variant to a Stripe Payment Form
      *
      * @param StripeElement $paymentForm
