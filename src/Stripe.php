@@ -19,10 +19,13 @@ use craft\services\Elements;
 use craft\services\Fields;
 use craft\services\Users;
 use craft\web\UrlManager;
+use enupal\stripe\elements\PaymentForm;
+use enupal\stripe\events\AfterPopulatePaymentFormEvent;
 use enupal\stripe\events\OrderCompleteEvent;
 use enupal\stripe\events\WebhookEvent;
 use enupal\stripe\services\App;
 use enupal\stripe\services\Orders;
+use enupal\stripe\services\PaymentForms;
 use yii\base\Event;
 use craft\web\twig\variables\CraftVariable;
 use enupal\stripe\fields\StripePaymentForms as StripePaymentFormsField;
@@ -77,9 +80,13 @@ class Stripe extends Plugin
 
         Event::on(Elements::class, Elements::EVENT_AFTER_SAVE_ELEMENT, function(ElementEvent $event) {
             /** @var User $user */
-            $user = $event->element;
-            if (get_class($user) === User::class){
-                self::$app->customers->updateCustomerEmail($user);
+            $element = $event->element;
+            if (get_class($element) === User::class){
+                self::$app->customers->updateCustomerEmail($element);
+            }
+
+            if (get_class($element) === PaymentForm::class){
+                self::$app->vendors->assignPaymentFormToVendor($element);
             }
         });
 
@@ -89,6 +96,10 @@ class Stripe extends Plugin
 
         Event::on(Orders::class, Orders::EVENT_AFTER_ORDER_COMPLETE, function(OrderCompleteEvent $e) {
             self::$app->commissions->processSeparateCharges($e->order);
+        });
+
+        Event::on(PaymentForms::class, PaymentForms::EVENT_AFTER_POPULATE, function(AfterPopulatePaymentFormEvent $e) {
+            self::$app->paymentForms->handleVendorPaymentForms($e->paymentForm);
         });
 
         Event::on(Users::class, Users::EVENT_AFTER_ACTIVATE_USER, function(UserEvent $e) {

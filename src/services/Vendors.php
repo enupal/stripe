@@ -13,6 +13,7 @@ use craft\db\Query;
 use craft\elements\User;
 use craft\fields\Lightswitch;
 use enupal\stripe\elements\Connect;
+use enupal\stripe\elements\PaymentForm;
 use enupal\stripe\elements\Vendor as VendorElement;
 use enupal\stripe\Stripe;
 use yii\base\Component;
@@ -39,7 +40,7 @@ class Vendors extends Component
 
     /**
      * @param $userId
-     * @return array|\craft\base\ElementInterface|null
+     * @return array|VendorElement|null
      */
     public function getVendorByUserId($userId)
     {
@@ -47,6 +48,69 @@ class Vendors extends Component
         $query->userId = $userId;
 
         return $query->one();
+    }
+
+    /**
+     * @param $paymentForm
+     * @return bool
+     * @throws \Throwable
+     * @throws \craft\errors\ElementNotFoundException
+     * @throws \yii\base\Exception
+     */
+    public function assignPaymentFormToVendor($paymentForm)
+    {
+        $vendor = $this->getCurrentVendor();
+
+        if ($vendor === null) {
+            return false;
+        }
+
+        $connects = Stripe::$app->connects->getConnectsByPaymentFormId($paymentForm->id);
+
+        if ($connects) {
+            // This payment form was already assigned
+            return false;
+        }
+        $settings = Stripe::$app->settings->getSettings();
+        $connect = new Connect();
+        $products = [$paymentForm->id];
+        $connect->vendorId = $vendor->id;
+        $connect->productType = PaymentForm::class;
+        $connect->rate = $settings->globalRate;
+
+        $connects = Stripe::$app->connects->getConnectsByVendorId($vendor->id, false);
+        if (!empty($connects)) {
+            $connect = $connects[0];
+            if (is_string($connect->products)){
+                $products = json_decode($connect->products, true);
+                $products[] = "".$paymentForm->id;
+            }
+        }
+
+        $connect->products = json_encode($products);
+
+        if (!Craft::$app->elements->saveElement($connect)) {
+            Craft::error('Unable to assign new Payment Form to vendor', __METHOD__);
+            return false;
+        }
+
+        Craft::info("Added Payment Form ".$paymentForm->id. " to connect ".$connect->id, __METHOD__);
+
+        return true;
+    }
+
+    /**
+     * @return VendorElement|null
+     */
+    public function getCurrentVendor()
+    {
+        $currentUser = Craft::$app->getUser()->getIdentity();
+
+        if ($currentUser === null) {
+            return null;
+        }
+
+        return Stripe::$app->vendors->getVendorByUserId($currentUser->id);
     }
 
     /**

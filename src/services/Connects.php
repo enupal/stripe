@@ -278,4 +278,22 @@ class Connects extends Component
 
         return $query->all();
     }
+
+    /**
+     * @param int $vendorId
+     * @param $allProducts
+     * @return array|Connect[]|null
+     */
+    public function getConnectsByVendorId(int $vendorId, $allProducts = null)
+    {
+        $query = Connect::find();
+
+        $query->andWhere(Db::parseParam('enupalstripe_connect.vendorId', $vendorId));
+        if ($allProducts) {
+            $query->andWhere(Db::parseParam(
+                'enupalstripe_connect.allProducts', $allProducts));
+        }
+
+        return $query->all();
+    }
 }

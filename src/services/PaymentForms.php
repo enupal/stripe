@@ -23,6 +23,7 @@ use craft\helpers\UrlHelper;
 use enupal\stripe\enums\CheckoutPaymentType;
 use enupal\stripe\enums\PaymentType;
 use enupal\stripe\enums\SubscriptionType;
+use enupal\stripe\events\AfterPopulatePaymentFormEvent;
 use enupal\stripe\web\assets\StripeAsset;
 use enupal\stripe\elements\PaymentForm;
 use enupal\stripe\enums\AmountType;
@@ -37,6 +38,24 @@ use yii\base\Exception;
 
 class PaymentForms extends Component
 {
+    /**
+     * @event OrderCompleteEvent The event that is triggered after a payment is made
+     *
+     * Plugins can get notified after populate payment form
+     *
+     * ```php
+     * use enupal\stripe\events\AfterPopulatePaymentFormEvent;
+     * use enupal\stripe\services\PaymentForms;
+     * use yii\base\Event;
+     *
+     * Event::on(PaymentForms::class, PaymentForms::EVENT_AFTER_POPULATE, function(AfterPopulatePaymentFormEvent $e) {
+     *      $paymentForm = $e->paymentForm;
+     *     // Do something
+     * });
+     * ```
+     */
+    const EVENT_AFTER_POPULATE = 'afterPopulatePaymentForm';
+
     protected $paymentFormRecord;
 
     const BASIC_FORM_FIELDS_HANDLE = 'enupalStripeBasicFields';
@@ -242,10 +261,10 @@ class PaymentForms extends Component
         $postFields = $request->getBodyParam('fields');
 
         $postFields['amount'] = $this->getAmountAsFloat($postFields['amount']);
-        $postFields['minimumAmount'] = $this->getAmountAsFloat($postFields['minimumAmount']);
-        $postFields['singlePlanSetupFee'] = $this->getAmountAsFloat($postFields['singlePlanSetupFee']);
-        $postFields['customPlanMinimumAmount'] = $this->getAmountAsFloat($postFields['customPlanMinimumAmount']);
-        $postFields['customPlanDefaultAmount'] = $this->getAmountAsFloat($postFields['customPlanDefaultAmount']);
+        $postFields['minimumAmount'] = $this->getAmountAsFloat($postFields['minimumAmount'] ?? 0);
+        $postFields['singlePlanSetupFee'] = $this->getAmountAsFloat($postFields['singlePlanSetupFee'] ?? 0);
+        $postFields['customPlanMinimumAmount'] = $this->getAmountAsFloat($postFields['customPlanMinimumAmount'] ?? 0);
+        $postFields['customPlanDefaultAmount'] = $this->getAmountAsFloat($postFields['customPlanDefaultAmount']?? 0);
 
         $paymentForm->setAttributes(/** @scrutinizer ignore-type */
             $postFields, false);
@@ -258,7 +277,42 @@ class PaymentForms extends Component
             $paymentForm->setFieldValue(PaymentForms::MULTIPLE_PLANS_HANDLE, $postFields[PaymentForms::MULTIPLE_PLANS_HANDLE]);
         }
 
+        $this->triggerAfterPopulatePaymentFormEvent($paymentForm);
+
         return $paymentForm;
+    }
+
+    /**
+     * Disabled the payment form is skipAdminReview is disabled
+     * @param $paymentForm
+     * @return bool
+     */
+    public function handleVendorPaymentForms($paymentForm)
+    {
+        $vendor = StripePlugin::$app->vendors->getCurrentVendor();
+        if ($vendor === null) {
+            return false;
+        }
+
+        if (!$vendor->skipAdminReview) {
+            $paymentForm->enabled = false;
+        }
+
+        return true;
+    }
+
+    /**
+     * @param $paymentForm
+     */
+    public function triggerAfterPopulatePaymentFormEvent($paymentForm)
+    {
+        Craft::info("Triggering After Populate Payment Form", __METHOD__);
+
+        $event = new AfterPopulatePaymentFormEvent([
+            'paymentForm' => $paymentForm
+        ]);
+
+        $this->trigger(self::EVENT_AFTER_POPULATE, $event);
     }
 
     /**
@@ -486,7 +540,7 @@ class PaymentForms extends Component
      * @throws \Exception
      * @throws \Throwable
      */
-    public function createNewPaymentForm($name = null, $handle = null): StripeElement
+    public function     createNewPaymentForm($name = null, $handle = null): StripeElement
     {
         $paymentForm = new StripeElement();
         $name = empty($name) ? 'Payment Form' : $name;
