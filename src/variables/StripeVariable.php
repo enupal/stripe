@@ -75,7 +75,7 @@ class StripeVariable extends Behavior
      */
     public function getVendorPaymentForm($paymentFormId,  $vendorId = null)
     {
-        return Stripe::$app->paymentForms->getVendorPaymentForm($paymentFormId, $vendorId);
+        return Stripe::$app->paymentForms->getVendorPaymentForm((int)$paymentFormId, $vendorId);
     }
 
     /**
