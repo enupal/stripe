@@ -588,9 +588,9 @@ class PaymentForms extends Component
             return null;
         }
 
-        $connect = StripePlugin::$app->connects->getConnectsByPaymentFormId($paymentFormId);
+        $connect = StripePlugin::$app->connects->getConnectsByPaymentFormId($paymentFormId, $vendor->id);
 
-        if ($connect === null) {
+        if (empty($connect)) {
             return null;
         }
 
