@@ -540,7 +540,7 @@ class PaymentForms extends Component
      * @throws \Exception
      * @throws \Throwable
      */
-    public function     createNewPaymentForm($name = null, $handle = null): StripeElement
+    public function createNewPaymentForm($name = null, $handle = null): StripeElement
     {
         $paymentForm = new StripeElement();
         $name = empty($name) ? 'Payment Form' : $name;
@@ -566,6 +566,35 @@ class PaymentForms extends Component
         $this->savePaymentForm($paymentForm);
 
         return $paymentForm;
+    }
+
+    /**
+     * It will return a payment form element if allows to vendor (already have a connect).
+     *
+     * @param int $paymentFormId
+     * @param $vendorId
+     *
+     * @return PaymentForm|null
+     */
+    public function getVendorPaymentForm($paymentFormId, $vendorId = null)
+    {
+        $vendor = StripePlugin::$app->vendors->getCurrentVendor();
+
+        if ($vendorId !== null) {
+            $vendor = StripePlugin::$app->vendors->getVendorById($vendorId);
+        }
+
+        if ($vendor === null) {
+            return null;
+        }
+
+        $connect = StripePlugin::$app->connects->getConnectsByPaymentFormId($paymentFormId);
+
+        if ($connect === null) {
+            return null;
+        }
+
+        return $this->getPaymentFormById($paymentFormId);
     }
 
     /**

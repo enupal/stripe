@@ -1,0 +1,140 @@
+{% extends 'marketplace/_layouts/main' %}
+
+
+{% block main %}
+    {% set paymentFormId = craft.request.get('paymentFormId') %}
+    {% if paymentFormId and paymentForm is not defined  %}
+        {% set paymentForm = craft.enupalStripe.getVendorPaymentForm(paymentFormId) %}
+        {% if paymentForm is null %}
+            {% do craft.app.session.setError('Payment Form not found'|t) %}
+            {% redirect 'marketplace/products' %}
+        {% endif %}
+    {% endif %}
+
+    <h1>{% if paymentFormId %} Edit {% else %} New {% endif %} Product</h1>
+
+    <form method="post">
+        <input type="hidden" name="action" value="enupal-stripe/payment-forms/save-form">
+        {{ redirectInput('marketplace/products') }}
+        {{ csrfInput() }}
+
+        {% namespace 'fields' %}
+            <input type="hidden" name="language" value="auto">
+            <input type="hidden" name="currency" value="USD">
+            <input type="hidden" name="enableShippingAddress" value="false">
+            <input type="hidden" name="enableBillingAddress" value="false">
+
+            <div class="fields">
+                <div class="heading">
+                    <label for="Item Name">
+                        {{ "Item Name"|t }}
+                    </label>
+                </div>
+                <div class="input">
+                    <input type="text"
+                           name="companyName"
+                           id="companyName"
+                           required aria-required="true"
+                           value="{% if paymentForm is defined %}{{ paymentForm.companyName }}{% endif %}"
+                           placeholder="{{ "Product Name"|t }}"
+                           maxlength="255"
+                    />
+                </div>
+            </div>
+
+            <div class="fields">
+                <div class="heading">
+                    <label for="Handle or SKU">
+                        {{ "Handle or SKU"|t }}
+                    </label>
+                </div>
+                <div class="input">
+                    <input type="text"
+                           name="handle"
+                           id="handle"
+                           required aria-required="true"
+                           value="{% if paymentForm is defined %}{{ paymentForm.handle }}{% endif %}"
+                           placeholder="{{ "Handle or SKU"|t }}"
+                           maxlength="255"
+                    />
+                </div>
+            </div>
+
+            <div class="fields">
+                <div class="heading">
+                    <label for="Product Description">
+                        {{ "Product Description"|t }}
+                    </label>
+                </div>
+                <div class="input">
+                    <textarea aria-multiline="true"
+                           name="name"
+                           id="name"
+                           required aria-required="true"
+                           value="{% if paymentForm is defined %}{{ paymentForm.name }}{% endif %}"
+                           placeholder="{{ "Product Description"|t }}"
+                           maxlength="255"
+                           rows="4"
+                    ></textarea>
+                </div>
+            </div>
+
+            <div class="fields">
+                <div class="heading">
+                    <label for="Amount">
+                        {{ "Amount"|t }}
+                    </label>
+                </div>
+                <div class="input">
+                    <input type="number"
+                           step="1"
+                           min="{{ "%.2f"|format(1) }}"
+                           name="amount"
+                           id="amount"
+                           required aria-required="true"
+                           value="{% if paymentForm is defined %}{{ paymentForm.amount }}{% endif %}"
+                           placeholder="{{ "Amount"|t }}"
+                    />
+                </div>
+            </div>
+
+            {% if paymentForm is defined and paymentForm.getErrors() | length %}
+                {% for errors in paymentForm.getErrors() %}
+                    <ul class="errors">
+                        {% for error in errors %}
+                            <li>{{ error }}</li>
+                        {% endfor %}
+                    </ul>
+                {% endfor %}
+            {% endif %}
+
+        {% endnamespace %}
+        <br>
+        <input type="submit" class="button" value="Add Product" />
+    </form>
+
+    {% js %}
+        {#
+        $('form.add-to-cart-form').submit(function(e){
+            e.preventDefault();
+            var purchasable = $(this).find('.js-purchasableId').val();
+            $.ajax({
+                type: "POST",
+                dataType: 'json',
+                headers: {
+                    "X-CSRF-Token" : '{{ craft.app.request.csrfToken }}',
+                },
+                url: '',
+                data: {
+                    'action' : 'commerce/cart/update-cart',
+                    'purchasableId': purchasable,
+                    'note' : 'from ajax'
+                },
+                success: function(data){
+                    console.log(data);
+                }
+            });
+        });
+        #}
+    {% endjs %}
+{% endblock %}
