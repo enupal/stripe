@@ -63,22 +63,12 @@
 {% block content %}
     {% namespace 'fields' %}
         <div id="tab1">
-            {{ forms.field({
-                label: '<i class="fa fa-user-o" aria-hidden="true"></i> '~'Vendor'|t('enupal-stripe'),
-                instructions: 'User that represents the commission owner'|t('enupal-stripe'),
-                id: 'userId',
-                errors: commission.getErrors('userId')
-            }, forms.elementSelect({
-                elements: [userElement],
-                elementType: elementType,
-                criteria: criteria,
-                id: 'userId',
-                name: 'userId',
-                class: 'userId-field',
-                selectionLabel: 'Add User'|t('enupal-stripe'),
-                limit: 1,
-                viewMode: 'large'
-            })) }}
+            <div class="customer-select-wrapper">
+                <div class="customer-wrapper">
+                    <div class="order-flex align-center customer-display">
+                        <div class="customer-photo-wrapper">
+                            <div class="customer-photo order-flex justify-center align-center customer-photo--initial customer-avatar-green"><!---->
+                                <div>{{ comission.get }}</div><!----></div><span class="status active"></span></div><div class="customer-info-container ml-1"><div>Andre Lopez</div><!----><div class="w-full light">admin@test.com</div><div class="w-full"><a href="http://craft3nitro.test/admin/commerce/customers/1">View customer</a><span> | </span><a href="http://craft3nitro.test/admin/myaccount">View user</a></div></div></div><!----></div><!----></div>
 
             {{ forms.selectField({
                 label: "Payment Type"|t('enupal-stripe'),

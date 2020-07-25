@@ -140,7 +140,6 @@ class Stripe extends Plugin
     protected function afterUninstall()
     {
         Stripe::$app->paymentForms->deleteVariantFields();
-        Craft::$app->projectConfig->rebuild();
     }
 
     /**
@@ -261,6 +260,12 @@ class Stripe extends Plugin
 
             'enupal-stripe/connects/edit/<connectId:\d+>' =>
                 'enupal-stripe/connects/edit-connect',
+
+            'enupal-stripe/commissions/new' =>
+                'enupal-stripe/commissions/edit-commission',
+
+            'enupal-stripe/commissions/edit/<commissionId:\d+>' =>
+                'enupal-stripe/commissions/edit-commission',
         ];
     }
 
