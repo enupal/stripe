@@ -184,22 +184,30 @@ class Commissions extends Component
         }
 
         foreach ($connects as $connect) {
+            if (!$connect->enabled) {
+                Craft::error("Unable to process commission as connect it's disabled", __METHOD__);
+                continue;
+            }
+
             /** @var Vendor $vendor */
             $vendor = $connect->getVendor();
 
-            if (is_null($vendor)) {
-                Craft::error('Unable to process commission as vendor does not exists');
+            if (is_null($vendor) || !$vendor->enabled) {
+                Craft::error("Unable to process commission as vendor does not exists or it's disabled", __METHOD__);
                 continue;
             }
 
             if (empty($vendor->stripeId)) {
-                Craft::error('Unable to process commission as vendor does not have a Stripe account linked');
+                Craft::error('Unable to process commission as vendor does not have a Stripe account linked', __METHOD__);
                 continue;
             }
 
             $vendorAmount = $order->totalPrice * ($connect->rate / 100);
+            $commission   = $this->createPendingCommission($order, $connect, $vendorAmount, $order->currency,StripePaymentsOrder::class);
 
-            $commission = $this->createPendingCommission($order, $connect, $vendorAmount, $order->currency,StripePaymentsOrder::class);
+            if ($commission === null) {
+                return false;
+            }
 
             if ($vendor->paymentType === Vendors::PAYMENT_TYPE_ON_CHECKOUT) {
                 $this->processTransfer($commission);
@@ -215,7 +223,7 @@ class Commissions extends Component
      * @param $orderType
      * @param $totalPrice
      * @param $currency
-     * @return Commission
+     * @return Commission|null
      * @throws \Throwable
      */
     public function createPendingCommission($order, $connect, $totalPrice, $currency, $orderType)
@@ -229,8 +237,8 @@ class Commissions extends Component
         $commission->commissionStatus = self::STATUS_PENDING;
 
         if (!$this->saveCommission($commission)) {
-            Craft::error('Unable to save commission: '.json_encode($commission->getErrors()), __METHOD__);
-            throw new \Exception('Unable to save commission, please check your logs');
+            Craft::error('Unable to create pending commission: '.json_encode($commission->getErrors()), __METHOD__);
+            return null;
         }
 
         return $commission;
