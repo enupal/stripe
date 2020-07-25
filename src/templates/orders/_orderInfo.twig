@@ -1,7 +1,8 @@
 {% import "_includes/forms" as forms %}
-<div class="order-info meta">
-    <div class="order-info-box">
-        <table class="fullwidth data borderless">
+<div id="details-container">
+    <div class="details">
+        <div class="meta" id="settings">
+        <table class=" ">
             <tr>
                 <td>
                     <strong>{{ "Payment Status"|t('enupal-stripe') }}</strong>
@@ -13,7 +14,7 @@
                             <span class="info"> {{ "Certain asynchronous payment methods (e.g., SOFORT) may require days for the funds to be confirmed and the charge to succeed, requiring the use of webhooks to know when to confirm and eventually fulfill your orders. Or the payment has not yet been captured"|t('enupal-stripe') }}</span>
                         {% endif %}
                         {% if order.getNeedCapture() and not order.isCompleted %}
-                            <div id="capture-payment" class="btn small right">{{ "Capture"|t('enupal-stripe') }} </div><div class="spinner hidden"></div>
+                            <div id="capture-payment" class="btn small center">{{ "Capture"|t('enupal-stripe') }} </div><div class="spinner hidden"></div>
                         {% endif %}
                     </div>
                 </td>
@@ -30,7 +31,7 @@
                 </td>
                 <td>{{ order.totalPrice|currency(order.currency) }}
                     {% if not order.refunded and order.isCompleted %}
-                        <div id="refund-payment" class="btn small right">{{ "Refund"|t('enupal-stripe') }} </div><div class="spinner hidden"></div>
+                        <div id="refund-payment" class="btn small center">{{ "Refund"|t('enupal-stripe') }} </div><div class="spinner hidden"></div>
                     {% endif %}
                 </td>
             </tr>
@@ -55,9 +56,6 @@
                 </td>
             </tr>
             <tr>
-                <h4>{{ 'Information'|t('enupal-test') }}</h4>
-            </tr>
-            <tr>
                 <td><strong>{{ "Customer Email"|t('enupal-stripe') }}</strong>
                 </td>
                 <td>
@@ -80,46 +78,48 @@
                 {% set url = order.testMode ? url~'/test' : url %}
                 {% set url = order.stripeTransactionId|slice(0, 3) == 'sub' ? url~'/subscriptions' : url~'/payments' %}
 
-                <td><a target="_blank" href="{{ url~'/'~order.stripeTransactionId }}">{{ order.stripeTransactionId }}</a></td>
+                <td><a target="_blank" href="{{ url~'/'~order.stripeTransactionId }}">{{ "View Reference" }}</a></td>
             </tr>
             <tr>
                 {% set customerId = craft.enupalStripe.getCustomerReference(order.email) %}
                 <td><strong>{{ "Stripe Customer"|t('enupal-stripe') }}</strong>
                 </td>
                 <td>
-                    <a href="https://dashboard.stripe.com/test/customers/{{ customerId }}">{{ customerId }}</a>
+                    <a href="https://dashboard.stripe.com/test/customers/{{ customerId }}">{{ "View Customer" }}</a>
                 </td>
             </tr>
         </table>
-    </div>
-</div>
-<div class="details">
-    <div class="meta">
-        {% set orderStatusOptions = craft.enupalStripe.getOrderStatuses() %}
-        {{ forms.selectField({
-            label: "Order Status"|t('enupal-stripe'),
-            id: 'orderStatusId',
-            name: 'orderStatusId',
-            options: orderStatusOptions,
-            value: order.orderStatusId,
-            errors: order.getErrors('orderStatusId')
-        }) }}
-    </div>
-    <div class="meta read-only">
-        <div class="data">
-            <h5 class="heading">{{ "Order Date"|t('app') }}</h5>
-            <div class="value">{{ order.dateCreated|datetime('short') }}</div>
         </div>
-        <div class="data">
-            <h5 class="heading">{{ "Updated at"|t('app') }}</h5>
-            <div class="value">{{ order.dateUpdated|datetime('short') }}</div>
-        </div>
+    </div>
 
-        {% if order.refunded %}
+    <div class="details">
+        <div class="meta">
+            {% set orderStatusOptions = craft.enupalStripe.getOrderStatuses() %}
+            {{ forms.selectField({
+                label: "Order Status"|t('enupal-stripe'),
+                id: 'orderStatusId',
+                name: 'orderStatusId',
+                options: orderStatusOptions,
+                value: order.orderStatusId,
+                errors: order.getErrors('orderStatusId')
+            }) }}
+        </div>
+        <div class="meta read-only">
             <div class="data">
-                <h5 class="heading">{{ "Refunded at"|t('app') }}</h5>
-                <div class="value">{{ order.dateRefunded|datetime('short') }}</div>
+                <h5 class="heading">{{ "Order Date"|t('app') }}</h5>
+                <div class="value">{{ order.dateCreated|datetime('short') }}</div>
             </div>
-        {% endif %}
+            <div class="data">
+                <h5 class="heading">{{ "Updated at"|t('app') }}</h5>
+                <div class="value">{{ order.dateUpdated|datetime('short') }}</div>
+            </div>
+
+            {% if order.refunded %}
+                <div class="data">
+                    <h5 class="heading">{{ "Refunded at"|t('app') }}</h5>
+                    <div class="value">{{ order.dateRefunded|datetime('short') }}</div>
+                </div>
+            {% endif %}
+        </div>
     </div>
 </div>

@@ -147,7 +147,7 @@ class Commission extends Element
      */
     protected static function defineSearchableAttributes(): array
     {
-        return ['orderId', 'connectId', 'stripeId', 'datePaid'];
+        return ['id','orderId', 'connectId', 'stripeId', 'datePaid'];
     }
 
     /**
@@ -156,7 +156,9 @@ class Commission extends Element
     protected static function defineSortOptions(): array
     {
         $attributes = [
-            'totalPrice' => StripePlugin::t('totalPrice')
+            'dateCreated' => StripePlugin::t('Date Created'),
+            'datePaid' => StripePlugin::t('Date Paid'),
+            'totalPrice' => StripePlugin::t('Total Price'),
         ];
 
         return $attributes;
@@ -167,6 +169,7 @@ class Commission extends Element
      */
     protected static function defineTableAttributes(): array
     {
+        $attributes['id'] = ['label' => StripePlugin::t('Id')];
         $attributes['orderId'] = ['label' => StripePlugin::t('Order')];
         $attributes['connectId'] = ['label' => StripePlugin::t('Connect')];
         $attributes['stripeId'] = ['label' => StripePlugin::t('Stripe Id')];
@@ -174,13 +177,14 @@ class Commission extends Element
         $attributes['commissionStatus'] = ['label' => StripePlugin::t('Status')];
         $attributes['totalPrice'] = ['label' => StripePlugin::t('Total')];
         $attributes['datePaid'] = ['label' => StripePlugin::t('Date Paid')];
+        $attributes['dateCreated'] = ['label' => StripePlugin::t('Date Created')];
 
         return $attributes;
     }
 
     protected static function defineDefaultTableAttributes(string $source): array
     {
-        $attributes = ['orderId', 'connectId', 'stripeId', 'orderType', 'commissionStatus', 'totalPrice', 'datePaid'];
+        $attributes = ['id','orderId', 'connectId', 'stripeId', 'orderType', 'commissionStatus', 'totalPrice', 'datePaid', 'dateCreated'];
 
         return $attributes;
     }
@@ -197,7 +201,6 @@ class Commission extends Element
             {
                 //return $this->getPaymentForm()->name;
             }
-
         }
 
         return parent::tableAttributeHtml($attribute);
