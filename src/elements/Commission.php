@@ -83,7 +83,7 @@ class Commission extends Element
     public function getCpEditUrl()
     {
         return UrlHelper::cpUrl(
-            'enupal-stripe/commission/edit/'.$this->id
+            'enupal-stripe/commissions/edit/'.$this->id
         );
     }
 
@@ -260,6 +260,10 @@ class Commission extends Element
      */
     public function getConnect()
     {
-        return StripePlugin::$app->connects->getConnectById($this->connectId);
+        if ($this->connectId) {
+            return StripePlugin::$app->connects->getConnectById($this->connectId);
+        }
+
+        return null;
     }
 }

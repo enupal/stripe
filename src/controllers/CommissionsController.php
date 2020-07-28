@@ -10,10 +10,8 @@
 namespace enupal\stripe\controllers;
 
 use Craft;
-use craft\helpers\UrlHelper;
 use craft\web\Controller as BaseController;
 use enupal\stripe\elements\Commission as CommissionElement;
-use enupal\stripe\elements\Vendor;
 use enupal\stripe\Stripe;
 use yii\web\NotFoundHttpException;
 

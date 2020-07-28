@@ -14,7 +14,7 @@
         label: "Enabled"|t('enupal-stripe'),
         id: 'enabled',
         name: 'enabled',
-        on: vendor.enabled
+        on: commission.enabled
     }) }}
 
     {{ forms.textField({
@@ -22,9 +22,9 @@
         id: 'stripeId',
         name: 'stripeId',
         readonly: true,
-        value: vendor.stripeId,
-        placeholder: vendor.stripeId is empty ? 'Not linked yet' : '',
+        value: commission.stripeId,
+        placeholder: commission.stripeId is empty ? '-' : '',
         autofocus: true,
-        errors: vendor.getErrors('stripeId')
+        errors: commission.getErrors('stripeId')
     }) }}
 </div>
