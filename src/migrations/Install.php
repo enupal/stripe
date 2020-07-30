@@ -284,6 +284,7 @@ class Install extends Migration
             'commissionStatus' => $this->string(),
             'totalPrice' => $this->decimal(14, 4)->defaultValue(0),
             'currency' => $this->string(),
+            'testMode' => $this->boolean()->defaultValue(false),
             'datePaid' => $this->dateTime(),
             //
             'dateCreated' => $this->dateTime()->notNull(),

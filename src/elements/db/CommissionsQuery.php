@@ -22,6 +22,7 @@ class CommissionsQuery extends ElementQuery
     public $orderType;
     public $commissionStatus;
     public $totalPrice;
+    public $testMode;
     public $currency;
     public $datePaid;
 
@@ -67,6 +68,24 @@ class CommissionsQuery extends ElementQuery
     public function getStripeId()
     {
         return $this->stripeId;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function testMode($value)
+    {
+        $this->testMode = $value;
+
+        return $this;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getTestMode()
+    {
+        return $this->testMode;
     }
 
     /**
@@ -214,6 +233,7 @@ class CommissionsQuery extends ElementQuery
             'enupalstripe_commissions.orderType',
             'enupalstripe_commissions.commissionStatus',
             'enupalstripe_commissions.totalPrice',
+            'enupalstripe_commissions.testMode',
             'enupalstripe_commissions.currency',
             'enupalstripe_commissions.datePaid'
         ]);

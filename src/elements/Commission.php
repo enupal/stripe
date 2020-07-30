@@ -32,6 +32,7 @@ class Commission extends Element
     public $orderType;
     public $commissionStatus;
     public $totalPrice;
+    public $testMode;
     public $currency;
     public $datePaid;
 
@@ -197,9 +198,9 @@ class Commission extends Element
     protected function tableAttributeHtml(string $attribute): string
     {
         switch ($attribute) {
-            case 'itemName':
+            case 'orderType':
             {
-                //return $this->getPaymentForm()->name;
+                return $this->getOderTypeName();
             }
         }
 
@@ -232,6 +233,7 @@ class Commission extends Element
         $record->totalPrice = $this->totalPrice;
         $record->datePaid = $this->datePaid;
         $record->currency = $this->currency;
+        $record->testMode = $this->testMode;
         $record->save(false);
 
         parent::afterSave($isNew);
@@ -265,5 +267,39 @@ class Commission extends Element
         }
 
         return null;
+    }
+
+    /**
+     * @return string
+     */
+    public function getOderTypeName()
+    {
+        return $this->isCommerceOrder() ? 'Commerce' : 'Stripe Payments';
+    }
+
+    /**
+     * @return bool
+     */
+    public function isCommerceOrder()
+    {
+        return strpos($this->orderType, 'commerce') !== false;
+    }
+
+    /**
+     * @return string
+     */
+    public function getPaymentStatusHtml()
+    {
+        $statuses = [
+            'paid' => 'green',
+            'pending' => 'white'
+        ];
+
+        $status = $this->commissionStatus;
+        $color = $statuses[$status] ?? '';
+
+        $html = "<span class='status ".$color."'> </span>".$status;
+
+        return $html;
     }
 }

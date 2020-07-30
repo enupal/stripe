@@ -21,6 +21,7 @@ use craft\records\Element;
  * @property $orderType
  * @property $commissionStatus
  * @property $totalPrice
+ * @property $testMode
  * @property $currency
  * @property $datePaid
  */

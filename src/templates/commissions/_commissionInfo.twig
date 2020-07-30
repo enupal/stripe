@@ -6,25 +6,67 @@
  * @copyright Copyright (c) 2018 Enupal LLC
  */
 #}
-
 {% import "_includes/forms" as forms %}
-<div class="meta">
+<div id="details-container">
+    <div class="details">
+        <div class="meta" id="settings">
+            <table class=" ">
+                <tr>
+                    <td>
+                        <strong>{{ "Payment Status"|t('enupal-stripe') }}</strong>
+                    </td>
+                    <td>
+                        <div id="commission-completion">
+                            {{ commission.getPaymentStatusHtml()|raw }}
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td><strong>{{ "Total"|t('enupal-stripe') }}</strong>
+                    </td>
+                    <td>{{ commission.totalPrice|currency(commission.currency) }}
+                        {% if commission.commissionStatus == 'pending' %}
+                            <div id="pay-payment" class="btn small center">{{ "Pay"|t('enupal-stripe') }} </div><div class="spinner hidden"></div>
+                        {% endif %}
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <strong>{{ "Currency"|t('enupal-stripe') }} </strong>
+                    </td>
+                    <td>{{ commission.currency }}</td>
+                </tr>
 
-    {{ forms.lightswitchField({
-        label: "Enabled"|t('enupal-stripe'),
-        id: 'enabled',
-        name: 'enabled',
-        on: commission.enabled
-    }) }}
+                {% if commission.stripeId is not empty %}
+                    <tr>
+                        <td>
+                            <strong>{{ "Stripe Reference"|t('enupal-stripe') }} </strong>
+                        </td>
+                        {% set url = "https://dashboard.stripe.com" %}
+                        {% set url = commission.testMode ? url~'/test' : url %}
+                        {% set url = url~'/transfers' %}
 
-    {{ forms.textField({
-        label: "Stripe Id"|t('enupal-stripe'),
-        id: 'stripeId',
-        name: 'stripeId',
-        readonly: true,
-        value: commission.stripeId,
-        placeholder: commission.stripeId is empty ? '-' : '',
-        autofocus: true,
-        errors: commission.getErrors('stripeId')
-    }) }}
+                        <td><a target="_blank" href="{{ url~'/'~commission.stripeId }}">{{ "View Reference" }}</a></td>
+                    </tr>
+                {% endif %}
+            </table>
+        </div>
+    </div>
+
+    <div class="details">
+        <div class="meta read-only">
+            <div class="data">
+                <h5 class="heading">{{ "Created at"|t('app') }}</h5>
+                <div class="value">{{ commission.dateCreated|datetime('short') }}</div>
+            </div>
+
+            {% if commission.datePaid %}
+                <div class="data">
+                    <h5 class="heading">{{ "Paid at"|t('app') }}</h5>
+                    <div class="value">{{ commission.datePaid|datetime('short') }}</div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
 </div>

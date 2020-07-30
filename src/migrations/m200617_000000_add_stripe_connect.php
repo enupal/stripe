@@ -54,6 +54,7 @@ class m200617_000000_add_stripe_connect extends Migration
             'totalPrice' => $this->decimal(14, 4)->defaultValue(0),
             'currency' => $this->string(),
             'datePaid' => $this->dateTime(),
+            'testMode' => $this->boolean()->defaultValue(false),
             //
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
