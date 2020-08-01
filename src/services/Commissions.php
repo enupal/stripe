@@ -15,6 +15,7 @@ use enupal\stripe\elements\Order as StripePaymentsOrder;
 use enupal\stripe\elements\Vendor;
 use enupal\stripe\events\CommissionPaidEvent;
 use enupal\stripe\Stripe;
+use Imagine\Filter\Basic\Strip;
 use yii\base\Component;
 use Craft;
 use Stripe\Transfer;
@@ -89,6 +90,9 @@ class Commissions extends Component
                     ]);
 
                     $this->trigger(self::EVENT_COMMISSION_PAID, $event);
+                }
+                if ($commission->commissionStatus === self::STATUS_PAID){
+                    Stripe::$app->emails->sendVendorNotificationEmail($commission);
                 }
             }else{
                 $transaction->rollback();
@@ -207,7 +211,7 @@ class Commissions extends Component
             }
 
             $vendorAmount = $order->totalPrice * ($connect->rate / 100);
-            $commission   = $this->createPendingCommission($order, $connect, $vendorAmount, $order->currency,StripePaymentsOrder::class);
+            $commission   = $this->createPendingCommission($order, $connect, $vendorAmount, $order->currency, $paymentForm->id);
 
             if ($commission === null) {
                 return false;
@@ -224,21 +228,24 @@ class Commissions extends Component
     /**
      * @param $order
      * @param $connect
-     * @param $orderType
      * @param $totalPrice
      * @param $currency
+     * @param $productId
      * @return Commission|null
      * @throws \Throwable
      */
-    public function createPendingCommission($order, $connect, $totalPrice, $currency, $orderType)
+    public function createPendingCommission($order, $connect, $totalPrice, $currency, $productId)
     {
+        $settings = Stripe::$app->settings->getSettings();
         $commission = new Commission();
         $commission->orderId = $order->id;
-        $commission->orderType = $orderType;
+        $commission->orderType = get_class($order);
+        $commission->productId = $productId;
         $commission->connectId = $connect->id;
         $commission->currency = $currency;
         $commission->totalPrice = $totalPrice;
         $commission->commissionStatus = self::STATUS_PENDING;
+        $commission->testMode = $settings->testMode;
 
         if (!$this->saveCommission($commission)) {
             Craft::error('Unable to create pending commission: '.json_encode($commission->getErrors()), __METHOD__);

@@ -50,6 +50,14 @@ class Settings extends Model
     public $adminNotificationReplyToEmail;
     public $adminNotificationTemplate;
     public $adminTemplateOverride;
+    // Notification Vendor
+    public $enableVendorNotification = 0;
+    public $vendorNotificationSenderName;
+    public $vendorNotificationSubject;
+    public $vendorNotificationSenderEmail;
+    public $vendorNotificationReplyToEmail;
+    public $vendorNotificationTemplate;
+    public $vendorTemplateOverride;
     // Checkout Email
     public $currentUserEmail = 0;
     public $updateCustomerEmailOnStripe = 0;
@@ -171,8 +179,18 @@ class Settings extends Model
             }
             ],
             [
+                ['vendorNotificationSubject', 'vendorNotificationSenderName', 'vendorNotificationSenderEmail', 'vendorNotificationReplyToEmail', 'vendorNotificationReplyToEmail'],
+                'required', 'when' => function($model) {
+                return $model->enableVendorNotification;
+            }
+            ],
+            [
                 ['customerNotificationSenderEmail', 'customerNotificationReplyToEmail'],
                 'email', 'on' => 'customerNotification'
+            ],
+            [
+                ['vendorNotificationSenderEmail', 'vendorNotificationReplyToEmail'],
+                'email', 'on' => 'vendorNotification'
             ],
             [
                 ['adminNotificationSenderEmail', 'adminNotificationReplyToEmail'],

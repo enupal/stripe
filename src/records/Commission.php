@@ -16,6 +16,7 @@ use craft\records\Element;
  * Class Commissions record.
  * @property $id
  * @property $orderId
+ * @property $productId
  * @property $connectId
  * @property $stripeId
  * @property $orderType

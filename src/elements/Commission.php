@@ -27,6 +27,7 @@ class Commission extends Element
     // =========================================================================
     public $id;
     public $orderId;
+    public $productId;
     public $connectId;
     public $stripeId;
     public $orderType;
@@ -172,6 +173,7 @@ class Commission extends Element
     {
         $attributes['id'] = ['label' => StripePlugin::t('Id')];
         $attributes['orderId'] = ['label' => StripePlugin::t('Order')];
+        $attributes['productId'] = ['label' => StripePlugin::t('Product')];
         $attributes['connectId'] = ['label' => StripePlugin::t('Connect')];
         $attributes['stripeId'] = ['label' => StripePlugin::t('Stripe Id')];
         $attributes['orderType'] = ['label' => StripePlugin::t('Order Type')];
@@ -185,7 +187,7 @@ class Commission extends Element
 
     protected static function defineDefaultTableAttributes(string $source): array
     {
-        $attributes = ['id','orderId', 'connectId', 'stripeId', 'orderType', 'commissionStatus', 'totalPrice', 'datePaid', 'dateCreated'];
+        $attributes = ['id','orderId', 'productId', 'connectId', 'stripeId', 'orderType', 'commissionStatus', 'totalPrice', 'datePaid', 'dateCreated'];
 
         return $attributes;
     }
@@ -226,6 +228,7 @@ class Commission extends Element
         }
 
         $record->orderId = $this->orderId;
+        $record->productId = $this->productId;
         $record->connectId = $this->connectId;
         $record->stripeId = $this->stripeId;
         $record->orderType = $this->orderType;
@@ -245,7 +248,7 @@ class Commission extends Element
     public function rules()
     {
         return [
-            [['orderId', 'connectId', 'orderType', 'commissionStatus'], 'required']
+            [['orderId', 'productId', 'connectId', 'orderType', 'commissionStatus'], 'required']
         ];
     }
 
@@ -258,12 +261,35 @@ class Commission extends Element
     }
 
     /**
+     * @return \craft\base\ElementInterface|null
+     */
+    public function getProduct()
+    {
+        return Craft::$app->getElements()->getElementById($this->productId);
+    }
+
+    /**
      * @return Connect|null
      */
     public function getConnect()
     {
         if ($this->connectId) {
             return StripePlugin::$app->connects->getConnectById($this->connectId);
+        }
+
+        return null;
+    }
+
+    /**
+     * @return Vendor|null
+     */
+    public function getVendor()
+    {
+        $connect = $this->getConnect();
+        if ($connect) {
+            if ($vendor = $connect->getVendor()) {
+                return $vendor;
+            }
         }
 
         return null;

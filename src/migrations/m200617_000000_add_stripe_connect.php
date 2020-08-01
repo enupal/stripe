@@ -46,6 +46,7 @@ class m200617_000000_add_stripe_connect extends Migration
         $this->createTable('{{%enupalstripe_commissions}}', [
             'id' => $this->primaryKey(),
             'orderId' => $this->integer()->notNull(),
+            'productId' => $this->integer()->notNull(),
             'connectId' => $this->integer()->notNull(),
             'stripeId' => $this->string(),
             // Order class namespace
@@ -94,6 +95,16 @@ class m200617_000000_add_stripe_connect extends Migration
         $this->createIndex(
             $this->db->getIndexName(
                 '{{%enupalstripe_commissions}}',
+                'productId',
+                false, true
+            ),
+            '{{%enupalstripe_commissions}}',
+            'productId',
+            false
+        );
+        $this->createIndex(
+            $this->db->getIndexName(
+                '{{%enupalstripe_commissions}}',
                 'connectId',
                 false, true
             ),
@@ -137,6 +148,13 @@ class m200617_000000_add_stripe_connect extends Migration
                 '{{%enupalstripe_commissions}}', 'orderId'
             ),
             '{{%enupalstripe_commissions}}', 'orderId',
+            '{{%elements}}', 'id', 'CASCADE', null
+        );
+        $this->addForeignKey(
+            $this->db->getForeignKeyName(
+                '{{%enupalstripe_commissions}}', 'productId'
+            ),
+            '{{%enupalstripe_commissions}}', 'productId',
             '{{%elements}}', 'id', 'CASCADE', null
         );
         $this->addForeignKey(
