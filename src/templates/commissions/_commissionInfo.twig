@@ -24,7 +24,7 @@
                 <tr>
                     <td><strong>{{ "Total"|t('enupal-stripe') }}</strong>
                     </td>
-                    <td>{{ commission.totalPrice|currency(commission.currency) }}
+                    <td><span id="total-label">{{ commission.totalPrice|currency(commission.currency) }}</span>
                         {% if commission.commissionStatus == 'pending' %}
                             <div id="pay-payment" class="btn small center">{{ "Pay"|t('enupal-stripe') }} </div><div class="spinner hidden"></div>
                         {% endif %}

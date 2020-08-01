@@ -120,4 +120,31 @@ class CommissionsController extends BaseController
 
         return $this->redirectToPostedUrl($commission);
     }
+
+    /**
+     * Transfer payment via ajax
+     *
+     * @return \yii\web\Response
+     * @throws \Throwable
+     * @throws \yii\web\BadRequestHttpException
+     */
+    public function actionTransferPayment()
+    {
+        $this->requireAcceptsJson();
+        $request = Craft::$app->getRequest();
+        $commissionId = $request->getRequiredBodyParam('commissionId');
+        $commission = Stripe::$app->commissions->getCommissionById($commissionId);
+
+        if (is_null($commission)){
+            return $this->asErrorJson("Commission not found: ".$commissionId);
+        }
+
+        $result = Stripe::$app->commissions->processTransfer($commission);
+
+        if (!$result){
+            return $this->asErrorJson("Unable to process transfer");
+        }
+
+        return $this->asJson(['success'=> true]);
+    }
 }

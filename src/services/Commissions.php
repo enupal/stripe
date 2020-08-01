@@ -11,9 +11,7 @@ namespace enupal\stripe\services;
 use craft\base\ElementInterface;
 use craft\helpers\Db;
 use enupal\stripe\elements\Commission;
-use enupal\stripe\elements\Connect;
 use enupal\stripe\elements\Order as StripePaymentsOrder;
-use enupal\stripe\elements\PaymentForm;
 use enupal\stripe\elements\Vendor;
 use enupal\stripe\events\CommissionPaidEvent;
 use enupal\stripe\Stripe;
@@ -114,14 +112,20 @@ class Commissions extends Component
     {
         $connect = $commission->getConnect();
         $vendor = $connect->getVendor();
+        Stripe::$app->settings->initializeStripe();
 
         if (is_null($vendor)) {
-            Craft::error('Unable to process commission as vendor does not exists');
+            Craft::error('Unable to process commission as vendor does not exists', __METHOD__);
             return false;
         }
 
         if (empty($vendor->stripeId)) {
-            Craft::error('Unable to process commission as vendor does not have a Stripe account linked');
+            Craft::error('Unable to process commission as vendor does not have a Stripe account linked', __METHOD__);
+            return false;
+        }
+
+        if ($commission->commissionStatus === self::STATUS_PAID) {
+            Craft::error('Transfer was already processed', __METHOD__);
             return false;
         }
 
