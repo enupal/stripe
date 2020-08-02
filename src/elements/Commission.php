@@ -125,6 +125,20 @@ class Commission extends Element
             ]
         ];
 
+        $sources[] = ['heading' => StripePlugin::t("Transfer Status")];
+
+        $sources[] = [
+            'key' => 'paymentStatus:1',
+            'label' => Craft::t('enupal-stripe', 'Paid'),
+            'criteria' => ['commissionStatus' => 'paid']
+        ];
+
+        $sources[] = [
+            'key' => 'paymentStatus:2',
+            'label' => Craft::t('enupal-stripe', 'Pending'),
+            'criteria' => ['commissionStatus' => 'pending']
+        ];
+
         return $sources;
     }
 
@@ -174,12 +188,12 @@ class Commission extends Element
     protected static function defineTableAttributes(): array
     {
         $attributes['number'] = ['label' => StripePlugin::t('Number')];
-        $attributes['orderId'] = ['label' => StripePlugin::t('Order')];
-        $attributes['productId'] = ['label' => StripePlugin::t('Product')];
-        $attributes['connectId'] = ['label' => StripePlugin::t('Connect')];
         $attributes['totalPrice'] = ['label' => StripePlugin::t('Total')];
         $attributes['stripeId'] = ['label' => StripePlugin::t('Stripe Id')];
         $attributes['orderType'] = ['label' => StripePlugin::t('Order Type')];
+        $attributes['orderId'] = ['label' => StripePlugin::t('Order')];
+        $attributes['productId'] = ['label' => StripePlugin::t('Product')];
+        $attributes['connectId'] = ['label' => StripePlugin::t('Connect')];
         $attributes['commissionStatus'] = ['label' => StripePlugin::t('Status')];
         $attributes['datePaid'] = ['label' => StripePlugin::t('Date Paid')];
         $attributes['dateCreated'] = ['label' => StripePlugin::t('Date Created')];
@@ -189,7 +203,7 @@ class Commission extends Element
 
     protected static function defineDefaultTableAttributes(string $source): array
     {
-        $attributes = ['number','orderId', 'productId', 'connectId', 'totalPrice', 'stripeId', 'orderType', 'commissionStatus', 'datePaid', 'dateCreated'];
+        $attributes = ['number','totalPrice', 'stripeId', 'orderType', 'orderId', 'productId', 'connectId', 'commissionStatus', 'datePaid', 'dateCreated'];
 
         return $attributes;
     }
@@ -213,6 +227,18 @@ class Commission extends Element
             case 'commissionStatus':
             {
                 return $this->getPaymentStatusHtml();
+            }
+            case 'productId':
+            {
+                return '<a href="'.$this->getProduct()->getCpEditUrl().'">View Product</a>';
+            }
+            case 'orderId':
+            {
+                return '<a href="'.$this->getOrder()->getCpEditUrl().'">View Order</a>';
+            }
+            case 'connectId':
+            {
+                return '<a href="'.$this->getConnect()->getCpEditUrl().'">View Connect</a>';
             }
         }
 
