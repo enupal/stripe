@@ -30,6 +30,7 @@ class Commission extends Element
     public $productId;
     public $connectId;
     public $stripeId;
+    public $number;
     public $orderType;
     public $commissionStatus;
     public $totalPrice;
@@ -97,7 +98,7 @@ class Commission extends Element
     /** @noinspection PhpInconsistentReturnPointsInspection */
     public function __toString()
     {
-        return $this->id;
+        return $this->number;
     }
 
     /**
@@ -149,7 +150,7 @@ class Commission extends Element
      */
     protected static function defineSearchableAttributes(): array
     {
-        return ['id','orderId', 'connectId', 'stripeId', 'datePaid'];
+        return ['number','orderId', 'connectId', 'stripeId', 'datePaid'];
     }
 
     /**
@@ -160,6 +161,7 @@ class Commission extends Element
         $attributes = [
             'dateCreated' => StripePlugin::t('Date Created'),
             'datePaid' => StripePlugin::t('Date Paid'),
+            'number' => StripePlugin::t('Commission Number'),
             'totalPrice' => StripePlugin::t('Total Price'),
         ];
 
@@ -171,14 +173,14 @@ class Commission extends Element
      */
     protected static function defineTableAttributes(): array
     {
-        $attributes['id'] = ['label' => StripePlugin::t('Id')];
+        $attributes['number'] = ['label' => StripePlugin::t('Number')];
         $attributes['orderId'] = ['label' => StripePlugin::t('Order')];
         $attributes['productId'] = ['label' => StripePlugin::t('Product')];
         $attributes['connectId'] = ['label' => StripePlugin::t('Connect')];
+        $attributes['totalPrice'] = ['label' => StripePlugin::t('Total')];
         $attributes['stripeId'] = ['label' => StripePlugin::t('Stripe Id')];
         $attributes['orderType'] = ['label' => StripePlugin::t('Order Type')];
         $attributes['commissionStatus'] = ['label' => StripePlugin::t('Status')];
-        $attributes['totalPrice'] = ['label' => StripePlugin::t('Total')];
         $attributes['datePaid'] = ['label' => StripePlugin::t('Date Paid')];
         $attributes['dateCreated'] = ['label' => StripePlugin::t('Date Created')];
 
@@ -187,7 +189,7 @@ class Commission extends Element
 
     protected static function defineDefaultTableAttributes(string $source): array
     {
-        $attributes = ['id','orderId', 'productId', 'connectId', 'stripeId', 'orderType', 'commissionStatus', 'totalPrice', 'datePaid', 'dateCreated'];
+        $attributes = ['number','orderId', 'productId', 'connectId', 'totalPrice', 'stripeId', 'orderType', 'commissionStatus', 'datePaid', 'dateCreated'];
 
         return $attributes;
     }
@@ -203,6 +205,14 @@ class Commission extends Element
             case 'orderType':
             {
                 return $this->getOderTypeName();
+            }
+            case 'totalPrice':
+            {
+                return Craft::$app->getFormatter()->asCurrency($this->$attribute, $this->currency);
+            }
+            case 'commissionStatus':
+            {
+                return $this->getPaymentStatusHtml();
             }
         }
 
@@ -231,6 +241,7 @@ class Commission extends Element
         $record->productId = $this->productId;
         $record->connectId = $this->connectId;
         $record->stripeId = $this->stripeId;
+        $record->number = $this->number;
         $record->orderType = $this->orderType;
         $record->commissionStatus = $this->commissionStatus;
         $record->totalPrice = $this->totalPrice;

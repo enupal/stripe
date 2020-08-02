@@ -20,6 +20,7 @@ class CommissionsQuery extends ElementQuery
     public $productId;
     public $connectId;
     public $stripeId;
+    public $number;
     public $orderType;
     public $commissionStatus;
     public $totalPrice;
@@ -69,6 +70,24 @@ class CommissionsQuery extends ElementQuery
     public function getProductId()
     {
         return $this->productId;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function number($value)
+    {
+        $this->number = $value;
+
+        return $this;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getNumber()
+    {
+        return $this->number;
     }
 
     /**
@@ -248,6 +267,7 @@ class CommissionsQuery extends ElementQuery
             'enupalstripe_commissions.id',
             'enupalstripe_commissions.connectId',
             'enupalstripe_commissions.stripeId',
+            'enupalstripe_commissions.number',
             'enupalstripe_commissions.orderId',
             'enupalstripe_commissions.productId',
             'enupalstripe_commissions.orderType',
@@ -273,6 +293,12 @@ class CommissionsQuery extends ElementQuery
         if ($this->orderId) {
             $this->subQuery->andWhere(Db::parseParam(
                 'enupalstripe_commissions.orderId', $this->orderId)
+            );
+        }
+
+        if ($this->number) {
+            $this->subQuery->andWhere(Db::parseParam(
+                'enupalstripe_commissions.number', $this->number)
             );
         }
 

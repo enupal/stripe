@@ -241,6 +241,7 @@ class Commissions extends Component
         $commission->orderId = $order->id;
         $commission->orderType = get_class($order);
         $commission->productId = $productId;
+        $commission->number = Stripe::$app->orders->getRandomStr();
         $commission->connectId = $connect->id;
         $commission->currency = $currency;
         $commission->totalPrice = $totalPrice;

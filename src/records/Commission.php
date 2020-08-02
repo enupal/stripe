@@ -19,6 +19,7 @@ use craft\records\Element;
  * @property $productId
  * @property $connectId
  * @property $stripeId
+ * @property $number
  * @property $orderType
  * @property $commissionStatus
  * @property $totalPrice

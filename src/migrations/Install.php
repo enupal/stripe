@@ -280,6 +280,7 @@ class Install extends Migration
             'productId' => $this->integer()->notNull(),
             'connectId' => $this->integer()->notNull(),
             'stripeId' => $this->string(),
+            'number' => $this->string(),
             // Order class namespace
             'orderType' => $this->string()->notNull(),
             'commissionStatus' => $this->string(),
@@ -309,6 +310,17 @@ class Install extends Migration
             ),
             '{{%enupalstripe_orders}}',
             'formId',
+            false
+        );
+
+        $this->createIndex(
+            $this->db->getIndexName(
+                '{{%enupalstripe_orders}}',
+                'number',
+                false, true
+            ),
+            '{{%enupalstripe_orders}}',
+            'number',
             false
         );
 
@@ -377,6 +389,16 @@ class Install extends Migration
             ),
             '{{%enupalstripe_commissions}}',
             'connectId',
+            false
+        );
+        $this->createIndex(
+            $this->db->getIndexName(
+                '{{%enupalstripe_commissions}}',
+                'number',
+                false, true
+            ),
+            '{{%enupalstripe_commissions}}',
+            'number',
             false
         );
     }

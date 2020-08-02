@@ -49,6 +49,7 @@ class m200617_000000_add_stripe_connect extends Migration
             'productId' => $this->integer()->notNull(),
             'connectId' => $this->integer()->notNull(),
             'stripeId' => $this->string(),
+            'number' => $this->string(),
             // Order class namespace
             'orderType' => $this->string()->notNull(),
             'commissionStatus' => $this->string(),
@@ -61,6 +62,17 @@ class m200617_000000_add_stripe_connect extends Migration
             'dateUpdated' => $this->dateTime()->notNull(),
             'uid' => $this->uid()
         ]);
+
+        $this->createIndex(
+            $this->db->getIndexName(
+                '{{%enupalstripe_commissions}}',
+                'number',
+                false, true
+            ),
+            '{{%enupalstripe_commissions}}',
+            'number',
+            false
+        );
 
         $this->createIndex(
             $this->db->getIndexName(
