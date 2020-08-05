@@ -1,96 +1,106 @@
 {% import "_includes/forms" as forms %}
-<div class="order-info meta">
-    <div class="order-info-box">
-        <table class="fullwidth data borderless">
-            <tr>
-                <td>
-                    <strong>{{ "Payment Status"|t('enupal-stripe') }}</strong>
-                </td>
-                <td>
-                    <div id="order-completion">
-                        {{ order.getPaymentStatusHtml()|raw }}
-                        {% if not order.isCompleted %}
-                            <span class="info"> {{ "Certain asynchronous payment methods (e.g., SOFORT) may require days for the funds to be confirmed and the charge to succeed, requiring the use of webhooks to know when to confirm and eventually fulfill your orders. Or the payment has not yet been captured"|t('enupal-stripe') }}</span>
-                        {% endif %}
-                        {% if order.getNeedCapture() and not order.isCompleted %}
-                            <div id="capture-payment" class="btn small right">{{ "Capture"|t('enupal-stripe') }} </div><div class="spinner hidden"></div>
-                        {% endif %}
-                    </div>
-                </td>
-            </tr>
-            <tr>
-                <td><strong>{{ "Order Number"|t('enupal-stripe') }}</strong>
-                </td>
-                <td>
-                    <span id="order-number-short">{{ order.number }}</span>
-                </td>
-            </tr>
-            <tr>
-                <td><strong>{{ "Total Price"|t('enupal-stripe') }}</strong>
-                </td>
-                <td>{{ order.totalPrice|currency(order.currency) }}
-                    {% if not order.refunded and order.isCompleted %}
-                        <div id="refund-payment" class="btn small right">{{ "Refund"|t('enupal-stripe') }} </div><div class="spinner hidden"></div>
-                    {% endif %}
-                </td>
-            </tr>
-            <tr>
-                <td>
-                    <strong>{{ "Order Currency"|t('enupal-stripe') }} </strong>
-                </td>
-                <td>{{ order.currency }}</td>
-            </tr>
-            <tr>
-                <td><strong>{{ "Method"|t('enupal-stripe') }}</strong>
-                </td>
-                <td>
-                    <span id="order-number-short">{{ order.getPaymentMethod() }}</span>
-                </td>
-            </tr>
-            <tr>
-                <td><strong>{{ "Type"|t('enupal-stripe') }}</strong>
-                </td>
-                <td>
-                    <span id="order-number-short">{{ order.getPaymentType() }}</span>
-                </td>
-            </tr>
-            <tr>
-                <h4>{{ 'Information'|t('enupal-test') }}</h4>
-            </tr>
-            <tr>
-                <td><strong>{{ "Customer Email"|t('enupal-stripe') }}</strong>
-                </td>
-                <td>
-                    <a href="mailto:{{ order.email }}">{{ order.email }}</a>
-                </td>
-            </tr>
-            <tr>
-                <td><strong>{{ "User"|t('enupal-stripe') }}</strong>
-                </td>
-                <td>
-                    {{ order.getUserHtml()|raw }}
-                </td>
-            </tr>
+<div id="settings" class="meta">
+    <div class="field">
+        <div class="heading">
+            <label>{{ "Payment Status"|t('enupal-stripe') }}</label>
+        </div>
+        <div class="input">
+            {{ order.getPaymentStatusHtml()|raw }}
+            {% if not order.isCompleted %}
+                <span class="info"> {{ "Certain asynchronous payment methods (e.g., SOFORT) may require days for the funds to be confirmed and the charge to succeed, requiring the use of webhooks to know when to confirm and eventually fulfill your orders. Or the payment has not yet been captured"|t('enupal-stripe') }}</span>
+            {% endif %}
+            {% if order.getNeedCapture() and not order.isCompleted %}
+                <div id="capture-payment" class="btn small right">{{ "Capture"|t('enupal-stripe') }} </div><div class="spinner hidden"></div>
+            {% endif %}
+        </div>
+    </div>
 
-            <tr>
-                <td>
-                    <strong>{{ "Stripe Reference"|t('enupal-stripe') }} </strong>
-                </td>
-                {% set url = "https://dashboard.stripe.com" %}
-                {% set url = order.testMode ? url~'/test' : url %}
-                {% set url = order.stripeTransactionId|slice(0, 3) == 'sub' ? url~'/subscriptions' : url~'/payments' %}
+    <div class="field">
+        <div class="heading">
+            <label>{{ "Order Number"|t('enupal-stripe') }}</label>
+        </div>
+        <div class="input">
+            <span id="order-number-short">{{ order.number }}</span>
+        </div>
+    </div>
 
-                <td><a target="_blank" href="{{ url~'/'~order.stripeTransactionId }}">{{ order.stripeTransactionId }}</a></td>
-            </tr>
-            <tr>
-                {% set customerId = craft.enupalStripe.getCustomerReference(order.email) %}
-                <td><strong>{{ "Stripe Customer"|t('enupal-stripe') }}</strong>
-                </td>
-                <td>
-                    <a href="https://dashboard.stripe.com/test/customers/{{ customerId }}">{{ customerId }}</a>
-                </td>
-            </tr>
-        </table>
+    <div class="field">
+        <div class="heading">
+            <label>{{ "Total Price"|t('enupal-stripe') }}</label>
+        </div>
+        <div class="input">
+            {{ order.totalPrice|currency(order.currency) }}
+            {% if not order.refunded and order.isCompleted %}
+                <div id="refund-payment" class="btn small right">{{ "Refund"|t('enupal-stripe') }} </div><div class="spinner hidden"></div>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="field">
+        <div class="heading">
+            <label>{{ "Order Currency"|t('enupal-stripe') }}</label>
+        </div>
+        <div class="input">
+            <span id="order-currency">{{ order.currency }}</span>
+        </div>
+    </div>
+
+    <div class="field">
+        <div class="heading">
+            <label>{{ "Method"|t('enupal-stripe') }}</label>
+        </div>
+        <div class="input">
+            <span id="order-number-short">{{ order.getPaymentMethod() }}</span>
+        </div>
+    </div>
+
+    <div class="field">
+        <div class="heading">
+            <label>{{ "Type"|t('enupal-stripe') }}</label>
+        </div>
+        <div class="input">
+            <span id="order-number-short">{{ order.getPaymentType() }}</span>
+        </div>
+    </div>
+
+    <div class="field">
+        <div class="heading">
+            <label>{{ "Customer Email"|t('enupal-stripe') }}</label>
+        </div>
+        <div class="input" style="white-space: nowrap;overflow: hidden;text-overflow: ellipsis;" title="{{ order.email }}">
+            <a href="mailto:{{ order.email }}">{{ order.email }}</a>
+        </div>
+    </div>
+
+    <div class="field">
+        <div class="heading">
+            <label>{{ "User"|t('enupal-stripe') }}</label>
+        </div>
+        <div class="input">
+            {{ order.getUserHtml()|raw }}
+        </div>
+    </div>
+
+    <div class="field">
+        <div class="heading">
+            <label>{{ "Stripe Reference"|t('enupal-stripe') }}</label>
+        </div>
+        <div class="input" style="white-space: nowrap;overflow: hidden;text-overflow: ellipsis;" title="{{ order.stripeTransactionId }}">
+            {% set url = "https://dashboard.stripe.com" %}
+            {% set url = order.testMode ? url~'/test' : url %}
+            {% set url = order.stripeTransactionId|slice(0, 3) == 'sub' ? url~'/subscriptions' : url~'/payments' %}
+            <a target="_blank" href="{{ url~'/'~order.stripeTransactionId }}">{{ order.stripeTransactionId }}</a>
+        </div>
+    </div>
+
+    <div class="field">
+        <div class="heading">
+            <label>{{ "Stripe Customer"|t('enupal-stripe') }}</label>
+        </div>
+        {% set customerId = craft.enupalStripe.getCustomerReference(order.email) %}
+        <div class="input" style="white-space: nowrap;overflow: hidden;text-overflow: ellipsis;" title="{{ customerId }}">
+            <a href="https://dashboard.stripe.com/test/customers/{{ customerId }}">{{ customerId }}</a>
+        </div>
     </div>
 </div>
 <div class="details">

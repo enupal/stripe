@@ -660,7 +660,7 @@ class Order extends Element
         $status = $this->getPaymentStatus();
         $color = $statuses[$status] ?? '';
 
-        $html = "<span class='status ".$color."'> </span>".$status;
+        $html = "<span class='status ".$color."'> </span>".ucwords($status);
 
         return $html;
     }
