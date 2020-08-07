@@ -249,9 +249,16 @@ class Connect extends Element
      */
     public function rules()
     {
-        return [
-            [['vendorId', 'products', 'productType', 'rate'], 'required']
+        $rules = [];
+        $rules[] = [['vendorId', 'productType', 'rate'], 'required'];
+
+        $rules[] = [
+            ['products'], 'required', 'when' => function($model) {
+                return $model->allProducts != 1;
+            }
         ];
+
+        return $rules;
     }
 
     /**
