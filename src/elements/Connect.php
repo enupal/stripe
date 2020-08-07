@@ -199,9 +199,17 @@ class Connect extends Element
             }
             case 'products':
             {
+                if ($this->allProducts) {
+                    return '(all)';
+                }
+
                 $products = is_string($this->products) ? json_decode($this->products, true) : $this->products;
                 $products = empty($products) ? [] : $products;
                 return count($products);
+            }
+            case 'allProducts':
+            {
+                return $this->getAllProductsHtml();
             }
         }
 
@@ -256,5 +264,39 @@ class Connect extends Element
         }
 
         return null;
+    }
+
+    /**
+     * @return string
+     */
+    public function getProductTypeName()
+    {
+        return $this->isCommerceType() ? 'Commerce' : 'Stripe Payments';
+    }
+
+    /**
+     * @return bool
+     */
+    public function isCommerceType()
+    {
+        return strpos($this->productType, 'commerce') !== false;
+    }
+
+    /**
+     * @return string
+     */
+    public function getAllProductsHtml()
+    {
+        $statuses = [
+            'enabled' => 'green',
+            'disabled' => 'white'
+        ];
+
+        $status = $this->allProducts ? 'enabled' : 'disabled';
+        $color = $statuses[$status] ?? '';
+
+        $html = "<span class='status ".$color."'> </span>";
+
+        return $html;
     }
 }

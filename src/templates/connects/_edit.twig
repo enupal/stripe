@@ -64,6 +64,17 @@
 {% block content %}
     {% namespace 'fields' %}
         <div id="tab1">
+
+            {{ forms.lightswitchField({
+                first: true,
+                label: "Enable for All Products"|t('enupal-stripe'),
+                instructions: "Enable this connect for all the "~connect.getProductTypeName()~" orders"|t('enupal-stripe'),
+                id: 'allProducts',
+                name: 'allProducts',
+                on: connect.allProducts,
+                errors: connect.getErrors('allProducts')
+            }) }}
+        <div id="products-wrapper" class="{% if connect.allProducts == true %} hidden {% endif %}">
             {{ forms.field({
                 label: 'Products'|t('enupal-stripe'),
                 instructions: 'Products or payment forms to split the payment'|t('enupal-stripe'),
@@ -79,6 +90,7 @@
                 limit: null,
                 viewMode: 'large'
             })) }}
+        </div>
 
             {{ forms.field({
                 label: 'Vendor'|t('enupal-stripe'),
@@ -112,3 +124,11 @@
         </div>
     {% endnamespace %}
 {% endblock %}
+
+{% do view.registerAssetBundle("enupal\\stripe\\web\\assets\\EditConnectAsset") %}
+
+{% js %}
+    $(document).ready(function () {
+    new EnupalStripeEditConnect();
+    });
+{% endjs %}

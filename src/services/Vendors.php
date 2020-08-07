@@ -12,6 +12,7 @@ use craft\base\Field;
 use craft\db\Query;
 use craft\elements\User;
 use craft\fields\Lightswitch;
+use craft\helpers\Db;
 use enupal\stripe\elements\Connect;
 use enupal\stripe\elements\PaymentForm;
 use enupal\stripe\elements\Vendor as VendorElement;
@@ -341,5 +342,33 @@ class Vendors extends Component
         }
 
         return $options;
+    }
+
+
+    /**
+     * Whenever a vendor has at least one Connect with all products
+     * @param null $vendorId
+     * @return bool
+     */
+    public function isSuperVendor($vendorId = null)
+    {
+        if (is_null($vendorId)) {
+            $vendor = Stripe::$app->vendors->getCurrentVendor();
+            if(is_null($vendor)) {
+                return false;
+            }
+            $vendorId = $vendor->id;
+        }
+
+        $query = Connect::find();
+
+        $query->andWhere(Db::parseParam('enupalstripe_connect.vendorId', $vendorId));
+        $query->andWhere(Db::parseParam('enupalstripe_connect.allProducts', true));
+
+        if ($query->one()) {
+            return true;
+        }
+
+        return false;
     }
 }

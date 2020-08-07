@@ -177,6 +177,8 @@ class Commissions extends Component
 
         $paymentForm = $order->getPaymentForm();
         $connects = Stripe::$app->connects->getConnectsByPaymentFormId($paymentForm->id);
+        $connectsWithAllProducts = Stripe::$app->connects->getConnectsByPaymentFormId($paymentForm->id, null, true);
+        $connects = array_merge($connects, $connectsWithAllProducts);
 
         if (empty($connects)) {
             // No connects for this payment form

@@ -588,6 +588,10 @@ class PaymentForms extends Component
             return null;
         }
 
+        if ($vendor->isSuperVendor()) {
+            return $this->getPaymentFormById($paymentFormId);
+        }
+
         $connect = StripePlugin::$app->connects->getConnectsByPaymentFormId($paymentFormId, $vendor->id);
 
         if (empty($connect)) {
@@ -622,6 +626,10 @@ class PaymentForms extends Component
         }
 
         foreach ($connects as $connect) {
+            if ($connect->allProducts) {
+                return PaymentForm::find()->all();
+            }
+
             if ($connect->products) {
                 $productsArray = json_decode($connect->products, true);
                 foreach ($productsArray as $item) {

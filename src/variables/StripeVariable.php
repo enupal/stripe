@@ -755,6 +755,12 @@ class StripeVariable extends Behavior
         return Craft::$app->getUserGroups()->getAllGroups();
     }
 
+    public function isSuperVendor($vendorId)
+    {
+        return Stripe::$app->vendors->isSuperVendor($vendorId);
+    }
+
+
     /**
      * @param $view
      * @param $inputFilePath

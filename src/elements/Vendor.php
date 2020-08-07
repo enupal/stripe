@@ -248,6 +248,11 @@ class Vendor extends Element
         return null;
     }
 
+    public function isSuperVendor()
+    {
+        return Stripe::$app->vendors->isSuperVendor($this->id);
+    }
+
     /**
      * @return string
      * @throws \Throwable

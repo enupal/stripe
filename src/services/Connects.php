@@ -15,7 +15,9 @@ use craft\services\Plugins;
 use enupal\stripe\elements\Commission;
 use enupal\stripe\elements\Connect;
 use enupal\stripe\elements\PaymentForm;
+use enupal\stripe\Stripe;
 use enupal\stripe\Stripe as StripePlugin;
+use Imagine\Filter\Basic\Strip;
 use Stripe\Exception\OAuth\InvalidGrantException;
 use Stripe\OAuth;
 use yii\base\Component;
@@ -259,17 +261,21 @@ class Connects extends Component
     /**
      * @param $paymentFormId
      * @param $vendorId
+     * @param $allProducts
      * @return array|ElementInterface[]|null
      */
-    public function getConnectsByPaymentFormId($paymentFormId, $vendorId = null)
+    public function getConnectsByPaymentFormId($paymentFormId, $vendorId = null, $allProducts = false)
     {
         $query = Connect::find();
 
-        $query->andWhere(['like', 'products', '%"'.$paymentFormId . '"%', false]);
+        if (!$allProducts) {
+            $query->andWhere(['like', 'products', '%"'.$paymentFormId . '"%', false]);
+        }
+
         $query->andWhere(Db::parseParam(
             'enupalstripe_connect.productType', PaymentForm::class));
         $query->andWhere(Db::parseParam(
-            'enupalstripe_connect.allProducts', false));
+            'enupalstripe_connect.allProducts', $allProducts));
 
         if ($vendorId !== null) {
             $query->andWhere(Db::parseParam(
