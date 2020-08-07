@@ -99,7 +99,9 @@ class Stripe extends Plugin
         });
 
         Event::on(PaymentForms::class, PaymentForms::EVENT_AFTER_POPULATE, function(AfterPopulatePaymentFormEvent $e) {
-            self::$app->paymentForms->handleVendorPaymentForms($e->paymentForm);
+            if (Craft::$app->getRequest()->getIsSiteRequest()) {
+                self::$app->paymentForms->handleVendorPaymentForms($e->paymentForm);
+            }
         });
 
         Event::on(Users::class, Users::EVENT_AFTER_ACTIVATE_USER, function(UserEvent $e) {

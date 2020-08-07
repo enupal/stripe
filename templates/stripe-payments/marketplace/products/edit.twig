@@ -105,7 +105,6 @@
                 </div>
             </div>
 
-            {# Adds support for image
             <div class="fields">
                 <div class="heading">
                     <label for="Image">
@@ -120,7 +119,6 @@
                     >
                 </div>
             </div>
-            #}
 
             {% if paymentForm is defined and paymentForm and paymentForm.getErrors() | length %}
                 {% for errors in paymentForm.getErrors() %}
