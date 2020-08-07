@@ -194,6 +194,10 @@ class Vendor extends Element
             {
                 return empty($this->stripeId) ? '-' : $this->stripeId;
             }
+            case 'skipAdminReview':
+            {
+                return $this->getSkipAdminReviewHtml();
+            }
         }
 
         return parent::tableAttributeHtml($attribute);
@@ -270,5 +274,23 @@ class Vendor extends Element
         }
 
         return $vendorName;
+    }
+
+    /**
+     * @return string
+     */
+    public function getSkipAdminReviewHtml()
+    {
+        $statuses = [
+            'enabled' => 'green',
+            'disabled' => 'white'
+        ];
+
+        $status = $this->skipAdminReview ? 'enabled' : 'disabled';
+        $color = $statuses[$status] ?? '';
+
+        $html = "<span class='status ".$color."'> </span>";
+
+        return $html;
     }
 }

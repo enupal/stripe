@@ -74,7 +74,7 @@ class Vendors extends Component
         }
         $settings = Stripe::$app->settings->getSettings();
         $connect = new Connect();
-        $products = [$paymentForm->id];
+        $products = ["".$paymentForm->id];
         $connect->vendorId = $vendor->id;
         $connect->productType = PaymentForm::class;
         $connect->rate = $settings->globalRate;
@@ -84,7 +84,12 @@ class Vendors extends Component
             $connect = $connects[0];
             if (is_string($connect->products)){
                 $products = json_decode($connect->products, true);
-                $products[] = "".$paymentForm->id;
+                $productId = "".$paymentForm->id;
+                if (!in_array($productId, $products)) {
+                    $products[] = $productId;
+                } else {
+                    return false;
+                }
             }
         }
 

@@ -726,12 +726,9 @@ class StripeVariable extends Behavior
         return Stripe::$app->connects->getConnectProductTypesAsOptions();
     }
 
-    public function getVendor()
+    public function getCurrentVendor()
     {
-        $currentUser = Craft::$app->getUser()->getIdentity();
-        $vendor = Stripe::$app->vendors->getVendorByUserId($currentUser->id);
-
-        return $vendor;
+        return Stripe::$app->vendors->getCurrentVendor();
     }
 
     /**

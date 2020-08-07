@@ -80,6 +80,7 @@ class UtilitiesController extends FrontEndController
             $vendor->testmode = $settings->testMode;
         }
 
+        $vendor->enabled = true;
         $vendor->stripeId = $connectedAccountId;
 
         // Save it
