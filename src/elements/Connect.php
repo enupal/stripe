@@ -97,7 +97,7 @@ class Connect extends Element
         if ($this->vendorId) {
             $name = $this->getVendor()->getVendorName();
         }
-        return $name;
+        return (string)$name;
     }
 
     /**
