@@ -8,11 +8,6 @@
 
     {% for product in products %}
         <div class="md:flex product bg-white rounded items-center text-left">
-            {#
-            <div class="md:w-1/6 md:p-4">
-                {% include "marketplace/_images/product" with { number: '3' } %}
-            </div>
-            #}
             <div class="md:w-3/6 md:p-4">
                 <h3 class="font-semibold"><a href="/marketplace/products/edit?paymentFormId={{ product.id }}">{{ product.handle }}</a></h3>
                     <div class="p-2 pl-0 mt-1 pb-6">

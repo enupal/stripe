@@ -1,3 +1,7 @@
+{% set vendor = craft.enupalStripe.getCurrentVendor() %}
+{% if vendor is null %}
+    {% redirect '/login' %}
+{% endif %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -32,7 +36,7 @@
 
     <div class="bg-gray-200">
         <div id="header" class="container mx-auto md:flex justify-between items-center p-6 text-center">
-            <h3 class="font-semibold">Example Templates</h3>
+            <h3 class="font-semibold">Example Templates</h3> <span>Vendor: {{ vendor.getVendorName() }}</span>
 
             {% if showNav %}
                 {% include "marketplace/_includes/nav" %}

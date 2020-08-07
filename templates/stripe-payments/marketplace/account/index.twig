@@ -8,8 +8,6 @@
 
 {% block main %}
     <h1>Account</h1>
-
-    {% set vendor = craft.enupalStripe.getVendor() %}
     
     {% if vendor.stripeId is empty %}
         <a href="#" id="submit" class="stripe-connect"><span>Connect with Stripe</span></a>
