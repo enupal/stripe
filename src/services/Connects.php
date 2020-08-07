@@ -166,53 +166,6 @@ class Connects extends Component
     }
 
     /**
-     * This will split payments on destination charges.
-     * @todo Remove if we only go with Separate Charges
-     * @param $params
-     * @param PaymentForm $form
-     * @return mixed
-     */
-    public function processSessionParams($params, PaymentForm $form)
-    {
-        /** @var Connect $connect */
-        $connect = StripePlugin::$app->connects->getConnectByPaymentFormId($form->id);
-
-        if (is_null($connect)) {
-            // No connect for this payment form
-            return $params;
-        }
-
-        $vendor = $connect->getVendor();
-
-        if (is_null($vendor)) {
-            Craft::error('Unable to process commission as vendor does not exists');
-            return $params;
-        }
-
-        if (empty($vendor->stripeId)) {
-            Craft::error('Unable to process commission as vendor does not have a Stripe account linked');
-            return $params;
-        }
-
-        Craft::info('Processing commission for '.$vendor->id);
-        $platformFeeRate = 100 - $connect->rate;
-        $finalAmount = 0;
-
-        foreach ($params['line_items'] as $line_item) {
-            $finalAmount += $line_item['amount'];
-        }
-
-        $platformFee = $finalAmount * ($platformFeeRate / 100);
-
-        $params['payment_intent_data']['application_fee_amount'] = $platformFee;
-        $params['payment_intent_data']['transfer_data'] = [
-            'destination' => $vendor->stripeId
-        ];
-
-        return $params;
-    }
-
-    /**
      * @param $code
      * @return mixed|null
      * @throws \Exception

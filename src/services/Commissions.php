@@ -166,6 +166,11 @@ class Commissions extends Component
      */
     public function processSeparateCharges(StripePaymentsOrder $order)
     {
+        $settings = Stripe::$app->settings->getSettings();
+        if (!$settings->enableConnect) {
+            return false;
+        }
+
         if (!$order->isCompleted) {
             return false;
         }
@@ -256,68 +261,5 @@ class Commissions extends Component
         }
 
         return $commission;
-    }
-
-    /**
-     * This will check commissions for Direct Charges and Destination Charges
-     * @todo remove if we go only with Separate charges
-     * @param StripePaymentsOrder $order
-     * @return bool
-     * @throws \Throwable
-     * @throws \craft\errors\ElementNotFoundException
-     * @throws \yii\base\Exception
-     */
-    public function checkForCommissions(StripePaymentsOrder $order)
-    {
-        if (!$order->isCompleted) {
-            return false;
-        }
-
-        if ($order->isSubscription) {
-            // @todo add support for subscriptions
-            return false;
-        }
-
-        $paymentForm = $order->getPaymentForm();
-        $chargeId = Stripe::$app->orders->getChargeIdFromOrder($order);
-        $charge = Stripe::$app->orders->getCharge($chargeId);
-        $stripeAccountId = $charge->destination;
-
-        if ($stripeAccountId === null) {
-            Craft::error('Unable to get the destination from Charge', __METHOD__);
-            return false;
-        }
-
-        $vendor = Stripe::$app->vendors->getVendorByStripeId($stripeAccountId);
-
-        if ($vendor === null) {
-            Craft::error('Unable to find vendor with account id: '.$stripeAccountId, __METHOD__);
-            return false;
-        }
-
-        $connect = Stripe::$app->connects->getConnectByPaymentFormId($paymentForm->id, $vendor->id);
-
-        if ($connect === null) {
-            Craft::error('Unable to find the connect associated to vendor: '.$vendor->id, __METHOD__);
-            return false;
-        }
-
-        $commission = new Commission();
-        $commission->stripeId = $charge->id;
-        $commission->orderId = $order->id;
-        $commission->orderType = StripePaymentsOrder::class;
-        $commission->connectId = $connect->id;
-        $commission->totalPrice = Stripe::$app->orders->convertFromCents($charge->amount - $charge->application_fee_amount, $order->currency);
-        $commission->currency = $order->currency;
-        $now = Db::prepareDateForDb(new \DateTime());
-        $commission->datePaid = $now;
-        $commission->commissionStatus = self::STATUS_PAID;
-
-        if (!$this->saveCommission($commission)) {
-            Craft::error('Unable to save commission: '.json_encode($commission->getErrors()), __METHOD__);
-            return false;
-        }
-
-        return true;
     }
 }

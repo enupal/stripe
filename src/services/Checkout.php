@@ -133,8 +133,6 @@ class Checkout extends Component
             }
         }
 
-        // @todo remove if we only go with separate charges
-        //$sessionParams = Stripe::$app->connects->processSessionParams($sessionParams, $form);
         $session = Session::create($sessionParams);
 
         return $session;
