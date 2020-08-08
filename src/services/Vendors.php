@@ -78,6 +78,7 @@ class Vendors extends Component
         $connect->vendorId = $vendor->id;
         $connect->productType = PaymentForm::class;
         $connect->rate = $settings->globalRate;
+        $connect->allProducts = false;
 
         $connects = Stripe::$app->connects->getConnectsByVendorId($vendor->id, false);
         if (!empty($connects)) {

@@ -115,6 +115,8 @@ class Connects extends Component
 
         $postFields = $request->getBodyParam('fields');
 
+        $postFields['allProducts'] = filter_var($postFields['allProducts'], FILTER_VALIDATE_BOOLEAN);
+
         $postFields['vendorId'] = is_array($postFields['vendorId']) ? $postFields['vendorId'][0] : $postFields['vendorId'];
 
         $connect->setAttributes(/** @scrutinizer ignore-type */
