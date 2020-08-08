@@ -676,16 +676,6 @@ class Order extends Element
             return false;
         }
 
-        Event::on(Orders::class, Orders::EVENT_AFTER_ORDER_COMPLETE, function(OrderCompleteEvent $e) {
-
-            $order = $e->order;
-            if ($order->isSubscription() &&  $order->getPaymentForm()->handle == 'myHandle'){
-                Stripe::$app->subscriptions->cancelStripeSubscription($order->stripeTransactionId, true);
-            }
-
-        });
-
-
         return true;
     }
 
