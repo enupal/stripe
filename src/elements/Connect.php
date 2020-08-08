@@ -69,6 +69,14 @@ class Connect extends Element
     /**
      * @inheritdoc
      */
+    public static function hasStatuses(): bool
+    {
+        return true;
+    }
+
+    /**
+     * @inheritdoc
+     */
     public static function isLocalized(): bool
     {
         return false;

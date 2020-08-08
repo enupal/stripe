@@ -79,6 +79,14 @@ class Vendor extends Element
     /**
      * @inheritdoc
      */
+    public static function hasStatuses(): bool
+    {
+        return true;
+    }
+
+    /**
+     * @inheritdoc
+     */
     public function getCpEditUrl()
     {
         return UrlHelper::cpUrl(
@@ -197,6 +205,10 @@ class Vendor extends Element
             case 'skipAdminReview':
             {
                 return $this->getSkipAdminReviewHtml();
+            }
+            case 'userId':
+            {
+
             }
         }
 
