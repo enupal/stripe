@@ -14,6 +14,7 @@ use craft\elements\User;
 use enupal\stripe\elements\Order;
 use enupal\stripe\jobs\UpdateEmailAddressOnOrders;
 use enupal\stripe\Stripe as StripePlugin;
+use Stripe\BillingPortal\Session;
 use Stripe\Customer;
 use Stripe\Invoice;
 use Stripe\PaymentMethod;
@@ -115,6 +116,29 @@ class Customers extends Component
         if ($customerRecord === null) {
             StripePlugin::$app->customers->createCustomer($customer['email'], $customer['id'], $testMode);
         }
+    }
+
+    /**
+     * @param $customerId
+     * @param $returnUrl
+     * @return Session|null
+     * @throws \Exception
+     */
+    public function createCustomerPortalSession($customerId, $returnUrl)
+    {
+        StripePlugin::$app->settings->initializeStripe();
+        $session = null;
+
+        try {
+            $session = Session::create([
+                'customer' => $customerId,
+                'return_url' => $returnUrl,
+            ]);
+        }catch (\Exception $e) {
+            Craft::error('Unable to create customer portal session: '.$e->getMessage(), __METHOD__);
+        }
+
+        return $session;
     }
 
     /**

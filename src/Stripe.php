@@ -291,6 +291,8 @@ class Stripe extends Plugin
                 'enupal-stripe/stripe/finish-setup-session',
             'enupal-stripe/update-subscription' =>
                 'enupal-stripe/stripe/update-subscription',
+            'enupal-stripe/customer-portal' =>
+                'enupal-stripe/stripe/create-customer-portal',
             'enupal-stripe/get-oauth-link' =>
                 'enupal-stripe/utilities/get-oauth-link',
             'enupal-stripe/authorize-oauth' =>
