@@ -1,0 +1,17 @@
+{% extends 'marketplace/_layouts/main' %}
+
+{% set extraHead %}
+<link rel="stylesheet" href="account/css/global.css" />
+<script src="https://js.stripe.com/v3/"></script>
+<script src="account/script.js" defer></script>
+{% endset %}
+
+{% block main %}
+    <h1>Account</h1>
+    
+    {% if vendor.stripeId is empty %}
+        <a href="#" id="submit" class="stripe-connect"><span>Connect with Stripe</span></a>
+    {% else %}
+        Stripe Account Connected
+    {% endif %}
+{% endblock %}

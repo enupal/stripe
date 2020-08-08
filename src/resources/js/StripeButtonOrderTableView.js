@@ -28,8 +28,12 @@ Craft.StripeButton.OrderTableView = Craft.TableElementIndexView.extend({
         $exportButton: null,
 
         afterInit: function() {
+
             this.$explorerContainer = $('<div class="chart-explorer-container"></div>').prependTo(this.$container);
 
+            if ($("#currencies").val() === ''){
+                return false;
+            }
             this.$currencies = jQuery.parseJSON($("#currencies").val());
 
             this.createChartExplorer();
@@ -109,7 +113,6 @@ Craft.StripeButton.OrderTableView = Craft.TableElementIndexView.extend({
             this.setStartDate(new Date(startTime));
             this.setEndDate(new Date(endTime));
             this.setCurrency(this.$currencyField.val());
-
             // Load the report
             this.loadReport();
         },

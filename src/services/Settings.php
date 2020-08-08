@@ -58,8 +58,10 @@ class Settings extends Component
         // Overrides config settings
         $settings->livePublishableKey = $configSettings['livePublishableKey'] ?? $settings->livePublishableKey;
         $settings->liveSecretKey = $configSettings['liveSecretKey'] ?? $settings->liveSecretKey;
+        $settings->liveClientId = $configSettings['liveClientId'] ?? $settings->liveClientId;
         $settings->testSecretKey = $configSettings['testSecretKey'] ?? $settings->testSecretKey;
         $settings->testPublishableKey = $configSettings['testPublishableKey'] ?? $settings->testPublishableKey;
+        $settings->testClientId = $configSettings['testClientId'] ?? $settings->testClientId;
         $settings->testMode = $configSettings['testMode'] ?? $settings->testMode;
 
         return $settings;
@@ -82,6 +84,17 @@ class Settings extends Component
         $publishableKey = $settings->testMode ? $settings->testPublishableKey : $settings->livePublishableKey;
 
         return $publishableKey;
+    }
+
+    /**
+     * @return string
+     */
+    public function getClientId()
+    {
+        $settings = $this->getSettings();
+        $clientId = $settings->testMode ? $settings->testClientId : $settings->liveClientId;
+
+        return $clientId;
     }
 
     /**
@@ -166,5 +179,13 @@ class Settings extends Component
         $primarySiteUrl = Craft::getAlias($primarySite['baseUrl']);
 
         return Craft::parseEnv(Craft::getAlias(rtrim(trim($primarySiteUrl), "/")));
+    }
+
+    /**
+     * @return string
+     */
+    public function getCallbackUrl()
+    {
+        return $this->getPrimarySiteUrl()."/enupal-stripe/authorize-oauth";
     }
 }

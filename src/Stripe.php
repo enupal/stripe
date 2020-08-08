@@ -14,12 +14,18 @@ use craft\elements\User;
 use craft\events\ElementEvent;
 use craft\events\RegisterComponentTypesEvent;
 use craft\events\RegisterUrlRulesEvent;
+use craft\events\UserEvent;
 use craft\services\Elements;
 use craft\services\Fields;
+use craft\services\Users;
 use craft\web\UrlManager;
+use enupal\stripe\elements\PaymentForm;
+use enupal\stripe\events\AfterPopulatePaymentFormEvent;
+use enupal\stripe\events\OrderCompleteEvent;
 use enupal\stripe\events\WebhookEvent;
 use enupal\stripe\services\App;
 use enupal\stripe\services\Orders;
+use enupal\stripe\services\PaymentForms;
 use yii\base\Event;
 use craft\web\twig\variables\CraftVariable;
 use enupal\stripe\fields\StripePaymentForms as StripePaymentFormsField;
@@ -39,7 +45,7 @@ class Stripe extends Plugin
 
     public $hasCpSection = true;
     public $hasCpSettings = true;
-    public $schemaVersion = '2.5.0';
+    public $schemaVersion = '2.5.1';
 
     public function init()
     {
@@ -74,14 +80,32 @@ class Stripe extends Plugin
 
         Event::on(Elements::class, Elements::EVENT_AFTER_SAVE_ELEMENT, function(ElementEvent $event) {
             /** @var User $user */
-            $user = $event->element;
-            if (get_class($user) === User::class){
-                self::$app->customers->updateCustomerEmail($user);
+            $element = $event->element;
+            if (get_class($element) === User::class){
+                self::$app->customers->updateCustomerEmail($element);
+            }
+
+            if (get_class($element) === PaymentForm::class){
+                self::$app->vendors->assignPaymentFormToVendor($element);
             }
         });
 
         Event::on(Orders::class, Orders::EVENT_AFTER_PROCESS_WEBHOOK, function(WebhookEvent $e) {
             self::$app->subscriptions->processSubscriptionGrantEvent($e);
+        });
+
+        Event::on(Orders::class, Orders::EVENT_AFTER_ORDER_COMPLETE, function(OrderCompleteEvent $e) {
+            self::$app->commissions->processSeparateCharges($e->order);
+        });
+
+        Event::on(PaymentForms::class, PaymentForms::EVENT_AFTER_POPULATE, function(AfterPopulatePaymentFormEvent $e) {
+            if (Craft::$app->getRequest()->getIsSiteRequest()) {
+                self::$app->paymentForms->handleVendorPaymentForms($e->paymentForm);
+            }
+        });
+
+        Event::on(Users::class, Users::EVENT_AFTER_ACTIVATE_USER, function(UserEvent $e) {
+            self::$app->vendors->processUserActivation($e->user);
         });
 
         Craft::$app->projectConfig
@@ -118,7 +142,6 @@ class Stripe extends Plugin
     protected function afterUninstall()
     {
         Stripe::$app->paymentForms->deleteVariantFields();
-        Craft::$app->projectConfig->rebuild();
     }
 
     /**
@@ -135,7 +158,7 @@ class Stripe extends Plugin
     public function getCpNavItem()
     {
         $parent = parent::getCpNavItem();
-        return array_merge($parent, [
+        $navs = [
             'subnav' => [
                 'orders' => [
                     "label" => self::t("Orders"),
@@ -144,17 +167,38 @@ class Stripe extends Plugin
                 'forms' => [
                     "label" => self::t("Payment Forms"),
                     "url" => 'enupal-stripe/forms'
-                ],
-                'coupons' => [
-                    "label" => self::t("Coupons"),
-                    "url" => 'enupal-stripe/coupons'
-                ],
-                'settings' => [
-                    "label" => self::t("Settings"),
-                    "url" => 'enupal-stripe/settings'
                 ]
             ]
-        ]);
+        ];
+
+        $settings = $this->getSettings();
+
+        if ($settings->enableConnect){
+            $navs['subnav']['commissions'] = [
+                "label" => self::t("Commissions"),
+                "url" => 'enupal-stripe/commissions'
+            ];
+            $navs['subnav']['connects'] = [
+                "label" => self::t("Connect"),
+                "url" => 'enupal-stripe/connects'
+            ];
+            $navs['subnav']['vendors'] = [
+                "label" => self::t("Vendors"),
+                "url" => 'enupal-stripe/vendors'
+            ];
+        }
+
+        $navs['subnav']['coupons'] = [
+            "label" => self::t("Coupons"),
+            "url" => 'enupal-stripe/coupons'
+        ];
+
+        $navs['subnav']['settings'] = [
+            "label" => self::t("Settings"),
+            "url" => 'enupal-stripe/settings'
+        ];
+
+        return array_merge($parent, $navs);
     }
 
     /**
@@ -163,6 +207,7 @@ class Stripe extends Plugin
      * @throws \Twig\Error\LoaderError
      * @throws \Twig\Error\RuntimeError
      * @throws \Twig\Error\SyntaxError
+     * @throws \yii\base\Exception
      */
     protected function settingsHtml()
     {
@@ -205,6 +250,24 @@ class Stripe extends Plugin
 
             'enupal-stripe/settings/order-statuses/<orderStatusId:\d+>' =>
                 'enupal-stripe/order-statuses/edit',
+
+            'enupal-stripe/vendors/new' =>
+                'enupal-stripe/vendors/edit-vendor',
+
+            'enupal-stripe/vendors/edit/<vendorId:\d+>' =>
+                'enupal-stripe/vendors/edit-vendor',
+
+            'enupal-stripe/connects/new' =>
+                'enupal-stripe/connects/edit-connect',
+
+            'enupal-stripe/connects/edit/<connectId:\d+>' =>
+                'enupal-stripe/connects/edit-connect',
+
+            'enupal-stripe/commissions/new' =>
+                'enupal-stripe/commissions/edit-commission',
+
+            'enupal-stripe/commissions/edit/<commissionId:\d+>' =>
+                'enupal-stripe/commissions/edit-commission',
         ];
     }
 
@@ -228,6 +291,10 @@ class Stripe extends Plugin
                 'enupal-stripe/stripe/finish-setup-session',
             'enupal-stripe/update-subscription' =>
                 'enupal-stripe/stripe/update-subscription',
+            'enupal-stripe/get-oauth-link' =>
+                'enupal-stripe/utilities/get-oauth-link',
+            'enupal-stripe/authorize-oauth' =>
+                'enupal-stripe/utilities/authorize-oauth',
         ];
     }
 }

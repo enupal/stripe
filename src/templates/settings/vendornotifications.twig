@@ -1,0 +1,92 @@
+{#
+/**
+ * Stripe Payments plugin for Craft CMS 3.x
+ *
+ * @link      https://enupal.com/
+ * @copyright Copyright (c) 2018 Enupal LLC
+ */
+#}
+
+{% extends "enupal-stripe/_layouts/settings" %}
+{% import "_includes/forms" as forms %}
+
+{% set settings = settings is defined ? settings : craft.enupalStripe.getSettings()  %}
+{% set fullPageForm = true %}
+{% set saveShortcutRedirect = 'enupal-stripe/settings/vendornotifications' %}
+
+{% set savePaymentForm %}
+    <div class="buttons">
+        <input class="btn submit" type="submit"
+               value="{{ 'Save'|t('enupal-stripe') }}">
+    </div>
+{% endset %}
+
+{% set content %}
+    <input type="hidden" name="action"
+           value="enupal-stripe/settings/save-settings">
+    <input type="hidden" name="stripeScenario" value="vendorNotification">
+    <div id="settings-cp">
+        {% namespace 'settings' %}
+
+            {{ forms.lightswitchField({
+                first: true,
+                label: "Enable Vendor Email Notification"|t('enupal-stripe'),
+                id: 'enableVendorNotification',
+                name: 'enableVendorNotification',
+                on: settings.enableVendorNotification,
+                onLabel: "Enable",
+                offLabel: "Disable",
+                errors: settings.getErrors('enableVendorNotification')
+            }) }}
+
+            {{ forms.textField({
+                label: "Subject"|t('enupal-stripe'),
+                instructions: "The email Subject"|t('enupal-stripe'),
+                name: 'vendorNotificationSubject',
+                placeholder: 'Store sale: {{ commission.getProduct().name }}',
+                value: settings.vendorNotificationSubject,
+                errors: (settings is defined ? settings.getErrors('vendorNotificationSubject') : null)
+            }) }}
+
+            {{ forms.textField({
+                label: "Sender Name"|t('enupal-stripe'),
+                instructions: "The name of the sender of your notification email"|t('enupal-stripe'),
+                name: 'vendorNotificationSenderName',
+                value: settings.vendorNotificationSenderName,
+                errors: (settings is defined ? settings.getErrors('vendorNotificationSenderName') : null)
+            }) }}
+
+            {{ forms.textField({
+                label: "Sender Email Address"|t('enupal-stripe'),
+                instructions: "The 'From' email address of your notification email"|t('enupal-stripe'),
+                name: 'vendorNotificationSenderEmail',
+                value: settings.vendorNotificationSenderEmail,
+                errors: (settings is defined ? settings.getErrors('vendorNotificationSenderEmail') : null)
+            }) }}
+
+            {{ forms.textField({
+                label: "Reply To Email Address"|t('enupal-stripe'),
+                instructions: "The 'Reply To' email address of your notification email"|t('enupal-stripe'),
+                name: 'vendorNotificationReplyToEmail',
+                value: settings.vendorNotificationReplyToEmail,
+                errors: (settings is defined ? settings.getErrors('vendorNotificationReplyToEmail') : null)
+            }) }}
+
+            <hr>
+
+            {{ forms.autosuggestField({
+                label: "Template Override"|t('enupal-stripe'),
+                instructions: "Which template should be loaded when sending the email. <b> This will override the default template</b>"|t('enupal-stripe'),
+                placeholder: "_emails/vendor",
+                id: 'vendorTemplateOverride',
+                name: 'vendorTemplateOverride',
+                suggestions: craft.cp.getTemplateSuggestions()|merge(craft.cp.getEnvSuggestions()),
+                suggestEnvVars: true,
+                value: settings.vendorTemplateOverride,
+                errors: (settings is defined ? settings.getErrors('vendorTemplateOverride') : null)
+            }) }}
+
+        {% endnamespace %}
+    </div>
+
+{% endset %}

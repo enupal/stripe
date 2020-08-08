@@ -1,0 +1,104 @@
+{#
+/**
+ * Stripe Payments plugin for Craft CMS 3.x
+ *
+ * @link      https://enupal.com/
+ * @copyright Copyright (c) 2018 Enupal LLC
+ */
+#}
+
+{% extends "enupal-stripe/_layouts/settings" %}
+{% import "_includes/forms" as forms %}
+
+{% set settings = settings is defined ? settings : craft.enupalStripe.getSettings() %}
+{% set fullPageForm = true %}
+{% set saveShortcutRedirect = 'enupal-stripe/settings/connect' %}
+
+{% set savePaymentForm %}
+    <div class="buttons">
+        <input class="btn submit" type="submit" value="{{ 'Save'|t }}">
+    </div>
+{% endset %}
+
+{% set content %}
+    <input type="hidden" name="action"
+           value="enupal-stripe/settings/save-settings">
+    <input type="hidden" name="stripeScenario" value="connect">
+    <div id="settings-cp">
+
+        {% namespace 'settings' %}
+            {{ forms.field({
+                label: "Stripe Connect Settings"|t('enupal-stripe')|upper,
+                instructions : 'Marketplaces and platforms use Stripe Connect to accept money and pay out to third parties.'
+            }, null) }}
+            <hr>
+            {% set mode = settings.testMode ? 'test' : 'live' %}
+
+            {{ forms.lightswitchField({
+                label: 'Enable Connect'|t('enupal-stripe'),
+                instructions: 'Enable or disable globally for all vendors',
+                id: 'enableConnect',
+                name: 'enableConnect',
+                on: settings.enableConnect,
+                onLabel: "On"|t('enupal-stripe'),
+                offLabel: "Off"|t('enupal-stripe'),
+                errors: settings.getErrors('enableConnect')
+            }) }}
+
+            {{ forms.textField({
+                label: "Vendor Name"|t('enupal-stripe'),
+                instructions: "What fields are used to display the vendor name? by default username will be used"|t('enupal-stripe'),
+                placeholder: "{firstName} - {username}",
+                id: 'vendorNameFormat',
+                name: 'vendorNameFormat',
+                value: settings.vendorNameFormat,
+                errors: settings.getErrors('vendorNameFormat')
+            }) }}
+
+            {{ forms.textField({
+                first: true,
+                label: "Global Commission"|t('enupal-stripe'),
+                id: 'globalRate',
+                instructions: "Percentage of the total sale price that the vendor receives. This is a positive decimal (with at most two decimal places) between 1 and 100"|t('enupal-stripe'),
+                name: 'globalRate',
+                placeholder: 'Enter percentage',
+                unit: '%',
+                value: settings.globalRate|number_format(2, '.'),
+                errors: settings.getErrors('globalRate'),
+                autofocus: true,
+            }) }}
+
+            <hr>
+            {{ forms.field({
+                label: "Vendor Settings"|t('enupal-stripe')|upper,
+                instructions : 'Who is a vendor? Allow auto vendor registration if a new User has a Lightswitch field or has a specific user group:'
+            }, null) }}
+            <hr>
+            {% set userGroups = craft.enupalStripe.getCraftUserGroups() %}
+            {% set userGroups = userGroups | map((ug) => { value: ug.id, label: ug.name }) %}
+
+            {% set userGroupsOptions = [{label: 'Select a user group', value: ''}]|merge(userGroups) %}
+            {{ forms.selectField({
+                label: "User Group"|t('enupal-stripe'),
+                id: 'vendorUserGroupId',
+                instructions: 'The user group that is assciated to Vendors',
+                name: 'vendorUserGroupId',
+                options: userGroupsOptions,
+            value: settings.vendorUserGroupId
+            }) }}
+
+            {% set booleanUserFields = craft.enupalStripe.getBooleanUserFields() %}
+            {{ forms.selectField({
+                label: "Lightswitch User field"|t('enupal-stripe'),
+                id: 'vendorUserFieldId',
+                instructions: 'The Lightswitch field that identifies a Vendor when is TRUE',
+                name: 'vendorUserFieldId',
+                options: booleanUserFields,
+                value: settings.vendorUserFieldId
+            }) }}
+
+        {% endnamespace %}
+
+    </div>
+
+{% endset %}

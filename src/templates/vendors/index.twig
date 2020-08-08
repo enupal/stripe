@@ -1,0 +1,20 @@
+{#
+/**
+ * Stripe Payments plugin for Craft CMS 3.x
+ *
+ * @link      https://enupal.com/
+ * @copyright Copyright (c) 2018 Enupal LLC
+ */
+#}
+
+{% extends "enupal-stripe/_layouts/elementindex" %}
+{% set title = "Vendors"|t %}
+{% set elementType = 'enupal\\stripe\\elements\\Vendor' %}
+{% do view.registerAssetBundle("enupal\\stripe\\web\\assets\\FontAwesomeAsset") %}
+
+{% block actionButton %}
+    <div class="buttons">
+        <a class="btn submit add icon" href="{{ url('enupal-stripe/vendors/new') }}">{{ "New Vendor"|t('enupal-stripe') }}</a>
+    </div>
+{% endblock %}
+

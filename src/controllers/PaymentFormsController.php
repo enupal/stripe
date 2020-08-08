@@ -21,6 +21,15 @@ use enupal\stripe\elements\PaymentForm as PaymentFormElement;
 class PaymentFormsController extends BaseController
 {
     /**
+     * Allows anonymous execution
+     *
+     * @var string[]
+     */
+    protected $allowAnonymous = [
+        'save-form'
+    ];
+
+    /**
      * Save a Payment Form
      *
      * @return null|\yii\web\Response
@@ -39,13 +48,15 @@ class PaymentFormsController extends BaseController
 
         if ($formId) {
             $paymentForm = Stripe::$app->paymentForms->getPaymentFormById($formId);
+        } else{
+            $paymentForm = Stripe::$app->paymentForms->createNewPaymentForm();
         }
 
         $paymentForm = Stripe::$app->paymentForms->populatePaymentFormFromPost($paymentForm);
 
         // Save it
         if (!Stripe::$app->paymentForms->savePaymentForm($paymentForm)) {
-            Craft::$app->getSession()->setError(Stripe::t('Couldn’t save payment form.'));
+            Craft::$app->getSession()->setError(Craft::t('site','Couldn’t save payment form.'));
 
             Craft::$app->getUrlManager()->setRouteParams([
                     'paymentForm' => $paymentForm
@@ -55,7 +66,7 @@ class PaymentFormsController extends BaseController
             return null;
         }
 
-        Craft::$app->getSession()->setNotice(Stripe::t('Payment form saved.'));
+        Craft::$app->getSession()->setNotice(Craft::t('site','Payment form saved.'));
 
         return $this->redirectToPostedUrl($paymentForm);
     }
@@ -73,7 +84,7 @@ class PaymentFormsController extends BaseController
      */
     public function actionEditForm(int $formId = null, PaymentFormElement $paymentForm = null)
     {
-        // Immediately create a new Slider
+        // Immediately create a new payment form
         if ($formId === null) {
             $paymentForm = Stripe::$app->paymentForms->createNewPaymentForm();
 

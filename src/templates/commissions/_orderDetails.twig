@@ -1,0 +1,73 @@
+{% set order = commission.getOrder() %}
+{% set product = commission.getProduct() %}
+<div id="order-details" class="order-details pane">
+    <h3>Details</h3>
+    <table id="" class=" fullwidth collapsible ">
+        <thead>
+        <tr>
+            <th scope="col">{{ 'Order Type'|t('enupal-stripe') }}</th>
+            <th scope="col">{{ 'Connect'|t('enupal-stripe') }}</th>
+            <th scope="col">{{ 'Order'|t('enupal-stripe') }}</th>
+            <th scope="col">{{ 'Product'|t('enupal-stripe') }}</th>
+            <th scope="col"></th>
+            <th scope="col"></th>
+            <th scope="col"></th>
+        </tr>
+        </thead>
+        <tbody>
+
+        <tr class="infoRow">
+            <td>
+                {{ commission.getOderTypeName() }}
+            </td>
+            <td>
+                <a href="{{ commission.getConnect().cpEditUrl }}">View Connect</a>
+            </td>
+            <td>
+                <a href="{{ order.cpEditUrl }}">View Order</a>
+            </td>
+            <td>
+                <a href="{{ product.cpEditUrl }}">View Product</a>
+            </td>
+            <td></td>
+            <td></td>
+            <td>
+            </td>
+            <td>
+            </td>
+        </tr>
+
+        <tr>
+            <td></td>
+            <td>
+                <strong></strong><br>
+            </td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td>
+                <span class="right"></span>
+            </td>
+            <td></td>
+        </tr>
+        <tr>
+            <td></td>
+            <td>
+                <div class="isPaid">
+                    {% if commission.commissionStatus == 'paid'  %}
+                        <span>{{ 'PAID'|t('enupal-stripe') }}</span>
+                    {% endif %}
+                </div>
+            </td>
+            <td></td>
+            <td></td>
+            <td><h2>{{ "Total Amount"|t('enupal-stripe') }}</h2></td>
+            <td>
+                <h2 class="right">{{ commission.totalPrice|currency(commission.currency) }}</h2>
+            </td>
+            <td></td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+

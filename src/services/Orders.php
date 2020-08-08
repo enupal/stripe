@@ -1215,6 +1215,7 @@ class Orders extends Component
      */
     private function hasZeroDecimals($currency)
     {
+        $currency = strtoupper($currency);
         $zeroDecimals = ['MGA', 'BIF', 'CLP', 'PYG', 'DJF', 'RWF', 'GNF', 'UGX', 'JPY', 'VND', 'VUV', 'XAF', 'KMF', 'KRW', 'XOF', 'XPF'];
 
         foreach ($zeroDecimals as $zeroDecimal) {

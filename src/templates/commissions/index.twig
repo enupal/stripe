@@ -1,0 +1,18 @@
+{#
+/**
+ * Stripe Payments plugin for Craft CMS 3.x
+ *
+ * @link      https://enupal.com/
+ * @copyright Copyright (c) 2018 Enupal LLC
+ */
+#}
+
+{% extends "enupal-stripe/_layouts/elementindex" %}
+{% set title = "Commissions"|t %}
+{% set elementType = 'enupal\\stripe\\elements\\Commission' %}
+{% do view.registerAssetBundle("enupal\\stripe\\web\\assets\\FontAwesomeAsset") %}
+
+{% block content %}
+    {{ parent() }}
+{% endblock %}
+

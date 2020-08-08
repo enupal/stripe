@@ -1,0 +1,134 @@
+{% extends "_layouts/cp" %}
+{% import "_includes/forms" as forms %}
+
+{% set selectedSubnavItem = "connects" %}
+{% set fullPageForm = true %}
+{% set vendorName = connect.getVendor() is not null ? connect.getVendor().getVendorName() : '' %}
+{% set title = "Connect: "~vendorName %}
+{% set saveShortcutRedirect = continueEditingUrl %}
+
+{% set crumbs = [
+    {    label: "Connects"|t('enupal-stripe'), url: url('enupal-stripe/connects') }
+] %}
+
+{% hook "cp.enupal-stripe.connect.edit" %}
+
+{% set tabs = {
+    general:  {
+        label: "General"|t,
+        url: '#tab1',
+    }
+} %}
+
+{% block actionButton %}
+    {% hook "cp.enupal-stripe.connect.actionbutton" %}
+
+    <input type="hidden" name="action" value="enupal-stripe/connects/save-connect">
+    <input type="hidden" name="connectId" value="{{ connect.id }}">
+    {{ redirectInput('enupal-stripe/connects') }}
+
+    <div class="btngroup">
+        <input type="submit" class="btn submit" value="{{ 'Save'|t('app') }}">
+
+        <div class="btn submit menubtn"></div>
+        <div class="menu">
+            <ul>
+                <li><a class="formsubmit"
+                       data-redirect="{{ continueEditingUrl|hash }}">
+                        {{ forms.optionShortcutLabel('S') }}
+                        {{ "Save and continue editing"|t('app') }}
+                    </a></li>
+            </ul>
+
+            <hr>
+            <ul>
+                <li><a class="formsubmit error"
+                       data-action="enupal-stripe/connects/delete-connect"
+                       data-confirm="{{ 'Are you sure you want to delete this connect?'|t('enupal-stripe') }}"
+                       data-redirect="{{ 'enupal-stripe/connects'|hash }}">{{ 'Delete'|t('app') }}</a>
+                </li>
+            </ul>
+
+        </div>
+    </div>
+{% endblock %}
+
+{% block details %}
+    {% namespace 'fields' %}
+
+        {% include 'enupal-stripe/connects/_connectInfo' %}
+
+    {% endnamespace %}
+{% endblock %}
+
+{% block content %}
+    {% namespace 'fields' %}
+        <div id="tab1">
+
+            {{ forms.lightswitchField({
+                first: true,
+                label: "Enable for All Products"|t('enupal-stripe'),
+                instructions: "Enable this connect for all the "~connect.getProductTypeName()~" orders"|t('enupal-stripe'),
+                id: 'allProducts',
+                name: 'allProducts',
+                on: connect.allProducts,
+                errors: connect.getErrors('allProducts')
+            }) }}
+        <div id="products-wrapper" class="{% if connect.allProducts == true %} hidden {% endif %}">
+            {{ forms.field({
+                label: 'Products'|t('enupal-stripe'),
+                instructions: 'Products or payment forms to split the payment'|t('enupal-stripe'),
+                id: 'products',
+                errors: connect.getErrors('products')
+            }, forms.elementSelect({
+                elements: products,
+                elementType: connect.productType,
+                id: 'products',
+                name: 'products',
+                class: 'products-field',
+                selectionLabel: 'Add Product'|t('enupal-stripe'),
+                limit: null,
+                viewMode: 'large'
+            })) }}
+        </div>
+
+            {{ forms.field({
+                label: 'Vendor'|t('enupal-stripe'),
+                instructions: 'Vendor to send the commission'|t('enupal-stripe'),
+                id: 'vendorId',
+                errors: connect.getErrors('vendorId')
+            }, forms.elementSelect({
+                elements: [connect.getVendor()],
+                elementType: vendorElementType,
+                id: 'vendorId',
+                name: 'vendorId',
+                class: 'vendorId-field',
+                selectionLabel: 'Add Vendor'|t('enupal-stripe'),
+                limit: 1,
+                viewMode: 'large'
+            })) }}
+
+            {{ forms.textField({
+                first: true,
+                label: "Vendor Rate"|t('enupal-stripe'),
+                id: 'rate',
+                instructions: "Percentage of the total sale price that this connect receives. This is a positive decimal (with at most two decimal places) between 1 and 100"|t('enupal-stripe'),
+                name: 'rate',
+                placeholder: 'Enter percentage',
+                unit: '%',
+                value: connect.rate|number_format(2, '.'),
+                errors: connect.getErrors('rate'),
+                autofocus: true,
+            }) }}
+
+        </div>
+    {% endnamespace %}
+{% endblock %}
+
+{% do view.registerAssetBundle("enupal\\stripe\\web\\assets\\EditConnectAsset") %}
+
+{% js %}
+    $(document).ready(function () {
+    new EnupalStripeEditConnect();
+    });
+{% endjs %}

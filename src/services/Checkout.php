@@ -42,7 +42,6 @@ class Checkout extends Component
         return $checkoutSession;
     }
 
-
     /**
      * @param PaymentForm $form
      * @param $postData
@@ -52,8 +51,10 @@ class Checkout extends Component
     public function createCheckoutSession(PaymentForm $form, $postData)
     {
         $publicData = $postData['enupalStripeData'] ?? null;
+        $pluginSettings = StripePlugin::$app->settings->getSettings();
 
         StripePlugin::$app->settings->initializeStripe();
+        $transferGroup = 'Group_'.StripePlugin::$app->orders->getRandomStr();
         $askShippingAddress = $publicData['enableShippingAddress'] ?? false;
         $askBillingAddress = $publicData['enableBillingAddress'] ?? false;
         $data = $publicData['stripe'];
@@ -83,8 +84,6 @@ class Checkout extends Component
             $sessionParams = $this->handleSubscription($form, $postData, $metadata, $sessionParams, $isCustomAmount);
         } else if (!$isCustomAmount) {
             $sessionParams = $this->handleOneTimePayment($form, $postData, $metadata, $sessionParams);
-
-            $pluginSettings = StripePlugin::$app->settings->getSettings();
 
             if (!$pluginSettings->capture) {
                 $sessionParams['payment_intent_data']['capture_method'] = 'manual';
@@ -286,15 +285,11 @@ class Checkout extends Component
 
         $sessionParams['line_items'] = [$lineItem];
 
-        $sessionParams['payment_intent_data'] = [
+        $metadata = StripePlugin::$app->orders->getStripeMetadata([
             'metadata' => $metadata
-        ];
+        ]);
 
-        $metadata = StripePlugin::$app->orders->getStripeMetadata($sessionParams['payment_intent_data']);
-
-        $sessionParams['payment_intent_data'] = [
-            'metadata' => $metadata
-        ];
+        $sessionParams['payment_intent_data']['metadata'] = $metadata;
 
         return $sessionParams;
     }

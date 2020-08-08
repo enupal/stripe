@@ -1,5 +1,14 @@
 # Stripe Payments Changelog
 
+## WIP
+
+### Added
+- Added Stripe Connect support
+- Added After Populate Payment Form Event
+- Added Vendors element type
+- Added Connect element type
+- Added Commissions element type
+
 ## 2.7.2 - 2020.06.18
 
 ### Updated
