@@ -1241,6 +1241,7 @@ class Orders extends Component
     private function getCustomer($order, $token, &$isNew, $testMode = true)
     {
         $stripeCustomer = null;
+        $testMode = filter_var($testMode, FILTER_VALIDATE_BOOLEAN);
         // Check if customer exists
         $customerRecord = CustomerRecord::findOne([
             'email' => $order->email,

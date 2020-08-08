@@ -34,7 +34,7 @@ class Customers extends Component
         $customerRecord = new CustomerRecord();
         $customerRecord->email = $email;
         $customerRecord->stripeId = $stripeId;
-        $customerRecord->testMode = $testMode;
+        $customerRecord->testMode = filter_var($testMode, FILTER_VALIDATE_BOOLEAN);
         $customerRecord->save(false);
 
         return $customerRecord;
@@ -106,6 +106,7 @@ class Customers extends Component
      */
     public function registerCustomer(Customer $customer, $testMode)
     {
+        $testMode = filter_var($testMode, FILTER_VALIDATE_BOOLEAN);
         $customerRecord = CustomerRecord::findOne([
             'email' => $customer['email'],
             'testMode' => $testMode
@@ -124,6 +125,7 @@ class Customers extends Component
      */
     public function getCustomerByEmail($customerEmail, $testMode)
     {
+        $testMode = filter_var($testMode, FILTER_VALIDATE_BOOLEAN);
         $customerRecord = CustomerRecord::findOne([
             'email' => $customerEmail,
             'testMode' => $testMode
