@@ -54,7 +54,6 @@ class Checkout extends Component
         $pluginSettings = StripePlugin::$app->settings->getSettings();
 
         StripePlugin::$app->settings->initializeStripe();
-        $transferGroup = 'Group_'.StripePlugin::$app->orders->getRandomStr();
         $askShippingAddress = $publicData['enableShippingAddress'] ?? false;
         $askBillingAddress = $publicData['enableBillingAddress'] ?? false;
         $data = $publicData['stripe'];
@@ -132,6 +131,14 @@ class Checkout extends Component
                 $sessionParams['line_items'] = array_merge($sessionParams['line_items'], $customLineItemsArray);
             }
         }
+
+        // Adds support to allowPromotionCodes
+        $allowPromotionCodes = $postData['enupalAllowPromotionCodes'] ?? false;
+
+        if ($allowPromotionCodes) {
+            $sessionParams['allow_promotion_codes'] = true;
+        }
+
 
         $session = Session::create($sessionParams);
 

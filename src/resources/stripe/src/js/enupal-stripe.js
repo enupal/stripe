@@ -41,6 +41,7 @@ var enupalStripe = {};
             var enupalStripeData = $.parseJSON($(enupalButtonElement).find('[name="enupalStripe[stripeData]"]').val());
 
             enupalStripeData.lineItems = enupalButtonElement.find('[name="enupalStripe[enupalLineItems]"]').val();
+            enupalStripeData.allowPromotionCodes = enupalButtonElement.find('[name="enupalStripe[enupalAllowPromotionCodes]"]').val();
             enupalStripeData.removeDefaultItem = enupalButtonElement.find('[name="enupalStripe[enupalRemoveDefaultItem]"]').val();
 
             //  Firefox is cached for some reason when we empty the hidden input.
@@ -48,6 +49,7 @@ var enupalStripe = {};
                 // reset our values
                 $(enupalButtonElement).find('[name="enupalStripe[stripeData]"]').val('');
                 enupalButtonElement.find('[name="enupalStripe[enupalLineItems]"]').val('');
+                enupalButtonElement.find('[name="enupalStripe[enupalAllowPromotionCodes]"]').val('');
                 enupalButtonElement.find('[name="enupalStripe[enupalRemoveDefaultItem]"]').val('');
             }
 
@@ -296,6 +298,7 @@ var enupalStripe = {};
             var data = enupalButtonElement.serializeArray();
             
             data.push({name: 'enupalStripe[enupalLineItems]', value: enupalStripeDataSubmission.lineItems});
+            data.push({name: 'enupalStripe[enupalAllowPromotionCodes]', value: enupalStripeDataSubmission.allowPromotionCodes});
             data.push({name: 'enupalStripe[enupalRemoveDefaultItem]', value: enupalStripeDataSubmission.removeDefaultItem});
 
             data.push({name: 'action', value: 'enupal-stripe/checkout/create-session'});
