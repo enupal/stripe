@@ -35,8 +35,11 @@
             {% if options.lineItems is defined %}
                 <input type="hidden" name="enupalLineItems" value="{{ options.lineItems|json_encode() }}">
             {% endif %}
-            {% if options.removeDefaultItem is defined %}
-                <input type="hidden" name="enupalRemoveDefaultItem" value="{{ options.removeDefaultItem }}">
+            {% if options.lineItems is defined %}
+                <input type="hidden" name="enupalLineItems" value="{{ options.lineItems|json_encode() }}">
+            {% endif %}
+            {% if options.allowPromotionCodes is defined %}
+                <input type="hidden" name="enupalAllowPromotionCodes" value="{{ options.allowPromotionCodes }}">
             {% endif %}
             <input type="hidden" name="email" value />
             <input type="hidden" name="formId" value="{{ paymentForm.id }}" />

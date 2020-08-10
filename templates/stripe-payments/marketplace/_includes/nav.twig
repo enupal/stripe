@@ -1,0 +1,17 @@
+<nav>
+    <ul class="">
+        {% set page = craft.app.request.getSegment(2) %}
+
+        <li>
+            <a class="{% if page == 'account' %}active{% endif %}" href="{{ url('marketplace/account') }}">
+                {{ "Account"|t }}
+            </a>
+        </li>
+
+        <li>
+            <a class="{% if page == 'products' %}active{% endif %}" href="{{ url('marketplace/products') }}">
+                {{ "Products"|t }}
+            </a>
+        </li>
+    </ul>
+</nav>

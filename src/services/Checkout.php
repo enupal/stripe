@@ -42,7 +42,6 @@ class Checkout extends Component
         return $checkoutSession;
     }
 
-
     /**
      * @param PaymentForm $form
      * @param $postData
@@ -52,6 +51,7 @@ class Checkout extends Component
     public function createCheckoutSession(PaymentForm $form, $postData)
     {
         $publicData = $postData['enupalStripeData'] ?? null;
+        $pluginSettings = StripePlugin::$app->settings->getSettings();
 
         StripePlugin::$app->settings->initializeStripe();
         $askShippingAddress = $publicData['enableShippingAddress'] ?? false;
@@ -83,8 +83,6 @@ class Checkout extends Component
             $sessionParams = $this->handleSubscription($form, $postData, $metadata, $sessionParams, $isCustomAmount);
         } else if (!$isCustomAmount) {
             $sessionParams = $this->handleOneTimePayment($form, $postData, $metadata, $sessionParams);
-
-            $pluginSettings = StripePlugin::$app->settings->getSettings();
 
             if (!$pluginSettings->capture) {
                 $sessionParams['payment_intent_data']['capture_method'] = 'manual';
@@ -133,6 +131,14 @@ class Checkout extends Component
                 $sessionParams['line_items'] = array_merge($sessionParams['line_items'], $customLineItemsArray);
             }
         }
+
+        // Adds support to allowPromotionCodes
+        $allowPromotionCodes = $postData['enupalAllowPromotionCodes'] ?? false;
+
+        if ($allowPromotionCodes) {
+            $sessionParams['allow_promotion_codes'] = true;
+        }
+
 
         $session = Session::create($sessionParams);
 
@@ -286,15 +292,11 @@ class Checkout extends Component
 
         $sessionParams['line_items'] = [$lineItem];
 
-        $sessionParams['payment_intent_data'] = [
+        $metadata = StripePlugin::$app->orders->getStripeMetadata([
             'metadata' => $metadata
-        ];
+        ]);
 
-        $metadata = StripePlugin::$app->orders->getStripeMetadata($sessionParams['payment_intent_data']);
-
-        $sessionParams['payment_intent_data'] = [
-            'metadata' => $metadata
-        ];
+        $sessionParams['payment_intent_data']['metadata'] = $metadata;
 
         return $sessionParams;
     }

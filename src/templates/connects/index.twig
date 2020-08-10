@@ -1,0 +1,51 @@
+{#
+/**
+ * Stripe Payments plugin for Craft CMS 3.x
+ *
+ * @link      https://enupal.com/
+ * @copyright Copyright (c) 2018 Enupal LLC
+ */
+#}
+
+{% import "_includes/forms" as forms %}
+{% extends "enupal-stripe/_layouts/elementindex" %}
+{% set title = "Connects"|t %}
+{% set elementType = 'enupal\\stripe\\elements\\Connect' %}
+{% do view.registerAssetBundle("enupal\\stripe\\web\\assets\\FontAwesomeAsset") %}
+
+{% block actionButton %}
+    {% set options = craft.enupalStripe.getConnectProductTypes() %}
+    {% if options|length %}
+        <div class="buttons">
+            <form id="createConnectForm" method="POST">
+                {{ forms.selectField({
+                    id: 'productType',
+                    name: 'productType',
+                    class: 'productType',
+                    options: options,
+                    value: ""
+                }) }}
+                {{ csrfInput() }}
+                <input type="hidden" name="action" value="enupal-stripe/connects/edit-connect">
+            </form>
+        </div>
+        <div class="buttons">
+            <a class="btn submit add icon" href="{{ url('enupal-stripe/connect/new') }}">{{ "New Connect"|t('enupal-stripe') }}</a>
+        </div>
+    {% endif %}
+{% endblock %}
+
+
+{% js %}
+    $(document).ready(function() {
+    $(".buttons > .submit.add.icon").on('click', function(){
+    event.preventDefault();
+    $("#createConnectForm").submit();
+    });
+    });
+{% endjs %}
+{% css %}
+    #productType-field{
+    padding-top: 23px;
+    }
+{% endcss %}

@@ -1,0 +1,80 @@
+{#
+/**
+ * Stripe Payments plugin for Craft CMS 3.x
+ *
+ * @link      https://enupal.com/
+ * @copyright Copyright (c) 2018 Enupal LLC
+ */
+#}
+{% import "_includes/forms" as forms %}
+<div id="details-container">
+    <div class="details">
+        <div class="meta" id="settings">
+            <table class=" ">
+                <tr>
+                    <td>
+                        <strong>{{ "Payment Status"|t('enupal-stripe') }}</strong>
+                    </td>
+                    <td>
+                        <div id="commission-completion">
+                            {{ commission.getPaymentStatusHtml()|raw }}
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <strong>{{ "Number"|t('enupal-stripe') }}</strong>
+                    </td>
+                    <td>
+                        {{ commission.number }}
+                    </td>
+                </tr>
+                <tr>
+                    <td><strong>{{ "Total"|t('enupal-stripe') }}</strong>
+                    </td>
+                    <td><span id="total-label">{{ commission.totalPrice|currency(commission.currency) }}</span>
+                        {% if commission.commissionStatus == 'pending' %}
+                            <div id="pay-payment" class="btn small center">{{ "Pay"|t('enupal-stripe') }} </div><div class="spinner hidden"></div>
+                        {% endif %}
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <strong>{{ "Currency"|t('enupal-stripe') }} </strong>
+                    </td>
+                    <td>{{ commission.currency }}</td>
+                </tr>
+
+                {% if commission.stripeId is not empty %}
+                    <tr>
+                        <td>
+                            <strong>{{ "Stripe Reference"|t('enupal-stripe') }} </strong>
+                        </td>
+                        {% set url = "https://dashboard.stripe.com" %}
+                        {% set url = commission.testMode ? url~'/test' : url %}
+                        {% set url = url~'/transfers' %}
+
+                        <td><a target="_blank" href="{{ url~'/'~commission.stripeId }}">{{ "View Reference" }}</a></td>
+                    </tr>
+                {% endif %}
+            </table>
+        </div>
+    </div>
+
+    <div class="details">
+        <div class="meta read-only">
+            <div class="data">
+                <h5 class="heading">{{ "Created at"|t('app') }}</h5>
+                <div class="value">{{ commission.dateCreated|datetime('short') }}</div>
+            </div>
+
+            {% if commission.datePaid %}
+                <div class="data">
+                    <h5 class="heading">{{ "Paid at"|t('app') }}</h5>
+                    <div class="value">{{ commission.datePaid|datetime('short') }}</div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+</div>

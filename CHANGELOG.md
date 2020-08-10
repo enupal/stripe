@@ -1,5 +1,33 @@
 # Stripe Payments Changelog
 
+## 3.0.0 - 2020.08.10
+
+> {tip} This release adds initial support for Stripe Connect, facilitate payments on your Craft CMS site, build a marketplace, and pay out sellers or service providers globally. To learn more please read our [docs](https://docs.enupal.com/stripe-payments/connect/overview.html). Enjoy!
+
+### Added
+- Added Stripe Connect support [docs](https://docs.enupal.com/stripe-payments/connect/overview.html) ([#1])
+- Added Vendors element type
+- Added Connect element type
+- Added Commissions element type
+- Added support for promotional codes on subscriptions ([More Info](https://docs.enupal.com/stripe-payments/templating/paymentform.html))
+- Added support for update billing details via the [Stripe Customer Portal](https://docs.enupal.com/stripe-payments/templating/update-billing.html)
+- Added vendor notification email
+- Added sample templates for manage vendors on the front-end (Stripe Payments only, commerce coming soon)
+- Added After Populate Payment Form Event
+
+### Fixed
+- Fixed issue Syncing Stripe orders ([#112])
+- Fixed issue where Billing address is not saved on subscriptions `new Stripe Checkout` ([#114])
+- Fixed issue on fresh install Orders index page ([#120])
+- Fixed issue when using Postgres ([#122])
+- Fixed UI issues on the Edit Order page
+
+[#1]: https://github.com/enupal/stripe/issues/1
+[#112]: https://github.com/enupal/stripe/issues/112
+[#114]: https://github.com/enupal/stripe/issues/114
+[#120]: https://github.com/enupal/stripe/issues/120
+[#122]: https://github.com/enupal/stripe/issues/122
+
 ## 2.7.2 - 2020.06.18
 
 ### Updated

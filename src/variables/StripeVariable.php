@@ -18,6 +18,7 @@ use enupal\stripe\Stripe;
 use craft\helpers\Template as TemplateHelper;
 use DateTime;
 use Craft;
+use Psy\Util\Str;
 use yii\base\Behavior;
 
 /**
@@ -64,6 +65,22 @@ class StripeVariable extends Behavior
             Craft::configure($query, $criteria);
         }
         return $query;
+    }
+
+    /**
+     *
+     * @param $paymentFormId
+     * @param $vendorId
+     * @return PaymentForm
+     */
+    public function getVendorPaymentForm($paymentFormId,  $vendorId = null)
+    {
+        return Stripe::$app->paymentForms->getVendorPaymentForm((int)$paymentFormId, $vendorId);
+    }
+
+    public function getPaymentFormsByVendor($vendorId = null)
+    {
+        return Stripe::$app->paymentForms->getPaymentFormsByVendor($vendorId);
     }
 
     /**
@@ -700,6 +717,46 @@ class StripeVariable extends Behavior
 
         return $plans;
     }
+
+    /**
+     * @return array
+     */
+    public function getConnectProductTypes()
+    {
+        return Stripe::$app->connects->getConnectProductTypesAsOptions();
+    }
+
+    public function getCurrentVendor()
+    {
+        return Stripe::$app->vendors->getCurrentVendor();
+    }
+
+    /**
+     * @return string
+     */
+    public function getCallbackUrl()
+    {
+        return Stripe::$app->settings->getCallbackUrl();
+    }
+
+    /**
+     * @return array
+     */
+    public function getBooleanUserFields()
+    {
+        return Stripe::$app->vendors->getBooleanUserFieldsAsOptions();
+    }
+
+    public function getCraftUserGroups()
+    {
+        return Craft::$app->getUserGroups()->getAllGroups();
+    }
+
+    public function isSuperVendor($vendorId)
+    {
+        return Stripe::$app->vendors->isSuperVendor($vendorId);
+    }
+
 
     /**
      * @param $view

@@ -9,6 +9,7 @@
 namespace enupal\stripe\models;
 
 use craft\base\Model;
+use enupal\stripe\services\Vendors;
 use enupal\stripe\Stripe;
 
 
@@ -49,6 +50,14 @@ class Settings extends Model
     public $adminNotificationReplyToEmail;
     public $adminNotificationTemplate;
     public $adminTemplateOverride;
+    // Notification Vendor
+    public $enableVendorNotification = 0;
+    public $vendorNotificationSenderName;
+    public $vendorNotificationSubject;
+    public $vendorNotificationSenderEmail;
+    public $vendorNotificationReplyToEmail;
+    public $vendorNotificationTemplate;
+    public $vendorTemplateOverride;
     // Checkout Email
     public $currentUserEmail = 0;
     public $updateCustomerEmailOnStripe = 0;
@@ -65,6 +74,23 @@ class Settings extends Model
     public $syncEnabledDateRange = false;
     public $syncStartDate;
     public $syncEndDate;
+
+    // Connect
+    public $enableConnect = 0;
+    // What field is used to store the Vendor Name? by default id. Twig allowed
+    public $vendorNameFormat;
+    // What boolean user field could help to filter users on Vendor creation
+    public $vendorUserFieldId;
+    // What user group id help to filter users on Vendor creation
+    public $vendorUserGroupId;
+    public $vendorPaymentType = Vendors::PAYMENT_TYPE_MANUALLY;
+    public $vendorSkipAdminReview = 0;
+    public $globalRate = 1;
+    public $liveClientId;
+    public $testClientId;
+    // Direct, destination or separate
+    // only on separate we can have more than one vendor by each product
+    public $chargeType;
 
     public $cancelAtPeriodEnd = false;
 
@@ -87,7 +113,7 @@ class Settings extends Model
                 'required', 'on' => 'general', 'when' => function($model) {
                 $configSettings = Stripe::$app->settings->getConfigSettings();
                 $isRequired = isset($configSettings['liveSecretKey']) ? false : true;
-                return !$model->testMode &&  $isRequired;
+                return !$model->testMode && $isRequired;
             }
             ],
             [
@@ -95,6 +121,22 @@ class Settings extends Model
                 'required', 'on' => 'general', 'when' => function($model) {
                     $configSettings = Stripe::$app->settings->getConfigSettings();
                     $isRequired = isset($configSettings['testPublishableKey']) ? false : true;
+                    return $model->testMode && $isRequired;
+                }
+            ],
+            [
+                ['liveClientId'],
+                'required', 'on' => 'general', 'when' => function($model) {
+                    $configSettings = Stripe::$app->settings->getConfigSettings();
+                    $isRequired = isset($configSettings['liveClientId']) ? false : true;
+                    return !$model->testMode && $isRequired;
+                }
+            ],
+            [
+                ['testClientId'],
+                'required', 'on' => 'general', 'when' => function($model) {
+                    $configSettings = Stripe::$app->settings->getConfigSettings();
+                    $isRequired = isset($configSettings['testClientId']) ? false : true;
                     return $model->testMode && $isRequired;
                 }
             ],
@@ -137,8 +179,18 @@ class Settings extends Model
             }
             ],
             [
+                ['vendorNotificationSubject', 'vendorNotificationSenderName', 'vendorNotificationSenderEmail', 'vendorNotificationReplyToEmail', 'vendorNotificationReplyToEmail'],
+                'required', 'when' => function($model) {
+                return $model->enableVendorNotification;
+            }
+            ],
+            [
                 ['customerNotificationSenderEmail', 'customerNotificationReplyToEmail'],
                 'email', 'on' => 'customerNotification'
+            ],
+            [
+                ['vendorNotificationSenderEmail', 'vendorNotificationReplyToEmail'],
+                'email', 'on' => 'vendorNotification'
             ],
             [
                 ['adminNotificationSenderEmail', 'adminNotificationReplyToEmail'],
@@ -148,6 +200,11 @@ class Settings extends Model
                 // A number and two decimals
                 ['tax'],
                 'number', 'min'=> '1', 'max'=>'100' , 'on' => 'taxes', 'numberPattern' => '/^\d+(.\d{1,2})?$/',
+            ],
+            [
+                // A number and two decimals
+                ['globalRate'],
+                'number', 'min'=> '1', 'max'=>'100' , 'on' => 'connect', 'numberPattern' => '/^\d+(.\d{1,2})?$/',
             ]
         ];
     }

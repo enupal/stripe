@@ -1215,6 +1215,7 @@ class Orders extends Component
      */
     private function hasZeroDecimals($currency)
     {
+        $currency = strtoupper($currency);
         $zeroDecimals = ['MGA', 'BIF', 'CLP', 'PYG', 'DJF', 'RWF', 'GNF', 'UGX', 'JPY', 'VND', 'VUV', 'XAF', 'KMF', 'KRW', 'XOF', 'XPF'];
 
         foreach ($zeroDecimals as $zeroDecimal) {
@@ -1240,6 +1241,7 @@ class Orders extends Component
     private function getCustomer($order, $token, &$isNew, $testMode = true)
     {
         $stripeCustomer = null;
+        $testMode = filter_var($testMode, FILTER_VALIDATE_BOOLEAN);
         // Check if customer exists
         $customerRecord = CustomerRecord::findOne([
             'email' => $order->email,

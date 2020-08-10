@@ -16,8 +16,8 @@ Stripe Payments allows customers sign up for recurring and one-time payments wit
  * One line of Code: `{{ craft.enupalStripe.paymentForm('handle') }} `
  * Secure Payment Processing powered by [Stripe Checkout](https://stripe.com/checkout) and [Stripe Elements](https://stripe.com/elements)
  * Stripe Elements: Card, iDEAL and SOFORT.
- * [Strong Customer Authentication (SCA)](https://enupal.com/craft-plugins/stripe-payments/docs/getting-started/sca) ready with the new Stripe Checkout `new`
- * Apple Pay support with the new Stripe Checkout `new`
+ * [Strong Customer Authentication (SCA)](https://enupal.com/craft-plugins/stripe-payments/docs/getting-started/sca) ready with the new Stripe Checkout
+ * Apple Pay support with the new Stripe Checkout
  * Optimized for Mobile
  * Subscriptions Integration: Allow your customers to sign up for recurring payments.
  * Cancel/Reactivate Subscription via CP and Front-end 
@@ -38,6 +38,7 @@ Stripe Payments allows customers sign up for recurring and one-time payments wit
  * Field type
  * Export Orders in CSV, XLS, XLS or ODS format
  * Template Overrides
+ * Stripe Connect: build a marketplace, and pay out sellers or service providers globally `new` 
 
 ## Documentation
 

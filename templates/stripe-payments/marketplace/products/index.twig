@@ -1,0 +1,26 @@
+{% extends 'marketplace/_layouts/main' %}
+
+{% block main %}
+    <h1>Products</h1>
+    {% set products = craft.enupalStripe.getPaymentFormsByVendor() %}
+
+    <a class="button" href="/marketplace/products/edit">Add Product</a>
+
+    {% for product in products %}
+        <div class="md:flex product bg-white rounded items-center text-left">
+            <div class="md:w-3/6 md:p-4">
+                <h3 class="font-semibold"><a href="/marketplace/products/edit?paymentFormId={{ product.id }}">{{ product.handle }}</a></h3>
+                    <div class="p-2 pl-0 mt-1 pb-6">
+                        {{ product.companyName }}
+                        <br>
+                        {{ product.name }}
+                        <br>
+                        <strong>{{ product.amount|currency(product.currency) }}</strong>
+
+                        <span> {{ product.enabled ? "Approved" : "Under Review" }} </span>
+                    </div>
+            </div>
+        </div>
+    {% endfor %}
+
+{% endblock %}

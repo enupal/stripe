@@ -10,9 +10,8 @@ namespace enupal\stripe\services;
 
 use Craft;
 use enupal\stripe\enums\PaymentType;
-use enupal\stripe\enums\SubscriptionType;
-use enupal\stripe\Stripe;
 use Stripe\PaymentIntent;
+use Stripe\PaymentMethod;
 use yii\base\Component;
 use enupal\stripe\Stripe as StripePlugin;
 
@@ -72,9 +71,9 @@ class PaymentIntents extends Component
         $shipping = $charge['shipping'] ?? null;
 
         $testMode = !$checkoutSession['livemode'];
-        $customer = Stripe::$app->customers->getStripeCustomer($paymentIntent['customer']);
-        Stripe::$app->customers->registerCustomer($customer, $testMode);
-        $form = Stripe::$app->paymentForms->getPaymentFormById($formId);
+        $customer = StripePlugin::$app->customers->getStripeCustomer($paymentIntent['customer']);
+        StripePlugin::$app->customers->registerCustomer($customer, $testMode);
+        $form = StripePlugin::$app->paymentForms->getPaymentFormById($formId);
 
         $data = [];
         $data['enupalStripe']['metadata'] = $this->removePaymentIntentMetadata($metadata);
@@ -85,7 +84,6 @@ class PaymentIntents extends Component
         $data['enupalStripe']['quantity'] = $quantity;
         $data['enupalStripe']['testMode'] = $testMode;
         $data['enupalStripe']['paymentType'] = PaymentType::CC;
-        $data['enupalStripe']['userId'] = $userId;
         $data['enupalStripe']['userId'] = $userId;
 
         $billingAddress = $billing['address'] ?? null;
@@ -126,7 +124,6 @@ class PaymentIntents extends Component
 	        StripePlugin::$app->orders->saveOrder($order);
         }
 
-
         return $order;
     }
 
@@ -145,10 +142,11 @@ class PaymentIntents extends Component
         $quantity = $metadata['stripe_payments_quantity'];
         $testMode = !$checkoutSession['livemode'];
         $shippingAddress = $checkoutSession['shipping']['address'] ?? null;
-        $customer = Stripe::$app->customers->getStripeCustomer($subscription['customer']);
-        Stripe::$app->customers->registerCustomer($customer, $testMode);
+        $customer = StripePlugin::$app->customers->getStripeCustomer($subscription['customer']);
+        StripePlugin::$app->customers->registerCustomer($customer, $testMode);
+        $form = StripePlugin::$app->paymentForms->getPaymentFormById($formId);
 
-        $invoice = Stripe::$app->customers->getStripeInvoice($subscription['latest_invoice']);
+        $invoice = StripePlugin::$app->customers->getStripeInvoice($subscription['latest_invoice']);
 
         $amount = $subscription['plan']['amount'] * $quantity;
         if ($invoice){
@@ -171,9 +169,45 @@ class PaymentIntents extends Component
             $data['enupalStripe']['address'] = $shippingAddress;
         }
 
+        // For subscription the billing address is on payment method
+        $paymentMethod = $this->getStripePaymentMethod($subscription['default_payment_method']);
+        if ($paymentMethod) {
+            $billing = $paymentMethod['billing_details'] ?? null;
+            $billingAddress = $billing['address'] ?? null;
+
+            if (isset($billingAddress['city']) && ($form->enableBillingAddress)){
+                $data['enupalStripe']['billingAddress'] = [
+                    'country' => $billingAddress['country'],
+                    'zip' => $billingAddress['postal_code'],
+                    'line1' => $billingAddress['line1'],
+                    'city' => $billingAddress['city'],
+                    'state' => $billingAddress['state'],
+                    'name' => $billing['name'] ?? ''
+                ];
+            }
+        }
+
         $order = StripePlugin::$app->orders->processPayment($data);
 
         return $order;
+    }
+
+    /**
+     * @param $paymentMethodId
+     * @return PaymentMethod|null
+     * @throws \Exception
+     */
+    public function getStripePaymentMethod($paymentMethodId)
+    {
+        StripePlugin::$app->settings->initializeStripe();
+        $paymentMethod = null;
+        try {
+            $paymentMethod = PaymentMethod::retrieve($paymentMethodId);
+        }catch (\Exception $e) {
+            Craft::error('Unable to get payment method: '.$e->getMessage());
+        }
+
+        return $paymentMethod;
     }
 
     /**

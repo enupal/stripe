@@ -1,0 +1,90 @@
+{% set vendor = craft.enupalStripe.getCurrentVendor() %}
+{% if vendor is null %}
+    {% redirect '/login' %}
+{% endif %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+
+    <title>Marketplace Example Templates</title>
+
+    <meta name="description" content="{{ "The example templates for Stripe Payments marketplace"|t }}">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <script type="application/javascript" src="/marketplace/jquery.js"></script>
+    <link rel="stylesheet" href="/marketplace/tailwind.css">
+    <link rel="stylesheet" href="/marketplace/style.css">
+    <script src="http://cdnjs.cloudflare.com/ajax/libs/html-inspector/0.8.2/html-inspector.js"></script>
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.3.1/css/all.css" integrity="sha384-mzrmE5qonljUremFsqc01SB46JvROS7bZs3IO2EmfFsd15uHvIt+Y8vEf7N7fWAU" crossorigin="anonymous">
+
+    {% if extraHead is defined %}
+        {{ extraHead }}
+    {% endif %}
+</head>
+<body class="bg-gray-100">
+
+    {% if not currentUser %}
+        {# Only logged in users #}
+        {% redirect '/' %}
+    {% endif %}
+
+    {% if showNav is not defined %}
+        {% set showNav = true %}
+    {% endif %}
+
+    <div class="bg-gray-200">
+        <div id="header" class="container mx-auto md:flex justify-between items-center p-6 text-center">
+            <h3 class="font-semibold">Example Templates</h3> <span>Vendor: {{ vendor.getVendorName() }}</span>
+
+            {% if showNav %}
+                {% include "marketplace/_includes/nav" %}
+            {% endif %}
+
+            {% if extraHeader is defined %}
+                {{ extraHeader }}
+            {% endif %}
+        </div>
+    </div>
+
+    {% set flashNotice = craft.app.session.getFlash('notice') %}
+
+    {% if flashNotice %}
+        <div class="bg-blue-500 text-white">
+            <div class="flash container mx-auto px-6 py-4">
+                {{ flashNotice }}
+            </div>
+        </div>
+    {% endif %}
+
+    {% set flashError = craft.app.session.getFlash('error') %}
+
+    {% if flashError %}
+        <div class="bg-red-500 text-white">
+            <div class="flash container mx-auto px-6 py-4">
+                {{ flashError }}
+            </div>
+        </div>
+    {% endif %}
+
+    {% block body %}
+        <div class="bg-white">
+            <div id="main" class="container mx-auto p-6">
+                {% block main %}
+                    <h1 class="text-xl font-semibold">Default Content</h1>
+                    <p>You should not see this.</p>
+                {% endblock %}
+            </div>
+        </div>
+    {% endblock %}
+
+    <footer class="container mx-auto p-2 pt-10">
+        <div class="flex flex-wrap">
+            <div class="flex-grow bg-white rounded m-2 p-6 pt-0 shadow-inner">
+                {% include 'marketplace/_includes/help' %}
+            </div>
+        </div>
+    </footer>
+</body>
+</html>

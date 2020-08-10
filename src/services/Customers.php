@@ -14,6 +14,7 @@ use craft\elements\User;
 use enupal\stripe\elements\Order;
 use enupal\stripe\jobs\UpdateEmailAddressOnOrders;
 use enupal\stripe\Stripe as StripePlugin;
+use Stripe\BillingPortal\Session;
 use Stripe\Customer;
 use Stripe\Invoice;
 use Stripe\PaymentMethod;
@@ -34,7 +35,7 @@ class Customers extends Component
         $customerRecord = new CustomerRecord();
         $customerRecord->email = $email;
         $customerRecord->stripeId = $stripeId;
-        $customerRecord->testMode = $testMode;
+        $customerRecord->testMode = filter_var($testMode, FILTER_VALIDATE_BOOLEAN);
         $customerRecord->save(false);
 
         return $customerRecord;
@@ -106,6 +107,7 @@ class Customers extends Component
      */
     public function registerCustomer(Customer $customer, $testMode)
     {
+        $testMode = filter_var($testMode, FILTER_VALIDATE_BOOLEAN);
         $customerRecord = CustomerRecord::findOne([
             'email' => $customer['email'],
             'testMode' => $testMode
@@ -117,6 +119,29 @@ class Customers extends Component
     }
 
     /**
+     * @param $customerId
+     * @param $returnUrl
+     * @return Session|null
+     * @throws \Exception
+     */
+    public function createCustomerPortalSession($customerId, $returnUrl)
+    {
+        StripePlugin::$app->settings->initializeStripe();
+        $session = null;
+
+        try {
+            $session = Session::create([
+                'customer' => $customerId,
+                'return_url' => $returnUrl,
+            ]);
+        }catch (\Exception $e) {
+            Craft::error('Unable to create customer portal session: '.$e->getMessage(), __METHOD__);
+        }
+
+        return $session;
+    }
+
+    /**
      * @param $customerEmail
      * @param $testMode
      *
@@ -124,6 +149,7 @@ class Customers extends Component
      */
     public function getCustomerByEmail($customerEmail, $testMode)
     {
+        $testMode = filter_var($testMode, FILTER_VALIDATE_BOOLEAN);
         $customerRecord = CustomerRecord::findOne([
             'email' => $customerEmail,
             'testMode' => $testMode

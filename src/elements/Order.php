@@ -483,15 +483,25 @@ class Order extends Element
     public function getUserHtml()
     {
         $html = Craft::t("enupal-stripe","Guest");
+
+        if ($user = $this->getUser()) {
+            $html = "<a href='".UrlHelper::cpUrl('users/'.$user->id)."'>".$user->username."</a>";
+        }
+
+        return $html;
+    }
+
+    public function getUser()
+    {
         if ($this->userId) {
             $user = Craft::$app->getUsers()->getUserById($this->userId);
 
             if ($user) {
-                $html = "<a href='".UrlHelper::cpUrl('users/'.$user->id)."'>".$user->username."</a>";
+                return $user;
             }
         }
 
-        return $html;
+        return null;
     }
 
     /**

@@ -8,6 +8,7 @@
 
 namespace enupal\stripe\controllers;
 
+use craft\helpers\UrlHelper;
 use craft\web\Controller as BaseController;
 use enupal\stripe\elements\PaymentForm;
 use enupal\stripe\enums\PaymentType;
@@ -136,6 +137,37 @@ class StripeController extends BaseController
         }
 
         return $this->redirectToPostedUrl();
+    }
+
+    /**
+     * @return \yii\web\Response|null
+     * @throws \yii\web\BadRequestHttpException
+     * @throws \yii\base\Exception
+     */
+    public function actionCreateCustomerPortal()
+    {
+        $this->requirePostRequest();
+        $request = Craft::$app->getRequest();
+        $returnUrl = $request->getBodyParam('returnUrl') ?? UrlHelper::siteUrl('/');
+        $user = Craft::$app->getUser()->getIdentity();
+
+        if (is_null($user)) {
+            return $this->redirectToPostedUrl();
+        }
+
+        $stripeUser = StripePlugin::$app->customers->getStripeCustomerByEmail($user->email);
+
+        if (is_null($stripeUser)) {
+            return $this->redirectToPostedUrl();
+        }
+
+        $result = StripePlugin::$app->customers->createCustomerPortalSession($stripeUser['id'], $returnUrl);
+
+        if ($result === null) {
+            return $this->redirectToPostedUrl();
+        }
+
+        return $this->redirect($result['url']);
     }
 
     /**

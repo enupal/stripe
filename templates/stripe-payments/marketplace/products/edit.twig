@@ -1,0 +1,137 @@
+{% extends 'marketplace/_layouts/main' %}
+
+{% block main %}
+    {% set isNew = true %}
+    {% set paymentFormId = craft.request.getQuery('paymentFormId') %}
+    {% if paymentFormId and paymentForm is not defined  %}
+        {% set paymentForm = craft.enupalStripe.getVendorPaymentForm(paymentFormId) %}
+        {% if paymentForm is null %}
+            {% do craft.app.session.setError('Payment Form not found'|t) %}
+            {% redirect 'marketplace/products' %}
+        {% endif %}
+        {% set isNew = false %}
+    {% endif %}
+
+    {% if not isNew %}
+        <span> {{ paymentForm.enabled ? "Approved"|t : "Under Review"|t }} </span>
+    {% endif %}
+    <h1>{% if not isNew %} Edit {% else %} New {% endif %} Product</h1>
+
+    <form method="post" enctype="multipart/form-data">
+        <input type="hidden" name="action" value="enupal-stripe/payment-forms/save-form">
+        {% set redirect = isNew ? 'marketplace/products' : "marketplace/products/edit?paymentFormId="~paymentFormId  %}
+        {% if not isNew %}
+            <input type="hidden" name="formId" value="{{ paymentFormId|number_format }}">
+        {% endif %}
+        {{ redirectInput(redirect) }}
+        {{ csrfInput() }}
+
+        {% namespace 'fields' %}
+            <input type="hidden" name="language" value="auto">
+            <input type="hidden" name="currency" value="USD">
+            <input type="hidden" name="enableShippingAddress" value="false">
+            <input type="hidden" name="enableBillingAddress" value="false">
+
+            <div class="fields">
+                <div class="heading">
+                    <label for="Item Name">
+                        {{ "Item Name"|t }}
+                    </label>
+                </div>
+                <div class="input">
+                    <input type="text"
+                           name="companyName"
+                           id="companyName"
+                           required aria-required="true"
+                           value="{% if paymentForm.companyName is defined %}{{ paymentForm.companyName }}{% endif %}"
+                           placeholder="{{ "Product Name"|t }}"
+                           maxlength="255"
+                    />
+                </div>
+            </div>
+
+            <div class="fields">
+                <div class="heading">
+                    <label for="Handle or SKU">
+                        {{ "Handle or SKU"|t }}
+                    </label>
+                </div>
+                <div class="input">
+                    <input type="text"
+                           name="handle"
+                           id="handle"
+                           required aria-required="true"
+                           value="{% if paymentForm.handle is defined %}{{ paymentForm.handle }}{% endif %}"
+                           placeholder="{{ "Handle or SKU"|t }}"
+                           maxlength="255"
+                    />
+                </div>
+            </div>
+
+            <div class="fields">
+                <div class="heading">
+                    <label for="Product Description">
+                        {{ "Product Description"|t }}
+                    </label>
+                </div>
+                <div class="input">
+                    <textarea aria-multiline="true"
+                           name="name"
+                           id="name"
+                           required aria-required="true"
+                           placeholder="{{ "Product Description"|t }}"
+                           maxlength="255"
+                           rows="4"
+                    >{% if paymentForm.name is defined %}{{ paymentForm.name }}{% endif %}</textarea>
+                </div>
+            </div>
+
+            <div class="fields">
+                <div class="heading">
+                    <label for="Amount">
+                        {{ "Amount"|t }}
+                    </label>
+                </div>
+                <div class="input">
+                    <input type="number"
+                           step="any"
+                           min="{{ "%.2f"|format(1) }}"
+                           name="amount"
+                           id="amount"
+                           required aria-required="true"
+                           value="{% if paymentForm.amount is defined %}{{  "%.2f"|format(paymentForm.amount) }}{% endif %}"
+                           placeholder="{{ "Amount"|t }}"
+                    />
+                </div>
+            </div>
+
+            <div class="fields">
+                <div class="heading">
+                    <label for="Image">
+                        {{ "Image"|t }}
+                    </label>
+                </div>
+                <div class="input">
+                    <input type="file"
+                            name="logoImage"
+                            id="logoImage"
+                            accept="image/*"
+                    >
+                </div>
+            </div>
+
+            {% if paymentForm is defined and paymentForm and paymentForm.getErrors() | length %}
+                {% for errors in paymentForm.getErrors() %}
+                    <ul class="errors">
+                        {% for error in errors %}
+                            <li>{{ error }}</li>
+                        {% endfor %}
+                    </ul>
+                {% endfor %}
+            {% endif %}
+
+        {% endnamespace %}
+        <br>
+        <input type="submit" class="button" value="{% if isNew %}Add{% else %}Update{% endif %} Product" />
+    </form>
+{% endblock %}
