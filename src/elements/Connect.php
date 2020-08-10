@@ -182,6 +182,7 @@ class Connect extends Element
         $attributes['products'] = ['label' => StripePlugin::t('Products')];
         $attributes['rate'] = ['label' => StripePlugin::t('Rate')];
         $attributes['allProducts'] = ['label' => StripePlugin::t('All Products')];
+        $attributes['dateCreated'] = ['label' => StripePlugin::t('Date created')];
 
         return $attributes;
     }
@@ -218,6 +219,10 @@ class Connect extends Element
             case 'allProducts':
             {
                 return $this->getAllProductsHtml();
+            }
+            case 'rate':
+            {
+                return $this->rate.'%';
             }
         }
 
