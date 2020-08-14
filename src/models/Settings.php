@@ -128,16 +128,18 @@ class Settings extends Model
                 ['liveClientId'],
                 'required', 'on' => 'general', 'when' => function($model) {
                     $configSettings = Stripe::$app->settings->getConfigSettings();
+                    $settings = Stripe::$app->settings->getSettings();
                     $isRequired = isset($configSettings['liveClientId']) ? false : true;
-                    return !$model->testMode && $isRequired;
+                    return !$model->testMode && $isRequired && (bool)$settings->enableConnect;
                 }
             ],
             [
                 ['testClientId'],
                 'required', 'on' => 'general', 'when' => function($model) {
                     $configSettings = Stripe::$app->settings->getConfigSettings();
+                    $settings = Stripe::$app->settings->getSettings();
                     $isRequired = isset($configSettings['testClientId']) ? false : true;
-                    return $model->testMode && $isRequired;
+                    return $model->testMode && $isRequired && (bool)$settings->enableConnect;
                 }
             ],
             [
