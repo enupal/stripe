@@ -1,11 +1,18 @@
 # Stripe Payments Changelog
 
+## 3.0.1 - 2020.08.14
+
+### Fixed
+- Fixed issue saving general settings ([#126])
+
+[#126]: https://github.com/enupal/stripe/issues/126
+
 ## 3.0.0 - 2020.08.10
 
 > {tip} This release adds initial support for Stripe Connect, facilitate payments on your Craft CMS site, build a marketplace, and pay out sellers or service providers globally. To learn more please read our [docs](https://docs.enupal.com/stripe-payments/connect/overview.html). Enjoy!
 
 ### Added
-- Added Stripe Connect support [docs](https://docs.enupal.com/stripe-payments/connect/overview.html) ([#1])
+- Added Stripe Connect support [(More Info)](https://docs.enupal.com/stripe-payments/connect/overview.html) ([#1])
 - Added Vendors element type
 - Added Connect element type
 - Added Commissions element type
