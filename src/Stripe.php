@@ -11,7 +11,6 @@ namespace enupal\stripe;
 
 use Craft;
 use craft\elements\User;
-use craft\events\ConfigEvent;
 use craft\events\ElementEvent;
 use craft\events\RegisterComponentTypesEvent;
 use craft\events\RegisterUrlRulesEvent;
