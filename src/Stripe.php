@@ -11,6 +11,7 @@ namespace enupal\stripe;
 
 use Craft;
 use craft\elements\User;
+use craft\events\ConfigEvent;
 use craft\events\ElementEvent;
 use craft\events\RegisterComponentTypesEvent;
 use craft\events\RegisterUrlRulesEvent;
@@ -108,10 +109,25 @@ class Stripe extends Plugin
             self::$app->vendors->processUserActivation($e->user);
         });
 
+        $changesEvent = new ConfigEvent();
+
         Craft::$app->projectConfig
             ->onAdd("enupalStripe.fields.{uid}", [$this, 'handleChangedField'])
             ->onUpdate("enupalStripe.fields{uid}", [$this, 'handleChangedField'])
-            ->onRemove("enupalStripe.fields.{uid}", [$this, 'handleDeletedField']);
+            ->onRemove("enupalStripe.fields.{uid}", [$this, 'handleDeletedField'])
+            ->defer($changesEvent, [$this, 'handleChangesProjectConfig']);
+    }
+
+    public function handleChangesProjectConfig(\craft\events\ConfigEvent $event)
+    {
+        $projectConfig = Craft::$app->config->getGeneral()->useProjectConfigFile ?? false;
+        if  (!$projectConfig) {
+            Craft::info('Project config is not enabled', __METHOD__);
+            return true;
+        }
+
+        Craft::info('Stripe Payments ProjectConfig executed', __METHOD__);
+        Stripe::$app->paymentForms->createDefaultVariantFields();
     }
 
     public function handleChangedField(\craft\events\ConfigEvent $event)
@@ -133,6 +149,12 @@ class Stripe extends Plugin
      */
     protected function afterInstall()
     {
+        $projectConfig = Craft::$app->config->getGeneral()->useProjectConfigFile ?? false;
+        if  ($projectConfig) {
+            Craft::info('Project config is enabled, lets handle variant fields after Config file update event', __METHOD__);
+            return true;
+        }
+
         Stripe::$app->paymentForms->createDefaultVariantFields();
     }
 
