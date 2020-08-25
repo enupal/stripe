@@ -17,7 +17,6 @@ use enupal\stripe\elements\Connect;
 use enupal\stripe\elements\PaymentForm;
 use enupal\stripe\Stripe;
 use enupal\stripe\Stripe as StripePlugin;
-use Imagine\Filter\Basic\Strip;
 use Stripe\Exception\OAuth\InvalidGrantException;
 use Stripe\OAuth;
 use yii\base\Component;
@@ -25,6 +24,7 @@ use Craft;
 
 class Connects extends Component
 {
+    const COMMERCE_NAMESPACE = 'craft\commerce\elements\Product';
     /**
      * Returns a Connect model if one is found in the database by id
      *
@@ -48,6 +48,10 @@ class Connects extends Component
             PaymentForm::class
         ];
 
+        if ($this->isCommerceInstalled()) {
+            $productTypes[] = self::COMMERCE_NAMESPACE;
+        }
+
         return $productTypes;
     }
 
@@ -61,6 +65,7 @@ class Connects extends Component
 
         foreach ($productTypes as $productType) {
             $name = $productType::displayName();
+            $name = $productType === self::COMMERCE_NAMESPACE ? $name. ' (Commerce)' : $name;
             $options[] = [
                 'label' => $name,
                 'value' => $productType
