@@ -1321,6 +1321,20 @@ class PaymentForms extends Component
         $matrixBasicField = Craft::$app->fields->getFieldByHandle($handle);
         Craft::$app->getContent()->fieldContext = $currentFieldContext;
 
+        $projectConfig = Craft::$app->config->getGeneral()->useProjectConfigFile ?? false;
+
+        if (is_null($matrixBasicField) && $projectConfig) {
+            // lets check project config
+            $stripeFields = Craft::$app->projectConfig->get("enupalStripe.fields", true);
+            if ($stripeFields) {
+                foreach ($stripeFields as $stripeField) {
+                    if (isset($stripeField['handle']) && $stripeField['handle'] === $handle) {
+                        $matrixBasicField =  $stripeField;
+                    }
+                }
+            }
+        }
+
         return $matrixBasicField;
     }
 
