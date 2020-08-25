@@ -1,5 +1,13 @@
 # Stripe Payments Changelog
 
+## 3.0.2 - 2020.08.25
+
+### Fixed
+- Fixed issues when project config is enabled ([#121])([#129])
+
+[#121]: https://github.com/enupal/stripe/issues/121
+[#129]: https://github.com/enupal/stripe/issues/129
+
 ## 3.0.1 - 2020.08.14
 
 ### Fixed
