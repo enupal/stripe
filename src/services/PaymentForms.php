@@ -743,9 +743,6 @@ class PaymentForms extends Component
      */
     public function createDefaultVariantFields()
     {
-        // Delete old variant fields as we may update fields on it
-        $this->deleteVariantFields();
-
         $this->createFormFieldsMatrixField();
         $this->createMultiplePlansMatrixField();
     }
@@ -1297,7 +1294,7 @@ class PaymentForms extends Component
         $matrixBasicField = $this->getStripeMatrixFieldFromDb(self::BASIC_FORM_FIELDS_HANDLE);
 
         if (!is_null($matrixBasicField)) {
-            // For some reason the field already exits
+            Craft::info('Skipped '.self::BASIC_FORM_FIELDS_HANDLE. ' as already exists', __METHOD__);
             return true;
         }
 
@@ -1323,6 +1320,20 @@ class PaymentForms extends Component
         Craft::$app->getContent()->fieldContext = StripePlugin::$app->settings->getFieldContext();
         $matrixBasicField = Craft::$app->fields->getFieldByHandle($handle);
         Craft::$app->getContent()->fieldContext = $currentFieldContext;
+
+        $projectConfig = Craft::$app->config->getGeneral()->useProjectConfigFile ?? false;
+
+        if (is_null($matrixBasicField) && $projectConfig) {
+            // lets check project config
+            $stripeFields = Craft::$app->projectConfig->get("enupalStripe.fields", true);
+            if ($stripeFields) {
+                foreach ($stripeFields as $stripeField) {
+                    if (isset($stripeField['handle']) && $stripeField['handle'] === $handle) {
+                        $matrixBasicField =  $stripeField;
+                    }
+                }
+            }
+        }
 
         return $matrixBasicField;
     }
@@ -1390,7 +1401,7 @@ class PaymentForms extends Component
         $matrixMultiplePlansField = $this->getStripeMatrixFieldFromDb(self::MULTIPLE_PLANS_HANDLE);
 
         if (!is_null($matrixMultiplePlansField)) {
-            // For some reason the field already exits
+            Craft::info('Skipped '.self::MULTIPLE_PLANS_HANDLE. ' as already exists', __METHOD__);
             return true;
         }
 
