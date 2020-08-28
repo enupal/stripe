@@ -265,7 +265,7 @@ class Commissions extends Component
             }
 
             $connects = Stripe::$app->connects->getConnectsByPaymentFormId($productId, null, Connects::COMMERCE_NAMESPACE);
-            $connectsWithAllProducts = Stripe::$app->connects->getConnectsWithAllProducts();
+            $connectsWithAllProducts = Stripe::$app->connects->getConnectsWithAllProducts(Connects::COMMERCE_NAMESPACE);
             $connects = array_merge($connects, $connectsWithAllProducts);
 
             if (empty($connects)) {
