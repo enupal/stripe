@@ -221,26 +221,40 @@ class Connects extends Component
     /**
      * @param $paymentFormId
      * @param $vendorId
-     * @param $allProducts
+     * @param $productType
      * @return array|ElementInterface[]|null
      */
-    public function getConnectsByPaymentFormId($paymentFormId, $vendorId = null, $allProducts = false)
+    public function getConnectsByPaymentFormId($paymentFormId, $vendorId = null, $productType = PaymentForm::class)
     {
         $query = Connect::find();
 
-        if (!$allProducts) {
-            $query->andWhere(['like', 'products', '%"'.$paymentFormId . '"%', false]);
-        }
+        $query->andWhere(['like', 'products', '%"'.$paymentFormId . '"%', false]);
 
         $query->andWhere(Db::parseParam(
-            'enupalstripe_connect.productType', PaymentForm::class));
+            'enupalstripe_connect.productType', $productType));
         $query->andWhere(Db::parseParam(
-            'enupalstripe_connect.allProducts', $allProducts));
+            'enupalstripe_connect.allProducts', false));
 
         if ($vendorId !== null) {
             $query->andWhere(Db::parseParam(
                 'enupalstripe_connect.vendorId', $vendorId));
         }
+
+        return $query->all();
+    }
+
+    /**
+     * @param $productType
+     * @return array|ElementInterface[]|null
+     */
+    public function getConnectsWithAllProducts($productType = PaymentForm::class)
+    {
+        $query = Connect::find();
+
+        $query->andWhere(Db::parseParam(
+            'enupalstripe_connect.productType', $productType));
+        $query->andWhere(Db::parseParam(
+            'enupalstripe_connect.allProducts', true));
 
         return $query->all();
     }

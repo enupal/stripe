@@ -9,16 +9,17 @@
 namespace enupal\stripe\services;
 
 use craft\base\ElementInterface;
+use craft\commerce\models\LineItem;
 use craft\helpers\Db;
 use enupal\stripe\elements\Commission;
 use enupal\stripe\elements\Order as StripePaymentsOrder;
 use enupal\stripe\elements\Vendor;
 use enupal\stripe\events\CommissionPaidEvent;
 use enupal\stripe\Stripe;
-use Imagine\Filter\Basic\Strip;
 use yii\base\Component;
 use Craft;
 use Stripe\Transfer;
+use craft\commerce\elements\Order as CommerceOrder;
 
 class Commissions extends Component
 {
@@ -183,19 +184,11 @@ class Commissions extends Component
         $paymentForm = $order->getPaymentForm();
 
         $connects = Stripe::$app->connects->getConnectsByPaymentFormId($paymentForm->id);
-        $connectsWithAllProducts = Stripe::$app->connects->getConnectsByPaymentFormId($paymentForm->id, null, true);
+        $connectsWithAllProducts = Stripe::$app->connects->getConnectsWithAllProducts();
         $connects = array_merge($connects, $connectsWithAllProducts);
 
         if (empty($connects)) {
             // No connects for this payment form
-            return false;
-        }
-
-        $chargeId = Stripe::$app->orders->getChargeIdFromOrder($order);
-        $charge = Stripe::$app->orders->getCharge($chargeId);
-
-        if (!isset($charge['id'])) {
-            Craft::error('Unable to process connect transfer as the Charge id does not exists', __METHOD__);
             return false;
         }
 
@@ -222,7 +215,7 @@ class Commissions extends Component
             $commission   = $this->createPendingCommission($order, $connect, $vendorAmount, $order->currency, $paymentForm->id);
 
             if ($commission === null) {
-                return false;
+                continue;
             }
 
             if ($vendor->paymentType === Vendors::PAYMENT_TYPE_ON_CHECKOUT) {
@@ -232,6 +225,91 @@ class Commissions extends Component
 
         return true;
     }
+
+    /**
+     * After Order is completed we will process transfers if the setting is set to on checkout
+     * @param CommerceOrder $order
+     * @return bool
+     * @throws \Throwable
+     * @throws \craft\errors\ElementNotFoundException
+     * @throws \yii\base\Exception
+     */
+    public function processCommerceSeparateCharges(CommerceOrder $order)
+    {
+        $settings = Stripe::$app->settings->getSettings();
+
+        if (!$settings->enableConnect) {
+            return false;
+        }
+
+        if (!$order->isCompleted) {
+            return false;
+        }
+
+        /*
+        if ($order->isSubscription) {
+            // @todo add support for subscriptions
+            return false;
+        }
+        */
+
+        $items = $order->getLineItems();
+        /** @var LineItem $item */
+        foreach ($items as $item) {
+            $snapshot =  $item['snapshot'] ?? null;
+            $productId = $snapshot['productId'] ?? null;
+
+            if (is_null($productId)) {
+                Craft::error('Unable to find the product id on the item', __METHOD__);
+                continue;
+            }
+
+            $connects = Stripe::$app->connects->getConnectsByPaymentFormId($productId, null, Connects::COMMERCE_NAMESPACE);
+            $connectsWithAllProducts = Stripe::$app->connects->getConnectsWithAllProducts();
+            $connects = array_merge($connects, $connectsWithAllProducts);
+
+            if (empty($connects)) {
+                // No connects for this item
+                return false;
+            }
+
+            foreach ($connects as $connect) {
+                if (!$connect->enabled) {
+                    Craft::error("Unable to process commission as connect it's disabled", __METHOD__);
+                    continue;
+                }
+
+                /** @var Vendor $vendor */
+                $vendor = $connect->getVendor();
+
+                if (is_null($vendor) || !$vendor->enabled) {
+                    Craft::error("Unable to process commission as vendor does not exists or it's disabled", __METHOD__);
+                    continue;
+                }
+
+                if (empty($vendor->stripeId)) {
+                    Craft::error('Unable to process commission as vendor does not have a Stripe account linked', __METHOD__);
+                    continue;
+                }
+
+                $vendorAmount = $item->getTotal() * ($connect->rate / 100);
+                $commission   = $this->createPendingCommission($order, $connect, $vendorAmount, $order->currency, $productId);
+
+                if ($commission === null) {
+                    continue;
+                }
+
+                if ($vendor->paymentType === Vendors::PAYMENT_TYPE_ON_CHECKOUT) {
+                    $this->processTransfer($commission);
+                }
+            }
+        }
+
+
+
+        return true;
+    }
+
 
     /**
      * @param $order
