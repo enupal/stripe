@@ -135,7 +135,7 @@ class Vendors extends Component
         $connect->rate = $settings->globalRate;
         $connect->allProducts = false;
 
-        $connects = Stripe::$app->connects->getConnectsByVendorId($vendor->id, false);
+        $connects = Stripe::$app->connects->getConnectsByVendorId($vendor->id, false, Connects::COMMERCE_NAMESPACE);
         if (!empty($connects)) {
             $connect = $connects[0];
             if (is_string($connect->products)){

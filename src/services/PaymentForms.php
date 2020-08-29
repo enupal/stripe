@@ -719,7 +719,7 @@ class PaymentForms extends Component
 
         $productIdsArray = [];
 
-        $connects = StripePlugin::$app->connects->getConnectsByVendorId($vendor->id);
+        $connects = StripePlugin::$app->connects->getConnectsByVendorId($vendor->id, null, Connects::COMMERCE_NAMESPACE);
 
         if (empty($connects)) {
             return null;

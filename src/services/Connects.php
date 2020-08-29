@@ -262,9 +262,10 @@ class Connects extends Component
     /**
      * @param int $vendorId
      * @param $allProducts
+     * @param $productType
      * @return array|Connect[]|null
      */
-    public function getConnectsByVendorId(int $vendorId, $allProducts = null)
+    public function getConnectsByVendorId(int $vendorId, $allProducts = null, $productType = PaymentForm::class)
     {
         $query = Connect::find();
 
@@ -272,6 +273,10 @@ class Connects extends Component
         if ($allProducts) {
             $query->andWhere(Db::parseParam(
                 'enupalstripe_connect.allProducts', $allProducts));
+        }
+        if ($productType) {
+            $query->andWhere(Db::parseParam(
+                'enupalstripe_connect.productType', $productType));
         }
 
         return $query->all();

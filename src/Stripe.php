@@ -92,7 +92,7 @@ class Stripe extends Plugin
             }
 
             if (get_class($element) === Product::class){
-                self::$app->vendors->assignPaymentFormToVendor($element);
+                self::$app->vendors->assignCommerceProductToVendor($element);
             }
         });
 
