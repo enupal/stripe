@@ -136,6 +136,11 @@ class Checkout extends Component
         $allowPromotionCodes = $postData['enupalAllowPromotionCodes'] ?? false;
 
         if ($allowPromotionCodes) {
+            /* 
+             * Per https://github.com/enupal/stripe/issues/127
+             * https://stripe.com/docs/payments/checkout/incomplete-subscriptions
+             */
+            $sessionParams['subscription_data']['payment_behavior'] = 'allow_incomplete';
             $sessionParams['allow_promotion_codes'] = true;
         }
 
