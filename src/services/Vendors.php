@@ -107,6 +107,61 @@ class Vendors extends Component
     }
 
     /**
+     * @param $product
+     * @return bool
+     * @throws \Throwable
+     * @throws \craft\errors\ElementNotFoundException
+     * @throws \yii\base\Exception
+     */
+    public function assignCommerceProductToVendor($product)
+    {
+        $vendor = $this->getCurrentVendor();
+
+        if ($vendor === null) {
+            return false;
+        }
+
+        $connects = Stripe::$app->connects->getConnectsByPaymentFormId($product->id);
+
+        if ($connects) {
+            // This payment form was already assigned
+            return false;
+        }
+        $settings = Stripe::$app->settings->getSettings();
+        $connect = new Connect();
+        $products = ["".$product->id];
+        $connect->vendorId = $vendor->id;
+        $connect->productType = Connects::COMMERCE_NAMESPACE;
+        $connect->rate = $settings->globalRate;
+        $connect->allProducts = false;
+
+        $connects = Stripe::$app->connects->getConnectsByVendorId($vendor->id, false);
+        if (!empty($connects)) {
+            $connect = $connects[0];
+            if (is_string($connect->products)){
+                $products = json_decode($connect->products, true);
+                $productId = "".$product->id;
+                if (!in_array($productId, $products)) {
+                    $products[] = $productId;
+                } else {
+                    return false;
+                }
+            }
+        }
+
+        $connect->products = json_encode($products);
+
+        if (!Craft::$app->elements->saveElement($connect)) {
+            Craft::error('Unable to assign new Commerce Product to vendor', __METHOD__);
+            return false;
+        }
+
+        Craft::info("Added Commerce Product ".$product->id. " to connect ".$connect->id, __METHOD__);
+
+        return true;
+    }
+
+    /**
      * @return VendorElement|null
      */
     public function getCurrentVendor()

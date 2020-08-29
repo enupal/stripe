@@ -10,6 +10,7 @@
 namespace enupal\stripe;
 
 use Craft;
+use craft\commerce\elements\Product;
 use craft\elements\User;
 use craft\events\ElementEvent;
 use craft\events\RegisterComponentTypesEvent;
@@ -89,6 +90,10 @@ class Stripe extends Plugin
             if (get_class($element) === PaymentForm::class){
                 self::$app->vendors->assignPaymentFormToVendor($element);
             }
+
+            if (get_class($element) === Product::class){
+                self::$app->vendors->assignPaymentFormToVendor($element);
+            }
         });
 
         Event::on(Orders::class, Orders::EVENT_AFTER_PROCESS_WEBHOOK, function(WebhookEvent $e) {
@@ -110,6 +115,13 @@ class Stripe extends Plugin
         Event::on(PaymentForms::class, PaymentForms::EVENT_AFTER_POPULATE, function(AfterPopulatePaymentFormEvent $e) {
             if (Craft::$app->getRequest()->getIsSiteRequest()) {
                 self::$app->paymentForms->handleVendorPaymentForms($e->paymentForm);
+            }
+        });
+
+        Event::on(Product::class, Product::EVENT_AFTER_VALIDATE, function(Event $e) {
+            if (Craft::$app->getRequest()->getIsSiteRequest()) {
+                $product = $e->sender;
+                self::$app->paymentForms->handleCommerceProducts($product);
             }
         });
 

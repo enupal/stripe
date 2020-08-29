@@ -302,6 +302,25 @@ class PaymentForms extends Component
     }
 
     /**
+     * Disabled the payment form is skipAdminReview is disabled
+     * @param $product
+     * @return bool
+     */
+    public function handleCommerceProducts($product)
+    {
+        $vendor = StripePlugin::$app->vendors->getCurrentVendor();
+        if ($vendor === null) {
+            return false;
+        }
+
+        if (!$vendor->skipAdminReview) {
+            $product->enabled = false;
+        }
+
+        return true;
+    }
+
+    /**
      * @param $paymentForm
      */
     public function triggerAfterPopulatePaymentFormEvent($paymentForm)
@@ -569,6 +588,40 @@ class PaymentForms extends Component
     }
 
     /**
+     * It will return a commerce product element if allows to vendor (already have a connect).
+     *
+     * @param int $productId
+     * @param $vendorId
+     *
+     * @return array|\craft\base\ElementInterface|\craft\commerce\elements\Product|null
+     */
+    public function getVendorCommerceProduct($productId, $vendorId = null)
+    {
+        $vendor = StripePlugin::$app->vendors->getCurrentVendor();
+
+        if ($vendorId !== null) {
+            $vendor = StripePlugin::$app->vendors->getVendorById($vendorId);
+        }
+
+        if ($vendor === null) {
+            return null;
+        }
+
+        if ($vendor->isSuperVendor()) {
+            return craft\commerce\elements\Product::find()->status(null)->id($productId)->one();
+        }
+
+        $connect = StripePlugin::$app->connects->getConnectsByPaymentFormId($productId, $vendor->id);
+
+        if (empty($connect)) {
+            return null;
+        }
+
+        return craft\commerce\elements\Product::find()->status(null)->id($productId)->one();
+    }
+
+
+    /**
      * It will return a payment form element if allows to vendor (already have a connect).
      *
      * @param int $paymentFormId
@@ -627,7 +680,7 @@ class PaymentForms extends Component
 
         foreach ($connects as $connect) {
             if ($connect->allProducts) {
-                return PaymentForm::find()->all();
+                return PaymentForm::find()->status(null)->all();
             }
 
             if ($connect->products) {
@@ -646,6 +699,53 @@ class PaymentForms extends Component
         $paymentFormQuery = PaymentForm::find();
 
         return $paymentFormQuery->where(['elements.id' => $paymentFormIds])->status(null)->all();
+    }
+
+    /**
+     * @param null $vendorId
+     * @return string
+     */
+    public function getCommerceProductsByVendor($vendorId = null)
+    {
+        $vendor = StripePlugin::$app->vendors->getCurrentVendor();
+
+        if ($vendorId !== null) {
+            $vendor = StripePlugin::$app->vendors->getVendorById((int)$vendorId);
+        }
+
+        if ($vendor === null) {
+            return null;
+        }
+
+        $productIdsArray = [];
+
+        $connects = StripePlugin::$app->connects->getConnectsByVendorId($vendor->id);
+
+        if (empty($connects)) {
+            return null;
+        }
+
+        foreach ($connects as $connect) {
+            if ($connect->allProducts) {
+                return craft\commerce\elements\Product::find()->status(null)->all();
+            }
+
+            if ($connect->products) {
+                $productsArray = json_decode($connect->products, true);
+                foreach ($productsArray as $item) {
+                    $productIdsArray[$item] = 1;
+                }
+            }
+        }
+
+        if (empty($productIdsArray)) {
+            return null;
+        }
+
+        $productIds   = array_keys($productIdsArray);
+        $productQuery = craft\commerce\elements\Product::find();
+
+        return $productQuery->where(['elements.id' => $productIds])->status(null)->all();
     }
 
     /**
