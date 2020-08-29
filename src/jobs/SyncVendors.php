@@ -8,7 +8,9 @@
 
 namespace enupal\stripe\jobs;
 
+use Aws\Iam\IamClient;
 use craft\db\Query;
+use craft\elements\User;
 use enupal\stripe\Stripe as StripePlugin;
 use craft\queue\BaseJob;
 
@@ -38,24 +40,12 @@ class SyncVendors extends BaseJob implements RetryableJobInterface
     }
 
     /**
-     * @todo add sync vendor job
      * @inheritdoc
      */
     public function execute($queue)
     {
-        /**
         $result = false;
-        $settings = StripePlugin::$app->settings->getSettings();
 
-        $userQuery = $forms = (new Query())
-            ->select(['*'])
-            ->from(['{{%users}}']);
-
-        $runQuery = false;
-
-        if ($settings->vendorUserFieldId) {
-            $runQuery = true;
-        }
 
         if ($settings->vendorUserGroupId) {
             $runQuery = true;
@@ -64,7 +54,27 @@ class SyncVendors extends BaseJob implements RetryableJobInterface
         }
 
         return $result;
-         **/
+    }
+
+    private function getUsersByUserFieldId()
+    {
+        $settings = StripePlugin::$app->settings->getSettings();
+
+        if (!$settings->vendorUserFieldId) {
+            return null;
+        }
+
+        $field = (new Query())
+            ->select(['handle'])
+            ->from(['{{%fields}}'])
+            ->andWhere(['id' => $settings->vendorUserGroupId])
+            ->one();
+
+        $handle = $field['handle'];
+
+        $users = User::findAll([$handle => true]);
+
+        return $users;
     }
 
     /**
