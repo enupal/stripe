@@ -111,18 +111,12 @@ class SyncVendors extends BaseJob implements RetryableJobInterface
         $field = (new Query())
             ->select(['handle'])
             ->from(['{{%fields}}'])
-            ->andWhere(['id' => (int)$settings->vendorUserGroupId])
+            ->andWhere(['id' => (int)$settings->vendorUserFieldId])
             ->one();
 
-        Craft::info('total: '.json)($users->all()), __METHOD__);
-        Craft::dd('dsds');
-
-        $handle = $field['handle'];
+        $handle = $field['handle'] ?? null;
 
         $users = User::findAll([$handle => true]);
-
-        Craft::info('total: '.count($users->all()), __METHOD__);
-        Craft::dd('dsds');
 
         return $users;
     }
