@@ -4,7 +4,7 @@
     <h1>Products</h1>
     {% set products = craft.enupalStripe.getPaymentFormsByVendor() %}
 
-    <a class="button" href="/marketplace/products/edit">Add Product</a>
+    <a class="button" href="/marketplace/products/edit">Add Products</a>
 
     {% for product in products %}
         <div class="md:flex product bg-white rounded items-center text-left">
