@@ -8,11 +8,11 @@
 
 namespace enupal\stripe\jobs;
 
-use Aws\Iam\IamClient;
 use craft\db\Query;
 use craft\elements\User;
 use enupal\stripe\Stripe as StripePlugin;
 use craft\queue\BaseJob;
+use Craft;
 
 use yii\queue\RetryableJobInterface;
 
@@ -21,14 +21,6 @@ use yii\queue\RetryableJobInterface;
  */
 class SyncVendors extends BaseJob implements RetryableJobInterface
 {
-    public $defaultPaymentType;
-
-    public $defaultSkipAdminReview;
-
-    public $defaultVendorRate;
-
-    public $defaultEnabled;
-
     /**
      * Returns the default description for this job.
      *
@@ -46,14 +38,66 @@ class SyncVendors extends BaseJob implements RetryableJobInterface
     {
         $result = false;
 
+        $usersFieldId = $this->getUsersByUserFieldId();
+        $usersByGroupId = $this->getUsersByUserGroupId();
+        $usersMap = [];
 
-        if ($settings->vendorUserGroupId) {
-            $runQuery = true;
-            $userQuery->innerJoin('{{%usergroups_users}} usergroups', '[[usergroups.userId]] = [[users.id]]');
-            $userQuery->orWhere(['usergroups.id' => $settings->vendorUserGroupId]);
+        $users = array_merge($usersFieldId, $usersByGroupId);
+        $vendorUserIds = (new Query())
+            ->select(['userId'])
+            ->from(["{{%enupalstripe_vendors}}"])
+            ->all();
+
+        $vendorUserIdsMap = [];
+
+        foreach ($vendorUserIds as $vendorUserId) {
+            $vendorUserIdsMap[$vendorUserId['userId']] = 1;
         }
 
+        $totalSteps = count($users);
+        $step = 0;
+        $skipped = 0;
+
+        foreach ($users as $user) {
+            $step++;
+            if (isset($usersMap[$user->id])) {
+                $skipped++;
+                continue;
+            }
+
+            $usersMap[$user->id] = 1;
+            // Is this user already a vendor?
+            if (isset($vendorUserIdsMap[$user->id])) {
+                $skipped++;
+                continue;
+            }
+
+            if (StripePlugin::$app->vendors->registerDefaultVendor($user)) {
+                $vendorUserIdsMap[$user->id] = 1;
+            }
+
+            $this->setProgress($queue, $step / $totalSteps);
+        }
+
+        Craft::info('Sync Vendors process finished, Total: '.$step. ', Skipped: '.$skipped, __METHOD__);
+
         return $result;
+    }
+
+    private function getUsersByUserGroupId()
+    {
+        $settings = StripePlugin::$app->settings->getSettings();
+
+        if (!$settings->vendorUserGroupId) {
+            return [];
+        }
+
+        $userQuery = User::find();
+
+        $userQuery->innerJoin('{{%usergroups_users}} usergroups_users', '[[usergroups_users.userId]] = [[users.id]]');
+        $userQuery->andWhere(['usergroups_users.groupId' => (int)$settings->vendorUserGroupId]);
+
+        return $userQuery->all();
     }
 
     private function getUsersByUserFieldId()
@@ -61,18 +105,24 @@ class SyncVendors extends BaseJob implements RetryableJobInterface
         $settings = StripePlugin::$app->settings->getSettings();
 
         if (!$settings->vendorUserFieldId) {
-            return null;
+            return [];
         }
 
         $field = (new Query())
             ->select(['handle'])
             ->from(['{{%fields}}'])
-            ->andWhere(['id' => $settings->vendorUserGroupId])
+            ->andWhere(['id' => (int)$settings->vendorUserGroupId])
             ->one();
+
+        Craft::info('total: '.json)($users->all()), __METHOD__);
+        Craft::dd('dsds');
 
         $handle = $field['handle'];
 
         $users = User::findAll([$handle => true]);
+
+        Craft::info('total: '.count($users->all()), __METHOD__);
+        Craft::dd('dsds');
 
         return $users;
     }

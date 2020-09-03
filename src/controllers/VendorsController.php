@@ -9,13 +9,11 @@
 namespace enupal\stripe\controllers;
 
 use Craft;
-use craft\elements\Asset;
 use craft\elements\User;
-use craft\helpers\UrlHelper;
 use craft\web\Controller as BaseController;
 use enupal\stripe\elements\Vendor;
+use enupal\stripe\jobs\SyncVendors;
 use enupal\stripe\Stripe;
-use Psy\Util\Str;
 use yii\web\NotFoundHttpException;
 
 class VendorsController extends BaseController
@@ -133,5 +131,24 @@ class VendorsController extends BaseController
         Craft::$app->getSession()->setNotice(Stripe::t('Vendor deleted.'));
 
         return $this->redirectToPostedUrl($vendor);
+    }
+
+    /**
+     * Trigger the Sync vendors job
+     *
+     * @return \yii\web\Response
+     */
+    public function actionSyncVendors()
+    {
+        try {
+            $this->requirePostRequest();
+            $this->requireAcceptsJson();
+
+            Craft::$app->queue->push(new SyncVendors());
+        } catch (\Throwable $e) {
+            return $this->asErrorJson($e->getMessage());
+        }
+
+        return $this->asJson(['success'=> true]);
     }
 }
