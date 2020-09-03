@@ -144,7 +144,13 @@ class VendorsController extends BaseController
             $this->requirePostRequest();
             $this->requireAcceptsJson();
 
-            Craft::$app->queue->push(new SyncVendors());
+            $settings = Stripe::$app->settings->getSettings();
+            if ($settings->vendorUserGroupId || $settings->vendorUserFieldId) {
+                Craft::$app->queue->push(new SyncVendors());
+            }else {
+                return $this->asErrorJson("Please save your settings");
+            }
+;
         } catch (\Throwable $e) {
             return $this->asErrorJson($e->getMessage());
         }

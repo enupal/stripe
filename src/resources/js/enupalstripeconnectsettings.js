@@ -37,12 +37,12 @@
                 that.$syncVendorsButton.removeClass('disabled').siblings('.spinner').addClass('hidden');
                 if (textStatus === 'success') {
                     if ("error" in response ){
-                        Craft.cp.displayError(Craft.t('enupal-stripe', response.error));
+                        Craft.cp.displayError(Craft.t('enupal-stripe', 'Please select at least a Lightswitch User field or User Group and save your settings'));
                     }
                     else if (response.success === true) {
                         Craft.cp.displayNotice(Craft.t('enupal-stripe', 'Vendor Syncs job was added to the queue'))
                     }else{
-                        Craft.cp.displayError(Craft.t('enupal-stripe', 'Unable to found plans in your Stripe account'));
+                        Craft.cp.displayError(Craft.t('enupal-stripe', 'Something went wrong'));
                     }
                 }
             });
