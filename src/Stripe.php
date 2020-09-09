@@ -110,18 +110,18 @@ class Stripe extends Plugin
                 $order = $e->sender;
                 self::$app->commissions->processCommerceSeparateCharges($order);
             });
+
+            Event::on(Product::class, Product::EVENT_AFTER_VALIDATE, function(Event $e) {
+                if (Craft::$app->getRequest()->getIsSiteRequest()) {
+                    $product = $e->sender;
+                    self::$app->paymentForms->handleCommerceProducts($product);
+                }
+            });
         }
 
         Event::on(PaymentForms::class, PaymentForms::EVENT_AFTER_POPULATE, function(AfterPopulatePaymentFormEvent $e) {
             if (Craft::$app->getRequest()->getIsSiteRequest()) {
                 self::$app->paymentForms->handleVendorPaymentForms($e->paymentForm);
-            }
-        });
-
-        Event::on(Product::class, Product::EVENT_AFTER_VALIDATE, function(Event $e) {
-            if (Craft::$app->getRequest()->getIsSiteRequest()) {
-                $product = $e->sender;
-                self::$app->paymentForms->handleCommerceProducts($product);
             }
         });
 

@@ -78,24 +78,6 @@ class Addresses extends Component
     }
 
     /**
-     * Returns an address by an address id and customer id.
-     *
-     * @param int $addressId the address id
-     * @param int $customerId the customer's ID
-     * @return Address|null the matched address or null if not found
-     */
-    public function getAddressByIdAndCustomerId(int $addressId, $customerId = null)
-    {
-        $result = $this->_createAddressQuery()
-            ->innerJoin('{{%commerce_customers_addresses}} customerAddresses', '[[customerAddresses.addressId]] = [[addresses.id]]')
-            ->where(['customerAddresses.customerId' => $customerId])
-            ->andWhere(['addresses.id' => $addressId])
-            ->one();
-
-        return $this->_addressesById[$addressId] = $result ? new Address($result) : null;
-    }
-
-    /**
      * @param Address $addressModel The address to be saved.
      * @param bool $runValidation should we validate this address before saving.
      * @return bool Whether the address was saved successfully.
