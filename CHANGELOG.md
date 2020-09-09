@@ -1,5 +1,12 @@
 # Stripe Payments Changelog
 
+## 3.1.1 - 2020.09.09
+
+### Fixed
+- Fixed issue when commerce is not installed ([#138])
+
+[#138]: https://github.com/enupal/stripe/issues/138
+
 ## 3.1.0 - 2020.09.09
 
 ### Added
