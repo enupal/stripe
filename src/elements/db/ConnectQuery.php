@@ -10,6 +10,8 @@ namespace enupal\stripe\elements\db;
 
 use craft\elements\db\ElementQuery;
 use craft\helpers\Db;
+use enupal\stripe\elements\PaymentForm;
+use enupal\stripe\Stripe;
 
 class ConnectQuery extends ElementQuery
 {
@@ -201,6 +203,12 @@ class ConnectQuery extends ElementQuery
 
         if ($this->orderBy !== null && empty($this->orderBy) && !$this->structureId && !$this->fixedOrder) {
             $this->orderBy = 'elements.dateCreated desc';
+        }
+
+        if (!Stripe::$app->connects->isCommerceInstalled()) {
+            $this->subQuery->andWhere(Db::parseParam(
+                'enupalstripe_connect.productType', PaymentForm::class)
+            );
         }
 
         return parent::beforePrepare();
