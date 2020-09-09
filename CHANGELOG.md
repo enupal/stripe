@@ -1,5 +1,15 @@
 # Stripe Payments Changelog
 
+## 3.1.0 - 2020.09.09
+
+### Added
+- Added support for Craft Commerce and Stripe Connect [More Info](https://docs.enupal.com/stripe-payments/connect/overview.html)
+- Added Commerce marketplace example templates
+- Added Sync Vendors [More Info](https://docs.enupal.com/stripe-payments/connect/vendors.html#how-to-create-a-vendor)
+- Added support for `customAmountStep` via options ([#135])
+
+[#135]: https://github.com/enupal/stripe/issues/135
+
 ## 3.0.2 - 2020.08.25
 
 ### Fixed
