@@ -86,7 +86,7 @@
                 options: userGroupsOptions,
             value: settings.vendorUserGroupId
             }) }}
-
+            <h3>OR</h3>
             {% set booleanUserFields = craft.enupalStripe.getBooleanUserFields() %}
             {{ forms.selectField({
                 label: "Lightswitch User field"|t('enupal-stripe'),
@@ -97,8 +97,20 @@
                 value: settings.vendorUserFieldId
             }) }}
 
+            <div id="sync-vendors-btn" class="btn">{{ "Sync Vendors"|t('enupal-stripe') }}</div>
+            <div class="spinner hidden"></div>
+
         {% endnamespace %}
 
     </div>
 
 {% endset %}
+
+
+{% do view.registerAssetBundle("enupal\\stripe\\web\\assets\\ConnectSettingsAsset") %}
+
+{% js %}
+    $(document).ready(function () {
+    new EnupalStripeConnectSettings();
+    });
+{% endjs %}

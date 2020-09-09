@@ -10,6 +10,8 @@ namespace enupal\stripe\elements\db;
 
 use craft\elements\db\ElementQuery;
 use craft\helpers\Db;
+use enupal\stripe\elements\Order;
+use enupal\stripe\Stripe;
 
 class CommissionsQuery extends ElementQuery
 {
@@ -351,6 +353,12 @@ class CommissionsQuery extends ElementQuery
 
         if ($this->orderBy !== null && empty($this->orderBy) && !$this->structureId && !$this->fixedOrder) {
             $this->orderBy = 'elements.dateCreated desc';
+        }
+
+        if (!Stripe::$app->connects->isCommerceInstalled()) {
+            $this->subQuery->andWhere(Db::parseParam(
+                'enupalstripe_commissions.orderType', Order::class)
+            );
         }
 
         return parent::beforePrepare();

@@ -17,7 +17,6 @@ use enupal\stripe\elements\Connect;
 use enupal\stripe\elements\PaymentForm;
 use enupal\stripe\Stripe;
 use enupal\stripe\Stripe as StripePlugin;
-use Imagine\Filter\Basic\Strip;
 use Stripe\Exception\OAuth\InvalidGrantException;
 use Stripe\OAuth;
 use yii\base\Component;
@@ -25,6 +24,7 @@ use Craft;
 
 class Connects extends Component
 {
+    const COMMERCE_NAMESPACE = 'craft\commerce\elements\Product';
     /**
      * Returns a Connect model if one is found in the database by id
      *
@@ -48,6 +48,10 @@ class Connects extends Component
             PaymentForm::class
         ];
 
+        if ($this->isCommerceInstalled()) {
+            $productTypes[] = self::COMMERCE_NAMESPACE;
+        }
+
         return $productTypes;
     }
 
@@ -61,6 +65,7 @@ class Connects extends Component
 
         foreach ($productTypes as $productType) {
             $name = $productType::displayName();
+            $name = $productType === self::COMMERCE_NAMESPACE ? $name. ' (Commerce)' : $name;
             $options[] = [
                 'label' => $name,
                 'value' => $productType
@@ -216,21 +221,19 @@ class Connects extends Component
     /**
      * @param $paymentFormId
      * @param $vendorId
-     * @param $allProducts
+     * @param $productType
      * @return array|ElementInterface[]|null
      */
-    public function getConnectsByPaymentFormId($paymentFormId, $vendorId = null, $allProducts = false)
+    public function getConnectsByPaymentFormId($paymentFormId, $vendorId = null, $productType = PaymentForm::class)
     {
         $query = Connect::find();
 
-        if (!$allProducts) {
-            $query->andWhere(['like', 'products', '%"'.$paymentFormId . '"%', false]);
-        }
+        $query->andWhere(['like', 'products', '%"'.$paymentFormId . '"%', false]);
 
         $query->andWhere(Db::parseParam(
-            'enupalstripe_connect.productType', PaymentForm::class));
+            'enupalstripe_connect.productType', $productType));
         $query->andWhere(Db::parseParam(
-            'enupalstripe_connect.allProducts', $allProducts));
+            'enupalstripe_connect.allProducts', false));
 
         if ($vendorId !== null) {
             $query->andWhere(Db::parseParam(
@@ -241,11 +244,28 @@ class Connects extends Component
     }
 
     /**
+     * @param $productType
+     * @return array|ElementInterface[]|null
+     */
+    public function getConnectsWithAllProducts($productType = PaymentForm::class)
+    {
+        $query = Connect::find();
+
+        $query->andWhere(Db::parseParam(
+            'enupalstripe_connect.productType', $productType));
+        $query->andWhere(Db::parseParam(
+            'enupalstripe_connect.allProducts', true));
+
+        return $query->all();
+    }
+
+    /**
      * @param int $vendorId
      * @param $allProducts
+     * @param $productType
      * @return array|Connect[]|null
      */
-    public function getConnectsByVendorId(int $vendorId, $allProducts = null)
+    public function getConnectsByVendorId(int $vendorId, $allProducts = null, $productType = PaymentForm::class)
     {
         $query = Connect::find();
 
@@ -253,6 +273,10 @@ class Connects extends Component
         if ($allProducts) {
             $query->andWhere(Db::parseParam(
                 'enupalstripe_connect.allProducts', $allProducts));
+        }
+        if ($productType) {
+            $query->andWhere(Db::parseParam(
+                'enupalstripe_connect.productType', $productType));
         }
 
         return $query->all();

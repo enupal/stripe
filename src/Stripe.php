@@ -10,6 +10,7 @@
 namespace enupal\stripe;
 
 use Craft;
+use craft\commerce\elements\Product;
 use craft\elements\User;
 use craft\events\ElementEvent;
 use craft\events\RegisterComponentTypesEvent;
@@ -25,6 +26,7 @@ use enupal\stripe\events\OrderCompleteEvent;
 use enupal\stripe\events\WebhookEvent;
 use enupal\stripe\services\App;
 use enupal\stripe\services\Orders;
+use craft\commerce\elements\Order as CommerceOrder;
 use enupal\stripe\services\PaymentForms;
 use yii\base\Event;
 use craft\web\twig\variables\CraftVariable;
@@ -88,6 +90,10 @@ class Stripe extends Plugin
             if (get_class($element) === PaymentForm::class){
                 self::$app->vendors->assignPaymentFormToVendor($element);
             }
+
+            if (get_class($element) === Product::class){
+                self::$app->vendors->assignCommerceProductToVendor($element);
+            }
         });
 
         Event::on(Orders::class, Orders::EVENT_AFTER_PROCESS_WEBHOOK, function(WebhookEvent $e) {
@@ -98,9 +104,24 @@ class Stripe extends Plugin
             self::$app->commissions->processSeparateCharges($e->order);
         });
 
+        if (self::$app->connects->isCommerceInstalled()) {
+            Event::on(CommerceOrder::class, CommerceOrder::EVENT_AFTER_COMPLETE_ORDER, function(Event $e) {
+                // @var CommerceOrder $order
+                $order = $e->sender;
+                self::$app->commissions->processCommerceSeparateCharges($order);
+            });
+        }
+
         Event::on(PaymentForms::class, PaymentForms::EVENT_AFTER_POPULATE, function(AfterPopulatePaymentFormEvent $e) {
             if (Craft::$app->getRequest()->getIsSiteRequest()) {
                 self::$app->paymentForms->handleVendorPaymentForms($e->paymentForm);
+            }
+        });
+
+        Event::on(Product::class, Product::EVENT_AFTER_VALIDATE, function(Event $e) {
+            if (Craft::$app->getRequest()->getIsSiteRequest()) {
+                $product = $e->sender;
+                self::$app->paymentForms->handleCommerceProducts($product);
             }
         });
 

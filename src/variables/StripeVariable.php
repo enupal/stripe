@@ -71,7 +71,7 @@ class StripeVariable extends Behavior
      *
      * @param $paymentFormId
      * @param $vendorId
-     * @return PaymentForm
+     * @return PaymentForm|null
      */
     public function getVendorPaymentForm($paymentFormId,  $vendorId = null)
     {
@@ -81,6 +81,22 @@ class StripeVariable extends Behavior
     public function getPaymentFormsByVendor($vendorId = null)
     {
         return Stripe::$app->paymentForms->getPaymentFormsByVendor($vendorId);
+    }
+
+    /**
+     *
+     * @param $productId
+     * @param $vendorId
+     * @return \craft\commerce\elements\Product|null
+     */
+    public function getVendorCommerceProduct($productId,  $vendorId = null)
+    {
+        return Stripe::$app->paymentForms->getVendorCommerceProduct((int)$productId, $vendorId);
+    }
+
+    public function getCommerceProductsByVendor($vendorId = null)
+    {
+        return Stripe::$app->paymentForms->getCommerceProductsByVendor($vendorId);
     }
 
     /**

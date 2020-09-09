@@ -1,0 +1,110 @@
+{% extends 'marketplace/_layouts/main' %}
+
+{% block main %}
+    {% set isNew = true %}
+    {% set productId = craft.request.getQuery('productId') %}
+    {% if productId and product is not defined  %}
+        {% set product = craft.enupalStripe.getVendorCommerceProduct(productId) %}
+        {% if product is null %}
+            {% do craft.app.session.setError('Product not found'|t) %}
+            {% redirect 'marketplace/products' %}
+        {% endif %}
+        {% set isNew = false %}
+    {% endif %}
+
+    {% if not isNew %}
+        <span> {{ product.enabled ? "Approved"|t : "Under Review"|t }} </span>
+    {% endif %}
+
+    {% set variantId = product is defined ? product.defaultVariant.id : 'new1' %}
+    <h1>{% if not isNew %} Edit {% else %} New {% endif %} Product</h1>
+
+    <form method="post" enctype="multipart/form-data">
+        <input type="hidden" name="action" value="commerce/products/save-product">
+        {% set redirect = isNew ? 'marketplace/products' : "marketplace/products/edit?productId="~productId  %}
+        {% if not isNew %}
+            <input type="hidden" name="productId" value="{{ productId }}">
+        {% endif %}
+        {{ redirectInput(redirect) }}
+        {{ csrfInput() }}
+
+            <input type="hidden" name="typeId" value="1">
+            <input type="hidden" name="siteId" value="2">
+            <input type="hidden" name="availableForPurchase" value="1">
+            <input type="hidden" name="shippingCategoryId" value="1">
+            <input type="hidden" name="taxCategoryId" value="1">
+            <input type="hidden" name="variants[{{variantId}}][isDefault]" value="1">
+            <input type="hidden" name="variants[{{variantId}}][hasUnlimitedStock]" value="1">
+            <input type="hidden" name="variants[{{variantId}}][minQty]" value="">
+            <input type="hidden" name="variants[{{variantId}}][maxQty]" value="">
+            <input type="hidden" name='enabled' value="1">
+
+            <div class="fields">
+                <div class="heading">
+                    <label for="Item Name">
+                        {{ "Product Title"|t }}
+                    </label>
+                </div>
+                <div class="input">
+                    <input type="text"
+                           name="title"
+                           id="title"
+                           required aria-required="true"
+                           value="{% if product.title is defined %}{{ product.title }}{% endif %}"
+                           placeholder="{{ "Product Title"|t }}"
+                           maxlength="255"
+                    />
+                </div>
+            </div>
+
+            <div class="fields">
+                <div class="heading">
+                    <label for="SKU">
+                        {{ "SKU"|t }}
+                    </label>
+                </div>
+                <div class="input">
+                    <input type="text"
+                           name='variants[{{variantId}}][sku]'
+                           id="sku"
+                           required aria-required="true"
+                           value="{% if product.defaultSku is defined %}{{ product.defaultSku }}{% endif %}"
+                           placeholder="{{ "Handle or SKU"|t }}"
+                           maxlength="255"
+                    />
+                </div>
+            </div>
+
+            <div class="fields">
+                <div class="heading">
+                    <label for="Amount">
+                        {{ "Amount"|t }}
+                    </label>
+                </div>
+                <div class="input">
+                    <input type="number"
+                           step="any"
+                           min="{{ "%.2f"|format(1) }}"
+                           name="variants[{{variantId}}][price]"
+                           id="price"
+                           required aria-required="true"
+                           value="{% if product.defaultPrice is defined %}{{  "%.2f"|format(product.defaultPrice) }}{% endif %}"
+                           placeholder="{{ "Amount"|t }}"
+                    />
+                </div>
+            </div>
+
+            {% if product is defined and product and product.getErrors() | length %}
+                {% for errors in product.getErrors() %}
+                    <ul class="errors">
+                        {% for error in errors %}
+                            <li>{{ error }}</li>
+                        {% endfor %}
+                    </ul>
+                {% endfor %}
+            {% endif %}
+
+        <br>
+        <input type="submit" class="button" value="{% if isNew %}Add{% else %}Update{% endif %} Product" />
+    </form>
+{% endblock %}
