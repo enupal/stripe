@@ -1,6 +1,7 @@
 {%- set redirectUri = paymentForm.returnUrl -%}
 {%- do craft.enupalStripe.addVariables(_context) -%}
 {% set formClass = paymentForm.enableCheckout ? "enupal-stripe-form" : "enupal-stripe-form-elements" %}
+{% set customAmountStep = options.customAmountStep ?? 1 %}
 
 {% spaceless %}
     <form class="{{ formClass }}" id="enupal-stripe-{{ paymentForm.id }}" method="POST">
@@ -98,7 +99,7 @@
                     </div>
                     <div class="enupal-input-icon">
                         <i>{{ currencySymbol }}</i>
-                        <input type="number" class="form-control" id="{{ customId }}" name="customAmount" min="{{ "%.2f"|format(paymentForm.minimumAmount) }}" value="{{ minimumAmount }}" step="1">
+                        <input type="number" class="form-control" id="{{ customId }}" name="customAmount" min="{{ "%.2f"|format(paymentForm.minimumAmount) }}" value="{{ minimumAmount }}" step="{{customAmountStep}}">
                     </div>
                 </div>
 
@@ -126,7 +127,7 @@
                     <div class="form-group">
                         <div class="enupal-input-icon">
                             <i>{{ currencySymbol }}</i>
-                            <input type="number" class="form-control" id="{{ customId }}" name="customPlanAmount" min="{{ "%.2f"|format(paymentForm.customPlanMinimumAmount) }}" value="{{ minimumAmount }}" step="1">
+                            <input type="number" class="form-control" id="{{ customId }}" name="customPlanAmount" min="{{ "%.2f"|format(paymentForm.customPlanMinimumAmount) }}" value="{{ minimumAmount }}" step="{{ customAmountStep }}">
                         </div>
                     </div>
                 {% endif %}
