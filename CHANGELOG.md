@@ -1,5 +1,10 @@
 # Stripe Payments Changelog
 
+## 3.1.2 - 2020.09.14
+
+### Updated
+- Updated default setting to refresh all plans instead of only plans with nickname
+
 ## 3.1.1 - 2020.09.09
 
 ### Fixed
