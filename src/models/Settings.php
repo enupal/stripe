@@ -62,7 +62,7 @@ class Settings extends Model
     public $currentUserEmail = 0;
     public $updateCustomerEmailOnStripe = 0;
     // Get plans with nickname
-    public $plansWithNickname = 1;
+    public $plansWithNickname = 0;
     public $loadJquery = 1;
     public $loadCss = 1;
     // Snyc

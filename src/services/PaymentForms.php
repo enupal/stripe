@@ -611,7 +611,7 @@ class PaymentForms extends Component
             return craft\commerce\elements\Product::find()->status(null)->id($productId)->one();
         }
 
-        $connect = StripePlugin::$app->connects->getConnectsByPaymentFormId($productId, $vendor->id);
+        $connect = StripePlugin::$app->connects->getConnectsByPaymentFormId($productId, $vendor->id, Connects::COMMERCE_NAMESPACE);
 
         if (empty($connect)) {
             return null;
