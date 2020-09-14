@@ -1,5 +1,10 @@
 # Stripe Payments Changelog
 
+## 3.1.3 - 2020.09.14
+
+### Fixed
+- Fixed issue on Stripe Connect and Craft Commerce
+
 ## 3.1.2 - 2020.09.14
 
 ### Updated

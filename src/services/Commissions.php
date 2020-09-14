@@ -269,8 +269,8 @@ class Commissions extends Component
             $connects = array_merge($connects, $connectsWithAllProducts);
 
             if (empty($connects)) {
-                // No connects for this item
-                return false;
+                Craft::info('No connects for this item, productId: '.$productId, __METHOD__);
+                continue;
             }
 
             foreach ($connects as $connect) {
