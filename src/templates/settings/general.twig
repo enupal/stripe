@@ -83,7 +83,12 @@
                         errors: settings.getErrors('testPublishableKey')
                     }) }}
                 {% else %}
-                    <div class="instructions"><p><b>Test Publishable Key</b> was successfully loaded from config file</p></div>
+                    <div class="pane">
+                        <p>
+                            <span class="checkmark-icon"></span>
+                            <b>Test Publishable Key</b> was successfully loaded from config file
+                        </p>
+                    </div>
                 {% endif %}
 
                 {% if not configSettings.testPublishableKey is defined %}
@@ -97,7 +102,12 @@
                         errors: settings.getErrors('testSecretKey')
                     }) }}
                 {% else %}
-                    <div class="instructions"><p><b>Test Secret Key</b> was successfully loaded from config file</p></div>
+                    <div class="pane">
+                        <p>
+                            <span class="checkmark-icon"></span>
+                            <b>Test Secret Key</b> was successfully loaded from config file
+                        </p>
+                    </div>
                 {% endif %}
 
                 {% if settings.enableConnect %}
@@ -112,7 +122,12 @@
                             errors: settings.getErrors('testClientId')
                         }) }}
                     {% else %}
-                        <div class="instructions"><p><b>Test Client Id</b> was successfully loaded from config file</p></div>
+                        <div class="pane">
+                            <p>
+                                <span class="checkmark-icon"></span>
+                                <b>Test Client Id</b> was successfully loaded from config file
+                            </p>
+                        </div>
                     {% endif %}
                     <h4>Please add the following Redirect URL when retrieving the Client Id key under the <a
                                 href="https://dashboard.stripe.com/test/settings/applications" target="_blank">connect settings</a> </h4>
@@ -131,7 +146,12 @@
                         errors: settings.getErrors('livePublishableKey')
                     }) }}
                 {% else %}
-                    <div class="instructions"><p><b>Live Publishable Key</b> was successfully loaded from config file</p></div>
+                    <div class="pane">
+                        <p>
+                            <span class="checkmark-icon"></span>
+                            <b>Live Publishable Key</b> was successfully loaded from config file
+                        </p>
+                    </div>
                 {% endif %}
                 {% if not configSettings.liveSecretKey is defined %}
                     {{ forms.passwordField({
@@ -144,7 +164,12 @@
                         errors: settings.getErrors('liveSecretKey')
                     }) }}
                 {% else %}
-                    <div class="instructions"><p><b>Live Secret Key</b> was successfully loaded from config file</p></div>
+                    <div class="pane">
+                        <p>
+                            <span class="checkmark-icon"></span>
+                            <b>Live Secret Key</b> was successfully loaded from config file
+                        </p>
+                    </div>
                 {% endif %}
                 {% if settings.enableConnect %}
                     {% if not configSettings.liveClientId is defined %}
@@ -158,7 +183,12 @@
                             errors: settings.getErrors('liveClientId')
                         }) }}
                     {% else %}
-                        <div class="instructions"><p><b>Live Client Id</b> was successfully loaded from config file</p></div>
+                        <div class="pane">
+                            <p>
+                                <span class="checkmark-icon"></span>
+                                <b>Live Client Id</b> was successfully loaded from config file
+                            </p>
+                        </div>
                     {% endif %}
 
                     <h4>Please add the following Redirect URL when retrieving the Client Id key under the <a
