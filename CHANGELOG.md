@@ -1,5 +1,13 @@
 # Stripe Payments Changelog
 
+## 3.1.4 - 2020.10.23
+
+### Improved
+- Improved UI on the general settings
+
+### Fixed
+- Fixed issue with `getReturnUrl` method of the PaymentForm model.
+
 ## 3.1.3 - 2020.09.14
 
 ### Fixed
