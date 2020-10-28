@@ -1,0 +1,94 @@
+{% extends "enupal-stripe/_layouts/tax" %}
+{% set title = "Tax"|t('enupal-stripe') %}
+{% set taxes = craft.enupalStripe.tax.getAllTaxes() %}
+{% set testMode = craft.enupalStripe.getMode() %}
+{% set url = "https://dashboard.stripe.com" %}
+{% set url = testMode ? url~'/test' : url %}
+
+{% block actionButton %}
+    {% if testMode %}
+        <span class="testMode">Test Mode</span>
+        <div class="flex-grow"></div>
+    {% endif %}
+
+    {% include "enupal-stripe/tax/_actionStatusButton" %}
+{% endblock %}
+
+{% set content %}
+    {% if taxes|length %}
+        <table id="taxes" class="data fullwidth collapsible">
+            <thead>
+            <tr>
+                <th scope="col">{{ "ID"|t('enupal-stripe') }}</th>
+                <th scope="col">{{ "Type"|t('enupal-stripe') }}</th>
+                <th scope="col">{{ "Region"|t('enupal-stripe') }}</th>
+                <th scope="col">{{ "Description"|t('enupal-stripe') }}</th>
+                <th scope="col">{{ "Rate"|t('enupal-stripe') }}</th>
+                <th scope="col">{{ "Status"|t('enupal-stripe') }}</th>
+
+                <td class="thin"></td>
+            </tr>
+            </thead>
+            <tbody>
+            {% for tax in taxes %}
+                <tr data-id="{{ tax.id }}"
+                    data-name="{{ tax.id }}">
+                    <td data-title="{{ tax.id }}"
+                        class="code">{{ tax.id }}</td>
+                    <td>{{ tax.display_name }}</td>
+                    <td>
+                        {{ tax.jurisdiction }}
+                    </td>
+                    <td>
+                        {{ tax.description }}
+                    </td>
+                    {% set inclusive = tax.inclusive ? "Inclusive" : "Exclusive" %}
+                    <td>{{ tax.percentage }}% {{ inclusive }}</td>
+                    <td>
+                        {% set status = tax.active ? "Active" : "Archived" %}
+                        {{status}}
+                    </td>
+                    <td>
+                    <td class="thin">
+                        <a class="delete icon"
+                           title="{{ 'Delete'|t('enupal-stripe') }}"
+                           role="button"></a>
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        {{ "Create your first tax" }} <a href="{{ url }}/tax-rates">Here!</a>
+    {% endif %}
+
+{% endset %}
+
+{% js %}
+    new Craft.AdminTable({
+    tableSelector: '#taxes',
+    newObjectBtnSelector: '#newtax',
+    deleteAction: 'enupal-stripe/taxes/delete',
+    minObjects: 0,
+    sortable: true,
+    confirmDeleteMessage: '{{ "Are you sure you want to archive the Tax “{name}”?"|t('enupal-stripe') }}',
+    deleteFailMessage: '{{ "Unable to archive the tax."|t('enupal-stripe') }}'
+    });
+{% endjs %}
+
+{% css %}
+    .testMode {
+    float: left;
+    background-color: #f7e633;
+    color: #363636;
+    border-radius: 5px;
+    font-weight: 700;
+    font-size: 11px;
+    text-transform: uppercase;
+    padding-left: 9px;
+    padding-right: 9px;
+    height: 26px;
+    line-height: 26px;
+    }
+{% endcss %}
+
