@@ -1,5 +1,10 @@
 # Stripe Payments Changelog
 
+## 3.1.5 - 2020.11.03
+
+### Added
+- Added support for `singlePlanTrialDays` via options for when "Set single plan" and new Stripe Checkout
+
 ## 3.1.4 - 2020.10.23
 
 ### Improved
