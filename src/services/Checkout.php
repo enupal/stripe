@@ -224,6 +224,8 @@ class Checkout extends Component
             'metadata' => $metadata
         ];
 
+        $trialPeriodDays = $postData['enupalSinglePlanTrialDays'] ?? $trialPeriodDays;
+
         if ($trialPeriodDays) {
             $subscriptionData['trial_period_days'] = $trialPeriodDays;
         }

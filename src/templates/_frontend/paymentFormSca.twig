@@ -42,6 +42,9 @@
             {% if options.allowPromotionCodes is defined %}
                 <input type="hidden" name="enupalAllowPromotionCodes" value="{{ options.allowPromotionCodes }}">
             {% endif %}
+            {% if options.singlePlanTrialDays is defined %}
+                <input type="hidden" name="enupalSinglePlanTrialDays" value="{{ options.singlePlanTrialDays }}">
+            {% endif %}
             <input type="hidden" name="email" value />
             <input type="hidden" name="formId" value="{{ paymentForm.id }}" />
             <input type="hidden" name="amount" value />
