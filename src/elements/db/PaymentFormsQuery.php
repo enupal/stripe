@@ -154,6 +154,9 @@ class PaymentFormsQuery extends ElementQuery
             'enupalstripe_forms.recurringPaymentType',
             'enupalstripe_forms.selectPlanLabel',
 
+            'enupalstripe_forms.tax',
+            'enupalstripe_forms.useDynamicTaxRate',
+
             'enupalstripe_forms.quantity',
             'enupalstripe_forms.hasUnlimitedStock',
             'enupalstripe_forms.customerQuantity',

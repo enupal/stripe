@@ -81,4 +81,42 @@ class Taxes extends Component
 
         return $tax;
     }
+
+    /**
+     * @return array
+     */
+    public function getTaxAsOptions()
+    {
+        $taxAsOptions = [];
+        try {
+            $taxes = $this->getAllTaxes();
+            foreach ($taxes as $tax) {
+                $inclusive = $tax['inclusive'] ? 'Inclusive' : "Exclusive";
+                if (!empty($tax['display_name'])) {
+                    $label = $tax['display_name']. ' - ';
+                }
+                if (!empty($tax['jurisdiction']) && $tax['jurisdiction']) {
+                    $label .= $tax['jurisdiction']. ' - ';
+                }
+                if (!empty($tax['percentage'])) {
+                    $label .= $tax['percentage']. '% '.$inclusive;
+                }
+
+                if (!empty($tax['description'])) {
+                    $label .= ' ('.$tax['description'].')';
+                }
+
+                $option = [
+                    'label' => $label,
+                    'value' => $tax['id']
+                ];
+
+                $taxAsOptions[] = $option;
+            }
+        }catch (\Exception $e) {
+            Craft::error($e->getMessage(), __METHOD__);
+        }
+
+        return $taxAsOptions;
+    }
 }

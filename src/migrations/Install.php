@@ -118,6 +118,9 @@ class Install extends Migration
             'checkoutButtonText' => $this->string(),
             'enableTemplateOverrides' => $this->boolean(),
             'templateOverridesFolder' => $this->string(),
+            // Tax
+            'tax' => $this->text(),
+            'useDynamicTaxRate' => $this->boolean()->defaultValue(false),
             //
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
