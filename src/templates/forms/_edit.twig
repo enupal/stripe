@@ -365,6 +365,18 @@
             {% set taxOptions = craft.enupalStripe.tax.getTaxAsOptions() %}
 
             {% if taxOptions|length > 0 %}
+                {{ forms.lightswitchField({
+                    first: true,
+                    label: "Enable Dynamic tax rates (One-time payments)"|t('enupal-stripe'),
+                    instructions: "This list is used to match tax rate(s) to your customer’s shipping address or billing address. The shipping address has precedence over the billing address for determining the tax rate to charge. Billing address collection is automatically enabled when using dynamic tax rates. If you’re not collecting a shipping address, your customer’s billing address is used to determine the tax rate. If you haven’t passed a tax rate that matches your customer’s shipping or billing address, no tax rate is applied.",
+                    id: 'useDynamicTaxRate',
+                    name: 'useDynamicTaxRate',
+                    on: stripeForm.useDynamicTaxRate,
+                    onLabel: "Enable",
+                    offLabel: "Disable",
+                    errors: stripeForm.getErrors('useDynamicTaxRate')
+                }) }}
+
                 {{ forms.multiSelectField({
                     label: "Tax"|t('enupal-stripe'),
                     id: 'tax',
