@@ -1,10 +1,18 @@
 # Stripe Payments Changelog
 
-## WIP
+## 3.2.1 - 2020.11.07
+
+### Added
+- Added support to Collect taxes in the new Stripe Checkout (Beta). [More info](https://docs.enupal.com/stripe-payments/stripe-payment-forms/taxes.html)
+- Added support for new payment methods in the new Stripe Checkout: Alipay, BACS DEBIT, Bancontact, GIROPAY, P24, EPS, Sofort, Sepa Debit
+- Added `allowPromotionCodes` property to the Payment Form element to enable coupons when the new Stripe Checkout is enabled. [More info](https://docs.enupal.com/stripe-payments/coupons/overview.html)
 
 ### Fixed
 - Fixed issue where `removeDefaultItem` via options was not taken into account
 - Fixed on iDEAL workflow (only subscriptions) where customers get an extra authorization charge on their bank (that was refunded).
+- Fixed security issue when using the new Stripe Checkout ([#145])
+
+[#145]: https://github.com/enupal/stripe/issues/145
 
 ## 3.1.5 - 2020.11.03
 
