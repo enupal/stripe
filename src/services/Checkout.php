@@ -133,7 +133,14 @@ class Checkout extends Component
         }
 
         // Adds support to allowPromotionCodes
-        $allowPromotionCodes = $postData['enupalAllowPromotionCodes'] ?? false;
+        $allowPromotionCodes = (bool)$form->checkoutAllowPromotionCodes;
+
+        if (isset($postData['enupalAllowPromotionCodes'])) {
+            $allowPromotionCodesIsEnabled = filter_var($postData['enupalAllowPromotionCodes'], FILTER_VALIDATE_BOOLEAN);
+            if ($allowPromotionCodesIsEnabled) {
+                $allowPromotionCodes = true;
+            }
+        }
 
         if ($allowPromotionCodes) {
             $sessionParams['allow_promotion_codes'] = true;

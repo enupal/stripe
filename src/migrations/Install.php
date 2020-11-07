@@ -116,6 +116,7 @@ class Install extends Migration
             'buttonText' => $this->string(),
             'paymentButtonProcessingText' => $this->string(),
             'checkoutButtonText' => $this->string(),
+            'checkoutAllowPromotionCodes' => $this->boolean()->defaultValue(false),
             'enableTemplateOverrides' => $this->boolean(),
             'templateOverridesFolder' => $this->string(),
             // Tax

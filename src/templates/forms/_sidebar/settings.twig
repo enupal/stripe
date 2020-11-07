@@ -215,6 +215,17 @@
 </div>
 
 <div class="meta">
+    {% if (settings.useSca) and stripeForm.enableCheckout %}
+        {{ forms.lightswitchField({
+            label: "Coupons <span class='info'>Allows promotional codes. Only for when Stripe Checkout is enabled</span>"|t('enupal-stripe'),
+            id: 'checkoutAllowPromotionCodes',
+            name: 'checkoutAllowPromotionCodes',
+            on: stripeForm.checkoutAllowPromotionCodes
+        }) }}
+    {% endif %}
+</div>
+
+<div class="meta">
     {{ forms.lightswitchField({
         label: "Shipping Address <span class='info'>Enables buyers to specify the Shipping Address</span>"|t('enupal-stripe'),
         id: 'enableShippingAddress',
