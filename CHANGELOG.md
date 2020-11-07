@@ -4,6 +4,7 @@
 
 ### Fixed
 - Fixed issue where `removeDefaultItem` via options was not taken into account
+- Fixed on iDEAL workflow (only subscriptions) where customers get an extra authorization charge on their bank (that was refunded).
 
 ## 3.1.5 - 2020.11.03
 
