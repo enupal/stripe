@@ -1,5 +1,10 @@
 # Stripe Payments Changelog
 
+## WIP
+
+### Fixed
+- Fixed issue where `removeDefaultItem` via options was not taken into account
+
 ## 3.1.5 - 2020.11.03
 
 ### Added

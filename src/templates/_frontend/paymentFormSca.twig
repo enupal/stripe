@@ -45,6 +45,9 @@
             {% if options.singlePlanTrialDays is defined %}
                 <input type="hidden" name="enupalSinglePlanTrialDays" value="{{ options.singlePlanTrialDays }}">
             {% endif %}
+            {% if options.removeDefaultItem is defined %}
+                <input type="hidden" name="enupalRemoveDefaultItem" value="{{ options.removeDefaultItem }}">
+            {% endif %}
             <input type="hidden" name="email" value />
             <input type="hidden" name="formId" value="{{ paymentForm.id }}" />
             <input type="hidden" name="amount" value />

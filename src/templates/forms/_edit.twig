@@ -33,6 +33,11 @@
         label: "Form Fields"|t,
         url: '#fields-tab3',
         class: (notificationErrors is defined ? notificationErrors : null)
+    },
+    tax:  {
+        label: "Tax"|t,
+        url: '#fields-tab4',
+        class: (notificationErrors is defined ? notificationErrors : null)
     }
 } %}
 
@@ -353,6 +358,44 @@
                 } only %}
             {% endif %}
         {% endfor %}
+    </div>
+
+    <div id="tab4" class="hidden">
+        {% if (settings.useSca) and stripeForm.enableCheckout %}
+            {% set taxOptions = craft.enupalStripe.tax.getTaxAsOptions() %}
+
+            {% if taxOptions|length > 0 %}
+                {{ forms.lightswitchField({
+                    first: true,
+                    label: "Enable Dynamic tax rates (One-time payments)"|t('enupal-stripe'),
+                    instructions: "This list is used to match tax rate(s) to your customer’s shipping address or billing address. The shipping address has precedence over the billing address for determining the tax rate to charge. Billing address collection is automatically enabled when using dynamic tax rates. If you’re not collecting a shipping address, your customer’s billing address is used to determine the tax rate. If you haven’t passed a tax rate that matches your customer’s shipping or billing address, no tax rate is applied.",
+                    id: 'useDynamicTaxRate',
+                    name: 'useDynamicTaxRate',
+                    on: stripeForm.useDynamicTaxRate,
+                    onLabel: "Enable",
+                    offLabel: "Disable",
+                    errors: stripeForm.getErrors('useDynamicTaxRate')
+                }) }}
+
+                {{ forms.multiSelectField({
+                    label: "Tax"|t('enupal-stripe'),
+                    id: 'tax',
+                    name: 'tax',
+                    options: taxOptions,
+                    values: stripeForm.tax
+                }) }}
+            {% else %}
+                {% set testMode = craft.enupalStripe.getMode() %}
+                {% set url = "https://dashboard.stripe.com" %}
+                {% set url = testMode ? url~'/test' : url %}
+
+                {{ "Create your first tax rate" }} <a href="{{ url }}/tax-rates">Here!</a>
+            {% endif %}
+        {% else %}
+            {{ "This is only available when Stripe Checkout and SCA is enabled" }}
+            <br>
+            Enable Strong Customer Authentication <a href="{{ cpUrl('enupal-stripe/settings') }}">here</a>
+        {% endif %}
     </div>
     {% endnamespace %}
 {% endblock %}
