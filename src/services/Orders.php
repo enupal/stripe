@@ -957,7 +957,7 @@ class Orders extends Component
             ),
         ));
 
-        return $source['id'];
+        return $token;
     }
 
     /**
