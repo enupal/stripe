@@ -10,9 +10,12 @@ namespace enupal\stripe\controllers;
 
 use Craft;
 use enupal\stripe\Stripe;
+use craft\web\Controller as BaseController;
 
-class CheckoutController extends FrontEndController
+class CheckoutController extends BaseController
 {
+    protected $allowAnonymous = true;
+
     /**
      * @return \yii\web\Response
      * @throws \Throwable
