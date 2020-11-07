@@ -47,7 +47,7 @@ class Stripe extends Plugin
 
     public $hasCpSection = true;
     public $hasCpSettings = true;
-    public $schemaVersion = '3.0.0';
+    public $schemaVersion = '3.2.1';
 
     public function init()
     {
@@ -192,6 +192,7 @@ class Stripe extends Plugin
             ]
         ];
 
+        /** @var Settings $settings */
         $settings = $this->getSettings();
 
         if ($settings->enableConnect){
@@ -206,6 +207,13 @@ class Stripe extends Plugin
             $navs['subnav']['vendors'] = [
                 "label" => self::t("Vendors"),
                 "url" => 'enupal-stripe/vendors'
+            ];
+        }
+
+        if ($settings->useSca){
+            $navs['subnav']['tax'] = [
+                "label" => self::t("Tax"),
+                "url" => 'enupal-stripe/tax'
             ];
         }
 

@@ -98,6 +98,21 @@ class PaymentForm extends Element
     public $amount;
 
     /**
+     * @var string
+     */
+    public $tax;
+
+    /**
+     * @var boolean
+     */
+    public $useDynamicTaxRate;
+
+    /**
+     * @var boolean
+     */
+    public $checkoutAllowPromotionCodes;
+
+    /**
      * @inheritdoc
      */
     public $enabled;
@@ -515,6 +530,10 @@ class PaymentForm extends Element
 
         $record->enableTemplateOverrides = $this->enableTemplateOverrides;
         $record->templateOverridesFolder = $this->templateOverridesFolder;
+
+        $record->tax = $this->tax;
+        $record->useDynamicTaxRate = $this->useDynamicTaxRate;
+        $record->checkoutAllowPromotionCodes = $this->checkoutAllowPromotionCodes;
 
         $record->save(false);
 

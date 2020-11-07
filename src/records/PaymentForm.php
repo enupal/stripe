@@ -66,6 +66,9 @@ use craft\records\Element;
  * @property string $checkoutButtonText
  * @property string $enableTemplateOverrides
  * @property string $templateOverridesFolder
+ * @property string $tax
+ * @property boolean $useDynamicTaxRate
+ * @property boolean $checkoutAllowPromotionCodes
  */
 
 class PaymentForm extends ActiveRecord

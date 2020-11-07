@@ -154,6 +154,9 @@ class PaymentFormsQuery extends ElementQuery
             'enupalstripe_forms.recurringPaymentType',
             'enupalstripe_forms.selectPlanLabel',
 
+            'enupalstripe_forms.tax',
+            'enupalstripe_forms.useDynamicTaxRate',
+
             'enupalstripe_forms.quantity',
             'enupalstripe_forms.hasUnlimitedStock',
             'enupalstripe_forms.customerQuantity',
@@ -185,6 +188,7 @@ class PaymentFormsQuery extends ElementQuery
             'enupalstripe_forms.buttonText',
             'enupalstripe_forms.paymentButtonProcessingText',
             'enupalstripe_forms.checkoutButtonText',
+            'enupalstripe_forms.checkoutAllowPromotionCodes',
             'enupalstripe_forms.buttonClass',
             'enupalstripe_forms.enableTemplateOverrides',
             'enupalstripe_forms.templateOverridesFolder'

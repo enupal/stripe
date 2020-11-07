@@ -133,12 +133,18 @@ class Checkout extends Component
         }
 
         // Adds support to allowPromotionCodes
-        $allowPromotionCodes = $postData['enupalAllowPromotionCodes'] ?? false;
+        $allowPromotionCodes = (bool)$form->checkoutAllowPromotionCodes;
+
+        if (isset($postData['enupalAllowPromotionCodes'])) {
+            $allowPromotionCodesIsEnabled = filter_var($postData['enupalAllowPromotionCodes'], FILTER_VALIDATE_BOOLEAN);
+            if ($allowPromotionCodesIsEnabled) {
+                $allowPromotionCodes = true;
+            }
+        }
 
         if ($allowPromotionCodes) {
             $sessionParams['allow_promotion_codes'] = true;
         }
-
 
         $session = Session::create($sessionParams);
 
@@ -230,6 +236,8 @@ class Checkout extends Component
             $subscriptionData['trial_period_days'] = $trialPeriodDays;
         }
 
+        $subscriptionData = $this->processTaxCheckoutSession($paymentForm, $subscriptionData, true);
+
         $sessionParams['subscription_data'] = $subscriptionData;
 
         // One time fees
@@ -280,6 +288,8 @@ class Checkout extends Component
             'quantity' => $publicData['quantity'],
         ];
 
+        $lineItem = $this->processTaxCheckoutSession($paymentForm, $lineItem);
+
         $logoAssets = $paymentForm->getLogoAssets();
         $logoUrls = [];
         if ($logoAssets) {
@@ -300,7 +310,36 @@ class Checkout extends Component
 
         $sessionParams['payment_intent_data']['metadata'] = $metadata;
 
+        $sessionParams['mode'] = 'payment';
+
         return $sessionParams;
+    }
+
+    /**
+     * @param PaymentForm $paymentForm
+     * @param $lineItem
+     * @param $isRecurring
+     * @return mixed
+     */
+    private function processTaxCheckoutSession(PaymentForm $paymentForm, $lineItem, $isRecurring = false)
+    {
+        if (empty($paymentForm->tax)) {
+            return $lineItem;
+        }
+
+        $tax = json_decode($paymentForm->tax, true);
+
+        if (is_array($tax) && count($tax)) {
+            $taxKey = $paymentForm->useDynamicTaxRate ? 'dynamic_tax_rates' : 'tax_rates';
+
+            if ($isRecurring) {
+                $taxKey = 'default_tax_rates';
+            }
+
+            $lineItem[$taxKey] = $tax;
+        }
+
+        return $lineItem;
     }
 
     /**

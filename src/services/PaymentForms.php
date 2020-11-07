@@ -1561,6 +1561,14 @@ class PaymentForms extends Component
             CheckoutPaymentType::CC => 'Card',
             CheckoutPaymentType::IDEAL => 'iDEAL',
             CheckoutPaymentType::FPX => 'FPX',
+            CheckoutPaymentType::ALIPAY => 'Alipay',
+            CheckoutPaymentType::BACS_DEBIT => 'BACS DEBIT',
+            CheckoutPaymentType::BANCONTACT => 'Bancontact',
+            CheckoutPaymentType::GIROPAY => 'GIROPAY',
+            CheckoutPaymentType::P24 => 'P24',
+            CheckoutPaymentType::EPS => 'EPS',
+            CheckoutPaymentType::SOFORT => 'Sofort',
+            CheckoutPaymentType::SEPA_DEBIT => 'Sepa Debit'
         ];
     }
 

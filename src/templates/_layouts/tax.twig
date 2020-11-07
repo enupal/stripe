@@ -1,0 +1,33 @@
+{#
+/**
+ * Stripe Payments plugin for Craft CMS 3.x
+ *
+ * @link      https://enupal.com/
+ * @copyright Copyright (c) 2018 Enupal LLC
+ */
+#}
+
+{% extends "_layouts/cp" %}
+
+{% set title  = "Tax"|t %}
+{% set bodyClass = craft.app.request.getSegments()|slice(0, 3)|join(' ') %}
+
+{% set selectedSubnavItem = craft.app.request.getSegment(2) %}
+{% set selectedSidebarItem = craft.app.request.getSegment(2) %}
+
+{% set sidebar %}
+
+    <nav class="last">
+        <ul>
+            <li>
+                <a href="{{ cpUrl('enupal-stripe/coupons') }}"
+                   {% if selectedSidebarItem == 'coupons' %}class="sel"{% endif %}><i
+                            class="fa fa-percent fa-fw" aria-hidden="true"></i>&nbsp;{{ "Tax"|t('enupal-stripe') }}
+                </a>
+            </li>
+        </ul>
+    </nav>
+
+{% endset %}
+
+{% do view.registerAssetBundle("enupal\\stripe\\web\\assets\\FontAwesomeAsset") %}

@@ -26,13 +26,22 @@
            value="enupal-stripe/settings/save-settings">
     <input type="hidden" name="stripeScenario" value="taxes">
     <div id="settings-cp">
-
         {% namespace 'settings' %}
             {{ forms.field({
                 label: "Taxes"|t('enupal-stripe')|upper,
-                instructions: "Transaction-based tax"|t('enupal-stripe'),
+                instructions: "Transaction-based tax. This is used only when the SCA setting is disabled on the general settings and for subscriptions or recurring payments."|t('enupal-stripe'),
             }, null) }}
             <hr>
+
+            {% if settings.useSca %}
+                <div class="pane">
+                    <p>
+                        <span class="info-icon"></span>
+                        We recommend enable the new Stripe Checkout and add taxes directly on your Payment Forms.
+                        You can create or view taxes <a href="{{ cpUrl('enupal-stripe/tax') }}">here</a>
+                    </p>
+                </div>
+            {% endif %}
 
             {{ forms.lightswitchField({
                 first: true,
