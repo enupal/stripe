@@ -46,7 +46,8 @@
                     <td>{{ tax.percentage }}% {{ inclusive }}</td>
                     <td>
                         {% set status = tax.active ? "Active" : "Archived" %}
-                        {{status}}
+                        {% set color = status == "Active" ? "green" : "gray" %}
+                        <span class="status {{ color }}"></span>{{status}}
                     </td>
                     <td>
                     <td class="thin">
