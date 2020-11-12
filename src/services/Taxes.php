@@ -15,6 +15,10 @@ use Craft;
 
 class Taxes extends Component
 {
+    const TAX_RATES = 'tax_rates';
+    const DYNAMIC_TAX_RATES = 'dynamic_tax_rates';
+    const DEFAULT_TAX_RATES = 'default_tax_rates';
+
     /**
      * @return array
      * @throws \Stripe\Exception\ApiErrorException
