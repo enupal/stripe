@@ -107,6 +107,11 @@ class App extends Component
      */
     public $taxes;
 
+    /**
+     * @var Prices
+     */
+    public $prices;
+
     public function init()
     {
         $this->settings = new Settings();
@@ -128,5 +133,6 @@ class App extends Component
         $this->connects = new Connects();
         $this->commissions = new Commissions();
         $this->taxes = new Taxes();
+        $this->prices = new Prices();
     }
 }

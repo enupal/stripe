@@ -288,8 +288,6 @@ class Checkout extends Component
             'quantity' => $publicData['quantity'],
         ];
 
-        $lineItem = $this->processTaxCheckoutSession($paymentForm, $lineItem);
-
         $logoAssets = $paymentForm->getLogoAssets();
         $logoUrls = [];
         if ($logoAssets) {
@@ -301,6 +299,8 @@ class Checkout extends Component
         if ($data['image']) {
             $lineItem['images'] = $logoUrls;
         }
+
+        $lineItem = $this->processTaxCheckoutSession($paymentForm, $lineItem);
 
         $sessionParams['line_items'] = [$lineItem];
 
@@ -318,8 +318,9 @@ class Checkout extends Component
     /**
      * @param PaymentForm $paymentForm
      * @param $lineItem
-     * @param $isRecurring
+     * @param bool $isRecurring
      * @return mixed
+     * @throws \Stripe\Exception\ApiErrorException
      */
     private function processTaxCheckoutSession(PaymentForm $paymentForm, $lineItem, $isRecurring = false)
     {
@@ -330,13 +331,39 @@ class Checkout extends Component
         $tax = json_decode($paymentForm->tax, true);
 
         if (is_array($tax) && count($tax)) {
-            $taxKey = $paymentForm->useDynamicTaxRate ? 'dynamic_tax_rates' : 'tax_rates';
+            $taxKey = $paymentForm->useDynamicTaxRate ? Taxes::DYNAMIC_TAX_RATES : Taxes::TAX_RATES;
 
             if ($isRecurring) {
-                $taxKey = 'default_tax_rates';
+                $taxKey = Taxes::DEFAULT_TAX_RATES;
             }
 
             $lineItem[$taxKey] = $tax;
+
+            if ($taxKey === Taxes::DYNAMIC_TAX_RATES) {
+                $lineItem = $this->processDynamicTaxes($lineItem, $paymentForm);
+            }
+        }
+
+        return $lineItem;
+    }
+
+    /**
+     * @param array $lineItem
+     * @param PaymentForm $paymentForm
+     * @return array
+     * @throws \Stripe\Exception\ApiErrorException
+     */
+    private function processDynamicTaxes(array $lineItem, PaymentForm $paymentForm)
+    {
+        $price = StripePlugin::$app->prices->cretePrice($lineItem['amount'], $lineItem['currency'], $paymentForm);
+
+        if (!is_null($price)) {
+            unset($lineItem['amount']);
+            unset($lineItem['currency']);
+            unset($lineItem['name']);
+            unset($lineItem['description']);
+            unset($lineItem['images']);
+            $lineItem['price'] = $price['id'];
         }
 
         return $lineItem;

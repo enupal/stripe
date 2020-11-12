@@ -8,15 +8,15 @@
   "dependencies": {},
   "devDependencies": {
     "autoprefixer": "^9.8.6",
-    "craftcms-sass": "^3.4.0",
+    "craftcms-sass": "^3.5.1",
     "cross-env": "^7.0.2",
     "eslint": "^6.8.0",
-    "eslint-config-airbnb-base": "^14.2.0",
-    "eslint-plugin-import": "^2.22.0",
-    "laravel-mix": "^5.0.4",
-    "resolve-url-loader": "^3.1.0",
-    "sass": "^1.26.10",
+    "eslint-config-airbnb-base": "^14.2.1",
+    "eslint-plugin-import": "^2.22.1",
+    "laravel-mix": "^5.0.9",
+    "resolve-url-loader": "^3.1.2",
+    "sass": "^1.29.0",
     "sass-loader": "^8.0.2",
-    "vue-template-compiler": "^2.6.11"
+    "vue-template-compiler": "^2.6.12"
   }
 }
