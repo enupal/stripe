@@ -1,9 +1,14 @@
 # Stripe Payments Changelog
 
+## 3.2.2 - 2020.11.12
+
+### Fixed
+- Fixed issue when using the Dynamic Tax rates setting on thew New Stripe Checkout
+
 ## 3.2.1 - 2020.11.07
 
 ### Added
-- Added support to Collect taxes in the new Stripe Checkout (Beta). [More info](https://docs.enupal.com/stripe-payments/stripe-payment-forms/taxes.html)
+- Added support to Collect Fixed and Dynamic tax rates in the new Stripe Checkout (Beta). [More info](https://docs.enupal.com/stripe-payments/stripe-payment-forms/taxes.html)
 - Added support for new payment methods in the new Stripe Checkout: Alipay, BACS DEBIT, Bancontact, GIROPAY, P24, EPS, Sofort, Sepa Debit
 - Added `allowPromotionCodes` property to the Payment Form element to enable coupons when the new Stripe Checkout is enabled. [More info](https://docs.enupal.com/stripe-payments/coupons/overview.html)
 
