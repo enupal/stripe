@@ -25,10 +25,14 @@ class WebhookController extends FrontEndController
         $eventJson = json_decode($input, true);
         Craft::info(json_encode($eventJson), __METHOD__);
 
+        if (!isset($eventJson['type'])) {
+            Craft::info('This is not a request from Stripe, skipping...', __METHOD__);
+            return $this->getResponse(false);
+        }
+
         $stripeId = $eventJson['data']['object']['id'] ?? null;
 
         $order = Stripe::$app->orders->getOrderByStripeId($stripeId);
-        $return = [];
 
         switch ($eventJson['type']) {
             case 'source.chargeable':
@@ -127,7 +131,18 @@ class WebhookController extends FrontEndController
 
         http_response_code(200); // PHP 5.4 or greater
 
-        $return['success'] = true;
+        return $this->getResponse();
+    }
+
+    /**
+     * @param bool $status
+     * @return \yii\web\Response
+     */
+    private function getResponse($status = true)
+    {
+        $return = [];
+        $return['success'] = $status;
         return $this->asJson($return);
     }
+
 }
