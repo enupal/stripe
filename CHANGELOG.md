@@ -1,5 +1,17 @@
 # Stripe Payments Changelog
 
+## 3.2.3 - 2020.12.15
+
+### Added
+- Added missing City column to reports (billing and shipping) ([#155])
+
+### Fixed
+- Fixed issue when creating new Stripe Connect account ([#158])
+
+[#158]: https://github.com/enupal/stripe/issues/158
+
+[#155]: https://github.com/enupal/stripe/issues/155
+
 ## 3.2.2 - 2020.11.12
 
 ### Fixed
