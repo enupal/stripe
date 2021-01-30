@@ -15,7 +15,7 @@ use enupal\stripe\Stripe;
 use enupal\stripe\Stripe as StripePlugin;
 use Stripe\Invoice;
 use Stripe\InvoiceLineItem;
-use Stripe\UsageRecord;
+use Stripe\SubscriptionItem;
 use yii\db\Exception;
 
 class Subscription extends Model
@@ -82,12 +82,14 @@ class Subscription extends Model
 
         $dateTime = $dateTime ?? DateTimeHelper::currentTimeStamp();
         try{
-            UsageRecord::create([
-                'quantity' => $quantity,
-                'timestamp' => $dateTime,
-                'subscription_item' => $this->meteredId,
-                'action' => $action,
-            ]);
+            SubscriptionItem::createUsageRecord(
+                $this->meteredId,
+                [
+                    'quantity' => $quantity,
+                    'timestamp' => $dateTime,
+                    'action' => $action,
+                ]
+            );
         }catch (\Exception $e){
             throw new Exception($e->getMessage());
         }

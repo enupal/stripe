@@ -24,6 +24,8 @@ use yii\base\Component;
 
 class Checkout extends Component
 {
+    const USAGE_TYPE_METERED = 'metered';
+
     /**
      * @param $sessionId
      * @return Session|null
@@ -143,6 +145,7 @@ class Checkout extends Component
         }
 
         if ($allowPromotionCodes) {
+            $sessionParams['subscription_data']['payment_behavior'] = 'allow_incomplete';
             $sessionParams['allow_promotion_codes'] = true;
         }
 
@@ -220,12 +223,18 @@ class Checkout extends Component
             $plan = StripePlugin::$app->plans->createCustomPlan($customPlan);
         }
 
+        $planItem =  [
+            'plan' => $plan['id'],
+            'quantity' => $publicData['quantity']
+        ];
+
+        if ($plan['usage_type'] === self::USAGE_TYPE_METERED) {
+            unset($planItem['quantity']);
+        }
+
         $subscriptionData = [
             'items' => [
-                [
-                    'plan' => $plan['id'],
-                    'quantity' => $publicData['quantity']
-                ]
+                $planItem
             ],
             'metadata' => $metadata
         ];
@@ -272,6 +281,7 @@ class Checkout extends Component
         $publicData = $postData['enupalStripeData'] ?? null;
         $data = $publicData['stripe'];
         $couponCode = $postData['enupalCouponCode'] ?? null;
+        $checkoutImages = isset($postData['enupalCheckoutImages']) ? json_decode($postData['enupalCheckoutImages']) : null;
 
         if ($couponCode) {
             $couponRedeemed = StripePlugin::$app->coupons->applyCouponToAmountInCents($data['amount'], $couponCode, $paymentForm->currency, false);
@@ -298,6 +308,10 @@ class Checkout extends Component
 
         if ($data['image']) {
             $lineItem['images'] = $logoUrls;
+        }
+
+        if (!is_null($checkoutImages) && is_array($checkoutImages)) {
+            $lineItem['images'] = $checkoutImages;
         }
 
         $lineItem = $this->processTaxCheckoutSession($paymentForm, $lineItem);
