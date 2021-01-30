@@ -24,6 +24,8 @@ use yii\base\Component;
 
 class Checkout extends Component
 {
+    const USAGE_TYPE_METERED = 'metered';
+
     /**
      * @param $sessionId
      * @return Session|null
@@ -143,6 +145,7 @@ class Checkout extends Component
         }
 
         if ($allowPromotionCodes) {
+            $sessionParams['subscription_data']['payment_behavior'] = 'allow_incomplete';
             $sessionParams['allow_promotion_codes'] = true;
         }
 
@@ -220,12 +223,18 @@ class Checkout extends Component
             $plan = StripePlugin::$app->plans->createCustomPlan($customPlan);
         }
 
+        $planItem =  [
+            'plan' => $plan['id'],
+            'quantity' => $publicData['quantity']
+        ];
+
+        if ($plan['usage_type'] === self::USAGE_TYPE_METERED) {
+            unset($planItem['quantity']);
+        }
+
         $subscriptionData = [
             'items' => [
-                [
-                    'plan' => $plan['id'],
-                    'quantity' => $publicData['quantity']
-                ]
+                $planItem
             ],
             'metadata' => $metadata
         ];
