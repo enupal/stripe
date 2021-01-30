@@ -1,5 +1,23 @@
 # Stripe Payments Changelog
 
+## 3.3.0 - 2021.01.30
+
+### Added
+- Added support for Metered and Tired subscriptions plans on the new Stripe Checkout
+- Added support for `checkoutImages` via [options](https://docs.enupal.com/stripe-payments/templating/paymentform.html#options) ([#156])
+- Added `allow_incomplete` when passing `enupalAllowPromotionCodes` via options
+- Added metadata on subscriptions when Stripe Checkout is disabled
+
+### Fixed
+- Fixed an error when using the [reportUsage](https://docs.enupal.com/stripe-payments/stripe-payment-forms/metered-billing-plan.html) method
+
+### Updated
+- Updates requirement `craftcms/cms` to ^3.6.0
+- Updates requirement `phpoffice/phpspreadsheet` to ^1.16.0 ([#162])
+
+[#162]: https://github.com/enupal/stripe/issues/162
+[#156]: https://github.com/enupal/stripe/issues/156
+
 ## 3.2.3 - 2020.12.15
 
 ### Added
