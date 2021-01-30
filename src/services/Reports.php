@@ -143,6 +143,7 @@ class Reports extends Component
             'billing_address.address2 billingAddressAddress2',
             'billing_address.zipCode billingAddressZipCode',
             'billing_address.stateName billingState',
+            'billing_address.city billingCity',
             'billingCountries.name billingCountry',
             'shipping_address.firstName shippingAddressFirstName',
             'shipping_address.lastName shippingAddressLastName',
@@ -150,6 +151,7 @@ class Reports extends Component
             'shipping_address.address2 shippingAddressAddress2',
             'shipping_address.zipCode shippingAddressZipCode',
             'shipping_address.stateName shippingState',
+            'shipping_address.city shippingCity',
             'shippingCountries.name shippingCountry',
         ];
 
@@ -191,6 +193,7 @@ class Reports extends Component
             'billingAddressAddress2',
             'billingAddressZipCode',
             'billingAddressState',
+            'billingAddressCity',
             'billingCountry',
             'shippingAddressFirstName',
             'shippingAddressLastName',
@@ -198,6 +201,7 @@ class Reports extends Component
             'shippingAddressAddress2',
             'shippingAddressZipCode',
             'shippingAddressState',
+            'shippingAddressCity',
             'shippingCountry',
         ];
 

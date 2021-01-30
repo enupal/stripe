@@ -77,7 +77,6 @@ class UtilitiesController extends FrontEndController
             $settings = StripePlugin::$app->settings->getSettings();
             $vendor->vendorRate = $settings->globalRate;
             $vendor->paymentType = Vendors::PAYMENT_TYPE_ON_CHECKOUT;
-            $vendor->testmode = $settings->testMode;
         }
 
         $vendor->enabled = true;

@@ -1035,7 +1035,8 @@ class Orders extends Component
         // Add the plan to the customer
         $subscriptionSettings = [
             "plan" => $planId,
-            "trial_from_plan" => true
+            "trial_from_plan" => true,
+            'metadata' => $this->getStripeMetadata($data)
         ];
 
         if ($data['couponCode']){
