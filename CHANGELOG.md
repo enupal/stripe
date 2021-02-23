@@ -1,5 +1,16 @@
 # Stripe Payments Changelog
 
+## 3.3.1 - 2021.02.23
+
+### Fixed
+- Fixes issue on Subscription grants that removed existing groups on new subscriptions ([#170])
+
+### Updated
+- Updated jQuery to v3.5.1 ([#166])
+
+[#170]: https://github.com/enupal/stripe/issues/170
+[#166]: https://github.com/enupal/stripe/issues/166
+
 ## 3.3.0 - 2021.01.30
 
 ### Added
