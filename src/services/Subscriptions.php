@@ -10,6 +10,7 @@ namespace enupal\stripe\services;
 
 use Craft;
 use craft\db\Query;
+use craft\db\Table;
 use enupal\stripe\elements\Order;
 use enupal\stripe\events\WebhookEvent;
 use enupal\stripe\models\SubscriptionGrant;
@@ -266,6 +267,22 @@ class Subscriptions extends Component
     {
         $grantUserGroupIds = $this->getUserGroupsByPlanId($planId, $user);
         if ($grantUserGroupIds){
+            $db = Craft::$app->getDb();
+
+            // Get the current groups
+            $currentGroups = (new Query())
+                ->select(['id', 'groupId'])
+                ->from([Table::USERGROUPS_USERS])
+                ->where(['userId' => $user->id])
+                ->all($db);
+
+            foreach ($currentGroups as $currentGroup) {
+                // keep current groups
+                if (!in_array($currentGroup['groupId'], $grantUserGroupIds)) {
+                    $grantUserGroupIds[] = $currentGroup['groupId'];
+                }
+            }
+
             Craft::$app->getUsers()->assignUserToGroups($user->id, $grantUserGroupIds);
             Craft::info("Groups (".json_encode($grantUserGroupIds).") added to user: ".$user->username, __METHOD__);
         }
