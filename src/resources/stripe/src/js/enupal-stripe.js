@@ -66,7 +66,7 @@ var enupalStripe = {};
                 // Docs: https://stripe.com/docs/checkout#integration-custom
                 stripeHandler = StripeCheckout.configure({
                     key: enupalStripeData.pbk,
-                    token: processStripeToken,
+                        token: processStripeToken,
                     opened: function() {
                     },
                     closed: function() {
@@ -74,7 +74,7 @@ var enupalStripe = {};
                 });
 
                 // Callback function to handle StripeCheckout.configure
-                function processStripeToken(token, args) {
+                    function processStripeToken(token, args) {
                     // At this point the Stripe Checkout overlay is validated and submitted.
                     // Set values to hidden elements to pass via POST when submitting the form for payment.
                     enupalButtonElement.find('[name="enupalStripe[token]"]').val(token.id);

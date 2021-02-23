@@ -17,6 +17,25 @@ use enupal\stripe\Stripe as StripePlugin;
 
 class PaymentIntents extends Component
 {
+    public function create(int $amountInCents, $currency)
+    {
+        $paymentIntent = null;
+
+        try {
+            StripePlugin::$app->settings->initializeStripe();
+
+            $paymentIntent = PaymentIntent::create([
+                'amount' => $amountInCents,
+                'currency' => $currency,
+                'setup_future_usage' => 'on_session',
+            ]);
+        } catch (\Exception $e) {
+            Craft::error('Unable to create payment intent: '.$e->getMessage(), __METHOD__);
+        }
+
+        return $paymentIntent;
+    }
+
     /**
      * @param $id
      * @return PaymentIntent|null
