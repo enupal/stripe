@@ -92,7 +92,7 @@ class Coupons extends Component
         $couponRedeemed->isValid = true;
         $couponRedeemed->finalAmount = $amountInCents;
 
-        if (!isset($coupon['valid']) && !$coupon['valid']) {
+        if (is_null($coupon) || (!isset($coupon['valid']) && !$coupon['valid'])) {
             $couponRedeemed->addErrorMessage(Craft::t('enupal-stripe', 'The coupon is no longer valid'));
             return $couponRedeemed;
         }
