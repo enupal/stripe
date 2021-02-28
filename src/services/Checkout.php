@@ -145,7 +145,10 @@ class Checkout extends Component
         }
 
         if ($allowPromotionCodes) {
-            $sessionParams['subscription_data']['payment_behavior'] = 'allow_incomplete';
+            if ($form->enableSubscriptions || $isCustomAmount) {
+                $sessionParams['subscription_data']['payment_behavior'] = 'allow_incomplete';
+            }
+
             $sessionParams['allow_promotion_codes'] = true;
         }
 
