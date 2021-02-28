@@ -1,5 +1,12 @@
 # Stripe Payments Changelog
 
+## 3.3.2 - 2021.02.28
+
+### Fixed
+- Fixed an issue when coupons were enabled on one time payments ([#167])
+
+[#167]: https://github.com/enupal/stripe/issues/167
+
 ## 3.3.1 - 2021.02.23
 
 ### Fixed
