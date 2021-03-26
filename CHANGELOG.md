@@ -1,5 +1,12 @@
 # Stripe Payments Changelog
 
+## 3.3.3 - 2021.03.26
+
+### Fixed
+- Fixed issue on notification emails ([#181])
+
+[#181]: https://github.com/enupal/stripe/issues/181
+
 ## 3.3.2 - 2021.02.28
 
 ### Fixed
