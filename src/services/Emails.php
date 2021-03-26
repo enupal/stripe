@@ -162,8 +162,8 @@ class Emails extends Component
         $message = new Message();
         $message->setFrom([$settings->customerNotificationSenderEmail => $settings->customerNotificationSenderName]);
         $variables['order'] = $order;
-        $subject = $view->renderString($settings->customerNotificationSubject, $variables);
-        $textBody = $view->renderString("Thank you! your order number is: {{order.number}}", $variables);
+        $subject = $view->renderObjectTemplate($settings->customerNotificationSubject, $order, $variables);
+        $textBody = $view->renderObjectTemplate("Thank you! your order number is: {{order.number}}", $order, $variables);
 
         $originalPath = $view->getTemplatesPath();
 
@@ -222,8 +222,8 @@ class Emails extends Component
         $message = new Message();
         $message->setFrom([$settings->vendorNotificationSenderEmail => $settings->vendorNotificationSenderName]);
         $variables['commission'] = $commission;
-        $subject = $view->renderString($settings->vendorNotificationSubject, $variables);
-        $textBody = $view->renderString("Congratulations, {{commission.getVendor().getUser().firstName}}! Looks like someone just purchased one of your products", $variables);
+        $subject = $view->renderObjectTemplate($settings->vendorNotificationSubject, $commission, $variables);
+        $textBody = $view->renderObjectTemplate("Congratulations, {{commission.getVendor().getUser().firstName}}! Looks like someone just purchased one of your products", $commission, $variables);
 
         $originalPath = $view->getTemplatesPath();
 
@@ -282,8 +282,8 @@ class Emails extends Component
         $message = new Message();
         $message->setFrom([$settings->adminNotificationSenderEmail => $settings->adminNotificationSenderName]);
         $variables['order'] = $order;
-        $subject = $view->renderString($settings->adminNotificationSubject, $variables);
-        $textBody = $view->renderString("Congratulations! you have received a payment, total: {{ order.totalPrice }} order number: {{order.number}}", $variables);
+        $subject = $view->renderObjectTemplate($settings->adminNotificationSubject, $order, $variables);
+        $textBody = $view->renderObjectTemplate("Congratulations! you have received a payment, total: {{ order.totalPrice }} order number: {{order.number}}", $order, $variables);
 
         $originalPath = $view->getTemplatesPath();
         $template = 'admin';
