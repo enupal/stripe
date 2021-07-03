@@ -1,5 +1,16 @@
 # Stripe Payments Changelog
 
+## 3.3.4 - 2021.07.03
+
+### Added
+- Added Wechat Pay payment method (Stripe Checkout)
+- Added Grab Pay payment method (Stripe Checkout)
+- Added Afterpay (Clearpay) payment method (Stripe Checkout)
+- Added Canadian Pre Authorized Debits payment method (Stripe Checkout)
+- Added Boleto payment method (Stripe Checkout)
+- Added OXXO payment method (Stripe Checkout)
+- Added EVENT_BEFORE_PROCESS_TRANSFER event
+
 ## 3.3.3 - 2021.03.26
 
 ### Fixed
