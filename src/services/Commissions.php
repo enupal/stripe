@@ -14,6 +14,7 @@ use craft\helpers\Db;
 use enupal\stripe\elements\Commission;
 use enupal\stripe\elements\Order as StripePaymentsOrder;
 use enupal\stripe\elements\Vendor;
+use enupal\stripe\events\BeforeProcessTransferEvent;
 use enupal\stripe\events\CommissionPaidEvent;
 use enupal\stripe\Stripe;
 use yii\base\Component;
@@ -26,6 +27,7 @@ class Commissions extends Component
     const STATUS_PAID = 'paid';
     const STATUS_PENDING = 'pending';
     const EVENT_COMMISSION_PAID = 'afterCommissionPaid';
+    const EVENT_BEFORE_PROCESS_TRANSFER = 'beforeProcessTransfer';
 
     /**
      * Returns a Commission model if one is found in the database by id
@@ -133,6 +135,13 @@ class Commissions extends Component
             Craft::error('Transfer was already processed', __METHOD__);
             return false;
         }
+        
+        $event = new BeforeProcessTransferEvent([
+            'commission' => $commission,
+            'vendor' => $vendor
+        ]);
+
+        $this->trigger(self::EVENT_BEFORE_PROCESS_TRANSFER, $event);
 
         $amountInCents = Stripe::$app->orders->convertToCents($commission->totalPrice, $commission->currency);
 

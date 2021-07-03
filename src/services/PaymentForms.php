@@ -1568,7 +1568,13 @@ class PaymentForms extends Component
             CheckoutPaymentType::P24 => 'P24',
             CheckoutPaymentType::EPS => 'EPS',
             CheckoutPaymentType::SOFORT => 'Sofort',
-            CheckoutPaymentType::SEPA_DEBIT => 'Sepa Debit'
+            CheckoutPaymentType::SEPA_DEBIT => 'Sepa Debit',
+            CheckoutPaymentType::GRAB_PAY => 'Grab Pay',
+            CheckoutPaymentType::AFTER_PAY => 'Afterpay (Clearpay)',
+            CheckoutPaymentType::CANADIAN_DEBIT => 'Canadian Debit',
+            CheckoutPaymentType::WECHAT_PAY => 'Wechat Pay' ,
+            CheckoutPaymentType::BOLETO => 'Boleto',
+            CheckoutPaymentType::OXXO => 'OXXO'
         ];
     }
 

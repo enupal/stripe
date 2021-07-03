@@ -26,4 +26,10 @@ abstract class CheckoutPaymentType extends BaseEnum
     const EPS = 'eps';
     const SOFORT = 'sofort';
     const SEPA_DEBIT = 'sepa_debit';
+    const GRAB_PAY = 'grabpay';
+    const AFTER_PAY = 'afterpay_clearpay';
+    const CANADIAN_DEBIT = 'acss_debit';
+    const WECHAT_PAY = 'wechat_pay';
+    const BOLETO = 'boleto';
+    const OXXO = 'oxxo';
 }
