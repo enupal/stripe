@@ -1,5 +1,10 @@
 # Stripe Payments Changelog
 
+## 3.3.5 - 2021.07.06
+
+### Updated
+- Updated stripe php lib ^7.0
+
 ## 3.3.4 - 2021.07.03
 
 ### Added
