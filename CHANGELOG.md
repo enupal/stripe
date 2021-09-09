@@ -1,5 +1,14 @@
 # Stripe Payments Changelog
 
+## 3.3.6 - 2021.09.09
+
+### Fixed
+- Fixed issue when using Stripe Checkout + SCA ([#213])
+- Fixed error when Sync subscription orders ([#193])
+
+[#213]: https://github.com/enupal/stripe/issues/213
+[#193]: https://github.com/enupal/stripe/issues/193
+
 ## 3.3.5 - 2021.07.06
 
 ### Updated
