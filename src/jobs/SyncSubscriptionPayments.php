@@ -66,7 +66,7 @@ class SyncSubscriptionPayments extends BaseJob implements RetryableJobInterface
                 $endDate = strtotime($this->endDate);
 
                 $params = [
-                    'date' => [
+                    'created' => [
                         'gte' => $startDate,
                         'lte' => $endDate
                     ]
@@ -192,6 +192,7 @@ class SyncSubscriptionPayments extends BaseJob implements RetryableJobInterface
                             }
                         }else{
                             $alreadyExists++;
+                            Craft::info('Skipping '.$subscriptionId, __METHOD__);
                         }
                     }else{
                         $skipped++;

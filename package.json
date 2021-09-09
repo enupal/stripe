@@ -3,9 +3,8 @@
   "license": "proprietary",
   "scripts": {
     "watch": "npm run build -- --watch",
-    "build": "cross-env NODE_ENV=production node_modules/webpack/bin/webpack.js --no-progress --hide-modules --config=node_modules/laravel-mix/setup/webpack.config.js"
+    "build": "cross-env NODE_ENV=production node_modules/webpack/bin/webpack.js --config=node_modules/laravel-mix/setup/webpack.config.js"
   },
-  "dependencies": {},
   "devDependencies": {
     "autoprefixer": "^9.8.6",
     "craftcms-sass": "^3.5.1",
@@ -13,7 +12,7 @@
     "eslint": "^6.8.0",
     "eslint-config-airbnb-base": "^14.2.1",
     "eslint-plugin-import": "^2.22.1",
-    "laravel-mix": "^5.0.9",
+    "laravel-mix": "^6.0.29",
     "resolve-url-loader": "^3.1.2",
     "sass": "^1.29.0",
     "sass-loader": "^8.0.2",

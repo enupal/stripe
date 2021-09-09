@@ -202,7 +202,7 @@ var enupalStripe = {};
             var isRecurring = this.getIsRecurring(enupalButtonElement, enupalStripeData);
 
             var data = {
-                'action': 'enupal-stripe/coupons/validate',
+                'action': '/enupal-stripe/coupons/validate',
                 'amount' : amount,
                 'couponCode': couponCode,
                 'isRecurring': isRecurring,
@@ -301,7 +301,7 @@ var enupalStripe = {};
             data.push({name: 'enupalStripe[enupalAllowPromotionCodes]', value: enupalStripeDataSubmission.allowPromotionCodes});
             data.push({name: 'enupalStripe[enupalRemoveDefaultItem]', value: enupalStripeDataSubmission.removeDefaultItem});
 
-            data.push({name: 'action', value: 'enupal-stripe/checkout/create-session'});
+            data.push({name: 'action', value: '/enupal-stripe/checkout/create-session'});
             data.push({name: 'enupalStripeData', value: JSON.stringify(enupalStripeDataSubmission)});
 
             $.ajax({
@@ -338,7 +338,7 @@ var enupalStripe = {};
                 var isRecurring = this.getIsRecurring(enupalButtonElement, enupalStripeData);
                 if (couponCode){
                     var data = {
-                        'action': 'enupal-stripe/coupons/validate',
+                        'action': '/enupal-stripe/coupons/validate',
                         'amount' : stripeConfig.amount,
                         'couponCode': couponCode,
                         'isRecurring': isRecurring,
