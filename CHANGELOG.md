@@ -1,5 +1,14 @@
 # Stripe Payments Changelog
 
+## 3.3.7 - 2021.10.06
+
+### Added
+- Added `testWebhookSigningSecret` config setting ([#218]) ([#docs1]) ([#docs2])
+
+[#218]: https://github.com/enupal/stripe/issues/218
+[#docs1]: https://docs.enupal.com/stripe-payments/getting-started/saving-your-stripe-api-keys.html#saving-the-stripe-api-keys-via-config-file
+[#docs2]: https://docs.enupal.com/stripe-payments/stripe-payment-forms/webhook.html#test-webhooks-locally
+
 ## 3.3.6 - 2021.09.09
 
 ### Fixed
