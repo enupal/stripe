@@ -18,8 +18,10 @@ class Settings extends Model
     // General
     public $testPublishableKey;
     public $testSecretKey;
+    public $testWebhookSigningSecret;
     public $livePublishableKey;
     public $liveSecretKey;
+    public $liveWebhookSigningSecret;
     public $testMode = 1;
     public $capture = 1;
     public $useSca = 0;

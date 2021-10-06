@@ -59,9 +59,11 @@ class Settings extends Component
         $settings->livePublishableKey = $configSettings['livePublishableKey'] ?? $settings->livePublishableKey;
         $settings->liveSecretKey = $configSettings['liveSecretKey'] ?? $settings->liveSecretKey;
         $settings->liveClientId = $configSettings['liveClientId'] ?? $settings->liveClientId;
+        $settings->liveWebhookSigningSecret = $configSettings['liveWebhookSigningSecret'] ?? $settings->liveWebhookSigningSecret;
         $settings->testSecretKey = $configSettings['testSecretKey'] ?? $settings->testSecretKey;
         $settings->testPublishableKey = $configSettings['testPublishableKey'] ?? $settings->testPublishableKey;
         $settings->testClientId = $configSettings['testClientId'] ?? $settings->testClientId;
+        $settings->testWebhookSigningSecret = $configSettings['testWebhookSigningSecret'] ?? $settings->testWebhookSigningSecret;
         $settings->testMode = $configSettings['testMode'] ?? $settings->testMode;
 
         return $settings;
