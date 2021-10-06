@@ -11,6 +11,8 @@ namespace enupal\stripe\controllers;
 use craft\web\Controller as BaseController;
 use Craft;
 use enupal\stripe\Stripe;
+use enupal\stripe\Stripe as StripePlugin;
+use Stripe\Webhook;
 
 class WebhookController extends FrontEndController
 {
@@ -22,6 +24,12 @@ class WebhookController extends FrontEndController
     {
         // Retrieve the request's body and parse it as JSON:
         $input = @file_get_contents('php://input');
+
+        if (!$this->validateWebhookSignature($input)) {
+            http_response_code(400);
+            exit();
+        }
+        
         $eventJson = json_decode($input, true);
         Craft::info(json_encode($eventJson), __METHOD__);
 
@@ -132,6 +140,43 @@ class WebhookController extends FrontEndController
         http_response_code(200); // PHP 5.4 or greater
 
         return $this->getResponse();
+    }
+
+    /**
+     * @param $input
+     * @return bool
+     */
+    private function validateWebhookSignature($input)
+    {
+        $settings = StripePlugin::$app->settings->getSettings();
+        $sigHeader = $_SERVER['HTTP_STRIPE_SIGNATURE'];
+        $endpointSecret = null;
+
+        if ($settings->testMode && !empty($settings->testWebhookSigningSecret)) {
+            $endpointSecret = $settings->testWebhookSigningSecret;
+        }
+
+        if (!$settings->testMode && !empty($settings->liveWebhookSigningSecret)) {
+            $endpointSecret = $settings->liveWebhookSigningSecret;
+        }
+
+        if (empty($endpointSecret)) {
+            return true;
+        }
+
+        try {
+            $event = Webhook::constructEvent(
+                $input, $sigHeader, $endpointSecret
+            );
+
+            return true;
+        } catch(\UnexpectedValueException $e) {
+            Craft::error('Invalid payload', __METHOD__);
+        } catch(\Stripe\Exception\SignatureVerificationException $e) {
+            Craft::error('Invalid signature', __METHOD__);
+        }
+
+        return false;
     }
 
     /**
