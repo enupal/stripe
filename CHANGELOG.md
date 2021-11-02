@@ -1,5 +1,15 @@
 # Stripe Payments Changelog
 
+## 3.3.8 - 2021.11.02
+
+### Added
+- Added "Custom Plan Name" setting (Settings -> Default)
+
+### Fixed
+- Fixed issue on the Tax tab ([#222])
+
+[#222]: https://github.com/enupal/stripe/issues/222
+
 ## 3.3.7 - 2021.10.06
 
 ### Added
