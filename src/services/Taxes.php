@@ -33,12 +33,14 @@ class Taxes extends Component
 
         while(isset($taxes['data']) && is_array($taxes['data']))
         {
+            $lastTax = null;
             foreach ($taxes['data'] as $tax) {
                 $result[] = $tax;
+                $lastTax = $tax;
             }
 
-            $startingAfter = $tax['id'];
-            if ($taxes['has_more']){
+            if ($taxes['has_more'] && !is_null($lastTax)){
+                $startingAfter = $lastTax['id'];
                 $taxes = TaxRate::all(['limit' => 50, 'starting_after' => $startingAfter]);
             }else{
                 $taxes = null;
