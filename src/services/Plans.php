@@ -241,11 +241,15 @@ class Plans extends Component
         $currentTime = time();
         $planName = strval($currentTime);
         //Create new plan for this customer:
+
+        $settings = StripePlugin::$app->settings->getSettings();
+        $productName = Craft::$app->getView()->renderObjectTemplate($settings->customPlanName, ['planId' => $planName]);
+
         $params = [
             "amount" => $customPlan->amountInCents,
             "interval" => $customPlan->interval,
             "product" => [
-                "name" => "Custom Plan - " . $planName,
+                "name" => $productName,
             ],
             "currency" => $customPlan->currency,
             "id" => $planName

@@ -30,6 +30,7 @@ class Settings extends Model
     public $defaultCurrency = 'USD';
     public $chargeDescription = 'Order from {email}';
     public $oneTimeSetupFeeLabel = 'One time set-up fee';
+    public $customPlanName = 'Custom Plan - {planId}';
     // Tax
     public $enableTaxes = 0;
     public $taxType = 0;
