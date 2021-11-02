@@ -151,6 +151,16 @@ If you instead want to cancel the subscription at the end of the current billing
                 value: settings.oneTimeSetupFeeLabel,
                 errors: settings.getErrors('oneTimeSetupFeeLabel')
             }) }}
+
+            <hr>
+            {{ forms.textField({
+                label: "Custom Plan Name"|t('enupal-stripe'),
+                instructions: "It's displayed on your Stripe dashboard and on the Stripe Checkout page. Please use {planId} if you want to add the plan id dinamically"|t('enupal-stripe'),
+                id: 'customPlanName',
+                name: 'customPlanName',
+                value: settings.customPlanName,
+                errors: settings.getErrors('customPlanName')
+            }) }}
         {% endnamespace %}
 
     </div>
