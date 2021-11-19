@@ -1,5 +1,12 @@
 # Stripe Payments Changelog
 
+## 3.3.9 - 2021.11.19
+
+### Fixed
+- Fixed bug on ideal recurring payments ([#186])
+
+[#186]: https://github.com/enupal/stripe/issues/186
+
 ## 3.3.8 - 2021.11.02
 
 ### Added
