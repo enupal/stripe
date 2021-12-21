@@ -75,6 +75,10 @@ class SyncOneTimePayments extends BaseJob implements RetryableJobInterface
         $failed = 0;
 
         foreach ($charges->autoPagingIterator() as $charge) {
+            if (!is_null($charge['invoice'])) {
+                continue;
+            }
+
             $order = StripePlugin::$app->orders->getOrderByStripeId($charge['id']);
             try {
                 if ($order !== null) {
