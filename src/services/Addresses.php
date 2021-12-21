@@ -211,6 +211,7 @@ class Addresses extends Component
         $address->countryId = $countryId;
         $address->stateName = $data['address_state'] ?? null;
         $address->address1 = $data['address_line1'] ?? null;
+        $address->address2 = $data['address_line2'] ?? null;
         $address->zipCode = $data['address_zip'] ?? null;
 
         if (Stripe::$app->addresses->saveAddress($address, true)){
@@ -242,6 +243,7 @@ class Addresses extends Component
         $address->city = $data['address']['city'] ?? null;
         $address->stateName = $data['address']['state'] ?? null;
         $address->address1 = $data['address']['line1'] ?? null;
+        $address->address2 = $data['address']['line2'] ?? null;
         $address->zipCode = $data['address']['postal_code'] ?? null;
 
         if (Stripe::$app->addresses->saveAddress($address, true)){
