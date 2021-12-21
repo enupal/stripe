@@ -930,6 +930,7 @@ class Orders extends Component
         $address->zipCode = $addressData['zip'] ?? '';
         $address->firstName = $addressData['name'] ?? '';
         $address->address1 = $addressData['line1'] ?? '';
+        $address->address2 = $addressData['line2'] ?? '';
 
         Stripe::$app->addresses->saveAddress($address, true);
 

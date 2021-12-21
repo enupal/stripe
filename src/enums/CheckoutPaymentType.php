@@ -32,4 +32,5 @@ abstract class CheckoutPaymentType extends BaseEnum
     const WECHAT_PAY = 'wechat_pay';
     const BOLETO = 'boleto';
     const OXXO = 'oxxo';
+    const KLARNA = 'klarna';
 }
