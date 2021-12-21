@@ -3,6 +3,7 @@
 ## 3.3.10 - 2021.12.21
 
 ### Added
+- Added [Klarna](https://stripe.com/docs/payments/klarna) payment method (Stripe Checkout)
 - Added line2 to addresses on checkout and sync ([#178])
 
 ### Fixed
