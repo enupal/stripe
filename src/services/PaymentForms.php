@@ -1574,7 +1574,8 @@ class PaymentForms extends Component
             CheckoutPaymentType::CANADIAN_DEBIT => 'Canadian Debit',
             CheckoutPaymentType::WECHAT_PAY => 'Wechat Pay' ,
             CheckoutPaymentType::BOLETO => 'Boleto',
-            CheckoutPaymentType::OXXO => 'OXXO'
+            CheckoutPaymentType::OXXO => 'OXXO',
+            CheckoutPaymentType::KLARNA => 'Klarna',
         ];
     }
 

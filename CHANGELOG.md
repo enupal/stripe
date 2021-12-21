@@ -1,5 +1,19 @@
 # Stripe Payments Changelog
 
+## 3.3.10 - 2021.12.21
+
+### Added
+- Added [Klarna](https://stripe.com/docs/payments/klarna) payment method (Stripe Checkout)
+- Added line2 to addresses on checkout and sync ([#178])
+
+### Fixed
+- Fixed issue on one-time sync ([#196])
+- Fixed issue where export orders was adding deleted orders ([#180])
+
+[#180]: https://github.com/enupal/stripe/issues/180
+[#196]: https://github.com/enupal/stripe/issues/196
+[#178]: https://github.com/enupal/stripe/issues/178
+
 ## 3.3.9 - 2021.11.19
 
 ### Fixed
