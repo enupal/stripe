@@ -21,6 +21,7 @@ use PhpOffice\PhpSpreadsheet\Writer\Xls;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use yii\base\Component;
 use yii\base\Exception;
+use yii\db\Expression;
 
 class Reports extends Component
 {
@@ -51,6 +52,7 @@ class Reports extends Component
         $orderQuery = (new CraftQuery())
             ->select($columns)
             ->from('{{%enupalstripe_orders}} enupalstripe_orders')
+            ->andWhere(['is', 'dateDeleted', new Expression('null')])
             ->andWhere(['>=', 'dateOrdered', Db::prepareDateForDb($startDate)])
             ->andWhere(['<=', 'dateOrdered', Db::prepareDateForDb($endDate)]);
 
@@ -58,6 +60,7 @@ class Reports extends Component
         $orderQuery->leftJoin('{{%enupalstripe_addresses}} billing_address', 'billing_address.id = enupalstripe_orders.billingAddressId');
         $orderQuery->leftJoin('{{%enupalstripe_countries}} shippingCountries', 'shippingCountries.id = shipping_address.countryId');
         $orderQuery->leftJoin('{{%enupalstripe_countries}} billingCountries', 'billingCountries.id = billing_address.countryId');
+        $orderQuery->leftJoin('{{%elements}} elements', 'elements.id = enupalstripe_orders.id');
 
         $status = null;
 
