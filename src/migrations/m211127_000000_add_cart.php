@@ -15,47 +15,21 @@ class m211127_000000_add_cart extends Migration
      */
     public function safeUp()
     {
-        $this->createTable('{{%enupalstripe_product}}', [
+        $this->createTable('{{%enupalstripe_products}}', [
             'id' => $this->primaryKey(),
-            'name' => $this->string()->notNull(),
             'stripeId' => $this->string()->notNull(),
-            'active' => $this->boolean()->defaultValue(false),
-            'allProducts' => $this->boolean()->defaultValue(false),
-            'rate' => $this->decimal(14, 2)->defaultValue(0),
+            'object' => $this->longText(),
             //
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
             'uid' => $this->uid()
         ]);
 
-        $this->createTable('{{%enupalstripe_vendors}}', [
+        $this->createTable('{{%enupalstripe_prices}}', [
             'id' => $this->primaryKey(),
-            'userId' => $this->integer()->notNull(),
-            'stripeId' => $this->string(),
-            // On checkout - Manually
-            'paymentType' => $this->string(),
-            'skipAdminReview' => $this->boolean()->defaultValue(false),
-            'vendorRate' => $this->decimal(14, 2)->defaultValue(0),
-            //
-            'dateCreated' => $this->dateTime()->notNull(),
-            'dateUpdated' => $this->dateTime()->notNull(),
-            'uid' => $this->uid()
-        ]);
-        // For each connect that match it will be a unique commission
-        $this->createTable('{{%enupalstripe_commissions}}', [
-            'id' => $this->primaryKey(),
-            'orderId' => $this->integer()->notNull(),
             'productId' => $this->integer()->notNull(),
-            'connectId' => $this->integer()->notNull(),
-            'stripeId' => $this->string(),
-            'number' => $this->string(),
-            // Order class namespace
-            'orderType' => $this->string()->notNull(),
-            'commissionStatus' => $this->string(),
-            'totalPrice' => $this->decimal(14, 4)->defaultValue(0),
-            'currency' => $this->string(),
-            'datePaid' => $this->dateTime(),
-            'testMode' => $this->boolean()->defaultValue(false),
+            'stripeId' => $this->string()->notNull(),
+            'object' => $this->longText(),
             //
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
@@ -64,116 +38,45 @@ class m211127_000000_add_cart extends Migration
 
         $this->createIndex(
             $this->db->getIndexName(
-                '{{%enupalstripe_commissions}}',
-                'number',
-                false, true
-            ),
-            '{{%enupalstripe_commissions}}',
-            'number',
-            false
-        );
-
-        $this->createIndex(
-            $this->db->getIndexName(
-                '{{%enupalstripe_connect}}',
-                'vendorId',
-                false, true
-            ),
-            '{{%enupalstripe_connect}}',
-            'vendorId',
-            false
-        );
-        $this->createIndex(
-            $this->db->getIndexName(
-                '{{%enupalstripe_vendors}}',
-                'userId',
-                false, true
-            ),
-            '{{%enupalstripe_vendors}}',
-            'userId',
-            false
-        );
-        $this->createIndex(
-            $this->db->getIndexName(
-                '{{%enupalstripe_commissions}}',
-                'orderId',
-                false, true
-            ),
-            '{{%enupalstripe_commissions}}',
-            'orderId',
-            false
-        );
-        $this->createIndex(
-            $this->db->getIndexName(
-                '{{%enupalstripe_commissions}}',
+                '{{%enupalstripe_prices}}',
                 'productId',
                 false, true
             ),
-            '{{%enupalstripe_commissions}}',
+            '{{%enupalstripe_prices}}',
             'productId',
             false
         );
+
         $this->createIndex(
             $this->db->getIndexName(
-                '{{%enupalstripe_commissions}}',
-                'connectId',
+                '{{%enupalstripe_products}}',
+                'stripeId',
                 false, true
             ),
-            '{{%enupalstripe_commissions}}',
-            'connectId',
-            false
+            '{{%enupalstripe_products}}',
+            'stripeId',
+            true
+        );
+
+        $this->createIndex(
+            $this->db->getIndexName(
+                '{{%enupalstripe_prices}}',
+                'stripeId',
+                false, true
+            ),
+            '{{%enupalstripe_prices}}',
+            'stripeId',
+            true
         );
 
         // FK
 
         $this->addForeignKey(
             $this->db->getForeignKeyName(
-                '{{%enupalstripe_connect}}', 'id'
+                '{{%enupalstripe_prices}}', 'productId'
             ),
-            '{{%enupalstripe_connect}}', 'id',
-            '{{%elements}}', 'id', 'CASCADE', null
-        );
-        $this->addForeignKey(
-            $this->db->getForeignKeyName(
-                '{{%enupalstripe_vendors}}', 'id'
-            ),
-            '{{%enupalstripe_vendors}}', 'id',
-            '{{%elements}}', 'id', 'CASCADE', null
-        );
-        $this->addForeignKey(
-            $this->db->getForeignKeyName(
-                '{{%enupalstripe_commissions}}', 'id'
-            ),
-            '{{%enupalstripe_commissions}}', 'id',
-            '{{%elements}}', 'id', 'CASCADE', null
-        );
-        $this->addForeignKey(
-            $this->db->getForeignKeyName(
-                '{{%enupalstripe_connect}}', 'vendorId'
-            ),
-            '{{%enupalstripe_connect}}', 'vendorId',
-            '{{%enupalstripe_vendors}}', 'id', 'CASCADE', null
-        );
-        $this->addForeignKey(
-            $this->db->getForeignKeyName(
-                '{{%enupalstripe_commissions}}', 'orderId'
-            ),
-            '{{%enupalstripe_commissions}}', 'orderId',
-            '{{%elements}}', 'id', 'CASCADE', null
-        );
-        $this->addForeignKey(
-            $this->db->getForeignKeyName(
-                '{{%enupalstripe_commissions}}', 'productId'
-            ),
-            '{{%enupalstripe_commissions}}', 'productId',
-            '{{%elements}}', 'id', 'CASCADE', null
-        );
-        $this->addForeignKey(
-            $this->db->getForeignKeyName(
-                '{{%enupalstripe_commissions}}', 'connectId'
-            ),
-            '{{%enupalstripe_commissions}}', 'connectId',
-            '{{%enupalstripe_connect}}', 'id', 'CASCADE', null
+            '{{%enupalstripe_prices}}', 'productId',
+            '{{%enupalstripe_products}}', 'id', 'CASCADE', null
         );
 
         return true;
