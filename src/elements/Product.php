@@ -27,18 +27,7 @@ class Product extends Element
     // =========================================================================
     public $id;
     public $stripeId;
-    public $active;
-    public $description;
-    public $metadata;
-    public $name;
-    public $created;
-    public $images;
-    public $packageDimensions;
-    public $shippable;
-    public $statementDescriptor;
-    public $taxCode;
-    public $unitLabel;
-    public $url;
+    public $stripeObject;
 
     /**
      * Returns the element type name.
@@ -107,7 +96,7 @@ class Product extends Element
      */
     public function __toString()
     {
-        $name = $this->name ?? $this->stripeId;
+        $name = $this->getObject()->name ?? $this->stripeId;
 
         return (string)$name;
     }
@@ -161,7 +150,7 @@ class Product extends Element
      */
     protected static function defineSearchableAttributes(): array
     {
-        return ['stripeId', 'name'];
+        return ['stripeId'];
     }
 
     /**
@@ -181,7 +170,6 @@ class Product extends Element
      */
     protected static function defineTableAttributes(): array
     {
-        $attributes['name'] = ['label' => StripePlugin::t('Name')];
         $attributes['stripeId'] = ['label' => StripePlugin::t('Stripe Id')];
 
         return $attributes;
@@ -189,7 +177,7 @@ class Product extends Element
 
     protected static function defineDefaultTableAttributes(string $source): array
     {
-        $attributes = ['name', 'stripeId'];
+        $attributes = ['stripeId', 'name'];
 
         return $attributes;
     }
@@ -201,6 +189,13 @@ class Product extends Element
      */
     protected function tableAttributeHtml(string $attribute): string
     {
+        switch ($attribute) {
+            case 'name':
+            {
+                return $this->getObject()->name;
+            }
+        }
+
         return parent::tableAttributeHtml($attribute);
     }
 
@@ -210,23 +205,20 @@ class Product extends Element
      */
     public function afterSave(bool $isNew)
     {
-        // Get the Connect record
+        // Get the Product record
         if (!$isNew) {
             $record = ProductRecord::findOne($this->id);
 
             if (!$record) {
-                throw new \Exception('Invalid Connect ID: '.$this->id);
+                throw new \Exception('Invalid Product ID: '.$this->id);
             }
         } else {
             $record = new ProductRecord();
             $record->id = $this->id;
         }
 
-        $record->vendorId = $this->vendorId;
-        $record->products = $this->products;
-        $record->productType = $this->productType;
-        $record->allProducts = $this->allProducts;
-        $record->rate = $this->rate;
+        $record->stripeId = $this->stripeId;
+        $this->setStripeObject($this->stripeObject);
         $record->save(false);
 
         parent::afterSave($isNew);
@@ -238,60 +230,24 @@ class Product extends Element
     public function rules()
     {
         $rules = [];
-        $rules[] = [['vendorId', 'productType', 'rate'], 'required'];
-
-        $rules[] = [
-            ['products'], 'required', 'when' => function($model) {
-                return $model->allProducts != 1;
-            }
-        ];
+        $rules[] = [['stripeId', 'stripeObject'], 'required'];
 
         return $rules;
     }
 
-    /**
-     * @return Vendor|null
-     */
-    public function getVendor()
+    public function getObject()
     {
-        if ($this->vendorId){
-            return StripePlugin::$app->vendors->getVendorById($this->vendorId);
+        if (is_string($this->stripeObject)) {
+            $this->stripeObject = json_decode($this->stripeObject);
         }
 
-        return null;
+        return $this->stripeObject;
     }
 
-    /**
-     * @return string
-     */
-    public function getProductTypeName()
+    public function setStripeObject($stripeObject)
     {
-        return $this->isCommerceType() ? 'Commerce' : 'Stripe Payments';
-    }
-
-    /**
-     * @return bool
-     */
-    public function isCommerceType()
-    {
-        return strpos($this->productType, 'commerce') !== false;
-    }
-
-    /**
-     * @return string
-     */
-    public function getAllProductsHtml()
-    {
-        $statuses = [
-            'enabled' => 'green',
-            'disabled' => 'white'
-        ];
-
-        $status = $this->allProducts ? 'enabled' : 'disabled';
-        $color = $statuses[$status] ?? '';
-
-        $html = "<span class='status ".$color."'> </span>";
-
-        return $html;
+        if (is_array($stripeObject)) {
+            $this->stripeObject = json_encode($stripeObject);
+        }
     }
 }

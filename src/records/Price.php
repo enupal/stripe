@@ -13,11 +13,12 @@ use yii\db\ActiveQueryInterface;
 use craft\records\Element;
 
 /**
- * Class Product record.
+ * Class Price record.
  * @property $stripeId
+ * @property $productId
  * @property $stripeObject
  */
-class Product extends ActiveRecord
+class Price extends ActiveRecord
 {
     /**
      * @inheritdoc
@@ -26,7 +27,7 @@ class Product extends ActiveRecord
      */
     public static function tableName(): string
     {
-        return '{{%enupalstripe_products}}';
+        return '{{%enupalstripe_prices}}';
     }
 
     /**

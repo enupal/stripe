@@ -18,7 +18,7 @@ class m211127_000000_add_cart extends Migration
         $this->createTable('{{%enupalstripe_products}}', [
             'id' => $this->primaryKey(),
             'stripeId' => $this->string()->notNull(),
-            'object' => $this->longText(),
+            'stripeObject' => $this->longText(),
             //
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
@@ -29,7 +29,7 @@ class m211127_000000_add_cart extends Migration
             'id' => $this->primaryKey(),
             'productId' => $this->integer()->notNull(),
             'stripeId' => $this->string()->notNull(),
-            'object' => $this->longText(),
+            'stripeObject' => $this->longText(),
             //
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),

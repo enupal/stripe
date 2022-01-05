@@ -11,12 +11,13 @@ namespace enupal\stripe\elements\db;
 use craft\elements\db\ElementQuery;
 use craft\helpers\Db;
 
-class ProductQuery extends ElementQuery
+class PriceQuery extends ElementQuery
 {
     // General - Properties
     // =========================================================================
     public $id;
     public $stripeId;
+    public $productId;
     public $stripeObject;
 
     /**
@@ -34,7 +35,7 @@ class ProductQuery extends ElementQuery
     {
         // Default orderBy
         if (!isset($config['orderBy'])) {
-            $config['orderBy'] = 'enupalstripe_products.created';
+            $config['orderBy'] = 'enupalstripe_prices.created';
         }
 
         parent::__construct($elementType, $config);
@@ -50,27 +51,34 @@ class ProductQuery extends ElementQuery
      */
     protected function beforePrepare(): bool
     {
-        $this->joinElementTable('enupalstripe_products');
+        $this->joinElementTable('enupalstripe_prices');
 
         if (is_null($this->query)){
             return false;
         }
 
         $this->query->select([
-            'enupalstripe_products.id',
-            'enupalstripe_products.stripeId',
-            'enupalstripe_products.stripeObject'
+            'enupalstripe_prices.id',
+            'enupalstripe_prices.productId',
+            'enupalstripe_prices.stripeId',
+            'enupalstripe_prices.stripeObject'
         ]);
 
         if ($this->id) {
             $this->subQuery->andWhere(Db::parseParam(
-                'enupalstripe_products.id', $this->id)
+                'enupalstripe_prices.id', $this->id)
             );
         }
 
         if ($this->stripeId) {
             $this->subQuery->andWhere(Db::parseParam(
-                'enupalstripe_products.stripeId', $this->stripeId)
+                'enupalstripe_prices.stripeId', $this->stripeId)
+            );
+        }
+
+        if ($this->productId) {
+            $this->subQuery->andWhere(Db::parseParam(
+                'enupalstripe_prices.productId', $this->productId)
             );
         }
 
