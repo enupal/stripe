@@ -220,7 +220,7 @@ class Price extends Element
 
         $record->stripeId = $this->stripeId;
         $record->productId = $this->productId;
-        $this->setStripeObject($this->stripeObject);
+        $record->stripeObject = json_encode($this->getStripeObject());
         $record->save(false);
 
         parent::afterSave($isNew);
@@ -251,13 +251,6 @@ class Price extends Element
         }
 
         return $this->stripeObject;
-    }
-
-    public function setStripeObject($stripeObject)
-    {
-        if (is_array($stripeObject)) {
-            $this->stripeObject = json_encode($stripeObject);
-        }
     }
 
     /**

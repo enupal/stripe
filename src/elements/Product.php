@@ -96,7 +96,7 @@ class Product extends Element
      */
     public function __toString()
     {
-        $name = $this->getObject()->name ?? $this->stripeId;
+        $name = $this->getStripeObject()->name ?? $this->stripeId;
 
         return (string)$name;
     }
@@ -192,7 +192,7 @@ class Product extends Element
         switch ($attribute) {
             case 'name':
             {
-                return $this->getObject()->name;
+                return $this->getStripeObject()->name;
             }
         }
 
@@ -218,7 +218,7 @@ class Product extends Element
         }
 
         $record->stripeId = $this->stripeId;
-        $this->setStripeObject($this->stripeObject);
+        $record->stripeObject = json_encode($this->getStripeObject());
         $record->save(false);
 
         parent::afterSave($isNew);
@@ -235,19 +235,12 @@ class Product extends Element
         return $rules;
     }
 
-    public function getObject()
+    public function getStripeObject()
     {
         if (is_string($this->stripeObject)) {
             $this->stripeObject = json_decode($this->stripeObject);
         }
 
         return $this->stripeObject;
-    }
-
-    public function setStripeObject($stripeObject)
-    {
-        if (is_array($stripeObject)) {
-            $this->stripeObject = json_encode($stripeObject);
-        }
     }
 }
