@@ -110,7 +110,13 @@ class WebhookController extends FrontEndController
                 if ($paymentIntentId === null){
                     // We have a subscription
                     $subscriptionId = $checkoutSession['subscription'];
-                    $subscription = StripePlugin::$app->subscriptions->getStripeSubscription($subscriptionId);
+                    $order = StripePlugin::$app->orders->getOrderByStripeId($subscriptionId);
+                    if ($order !== null) {
+                        Craft::warning('Checkout session was already processed under order: '.$order->number, __METHOD__);
+                        break;
+                    }
+
+                    $subscription = Stripe::$app->subscriptions->getStripeSubscription($subscriptionId);
                     if ($subscription){
                         $order = StripePlugin::$app->paymentIntents->createOrderFromSubscription($subscription, $checkoutSession);
                     }
@@ -118,7 +124,14 @@ class WebhookController extends FrontEndController
                     $paymentIntent = StripePlugin::$app->paymentIntents->getPaymentIntent($paymentIntentId);
 
                     if ($paymentIntent){
-                        $order = StripePlugin::$app->paymentIntents->createOrderFromPaymentIntent($paymentIntent, $checkoutSession);
+                        $chargeId = $paymentIntent['charges']['data'][0]['id'];
+                        $order = StripePlugin::$app->orders->getOrderByStripeId($chargeId);
+                        if ($order !== null) {
+                            Craft::warning('Checkout session was already processed under order: '.$order->number, __METHOD__);
+                            break;
+                        }
+
+                        $order = Stripe::$app->paymentIntents->createOrderFromPaymentIntent($paymentIntent, $checkoutSession);
                     }
                 }
 
@@ -157,7 +170,7 @@ class WebhookController extends FrontEndController
     private function validateWebhookSignature($input)
     {
         $settings = StripePlugin::$app->settings->getSettings();
-        $sigHeader = $_SERVER['HTTP_STRIPE_SIGNATURE'];
+        $sigHeader = $_SERVER['HTTP_STRIPE_SIGNATURE'] ?? null;
         $endpointSecret = null;
 
         if ($settings->testMode && !empty($settings->testWebhookSigningSecret)) {

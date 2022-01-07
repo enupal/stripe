@@ -1,5 +1,13 @@
 # Stripe Payments Changelog
 
+## 3.3.11 - 2022.01.07
+
+### Fixed
+- Fixed issue where orders (one-time and subscriptions) were duplicated if the checkout session event was sent multiple times (Stripe Checkout) ([#178])
+
+[#196]: https://github.com/enupal/stripe/issues/196
+[#180]: https://github.com/enupal/stripe/issues/180
+
 ## 3.3.10 - 2021.12.21
 
 ### Added
