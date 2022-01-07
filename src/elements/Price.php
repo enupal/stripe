@@ -160,7 +160,7 @@ class Price extends Element
     protected static function defineSortOptions(): array
     {
         $attributes = [
-            'created' => StripePlugin::t('Created at')
+            'dateCreated' => StripePlugin::t('Created at')
         ];
 
         return $attributes;

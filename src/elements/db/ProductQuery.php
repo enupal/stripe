@@ -34,7 +34,7 @@ class ProductQuery extends ElementQuery
     {
         // Default orderBy
         if (!isset($config['orderBy'])) {
-            $config['orderBy'] = 'enupalstripe_products.created';
+            $config['orderBy'] = 'enupalstripe_products.dateCreated';
         }
 
         parent::__construct($elementType, $config);
@@ -75,7 +75,7 @@ class ProductQuery extends ElementQuery
         }
 
         if ($this->orderBy !== null && empty($this->orderBy) && !$this->structureId && !$this->fixedOrder) {
-            $this->orderBy = 'elements.created desc';
+            $this->orderBy = 'elements.dateCreated desc';
         }
 
         return parent::beforePrepare();
