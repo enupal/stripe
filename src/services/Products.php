@@ -15,7 +15,7 @@ use Craft;
 class Products extends Component
 {
     /**
-     * Returns a Price model if one is found in the database by id
+     * Returns a Product model if one is found in the database by id
      *
      * @param int $id
      *
@@ -29,12 +29,27 @@ class Products extends Component
     }
 
     /**
+     * Returns a Product model if one is found in the database by stripe transaction id
+     *
+     * @param string $stripeId
+     *
+     * @return null|ProductElement
+     */
+    public function getProductByStripeId(string $stripeId)
+    {
+        $query = ProductElement::find();
+        $query->stripeId($stripeId);
+
+        return $query->one();
+    }
+
+    /**
      * @param array $stripeObject
      * @return ProductElement|null
      */
-    public function createProduct(array $stripeObject)
+    public function createOrUpdateProduct(array $stripeObject)
     {
-        $product = new ProductElement();
+        $product = $this->getProductByStripeId($stripeObject['id']) ?? new ProductElement();
         $product->stripeId = $stripeObject['id'];
         $product->stripeObject = json_encode($stripeObject);
 
@@ -43,7 +58,7 @@ class Products extends Component
             return null;
         }
 
-        Craft::info('Stripe Product Created: '.$product->stripeId , __METHOD__);
+        Craft::info('Stripe Product Updated: '.$product->stripeId , __METHOD__);
 
         return $product;
     }

@@ -30,6 +30,16 @@ class ProductQuery extends ElementQuery
     /**
      * @inheritdoc
      */
+    public function stripeId($value)
+    {
+        $this->stripeId = $value;
+
+        return $this;
+    }
+
+    /**
+     * @inheritdoc
+     */
     public function __construct($elementType, array $config = [])
     {
         // Default orderBy

@@ -116,7 +116,7 @@ class WebhookController extends FrontEndController
                         break;
                     }
 
-                    $subscription = Stripe::$app->subscriptions->getStripeSubscription($subscriptionId);
+                    $subscription = StripePlugin::$app->subscriptions->getStripeSubscription($subscriptionId);
                     if ($subscription){
                         $order = StripePlugin::$app->paymentIntents->createOrderFromSubscription($subscription, $checkoutSession);
                     }
@@ -131,7 +131,7 @@ class WebhookController extends FrontEndController
                             break;
                         }
 
-                        $order = Stripe::$app->paymentIntents->createOrderFromPaymentIntent($paymentIntent, $checkoutSession);
+                        $order = StripePlugin::$app->paymentIntents->createOrderFromPaymentIntent($paymentIntent, $checkoutSession);
                     }
                 }
 
@@ -145,8 +145,17 @@ class WebhookController extends FrontEndController
                 $isSyncProduct = $stripeObject['metadata']['enupal_sync'] ?? false;
 
                 if ($isSyncProduct) {
-                    StripePlugin::$app->products->createProduct($stripeObject);
+                    StripePlugin::$app->products->createOrUpdateProduct($stripeObject);
                 }
+
+                break;
+            // New Price
+            case 'price.created':
+                // Let's wait 2 second until we create the product on craft
+                sleep(2);
+                $stripeObject = $eventJson['data']['object'];
+
+                StripePlugin::$app->prices->createOrUpdatePrice($stripeObject);
 
                 break;
         }
