@@ -1,0 +1,38 @@
+{#
+/**
+ * Stripe Payments plugin for Craft CMS 3.x
+ *
+ * @link      https://enupal.com/
+ * @copyright Copyright (c) 2018 Enupal LLC
+ */
+#}
+
+{% import "_includes/forms" as forms %}
+<div id="details-container">
+    <div class="details">
+        <div class="meta" id="settings">
+            <table class=" ">
+                <tr>
+                    <td>
+                        <strong>{{ "Product Status"|t('enupal-stripe') }}</strong>
+                    </td>
+                    <td>
+                        <div id="product-status">
+                            {{ product.getStatusHtml()|raw }}
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <strong>{{ "Stripe Id"|t('enupal-stripe') }}</strong>
+                    </td>
+                    <td>
+                        <div id="product-status">
+                            {{ stripeObject.id }}
+                        </div>
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+</div>

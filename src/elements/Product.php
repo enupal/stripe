@@ -159,7 +159,8 @@ class Product extends Element
     protected static function defineSortOptions(): array
     {
         $attributes = [
-            'dateCreated' => StripePlugin::t('Created at')
+            'dateCreated' => StripePlugin::t('Created at'),
+            'stripeId' => StripePlugin::t('Stripe Id')
         ];
 
         return $attributes;
@@ -170,14 +171,18 @@ class Product extends Element
      */
     protected static function defineTableAttributes(): array
     {
+        $attributes['name'] = ['label' => StripePlugin::t('Name')];
         $attributes['stripeId'] = ['label' => StripePlugin::t('Stripe Id')];
+        $attributes['prices'] = ['label' => StripePlugin::t('Number of Prices')];
+        $attributes['dateCreated'] = ['label' => StripePlugin::t('Date Created')];
+        $attributes['dateUpdated'] = ['label' => StripePlugin::t('Date Updated')];
 
         return $attributes;
     }
 
     protected static function defineDefaultTableAttributes(string $source): array
     {
-        $attributes = ['stripeId', 'name'];
+        $attributes = ['name', 'stripeId', 'prices', 'dateCreated', 'dateUpdated'];
 
         return $attributes;
     }
@@ -193,6 +198,11 @@ class Product extends Element
             case 'name':
             {
                 return $this->getStripeObject()->name;
+            }
+            case 'prices':
+            {
+                $numberOfPrices = count($this->getPrices());
+                return $numberOfPrices == 0 ? 'No prices': $numberOfPrices;
             }
         }
 
@@ -235,6 +245,9 @@ class Product extends Element
         return $rules;
     }
 
+    /**
+     * @return mixed
+     */
     public function getStripeObject()
     {
         if (is_string($this->stripeObject)) {
@@ -242,5 +255,31 @@ class Product extends Element
         }
 
         return $this->stripeObject;
+    }
+
+    /**
+     * @return array|\craft\base\ElementInterface[]|null
+     */
+    public function getPrices()
+    {
+        return StripePlugin::$app->prices->getPricesByProductId($this->id);
+    }
+
+    /**
+     * @return string
+     */
+    public function getStatusHtml()
+    {
+        $statuses = [
+            'active' => 'green',
+            'disabled' => 'red'
+        ];
+
+        $status = $this->getStripeObject()->active ? 'active' : 'disabled';
+        $color = $statuses[$status] ?? '';
+
+        $html = "<span class='status ".$color."'> </span>".$status;
+
+        return $html;
     }
 }

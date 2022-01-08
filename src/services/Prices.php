@@ -69,6 +69,18 @@ class Prices extends Component
     }
 
     /**
+     * @param int $productId Returns a Prices related to a product
+     * @return array|\craft\base\ElementInterface[]|null
+     */
+    public function getPricesByProductId(int $productId)
+    {
+        $query = PriceElement::find();
+        $query->productId($productId);
+
+        return $query->all();
+    }
+
+    /**
      * @param array $stripeObject
      * @return PriceElement|null
      * @throws \Throwable

@@ -1,0 +1,100 @@
+{% extends "_layouts/cp" %}
+{% import "_includes/forms" as forms %}
+
+{% set selectedSubnavItem = "products" %}
+{% set fullPageForm = true %}
+{% set title = "Product: "~stripeObject.name %}
+
+{% set testMode = craft.enupalStripe.getMode() %}
+{% set stripeUrl = "https://dashboard.stripe.com" %}
+{% set stripeUrl = testMode ? stripeUrl~'/test' : stripeUrl %}
+
+{% set crumbs = [
+    {    label: "Product"|t('enupal-stripe'), url: url('enupal-stripe/products') }
+] %}
+
+{% hook "cp.enupal-stripe.product.edit" %}
+
+{% set tabs = {
+    general:  {
+        label: "General"|t,
+        url: '#tab1',
+    }
+} %}
+
+{% block actionButton %}
+    <a id="share-btn" href="{{ stripeUrl }}/products/{{ stripeObject.id }}" class="btn sharebtn" target="_blank">Edit Product</a>
+{% endblock %}
+
+{% block details %}
+    {% namespace 'fields' %}
+
+        {% include 'enupal-stripe/products/_productInfo' %}
+
+    {% endnamespace %}
+{% endblock %}
+
+{% block content %}
+    {% if not stripeObject.livemode %}
+        <span class="testMode">Test Mode</span>
+    {% endif %}
+    {{ forms.textField({
+        label: "Name"|t('enupal-stripe'),
+        id: 'name',
+        name: 'name',
+        readonly: true,
+        value: stripeObject.name
+    }) }}
+
+    {% if stripeObject.description %}
+        {{ forms.field({
+            label: 'Description'|t('enupal-stripe'),
+            id: 'description'
+        }, forms.textArea({
+            label: "Description"|t('enupal-stripe'),
+            id: 'description',
+            readonly: true,
+            value: stripeObject.description
+        })) }}
+
+    {% endif %}
+
+    {% if stripeObject.images|length > 0 %}
+        <div class="field">
+
+            <div class="heading">
+                <label for="image-1">Images</label>
+            </div>
+            <div class="elements">
+                <div data-image-width="564" data-image-height="185" data-own-file="" data-movable="" data-replaceable="" class="element hasthumb large removable sel" data-type="craft\elements\Asset"  data-status="enabled" data-editable="" style="visibility: visible;" tabindex="0">
+                  <div class="elementthumb checkered">
+                        <img id="image-1" sizes="100px" srcset="{{ stripeObject.images[0] }}">
+                    </div>
+                    <div class="label">
+                        <span class="title">Image 1</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+
+
+
+{% endblock %}
+
+{% css %}
+    .testMode {
+    background-color: #f7e633;
+    color: #363636;
+    border-radius: 5px;
+    font-weight: 700;
+    font-size: 11px;
+    text-transform: uppercase;
+    padding-left: 9px;
+    padding-right: 9px;
+    height: 26px;
+    line-height: 26px;
+    }
+{% endcss %}
+
+{% do view.registerAssetBundle("enupal\\stripe\\web\\assets\\FontAwesomeAsset") %}

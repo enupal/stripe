@@ -210,6 +210,11 @@ class Stripe extends Plugin
             ];
         }
 
+        $navs['subnav']['products'] = [
+            "label" => self::t("Products"),
+            "url" => 'enupal-stripe/products'
+        ];
+
         if ($settings->useSca){
             $navs['subnav']['tax'] = [
                 "label" => self::t("Tax"),
@@ -285,6 +290,9 @@ class Stripe extends Plugin
 
             'enupal-stripe/vendors/edit/<vendorId:\d+>' =>
                 'enupal-stripe/vendors/edit-vendor',
+
+            'enupal-stripe/products/edit/<productId:\d+>' =>
+                'enupal-stripe/products/edit-product',
 
             'enupal-stripe/connects/new' =>
                 'enupal-stripe/connects/edit-connect',
