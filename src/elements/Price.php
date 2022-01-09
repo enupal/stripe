@@ -264,4 +264,22 @@ class Price extends Element
 
         return null;
     }
+
+    /**
+     * @return string
+     */
+    public function getStatusHtml()
+    {
+        $statuses = [
+            'active' => 'green',
+            'disabled' => 'red'
+        ];
+
+        $status = $this->getStripeObject()->active ? 'active' : 'disabled';
+        $color = $statuses[$status] ?? '';
+
+        $html = "<span class='status ".$color."'> </span>".$status;
+
+        return $html;
+    }
 }
