@@ -8,31 +8,36 @@
 #}
 
 {% import "_includes/forms" as forms %}
-<div id="details-container">
-    <div class="details">
-        <div class="meta" id="settings">
-            <table class=" ">
-                <tr>
-                    <td>
-                        <strong>{{ "Product Status"|t('enupal-stripe') }}</strong>
-                    </td>
-                    <td>
-                        <div id="product-status">
-                            {{ product.getStatusHtml()|raw }}
-                        </div>
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        <strong>{{ "Stripe Id"|t('enupal-stripe') }}</strong>
-                    </td>
-                    <td>
-                        <div id="product-status">
-                            {{ stripeObject.id }}
-                        </div>
-                    </td>
-                </tr>
-            </table>
-        </div>
+
+<div class="meta read-only">
+    <div class="data">
+        <h5 class="heading">{{ "Status"|t('enupal-stripe') }}</h5>
+        <div class="value">{{ product.getStatusHtml()|raw }}</div>
     </div>
+    <div class="data">
+        <h5 class="heading">{{ "Name"|t('enupal-stripe') }}</h5>
+        <div class="value">{{ stripeObject.name }}</div>
+    </div>
+    {% if stripeObject.description %}
+        <div class="data">
+            <h5 class="heading">{{ "Description"|t('enupal-stripe') }}</h5>
+            <div class="value">{{ stripeObject.description }}</div>
+        </div>
+    {% endif %}
+    <div class="data">
+        <h5 class="heading">{{ "Stripe Id"|t('enupal-stripe') }}</h5>
+        <div class="value"> {{ stripeObject.id }}</div>
+    </div>
+    {% if stripeObject.images %}
+        <div class="data">
+            <h5 class="heading">{{ "Image"|t('enupal-stripe') }}</h5>
+            <div class="value"> <div class="elements">
+                    <div data-image-width="564" data-image-height="185" data-own-file="" data-movable="" data-replaceable="" class="element hasthumb large removable sel" data-type="craft\elements\Asset"  data-status="enabled" data-editable="" style="visibility: visible;" tabindex="0">
+                        <div class="elementthumb checkered">
+                            <img id="image-1" sizes="100px" srcset="{{ stripeObject.images[0] }}">
+                        </div>
+                    </div>
+                </div></div>
+        </div>
+    {% endif %}
 </div>
