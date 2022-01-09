@@ -32,6 +32,17 @@
         {% include 'enupal-stripe/products/_productInfo' %}
 
     {% endnamespace %}
+    <hr>
+    <div class="meta read-only">
+        <div class="data">
+            <h5 class="heading">{{ "Date Created"|t('enupal-stripe') }}</h5>
+            <div class="value">{{ product.dateCreated|date('short') }} {{ product.dateCreated|time('short') }}</div>
+        </div>
+        <div class="data">
+            <h5 class="heading">{{ "Date Updated"|t('enupal-stripe') }}</h5>
+            <div class="value">{{ product.dateUpdated|date('short') }} {{ product.dateUpdated|time('short') }}</div>
+        </div>
+    </div>
 {% endblock %}
 
 {% block content %}
@@ -80,7 +91,7 @@
 
     {% if prices %}
         {{ forms.field({
-            label: 'Prices'|t('enupal-stripe'),
+            label: 'Prices'|t('enupal-stripe') ~ ' (' ~prices|length~')',
             id: 'prices'
         }) }}
         <div id="variants" class="matrix variant-matrix" style="position: relative;">
@@ -117,7 +128,7 @@
                                         </label>
                                     </div>
                                     <div class="input ltr">
-                                        <input readonly autocomplete="off" type="text" id="prices-{{ price.id }}-id" class="code text fullwidth" value="{{ priceObject.id }}" name="prices[{{ price.id }}][id]" autocomplete="off" dir="ltr">
+                                        <input readonly autocomplete="off" type="text" id="prices-{{ price.id }}-id" class="code text fullwidth" value="{{ priceObject.id }}" name="prices[{{ price.id }}][id]" dir="ltr">
                                     </div>
                                 </div>
                             </div>
@@ -130,10 +141,50 @@
                                         </label>
                                     </div>
                                     <div class="input ltr">
-                                        <input readonly autocomplete="off" type="text" id="prices-{{ price.id }}-price" class="code text fullwidth" value="{{ craft.enupalStripe.convertFromCents(priceObject.unit_amount, priceObject.currency ) }}" name="prices[{{ price.id }}][price]" autocomplete="off" dir="ltr">
+                                        <input readonly autocomplete="off" type="text" id="prices-{{ price.id }}-price" class="code text fullwidth" value="{{ craft.enupalStripe.convertFromCents(priceObject.unit_amount, priceObject.currency ) }}" name="prices[{{ price.id }}][price]" dir="ltr">
                                     </div>
                                 </div>
                             </div>
+                            {% if priceObject.recurring %}
+                                <div class="price-properties meta">
+                                    <div id="prices-{{ price.id }}-price-field" class="field price-properties-dimensions">
+                                        <div class="heading">
+                                            <label id="prices-{{ price.id }}-price-label" for="prices-{{ price.id }}-price">
+                                                Recurring
+                                            </label>
+                                        </div>
+                                        <div class="input ltr">
+                                            {% if priceObject.recurring.aggregate_usage %}
+                                                <div class="flex">
+                                                    <div class="textwrapper">
+                                                        <input readonly autocomplete="off" type="text" id="prices-{{ price.id }}-recurring-usage" class="text fullwidth" value="Aggregate Usage:" name="prices[{{ price.id }}][usage]" autocomplete="off" dir="ltr">
+                                                    </div>
+                                                    <div class="label light code">{{ priceObject.recurring.aggregate_usage }}</div>
+                                                </div>
+                                            {% endif %}
+                                            <div class="flex">
+                                                <div class="textwrapper">
+                                                    <input readonly autocomplete="off" type="text" id="prices-{{ price.id }}-recurring-interval" class="text fullwidth" value="Interval:" name="prices[{{ price.id }}][interval]" autocomplete="off" dir="ltr">
+                                                </div>
+                                                <div class="label light code">{{ priceObject.recurring.interval }}</div>
+                                            </div>
+                                            <div class="flex">
+                                                <div class="textwrapper">
+                                                    <input readonly autocomplete="off" type="text" id="prices-{{ price.id }}-recurring-interval" class="text fullwidth" value="Interval Count:" name="prices[{{ price.id }}][interval_count]" autocomplete="off" dir="ltr">
+                                                </div>
+                                                <div class="label light code">{{ priceObject.recurring.interval_count }}</div>
+                                            </div>
+                                            <div class="flex">
+                                                <div class="textwrapper">
+                                                    <input readonly autocomplete="off" type="text" id="prices-{{ price.id }}-recurring-usage-type" class="text fullwidth" value="Usage Type:" name="prices[{{ price.id }}][interval_count]" autocomplete="off" dir="ltr">
+                                                </div>
+                                                <div class="label light code">{{ priceObject.recurring.usage_type }}</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endif %}
+
                         </div>
                     </div>
                 {% endfor %}
