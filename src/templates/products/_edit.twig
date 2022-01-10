@@ -10,17 +10,10 @@
 {% set stripeUrl = testMode ? stripeUrl~'/test' : stripeUrl %}
 
 {% set crumbs = [
-    {    label: "Product"|t('enupal-stripe'), url: url('enupal-stripe/products') }
+    {    label: "Products"|t('enupal-stripe'), url: url('enupal-stripe/products') }
 ] %}
 
 {% hook "cp.enupal-stripe.product.edit" %}
-
-{% set tabs = {
-    general:  {
-        label: "General"|t,
-        url: '#tab1',
-    }
-} %}
 
 {% block actionButton %}
     <a id="share-btn" href="{{ stripeUrl }}/products/{{ stripeObject.id }}" class="btn sharebtn" target="_blank">Edit Product</a>
@@ -46,6 +39,20 @@
 {% endblock %}
 
 {% block content %}
+
+
+    <div id="modal-product" class="modal" style="display: none;">
+        <div id="modal" class="body" style="height: 100%;">
+            <header class="header">
+                <h2>Error</h2>
+            </header>
+            <div class="snapshot">
+                <pre>
+                    <code>{{ stripeObject|json_encode }}</code>
+                </pre>
+            </div>
+        </div>
+    </div>
     {% if not stripeObject.livemode %}
         <span class="testMode">Test Mode</span>
     {% endif %}
@@ -253,6 +260,23 @@
     .price-edit{
         color: #596673 !important;
     }
+
+    .show-json {
+        margin-top: 14px;
+        border: 1px solid rgba(51,64,77,.1);
+        background: #e4edf6;
+        height: 200px;
+        overflow: auto;
+        border-radius: 4px;
+        padding: 14px;
+    }
 {% endcss %}
 
 {% do view.registerAssetBundle("enupal\\stripe\\web\\assets\\FontAwesomeAsset") %}
+{% do view.registerAssetBundle("enupal\\stripe\\web\\assets\\ProductsAsset") %}
+
+{% js %}
+    $(document).ready(function() {
+    new EnupalStripeProduct();
+    });
+{% endjs %}

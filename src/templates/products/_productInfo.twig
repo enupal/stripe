@@ -28,6 +28,10 @@
         <h5 class="heading">{{ "Stripe Id"|t('enupal-stripe') }}</h5>
         <div class="value"> {{ stripeObject.id }}</div>
     </div>
+    <div class="data">
+        <h5 class="heading">{{ "Product Object"|t('enupal-stripe') }}</h5>
+        <div class="value"><a id="show-product" href="#show-product">{{ "Show Product"|t('enupal-stripe') }}</a></div>
+    </div>
     {% if stripeObject.images %}
         <div class="data">
             <h5 class="heading">{{ "Image"|t('enupal-stripe') }}</h5>
