@@ -15,6 +15,7 @@
         init: function()
         {
             this.addListener($("#fields-show-product"), 'activate', 'showProduct');
+            this.addListener($("#close-modal"), 'activate', 'closeModal');
         },
 
         showProduct: function(option)
@@ -28,6 +29,11 @@
                 var $div = $('#modal-product');
                 this.productModal = new Garnish.Modal($div);
             }
+        },
+
+        closeModal: function(option)
+        {
+            this.productModal.hide();
         },
 
     });

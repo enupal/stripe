@@ -27,6 +27,10 @@ class ProductsAsset extends AssetBundle
             'js/enupalstripeproduct.js'
         ];
 
+        $this->css = [
+            'css/dist/enupalstripeproduct.css'
+        ];
+
         parent::init();
     }
 }
