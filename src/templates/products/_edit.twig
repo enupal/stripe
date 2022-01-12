@@ -39,9 +39,7 @@
 {% endblock %}
 
 {% block content %}
-
-
-    <div id="modal-product" class="order-edit-modal modal fitted" style="display: none; width: 50%">
+    <div id="modal-product" class="order-edit-modal modal fitted" style="display: none;">
             <div id="modal" class="body">
             <header class="header">
                 <h2>Stripe Product Object</h2>
@@ -97,7 +95,7 @@
                                         </label>
                                     </div>
                                     <div class="input ltr">
-                                        <input readonly autocomplete="off" type="text" id="prices-{{ price.id }}-id" class="code text fullwidth" value="{{ priceObject.id }}" name="prices[{{ price.id }}][id]" dir="ltr">
+                                        <div class="value">{{ priceObject.id }}</div>
                                     </div>
                                 </div>
                             </div>
@@ -110,7 +108,7 @@
                                         </label>
                                     </div>
                                     <div class="input ltr">
-                                        <input readonly autocomplete="off" type="text" id="prices-{{ price.id }}-price" class="code text fullwidth" value="{{ craft.enupalStripe.convertFromCents(priceObject.unit_amount, priceObject.currency ) }}" name="prices[{{ price.id }}][price]" dir="ltr">
+                                        <div class="value">{{ craft.enupalStripe.convertFromCents(priceObject.unit_amount, priceObject.currency ) }}</div>
                                     </div>
                                 </div>
                             </div>
@@ -126,26 +124,26 @@
                                             {% if priceObject.recurring.aggregate_usage %}
                                                 <div class="flex">
                                                     <div class="textwrapper">
-                                                        <input readonly autocomplete="off" type="text" id="prices-{{ price.id }}-recurring-usage" class="text fullwidth" value="Aggregate Usage:" name="prices[{{ price.id }}][usage]" autocomplete="off" dir="ltr">
+                                                        <div class="value text fullwidth">Aggregate Usage:</div>
                                                     </div>
                                                     <div class="label light code">{{ priceObject.recurring.aggregate_usage }}</div>
                                                 </div>
                                             {% endif %}
                                             <div class="flex">
                                                 <div class="textwrapper">
-                                                    <input readonly autocomplete="off" type="text" id="prices-{{ price.id }}-recurring-interval" class="text fullwidth" value="Interval:" name="prices[{{ price.id }}][interval]" autocomplete="off" dir="ltr">
+                                                    <div class="value text fullwidth">Interval:</div>
                                                 </div>
                                                 <div class="label light code">{{ priceObject.recurring.interval }}</div>
                                             </div>
                                             <div class="flex">
                                                 <div class="textwrapper">
-                                                    <input readonly autocomplete="off" type="text" id="prices-{{ price.id }}-recurring-interval" class="text fullwidth" value="Interval Count:" name="prices[{{ price.id }}][interval_count]" autocomplete="off" dir="ltr">
+                                                    <div class="value text fullwidth">Interval Count:</div>
                                                 </div>
                                                 <div class="label light code">{{ priceObject.recurring.interval_count }}</div>
                                             </div>
                                             <div class="flex">
                                                 <div class="textwrapper">
-                                                    <input readonly autocomplete="off" type="text" id="prices-{{ price.id }}-recurring-usage-type" class="text fullwidth" value="Usage Type:" name="prices[{{ price.id }}][interval_count]" autocomplete="off" dir="ltr">
+                                                    <div class="value text fullwidth">Usage Type:</div>
                                                 </div>
                                                 <div class="label light code">{{ priceObject.recurring.usage_type }}</div>
                                             </div>
@@ -153,7 +151,30 @@
                                     </div>
                                 </div>
                             {% endif %}
-
+                            <div class="price-properties meta">
+                                <div id="prices-{{ price.id }}-price-field" class="field">
+                                    <div class="heading">
+                                        <label id="prices-{{ price.id }}-price-label" for="prices-{{ price.id }}-price">
+                                            Date Created
+                                        </label>
+                                    </div>
+                                    <div class="input ltr">
+                                        <div class="value">{{ price.dateCreated|date('short') }} {{ price.dateCreated|time('short') }}</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="price-properties meta">
+                                <div id="prices-{{ price.id }}-price-field" class="field">
+                                    <div class="heading">
+                                        <label id="prices-{{ price.id }}-price-label" for="prices-{{ price.id }}-price">
+                                            Date Updated
+                                        </label>
+                                    </div>
+                                    <div class="input ltr">
+                                        <div class="value">{{ price.dateUpdated|date('short') }} {{ price.dateUpdated|time('short') }}</div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 {% endfor %}
@@ -162,11 +183,6 @@
         </div>
     {% endif %}
 {% endblock %}
-
-{% css %}
-
-
-{% endcss %}
 
 {% do view.registerAssetBundle("enupal\\stripe\\web\\assets\\FontAwesomeAsset") %}
 {% do view.registerAssetBundle("enupal\\stripe\\web\\assets\\ProductsAsset") %}
