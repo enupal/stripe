@@ -139,20 +139,21 @@ class WebhookController extends FrontEndController
                     Craft::error('Something went wrong creating the Order from checkout session', __METHOD__);
                 }
                 break;
-            // New Product
+            // Products
             case 'product.created':
+            case 'product.updated':
                 $stripeObject = $eventJson['data']['object'];
                 $isSyncProduct = $stripeObject['metadata']['enupal_sync'] ?? false;
 
                 if ($isSyncProduct) {
                     StripePlugin::$app->products->createOrUpdateProduct($stripeObject);
                 }
-
                 break;
-            // New Price
+            // Prices
             case 'price.created':
-                // Let's wait 2 second until we create the product on craft
-                sleep(2);
+            case 'price.updated':
+                // Let's wait 1 second until we create the product on craft
+                sleep(1);
                 $stripeObject = $eventJson['data']['object'];
 
                 StripePlugin::$app->prices->createOrUpdatePrice($stripeObject);
