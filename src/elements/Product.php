@@ -50,6 +50,14 @@ class Product extends Element
     /**
      * @inheritdoc
      */
+    protected function isEditable(): bool
+    {
+        return true;
+    }
+
+    /**
+     * @inheritdoc
+     */
     public static function hasContent(): bool
     {
         return false;

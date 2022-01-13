@@ -10,8 +10,11 @@
 namespace enupal\stripe;
 
 use Craft;
+use craft\base\Element;
 use craft\commerce\elements\Product;
+use enupal\stripe\elements\Product as EnupalProduct;
 use craft\elements\User;
+use craft\events\DefineHtmlEvent;
 use craft\events\ElementEvent;
 use craft\events\RegisterComponentTypesEvent;
 use craft\events\RegisterUrlRulesEvent;
@@ -62,6 +65,18 @@ class Stripe extends Plugin
 
         Event::on(UrlManager::class, UrlManager::EVENT_REGISTER_SITE_URL_RULES, function(RegisterUrlRulesEvent $event) {
             $event->rules = array_merge($event->rules, $this->getSiteUrlRules());
+        }
+        );
+
+        Event::on(Element::class, Element::EVENT_DEFINE_META_FIELDS_HTML, function(DefineHtmlEvent $event) {
+            if ($event->sender instanceof EnupalProduct) {
+                $product = $event->sender;
+
+                $variables['stripeObject'] = $product->getStripeObject();
+                $variables['prices'] = $product->getPrices();
+                $rendered = Craft::$app->getView()->renderTemplate('enupal-stripe/products/_prices', $variables);
+                $event->html = $rendered;
+            }
         }
         );
 
