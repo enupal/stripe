@@ -68,6 +68,19 @@ class Stripe extends Plugin
         }
         );
 
+        Event::on(Element::class, Element::EVENT_DEFINE_SIDEBAR_HTML, function(DefineHtmlEvent $event) {
+            if ($event->sender instanceof EnupalProduct) {
+                $product = $event->sender;
+
+                $variables['stripeObject'] = $product->getStripeObject();
+                $variables['product'] = $product;
+                $variables['displayStripeObject'] = false;
+                $rendered = Craft::$app->getView()->renderTemplate('enupal-stripe/products/_productInfo', $variables);
+                $event->html = $rendered;
+            }
+        }
+        );
+
         Event::on(Element::class, Element::EVENT_DEFINE_META_FIELDS_HTML, function(DefineHtmlEvent $event) {
             if ($event->sender instanceof EnupalProduct) {
                 $product = $event->sender;

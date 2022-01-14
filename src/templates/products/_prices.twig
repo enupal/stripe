@@ -130,4 +130,16 @@
         </div>
     </div>
 
+{% else %}
+        <p>No prices</p>
 {% endif %}
+
+{% js %}
+    $(document).ready(function() {
+        // Remove Save button on Element Editor (double click on index page or adding a Product field)
+        var saveButton = $("button[type=submit]", $(".element-editor"));
+        if (saveButton !== undefined || saveButton !== null) {
+            saveButton.addClass("hidden");
+        }
+    });
+{% endjs %}

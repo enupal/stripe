@@ -22,7 +22,7 @@
 {% block details %}
     {% namespace 'fields' %}
 
-        {% include 'enupal-stripe/products/_productInfo' %}
+        {% include 'enupal-stripe/products/_productInfo' with {'displayStripeObject': true} %}
 
     {% endnamespace %}
     <hr>
@@ -58,12 +58,3 @@
 
     {% include 'enupal-stripe/products/_prices' %}
 {% endblock %}
-
-{% do view.registerAssetBundle("enupal\\stripe\\web\\assets\\FontAwesomeAsset") %}
-{% do view.registerAssetBundle("enupal\\stripe\\web\\assets\\ProductsAsset") %}
-
-{% js %}
-    $(document).ready(function() {
-    new EnupalStripeProduct();
-    });
-{% endjs %}
