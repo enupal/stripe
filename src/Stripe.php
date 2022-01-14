@@ -27,6 +27,7 @@ use enupal\stripe\elements\PaymentForm;
 use enupal\stripe\events\AfterPopulatePaymentFormEvent;
 use enupal\stripe\events\OrderCompleteEvent;
 use enupal\stripe\events\WebhookEvent;
+use enupal\stripe\fields\StripeProducts;
 use enupal\stripe\services\App;
 use enupal\stripe\services\Orders;
 use craft\commerce\elements\Order as CommerceOrder;
@@ -106,6 +107,7 @@ class Stripe extends Plugin
 
         Event::on(Fields::class, Fields::EVENT_REGISTER_FIELD_TYPES, function(RegisterComponentTypesEvent $event) {
             $event->types[] = StripePaymentFormsField::class;
+            $event->types[] = StripeProducts::class;
         });
 
         Event::on(Elements::class, Elements::EVENT_AFTER_SAVE_ELEMENT, function(ElementEvent $event) {
