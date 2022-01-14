@@ -41,6 +41,16 @@ class Settings extends Component
             return false;
         }
 
+        $configSettings = StripePlugin::$app->settings->getConfigSettings();
+
+        //remove config values
+        $settings->livePublishableKey = isset($configSettings['livePublishableKey']) ? '' : $settings->livePublishableKey;
+        $settings->liveSecretKey = isset($configSettings['liveSecretKey']) ? '' : $settings->liveSecretKey;
+        $settings->testPublishableKey = isset($configSettings['testPublishableKey']) ? '' : $settings->testPublishableKey;
+        $settings->testSecretKey = isset($configSettings['testSecretKey']) ? '' : $settings->testSecretKey;
+        $settings->liveClientId = isset($configSettings['liveClientId']) ? '' : $settings->liveClientId;
+        $settings->testClientId = isset($configSettings['testClientId']) ? '' : $settings->testClientId;
+
         $success = Craft::$app->getPlugins()->savePluginSettings($plugin, $settings->getAttributes());
 
         return $success;
