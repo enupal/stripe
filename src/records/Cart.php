@@ -20,6 +20,7 @@ use craft\records\Element;
  * @property $itemCount
  * @property $currency
  * @property $items
+ * @property $cartMetadata
  * @property $userEmail
  * @property $userId
  * @property $status

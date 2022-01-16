@@ -327,6 +327,7 @@ class Install extends Migration
             'number' => $this->string()->notNull(),
             'stripeId' => $this->string(),
             'items' => $this->longText(),
+            'cartMetadata' => $this->longText(),
             'totalPrice' => $this->decimal(14, 4)->defaultValue(0),
             'itemCount' => $this->integer(),
             'currency' => $this->string(),

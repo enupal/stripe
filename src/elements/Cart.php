@@ -23,6 +23,9 @@ use enupal\stripe\Stripe;
  */
 class Cart extends Element
 {
+    const STATUS_PENDING = 'pending';
+    const STATUS_COMPLETED = 'completed';
+
     // General - Properties
     // =========================================================================
     public $id;
@@ -32,6 +35,7 @@ class Cart extends Element
     public $itemCount;
     public $currency;
     public $items;
+    public $cartMetadata;
     public $userEmail;
     public $userId;
     public $status;
@@ -231,6 +235,7 @@ class Cart extends Element
         $record->number = $this->number;
         $record->totalPrice = $this->totalPrice;
         $record->items = json_encode($this->getItems());
+        $record->cartMetadata = json_encode($this->getCartMetadata());
         $record->save(false);
 
         parent::afterSave($isNew);
@@ -261,5 +266,14 @@ class Cart extends Element
         }
 
         return $this->items;
+    }
+
+    public function getCartMetadata()
+    {
+        if (is_string($this->cartMetadata)) {
+            $this->cartMetadata = json_decode($this->cartMetadata);
+        }
+
+        return $this->cartMetadata;
     }
 }

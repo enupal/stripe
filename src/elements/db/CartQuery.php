@@ -56,6 +56,16 @@ class CartQuery extends ElementQuery
     /**
      * @inheritdoc
      */
+    public function status($value)
+    {
+        $this->status = $value;
+
+        return $this;
+    }
+
+    /**
+     * @inheritdoc
+     */
     public function __construct($elementType, array $config = [])
     {
         // Default orderBy
@@ -87,6 +97,7 @@ class CartQuery extends ElementQuery
             'enupalstripe_carts.number',
             'enupalstripe_carts.stripeId',
             'enupalstripe_carts.items',
+            'enupalstripe_carts.cartMetadata',
             'enupalstripe_carts.itemCount',
             'enupalstripe_carts.totalPrice',
             'enupalstripe_carts.currency',
@@ -110,6 +121,12 @@ class CartQuery extends ElementQuery
         if ($this->number) {
             $this->subQuery->andWhere(Db::parseParam(
                 'enupalstripe_carts.number', $this->number)
+            );
+        }
+
+        if ($this->status) {
+            $this->subQuery->andWhere(Db::parseParam(
+                'enupalstripe_carts.status', $this->status)
             );
         }
 
