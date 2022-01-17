@@ -84,17 +84,30 @@ class Carts extends Component
         foreach ($postItems as $postItem) {
             $priceId = $postItem['price'] ?? null;
             $quantity = $postItem['quantity'] ?? null;
+            $description = $postItem['description'] ?? null;
+            $totalPrice = 0;
 
             if (is_int($quantity) && $quantity > 0 && !empty($priceId)) {
-                // if item is already in the cart, add the quantity
-                if (in_array($priceId, $items)) {
-                    $items[$priceId]['quantity'] += $quantity;
-                } else {
-                    $items[$priceId] = [
-                        'price' => $priceId,
-                        'quantity' => $quantity
-                    ];
-                }
+                continue;
+            }
+
+            $price = StripePlugin::$app->prices->getPriceByStripeId($priceId);
+
+            if (is_null($price)) {
+                continue;
+            }
+
+            //@todo get the price and calculate totalPrice
+
+            // if item is already in the cart, add the quantity
+            if (in_array($priceId, $items)) {
+                $items[$priceId]['quantity'] += $quantity;
+            } else {
+                $items[$priceId] = [
+                    'price' => $priceId,
+                    'quantity' => $quantity,
+                    'description' => $description
+                ];
             }
         }
 
