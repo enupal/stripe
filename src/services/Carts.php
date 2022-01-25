@@ -75,17 +75,18 @@ class Carts extends Component
         return $query->one();
     }
 
-    public function populateCart(Cart $cart, array $postData)
+    public function populateCart(Cart $cart, array $postData): void
     {
         $cart->cartMetadata = $postData['metadata'] ?? null;
         $items = [];
         $postItems = $postData['items'] ?? [];
+        $totalPrice = 0;
+        $currency = null;
 
         foreach ($postItems as $postItem) {
             $priceId = $postItem['price'] ?? null;
             $quantity = $postItem['quantity'] ?? null;
             $description = $postItem['description'] ?? null;
-            $totalPrice = 0;
 
             if (is_int($quantity) && $quantity > 0 && !empty($priceId)) {
                 continue;
@@ -96,18 +97,20 @@ class Carts extends Component
             if (is_null($price)) {
                 continue;
             }
-
-            //@todo get the price and calculate totalPrice
+            $priceObject = $price->getStripeObject();
+            $currency = $priceObject->currency;
+            $totalPrice += ($priceObject->unit_amount * $quantity);
 
             // if item is already in the cart, add the quantity
-            if (in_array($priceId, $items)) {
-                $items[$priceId]['quantity'] += $quantity;
-            } else {
-                $items[$priceId] = [
-                    'price' => $priceId,
-                    'quantity' => $quantity,
-                    'description' => $description
-                ];
+            $quantity = in_array($priceId, $items) ? ($items[$priceId]['quantity'] + $quantity) : $quantity;
+
+            $items[$priceId] = [
+                'price' => $priceId,
+                'quantity' => $quantity
+            ];
+
+            if (!is_null($description)) {
+                $items[$priceId]['description'] = $description;
             }
         }
 
@@ -116,7 +119,10 @@ class Carts extends Component
         }
 
         $cart->items = $items;
+        $cart->currency = $currency;
+        $cart->totalPrice = StripePlugin::$app->orders->convertFromCents($totalPrice, $currency);
         $cart->itemCount = count($items);
+        $cart->number = StripePlugin::$app->orders->getRandomStr();
     }
 
     /**
