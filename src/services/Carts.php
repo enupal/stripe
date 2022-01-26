@@ -12,6 +12,7 @@ use Craft;
 use craft\db\Query;
 use craft\helpers\Db;
 use enupal\stripe\elements\Cart;
+use enupal\stripe\records\Cart as CartRecord;
 use enupal\stripe\exceptions\CartItemException;
 use enupal\stripe\Stripe as StripePlugin;
 use yii\base\Component;
@@ -34,6 +35,7 @@ class Carts extends Component
         if ($user) {
             $cart = $this->getCartByUserId($user->getId());
             // update the cart session with the database
+            // @todo validate if there is already a cart
             if (!is_null($cart)) {
                 $this->setSessionCart($cart->number);
             }
@@ -75,7 +77,15 @@ class Carts extends Component
         return $query->one();
     }
 
-    public function populateCart(Cart $cart, array $postData): void
+    /**
+     * @param Cart $cart
+     * @param array $postData
+     * @return void
+     * @throws CartItemException
+     * @throws \Throwable
+     * @throws \craft\errors\MissingComponentException
+     */
+    public function addCart(Cart $cart, array $postData): void
     {
         $cart->cartMetadata = $postData['metadata'] ?? null;
         $items = [];
@@ -85,10 +95,11 @@ class Carts extends Component
 
         foreach ($postItems as $postItem) {
             $priceId = $postItem['price'] ?? null;
-            $quantity = $postItem['quantity'] ?? null;
+            $quantity = $postItem['quantity'] ?? 0;
+            $quantity = intval($quantity);
             $description = $postItem['description'] ?? null;
 
-            if (is_int($quantity) && $quantity > 0 && !empty($priceId)) {
+            if ($quantity <= 0 || empty($priceId)) {
                 continue;
             }
 
@@ -122,7 +133,55 @@ class Carts extends Component
         $cart->currency = $currency;
         $cart->totalPrice = StripePlugin::$app->orders->convertFromCents($totalPrice, $currency);
         $cart->itemCount = count($items);
-        $cart->number = StripePlugin::$app->orders->getRandomStr();
+        $cart->number = $cart->number ?? StripePlugin::$app->orders->getRandomStr();
+        $cart->status = Cart::STATUS_PENDING;
+
+        $user = Craft::$app->getUser()->getIdentity();
+        if (!is_null($user)) {
+            $cart->userId = $user->id;
+        }
+
+        $this->saveCart($cart);
+
+        $this->setSessionCart($cart->number);
+    }
+
+    /**
+     * @param $cart Cart
+     *
+     * @throws \Exception
+     * @return bool
+     * @throws \Throwable
+     */
+    public function saveCart(Cart $cart): bool
+    {
+        if ($cart->id) {
+            $cartRecord = CartRecord::findOne($cart->id);
+
+            if (!$cartRecord) {
+                throw new \Exception(StripePlugin::t('No Cart exists with the ID “{id}”', ['id' => $cart->id]));
+            }
+        }
+
+        if (!$cart->validate()) {
+            return false;
+        }
+
+        $transaction = Craft::$app->db->beginTransaction();
+
+        try {
+            $result = Craft::$app->elements->saveElement($cart);
+
+            if ($result) {
+                $transaction->commit();
+            }
+        } catch (\Exception $e) {
+            $transaction->rollback();
+
+            throw $e;
+        }
+
+        return true;
     }
 
     /**

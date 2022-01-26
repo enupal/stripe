@@ -276,4 +276,19 @@ class Cart extends Element
 
         return $this->cartMetadata;
     }
+
+    /**
+     * @return array
+     */
+    public function asArray()
+    {
+        return [
+          "number" => $this->number,
+          "metadata" => $this->getCartMetadata(),
+          "total_price" => $this->totalPrice,
+          "currency" => $this->currency,
+          "item_count" => $this->itemCount,
+          "items" => $this->getItems()
+        ];
+    }
 }

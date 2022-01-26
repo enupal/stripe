@@ -10,14 +10,14 @@ namespace enupal\stripe\controllers;
 
 use Craft;
 use enupal\stripe\elements\Cart;
-use enupal\stripe\exceptions\CartItemException;
 use enupal\stripe\Stripe as StripePlugin;
 use craft\web\Controller as BaseController;
 use yii\web\Response;
 
-class CartsController extends BaseController
+class CartController extends BaseController
 {
     protected $allowAnonymous = true;
+    public $enableCsrfValidation = false;
 
     /**
      * @return \yii\web\Response
@@ -26,19 +26,19 @@ class CartsController extends BaseController
     public function actionAdd()
     {
         $this->requireAcceptsJson();
+        $this->requirePostRequest();
+
         $cart = StripePlugin::$app->carts->getCart() ?? new Cart();
-        $postData = $_POST;
+        $postData = Craft::$app->getRequest()->getBodyParams();
 
         try {
-            StripePlugin::$app->carts->populateCart($cart, $postData);
-        } catch (CartItemException $e) {
+            StripePlugin::$app->carts->addCart($cart, $postData);
+        } catch (\Exception $e) {
             Craft::error($e->getMessage(), __METHOD__);
             return $this->errorResponse($e->getMessage());
         }
 
-        //@todo add serialize cart for response and add the stripe object for each item
-
-        return $this->asJson(['success' => true, 'sessionId' => $session['id']]);
+        return $this->asJson($cart->asArray());
     }
 
     /**

@@ -364,6 +364,9 @@ class Stripe extends Plugin
                 'enupal-stripe/utilities/get-oauth-link',
             'enupal-stripe/authorize-oauth' =>
                 'enupal-stripe/utilities/authorize-oauth',
+            // CART
+            'enupal-stripe/cart/add' =>
+                'enupal-stripe/cart/add',
         ];
     }
 }
