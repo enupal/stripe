@@ -77,18 +77,17 @@ class Carts extends Component
     /**
      * @param Cart $cart
      * @param array $postData
+     * @param bool $isUpdate If disabled will override the current items
      * @return void
      * @throws CartItemException
      * @throws \Throwable
      * @throws \craft\errors\MissingComponentException
      */
-    public function addCart(Cart $cart, array $postData): void
+    public function addOrUpdateCart(Cart $cart, array $postData, bool $isUpdate = false): void
     {
         $cart->cartMetadata = $postData['metadata'] ?? null;
-        $items = [];
+        $items = $isUpdate ? $cart->getItems() : [];
         $postItems = $postData['items'] ?? [];
-        $totalPrice = 0;
-        $currency = null;
 
         foreach ($postItems as $postItem) {
             $priceId = $postItem['price'] ?? null;
@@ -96,7 +95,7 @@ class Carts extends Component
             $quantity = intval($quantity);
             $description = $postItem['description'] ?? null;
 
-            if ($quantity <= 0 || empty($priceId)) {
+            if (empty($priceId)) {
                 continue;
             }
 
@@ -105,21 +104,8 @@ class Carts extends Component
             if (is_null($price)) {
                 continue;
             }
-            $priceObject = $price->getStripeObject();
-            $currency = $priceObject->currency;
-            $totalPrice += ($priceObject->unit_amount * $quantity);
-
             // if item is already in the cart, add the quantity
-            $quantity = in_array($priceId, $items) ? ($items[$priceId]['quantity'] + $quantity) : $quantity;
-
-            $items[$priceId] = [
-                'price' => $priceId,
-                'quantity' => $quantity
-            ];
-
-            if (!is_null($description)) {
-                $items[$priceId]['description'] = $description;
-            }
+            $items = $this->addOrUpdateItem($items, $priceId, $quantity, $description);
         }
 
         if (empty($items)) {
@@ -127,9 +113,9 @@ class Carts extends Component
         }
 
         $cart->items = $items;
-        $cart->currency = $currency;
-        $cart->totalPrice = StripePlugin::$app->orders->convertFromCents($totalPrice, $currency);
-        $cart->itemCount = count($items);
+        $cart->currency = $this->getCartCurrency($cart);
+        $cart->itemCount = $this->getCartItemCount($cart);
+        $cart->totalPrice = StripePlugin::$app->orders->convertFromCents($this->getCartTotalPrice($cart), $cart->currency);
         $cart->number = $cart->number ?? StripePlugin::$app->orders->getRandomStr();
         $cart->cartStatus = Cart::STATUS_PENDING;
 
@@ -207,5 +193,110 @@ class Carts extends Component
     {
         $session = Craft::$app->getSession();
         $session->set(self::SESSION_CART_NAME, $number);
+    }
+
+    /**
+     * @param Cart $cart
+     * @return string
+     */
+    private function getCartCurrency(Cart $cart)
+    {
+        $items = $cart->getItems();
+
+        foreach ($items as $item) {
+            $priceId = $item['price'] ?? null;
+            $price = StripePlugin::$app->prices->getPriceByStripeId($priceId);
+
+            if (isset($price->getStripeObject()->currency)) {
+                return $price->getStripeObject()->currency;
+            }
+        }
+
+        return 'usd';
+    }
+
+    /**
+     * @param Cart $cart
+     * @return float|int
+     */
+    private function getCartTotalPrice(Cart $cart)
+    {
+        $indexesToDelete = [];
+        $items = $cart->getItems();
+        $totalPrice = 0;
+
+        foreach ($items as $index => $item) {
+            $priceId = $item['price'] ?? null;
+            $quantity = $item['quantity'] ?? 0;
+            $price = StripePlugin::$app->prices->getPriceByStripeId($priceId);
+
+            if (is_null($price)) {
+                $indexesToDelete[] = $index;
+                continue;
+            }
+
+            $priceObject = $price->getStripeObject();
+            $totalPrice += ($priceObject->unit_amount * $quantity);
+        }
+
+        foreach ($indexesToDelete as $index) {
+            Craft::warning("Removing {$items[$index]['price']} as is not synced with database", __METHOD__);
+            unset($items[$index]);
+        }
+
+        $cart->items = $items;
+
+        return $totalPrice;
+    }
+
+    /**
+     * @param Cart $cart
+     * @return int|mixed
+     */
+    private function getCartItemCount(Cart $cart)
+    {
+        $items = $cart->getItems();
+        $quantity = 0;
+        foreach ($items as $item) {
+            $itemQuantity = $item['quantity'] ?? 0;
+            $quantity += $itemQuantity;
+        }
+
+        return $quantity;
+    }
+
+    private function addOrUpdateItem($items, $priceId, int $quantity, $description = null)
+    {
+        $priceIndex = null;
+        $removeItem = $quantity <= 0;
+
+        foreach ($items as $index => $item) {
+            if ($priceId === $item["price"]) {
+                $quantity += $items[$index]['quantity'];
+                $priceIndex = $index;
+                break;
+            }
+        }
+
+        $priceToAdd = [
+            'price' => $priceId,
+            'quantity' => $quantity
+        ];
+
+        if (!is_null($description)) {
+            $priceToAdd['description'] = $description;
+        }
+
+        if (is_null($priceIndex) && !$removeItem) {
+            $items[] = $priceToAdd;
+        }else {
+            $items[$priceIndex] = $priceToAdd;
+
+            if ($removeItem) {
+                unset($items[$priceIndex]);
+            }
+        }
+
+        return $items;
     }
 }

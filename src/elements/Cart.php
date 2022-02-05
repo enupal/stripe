@@ -32,7 +32,7 @@ class Cart extends Element
     public $number;
     public $stripeId;
     public $totalPrice;
-    public $itemCount;
+    public $itemCount = 0;
     public $currency;
     public $items;
     public $cartMetadata;
@@ -261,13 +261,16 @@ class Cart extends Element
         return Craft::$app->getFormatter()->asCurrency($totalPrice, $this->currency);
     }
 
+    /**
+     * @return array|mixed
+     */
     public function getItems()
     {
         if (is_string($this->items)) {
-            $this->items = json_decode($this->items);
+            $this->items = json_decode($this->items, true);
         }
 
-        return $this->items;
+        return $this->items ?? [];
     }
 
     public function getCartMetadata()

@@ -53,13 +53,33 @@ class CartController extends BaseController
     public function actionAdd()
     {
         $this->requireAcceptsJson();
-        $this->requirePostRequest();
 
         $cart = StripePlugin::$app->carts->getCart() ?? new Cart();
         $postData = Craft::$app->getRequest()->getBodyParams();
 
         try {
-            StripePlugin::$app->carts->addCart($cart, $postData);
+            StripePlugin::$app->carts->addOrUpdateCart($cart, $postData);
+        } catch (\Exception $e) {
+            Craft::error($e->getMessage(), __METHOD__);
+            return $this->errorResponse($e->getMessage());
+        }
+
+        return $this->asJson($cart->asArray());
+    }
+
+    /**
+     * @return \yii\web\Response
+     * @throws \Throwable
+     */
+    public function actionUpdate()
+    {
+        $this->requireAcceptsJson();
+
+        $cart = StripePlugin::$app->carts->getCart() ?? new Cart();
+        $postData = Craft::$app->getRequest()->getBodyParams();
+
+        try {
+            StripePlugin::$app->carts->addOrUpdateCart($cart, $postData, true);
         } catch (\Exception $e) {
             Craft::error($e->getMessage(), __METHOD__);
             return $this->errorResponse($e->getMessage());
