@@ -23,7 +23,7 @@ class CartQuery extends ElementQuery
     public $items;
     public $userEmail;
     public $userId;
-    public $status;
+    public $cartStatus;
 
     /**
      * @inheritdoc
@@ -56,9 +56,19 @@ class CartQuery extends ElementQuery
     /**
      * @inheritdoc
      */
-    public function status($value)
+    public function cartStatus($value)
     {
-        $this->status = $value;
+        $this->cartStatus = $value;
+
+        return $this;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function userId($value)
+    {
+        $this->userId = $value;
 
         return $this;
     }
@@ -103,7 +113,7 @@ class CartQuery extends ElementQuery
             'enupalstripe_carts.currency',
             'enupalstripe_carts.userId',
             'enupalstripe_carts.userEmail',
-            'enupalstripe_carts.status'
+            'enupalstripe_carts.cartStatus'
         ]);
 
         if ($this->id) {
@@ -118,15 +128,21 @@ class CartQuery extends ElementQuery
             );
         }
 
+        if ($this->userId) {
+            $this->subQuery->andWhere(Db::parseParam(
+                'enupalstripe_carts.userId', $this->userId)
+            );
+        }
+
         if ($this->number) {
             $this->subQuery->andWhere(Db::parseParam(
                 'enupalstripe_carts.number', $this->number)
             );
         }
 
-        if ($this->status) {
+        if ($this->cartStatus) {
             $this->subQuery->andWhere(Db::parseParam(
-                'enupalstripe_carts.status', $this->status)
+                'enupalstripe_carts.cartStatus', $this->cartStatus)
             );
         }
 

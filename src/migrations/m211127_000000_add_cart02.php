@@ -26,7 +26,7 @@ class m211127_000000_add_cart02 extends Migration
             'currency' => $this->string(),
             'userEmail' => $this->string(),
             'userId' => $this->integer(),
-            'status' => $this->string(),
+            'cartStatus' => $this->string(),
             //
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
@@ -53,6 +53,17 @@ class m211127_000000_add_cart02 extends Migration
             '{{%enupalstripe_carts}}',
             'number',
             true
+        );
+
+        $this->createIndex(
+            $this->db->getIndexName(
+                '{{%enupalstripe_carts}}',
+                'cartStatus',
+                false, true
+            ),
+            '{{%enupalstripe_carts}}',
+            'cartStatus',
+            false
         );
 
         $this->createIndex(

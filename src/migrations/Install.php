@@ -333,7 +333,7 @@ class Install extends Migration
             'currency' => $this->string(),
             'userEmail' => $this->string(),
             'userId' => $this->integer(),
-            'status' => $this->string(),
+            'cartStatus' => $this->string(),
             //
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
@@ -511,6 +511,17 @@ class Install extends Migration
             ),
             '{{%enupalstripe_carts}}',
             'userId',
+            false
+        );
+
+        $this->createIndex(
+            $this->db->getIndexName(
+                '{{%enupalstripe_carts}}',
+                'cartStatus',
+                false, true
+            ),
+            '{{%enupalstripe_carts}}',
+            'cartStatus',
             false
         );
     }

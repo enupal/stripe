@@ -23,7 +23,7 @@ use craft\records\Element;
  * @property $cartMetadata
  * @property $userEmail
  * @property $userId
- * @property $status
+ * @property $cartStatus
  */
 class Cart extends ActiveRecord
 {

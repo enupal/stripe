@@ -9,14 +9,11 @@
 namespace enupal\stripe\services;
 
 use Craft;
-use craft\db\Query;
-use craft\helpers\Db;
 use enupal\stripe\elements\Cart;
 use enupal\stripe\records\Cart as CartRecord;
 use enupal\stripe\exceptions\CartItemException;
 use enupal\stripe\Stripe as StripePlugin;
 use yii\base\Component;
-use yii\db\Exception;
 
 class Carts extends Component
 {
@@ -51,28 +48,28 @@ class Carts extends Component
 
     /**
      * @param int $userId
-     * @param string $status
+     * @param string $cartStatus
      * @return array|Cart|null
      */
-    public function getCartByUserId(int $userId, string $status = Cart::STATUS_PENDING)
+    public function getCartByUserId(int $userId, string $cartStatus = Cart::STATUS_PENDING)
     {
         $query = Cart::find();
         $query->userId = $userId;
-        $query->status = $status;
+        $query->cartStatus = $cartStatus;
 
         return $query->one();
     }
 
     /**
      * @param string $number
-     * @param string $status
+     * @param string $cartStatus
      * @return array|Cart|null
      */
-    public function getCartByNumber(string $number, string $status = Cart::STATUS_PENDING)
+    public function getCartByNumber(string $number, string $cartStatus = Cart::STATUS_PENDING)
     {
         $query = Cart::find();
         $query->number = $number;
-        $query->status = $status;
+        $query->cartStatus = $cartStatus;
 
         return $query->one();
     }
@@ -134,7 +131,7 @@ class Carts extends Component
         $cart->totalPrice = StripePlugin::$app->orders->convertFromCents($totalPrice, $currency);
         $cart->itemCount = count($items);
         $cart->number = $cart->number ?? StripePlugin::$app->orders->getRandomStr();
-        $cart->status = Cart::STATUS_PENDING;
+        $cart->cartStatus = Cart::STATUS_PENDING;
 
         $user = Craft::$app->getUser()->getIdentity();
         if (!is_null($user)) {

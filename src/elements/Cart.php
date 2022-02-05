@@ -38,7 +38,7 @@ class Cart extends Element
     public $cartMetadata;
     public $userEmail;
     public $userId;
-    public $status;
+    public $cartStatus;
 
     /**
      * Returns the element type name.
@@ -231,6 +231,8 @@ class Cart extends Element
         $record->stripeId = $this->stripeId;
         $record->itemCount = $this->itemCount;
         $record->userId = $this->userId;
+        $record->cartStatus = $this->cartStatus;
+        $record->currency = $this->currency;
         $record->userEmail = $this->userEmail;
         $record->number = $this->number;
         $record->totalPrice = $this->totalPrice;

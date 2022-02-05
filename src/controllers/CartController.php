@@ -42,6 +42,19 @@ class CartController extends BaseController
     }
 
     /**
+     * @return \yii\web\Response
+     * @throws \Throwable
+     */
+    public function actionindex()
+    {
+        $this->requireAcceptsJson();
+
+        $cart = StripePlugin::$app->carts->getCart() ?? new Cart();
+
+        return $this->asJson($cart->asArray());
+    }
+
+    /**
      * @param string $message
      * @param int $statusCode
      * @return Response
