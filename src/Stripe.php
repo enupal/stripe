@@ -367,6 +367,8 @@ class Stripe extends Plugin
             // CART
             'enupal-stripe/cart/add' =>
                 'enupal-stripe/cart/add',
+            'enupal-stripe/cart' =>
+                'enupal-stripe/cart/index',
         ];
     }
 }

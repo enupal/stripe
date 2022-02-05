@@ -12,12 +12,39 @@ use Craft;
 use enupal\stripe\elements\Cart;
 use enupal\stripe\Stripe as StripePlugin;
 use craft\web\Controller as BaseController;
+use yii\filters\AccessControl;
 use yii\web\Response;
 
 class CartController extends BaseController
 {
     protected $allowAnonymous = true;
     public $enableCsrfValidation = false;
+
+    /**
+     * @inheritdoc
+     */
+    public function behaviors()
+    {
+        $behaviors = parent::behaviors();
+
+        $behaviors['access'] = [
+            'class' => AccessControl::class,
+            'rules' => [
+                [
+                    'allow' => true,
+                    'actions' => ['add', 'update'],
+                    'verbs' => ['POST']
+                ],
+                [
+                    'allow' => true,
+                    'actions' => ['index'],
+                    'verbs' => ['GET']
+                ],
+            ],
+        ];
+
+        return $behaviors;
+    }
 
     /**
      * @return \yii\web\Response
@@ -45,7 +72,7 @@ class CartController extends BaseController
      * @return \yii\web\Response
      * @throws \Throwable
      */
-    public function actionindex()
+    public function actionIndex()
     {
         $this->requireAcceptsJson();
 
