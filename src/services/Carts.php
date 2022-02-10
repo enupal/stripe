@@ -83,7 +83,7 @@ class Carts extends Component
      * @throws \Throwable
      * @throws \craft\errors\MissingComponentException
      */
-    public function addOrUpdateCart(Cart $cart, array $postData, bool $isUpdate = false): void
+    public function addCart(Cart $cart, array $postData, bool $isUpdate = false): void
     {
         $cart->cartMetadata = $postData['metadata'] ?? null;
         $items = $isUpdate ? $cart->getItems() : [];
@@ -272,7 +272,7 @@ class Carts extends Component
 
         foreach ($items as $index => $item) {
             if ($priceId === $item["price"]) {
-                $quantity += $items[$index]['quantity'];
+                $quantity = $items[$index]['quantity'];
                 $priceIndex = $index;
                 break;
             }

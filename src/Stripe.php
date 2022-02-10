@@ -18,7 +18,6 @@ use craft\events\DefineHtmlEvent;
 use craft\events\ElementEvent;
 use craft\events\RegisterComponentTypesEvent;
 use craft\events\RegisterUrlRulesEvent;
-use craft\events\UserEvent;
 use craft\services\Elements;
 use craft\services\Fields;
 use craft\services\Users;
@@ -29,6 +28,7 @@ use enupal\stripe\events\OrderCompleteEvent;
 use enupal\stripe\events\WebhookEvent;
 use enupal\stripe\fields\StripeProducts;
 use enupal\stripe\services\App;
+use enupal\stripe\services\Carts;
 use enupal\stripe\services\Orders;
 use craft\commerce\elements\Order as CommerceOrder;
 use enupal\stripe\services\PaymentForms;
@@ -39,6 +39,8 @@ use enupal\stripe\fields\StripePaymentForms as StripePaymentFormsField;
 use enupal\stripe\variables\StripeVariable;
 use enupal\stripe\models\Settings;
 use craft\base\Plugin;
+use yii\web\User as UserWeb;
+use yii\web\UserEvent;
 
 class Stripe extends Plugin
 {
@@ -58,6 +60,12 @@ class Stripe extends Plugin
         parent::init();
 
         self::$app = $this->get('app');
+
+        Event::on(UserWeb::class, UserWeb::EVENT_AFTER_LOGOUT, function(UserEvent $event) {
+            $session = Craft::$app->getSession();
+            $session->remove(Carts::SESSION_CART_NAME);
+        }
+        );
 
         Event::on(UrlManager::class, UrlManager::EVENT_REGISTER_CP_URL_RULES, function(RegisterUrlRulesEvent $event) {
             $event->rules = array_merge($event->rules, $this->getCpUrlRules());
