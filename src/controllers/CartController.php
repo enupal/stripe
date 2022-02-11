@@ -58,7 +58,7 @@ class CartController extends BaseController
         $postData = Craft::$app->getRequest()->getBodyParams();
 
         try {
-            StripePlugin::$app->carts->addCart($cart, $postData);
+            StripePlugin::$app->carts->addOrUpdateCart($cart, $postData);
         } catch (\Exception $e) {
             Craft::error($e->getMessage(), __METHOD__);
             return $this->errorResponse($e->getMessage());

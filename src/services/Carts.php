@@ -83,33 +83,26 @@ class Carts extends Component
      * @throws \Throwable
      * @throws \craft\errors\MissingComponentException
      */
-    public function addCart(Cart $cart, array $postData, bool $isUpdate = false): void
+    public function addOrUpdateCart(Cart $cart, array $postData, bool $isUpdate = false): void
     {
         $cart->cartMetadata = $postData['metadata'] ?? null;
-        $items = $isUpdate ? $cart->getItems() : [];
-        $postItems = $postData['items'] ?? [];
+        $items = $cart->getItems();
+        $postItems = $isUpdate ? $postData['updates'] ?? [] : $postData['items'] ?? [];
 
-        foreach ($postItems as $postItem) {
-            $priceId = $postItem['price'] ?? null;
+        foreach ($postItems as $key => $postItem) {
+            $priceId = $isUpdate ? $key : $postItem['price'] ?? "";
             $quantity = $postItem['quantity'] ?? 0;
             $quantity = intval($quantity);
             $description = $postItem['description'] ?? null;
 
-            if (empty($priceId)) {
-                continue;
-            }
-
             $price = StripePlugin::$app->prices->getPriceByStripeId($priceId);
 
             if (is_null($price)) {
-                continue;
+                Craft::error("Price id not found: ".$priceId, __METHOD__);
+                throw new CartItemException(Craft::t("site", "Cannot find price"));
             }
             // if item is already in the cart, add the quantity
-            $items = $this->addOrUpdateItem($items, $priceId, $quantity, $description);
-        }
-
-        if (empty($items)) {
-            throw new CartItemException("Can't find items in the cart");
+            $items = $this->addOrUpdateItem($items, $priceId, $quantity, $isUpdate, $description);
         }
 
         $cart->items = $items;
@@ -265,14 +258,16 @@ class Carts extends Component
         return $quantity;
     }
 
-    private function addOrUpdateItem($items, $priceId, int $quantity, $description = null)
+    private function addOrUpdateItem($items, $priceId, int $quantity, $isUpdate, $description = null)
     {
         $priceIndex = null;
         $removeItem = $quantity <= 0;
 
         foreach ($items as $index => $item) {
-            if ($priceId === $item["price"]) {
-                $quantity = $items[$index]['quantity'];
+            if ($priceId === $item['price']) {
+                if (!$isUpdate) {
+                    $quantity += $item['quantity'];
+                }
                 $priceIndex = $index;
                 break;
             }
