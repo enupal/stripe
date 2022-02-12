@@ -53,7 +53,7 @@ class Stripe extends Plugin
 
     public $hasCpSection = true;
     public $hasCpSettings = true;
-    public $schemaVersion = '3.2.3';
+    public $schemaVersion = '3.2.4';
 
     public function init()
     {
@@ -381,6 +381,9 @@ class Stripe extends Plugin
                 'enupal-stripe/cart/update',
             'enupal-stripe/cart/clear' =>
                 'enupal-stripe/cart/clear',
+            'enupal-stripe/cart/checkout' =>
+                'enupal-stripe/cart/checkout',
+
         ];
     }
 }

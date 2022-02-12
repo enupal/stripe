@@ -88,6 +88,25 @@ class Carts extends Component implements HttpStatus
 
     /**
      * @param Cart $cart
+     * @return \Stripe\Checkout\Session
+     * @throws CartItemException
+     * @throws \Stripe\Exception\ApiErrorException
+     * @throws \yii\base\Exception
+     */
+    public function checkoutCart(Cart $cart)
+    {
+        if (empty($cart->getItems()) || empty($cart->id)) {
+            throw new CartItemException(
+                Craft::t("site", "Cart is empty"),
+                self::BAD_REQUEST
+            );
+        }
+
+        return StripePlugin::$app->checkout->createCartCheckoutSession($cart);
+    }
+
+    /**
+     * @param Cart $cart
      * @param array $postData
      * @param bool $isUpdate If disabled will override the current items
      * @return void

@@ -34,7 +34,7 @@ class CartController extends BaseController
             'rules' => [
                 [
                     'allow' => true,
-                    'actions' => ['add', 'update', 'clear'],
+                    'actions' => ['add', 'update', 'clear', 'checkout'],
                     'verbs' => ['POST']
                 ],
                 [
@@ -122,6 +122,27 @@ class CartController extends BaseController
         }
 
         return $this->asJson($cart->asArray());
+    }
+
+    /**
+     * @return \yii\web\Response
+     * @throws \Throwable
+     */
+    public function actionCheckout()
+    {
+        $this->requireAcceptsJson();
+
+        $cart = StripePlugin::$app->carts->getCart() ?? new Cart();
+
+        try {
+            $checkoutSession = StripePlugin::$app->carts->checkoutCart($cart);
+        }catch (CartItemException $exception){
+            return $this->errorResponse($exception);
+        }catch (\Exception $exception) {
+            return $this->errorResponse(new CartItemException($exception, Carts::INTERNAL_SERVER_ERROR));
+        }
+        // add pbk stripe to peropery redirect or try first the windows load thing
+        return $this->asJson($checkoutSession);
     }
 
     /**

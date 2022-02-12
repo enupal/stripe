@@ -11,8 +11,10 @@ namespace enupal\stripe\services;
 use Craft;
 use craft\helpers\Json;
 use craft\helpers\UrlHelper;
+use enupal\stripe\elements\Cart;
 use enupal\stripe\elements\PaymentForm;
 use enupal\stripe\enums\AmountType;
+use enupal\stripe\enums\CheckoutPaymentType;
 use enupal\stripe\enums\SubmitTypes;
 use enupal\stripe\enums\SubscriptionType;
 use enupal\stripe\models\CustomPlan;
@@ -42,6 +44,101 @@ class Checkout extends Component
         }
 
         return $checkoutSession;
+    }
+
+    /**
+     * @param Cart $cart
+     * @return Session
+     * @throws \Stripe\Exception\ApiErrorException
+     * @throws \yii\base\Exception
+     */
+    public function createCartCheckoutSession(Cart $cart)
+    {
+        $pluginSettings = StripePlugin::$app->settings->getSettings();
+        $configSettings = StripePlugin::$app->settings->getConfigSettings();
+        StripePlugin::$app->settings->initializeStripe();
+
+        $askShippingAddress = $configSettings['enableShippingAddress'] ?? false;
+        $askBillingAddress = $configSettings['enableBillingAddress'] ?? false;
+        $checkoutPaymentMethods= $configSettings['checkoutPaymentMethods'] ?? [CheckoutPaymentType::CC];
+        $checkoutCancelUrl = $configSettings['checkoutPaymentMethods'] ?? "";
+        $checkoutSubmitType = $configSettings['checkoutSubmitType'] ?? null;
+        $checkoutLanguage = $configSettings['checkoutLanguage'] ?? 'auto';
+        $checkoutAllowPromotionCodes = $configSettings['checkoutAllowPromotionCodes'] ?? false;
+
+        $user = Craft::$app->getUser()->getIdentity() ?? null;
+
+        $metadata = [
+            'stripe_payments_cart_id' => $cart->id,
+            'stripe_payments_user_id' => $user->id ?? null
+        ];
+
+        $metadata = array_merge($metadata, $cart->getCartMetadata());
+        $paymentMethods = $checkoutPaymentMethods ?? ['card'];
+
+        // @todo validate if subscription
+        $sessionParams['payment_intent_data']['metadata'] = $metadata;
+
+        $sessionParams = [
+            'payment_method_types' => $paymentMethods,
+
+            'success_url' => $this->getSiteUrl('enupal/stripe-payments/finish-order?session_id={CHECKOUT_SESSION_ID}'),
+            'cancel_url' => $this->getSiteUrl($checkoutCancelUrl),
+        ];
+
+        if (!$pluginSettings->capture) {
+            $sessionParams['payment_intent_data']['capture_method'] = 'manual';
+        }
+
+        if (!is_null($checkoutSubmitType)) {
+            $sessionParams['submit_type'] = $checkoutSubmitType;
+        }
+
+        if ($askBillingAddress) {
+            $sessionParams['billing_address_collection'] = 'required';
+        }
+
+        if ($askShippingAddress) {
+            $sessionParams['shipping_address_collection'] = [
+                'allowed_countries' => $this->getShippingCountries()
+            ];
+        }
+
+        if (!is_null($user)) {
+            $customer = StripePlugin::$app->customers->getCustomerByEmail($user->email, $pluginSettings->testMode);
+
+            $sessionParams['customer_email'] = $user->email;
+            if ($customer !== null) {
+                $stripeCustomer = StripePlugin::$app->customers->getStripeCustomer($customer->stripeId);
+                if ($stripeCustomer !== null) {
+                    $sessionParams['customer'] = $customer->stripeId;
+                    unset($sessionParams['customer_email']);
+                }
+            }
+        }
+
+        $sessionParams['locale'] = $checkoutLanguage;
+        // @todo Here we need to add a getCheckoutLineItems() and add the proper tax
+        $sessionParams['line_items'] = $cart->getItems();
+
+        // Adds support to allowPromotionCodes
+        $allowPromotionCodes = (bool)$checkoutAllowPromotionCodes;
+
+        if ($allowPromotionCodes) {
+            /* @todo add isSubscriptionValidation
+            if ($isSubscription) {
+                $sessionParams['subscription_data']['payment_behavior'] = 'allow_incomplete';
+            }
+            */
+
+            $sessionParams['allow_promotion_codes'] = true;
+        }
+        //@todo pass subscription if at least one item is subscription
+        $sessionParams['mode'] = 'payment';
+
+        $session = Session::create($sessionParams);
+
+        return $session;
     }
 
     /**

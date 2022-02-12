@@ -133,6 +133,7 @@ class Install extends Migration
 
         $this->createTable('{{%enupalstripe_orders}}', [
             'id' => $this->primaryKey(),
+            'cartId' => $this->integer(),
             'formId' => $this->integer(),
             'userId' => $this->integer(),
             'testMode' => $this->boolean()->defaultValue(false),
@@ -629,10 +630,18 @@ class Install extends Migration
 
         $this->addForeignKey(
             $this->db->getForeignKeyName(
-                '{{%enupalstripe_cart}}', 'productId'
+                '{{%enupalstripe_carts}}', 'userId'
             ),
-            '{{%enupalstripe_cart}}', 'userId',
+            '{{%enupalstripe_carts}}', 'userId',
             '{{%users}}', 'id', 'CASCADE', null
+        );
+
+        $this->addForeignKey(
+            $this->db->getForeignKeyName(
+                '{{%enupalstripe_orders}}', 'cartId'
+            ),
+            '{{%enupalstripe_orders}}', 'cartId',
+            '{{%enupalstripe_carts}}', 'id', 'CASCADE', null
         );
     }
 

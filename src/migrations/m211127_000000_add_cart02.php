@@ -81,7 +81,7 @@ class m211127_000000_add_cart02 extends Migration
 
         $this->addForeignKey(
             $this->db->getForeignKeyName(
-                '{{%enupalstripe_carts}}', 'productId'
+                '{{%enupalstripe_carts}}', 'userId'
             ),
             '{{%enupalstripe_carts}}', 'userId',
             '{{%users}}', 'id', 'CASCADE', null

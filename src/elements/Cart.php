@@ -276,7 +276,7 @@ class Cart extends Element
     public function getCartMetadata()
     {
         if (is_string($this->cartMetadata)) {
-            $this->cartMetadata = json_decode($this->cartMetadata);
+            $this->cartMetadata = json_decode($this->cartMetadata, true);
         }
 
         return $this->cartMetadata;
