@@ -123,26 +123,6 @@ class Carts extends Component implements HttpStatus
     }
 
     /**
-     * @param Cart $cart
-     * @param array $items
-     * @return void
-     * @throws CartItemException
-     * @throws \Throwable
-     * @throws \craft\errors\MissingComponentException
-     */
-    private function processCart(Cart $cart, array $items)
-    {
-        $this->populateCart($cart, []);
-        if (!$this->saveCart($cart)) {
-            throw new CartItemException(
-                Craft::t("site", json_encode($cart->getErrors())),
-                self::INTERNAL_SERVER_ERROR
-            );
-        }
-        $this->setSessionCart($cart->number);
-    }
-
-    /**
      * @param $cart Cart
      *
      * @throws \Exception
@@ -178,6 +158,26 @@ class Carts extends Component implements HttpStatus
         }
 
         return true;
+    }
+
+    /**
+     * @param Cart $cart
+     * @param array $items
+     * @return void
+     * @throws CartItemException
+     * @throws \Throwable
+     * @throws \craft\errors\MissingComponentException
+     */
+    private function processCart(Cart $cart, array $items)
+    {
+        $this->populateCart($cart, $items);
+        if (!$this->saveCart($cart)) {
+            throw new CartItemException(
+                Craft::t("site", json_encode($cart->getErrors())),
+                self::INTERNAL_SERVER_ERROR
+            );
+        }
+        $this->setSessionCart($cart->number);
     }
 
     /**
@@ -323,6 +323,7 @@ class Carts extends Component implements HttpStatus
         if (!is_null($description)) {
             $priceToAdd['description'] = $description;
         }
+
 
         if (is_null($priceIndex) && !$removeItem) {
             $items[] = $priceToAdd;

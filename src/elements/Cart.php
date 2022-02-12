@@ -283,17 +283,46 @@ class Cart extends Element
     }
 
     /**
+     * Get the full price stripe object list of items
+     * @return array
+     */
+    public function getFullItems()
+    {
+        $items = $this->getItems();
+        $response = [];
+        foreach ($items as $itemData) {
+            if (!isset($itemData['price'])) {
+                Craft::error('Price is not set', __METHOD__);
+                continue;
+            }
+
+            $item = StripePlugin::$app->prices->getPriceByStripeId($itemData['price']);
+            if (!is_null($item)) {
+                $stripeObject = $item->getStripeObject();
+                $stripeObject->price = $stripeObject->id;
+                $stripeObject->quantity = $itemData['quantity'];
+                unset($stripeObject->id);
+                $response[] = $item->getStripeObject();
+            }
+        }
+
+        return $response;
+    }
+
+    /**
      * @return array
      */
     public function asArray()
     {
+        $configSettings = StripePlugin::$app->settings->getConfigSettings();
+        $extendedResponse = $configSettings['cartExtendedResponse'] ?? false;
         return [
           "number" => $this->number,
           "metadata" => $this->getCartMetadata(),
           "total_price" => $this->totalPrice,
           "currency" => $this->currency,
           "item_count" => $this->itemCount,
-          "items" => $this->getItems()
+          "items" => $extendedResponse ? $this->getFullItems() : $this->getItems()
         ];
     }
 }
