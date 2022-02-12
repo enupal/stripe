@@ -12,11 +12,4 @@ use yii\base\Exception;
 
 abstract class BaseApiException extends Exception
 {
-    /**
-     * @return int
-     */
-    public function getHttpCode(): int
-    {
-        return 200;
-    }
 }

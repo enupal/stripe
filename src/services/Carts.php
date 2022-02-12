@@ -14,8 +14,9 @@ use enupal\stripe\records\Cart as CartRecord;
 use enupal\stripe\exceptions\CartItemException;
 use enupal\stripe\Stripe as StripePlugin;
 use yii\base\Component;
+use enupal\stripe\contracts\HttpStatus;
 
-class Carts extends Component
+class Carts extends Component implements HttpStatus
 {
     const SESSION_CART_NAME = 'enupal_stripe_cart';
 
@@ -76,6 +77,17 @@ class Carts extends Component
 
     /**
      * @param Cart $cart
+     * @return void
+     * @throws \Throwable
+     * @throws \craft\errors\MissingComponentException
+     */
+    public function clearCart(Cart $cart)
+    {
+        $this->processCart($cart, []);
+    }
+
+    /**
+     * @param Cart $cart
      * @param array $postData
      * @param bool $isUpdate If disabled will override the current items
      * @return void
@@ -98,27 +110,35 @@ class Carts extends Component
             $price = StripePlugin::$app->prices->getPriceByStripeId($priceId);
 
             if (is_null($price)) {
-                Craft::error("Price id not found: ".$priceId, __METHOD__);
-                throw new CartItemException(Craft::t("site", "Cannot find price"));
+                throw new CartItemException(
+                    Craft::t("site", "Cannot find price: ".$priceId),
+                    self::BAD_REQUEST
+                );
             }
             // if item is already in the cart, add the quantity
             $items = $this->addOrUpdateItem($items, $priceId, $quantity, $isUpdate, $description);
         }
 
-        $cart->items = $items;
-        $cart->currency = $this->getCartCurrency($cart);
-        $cart->itemCount = $this->getCartItemCount($cart);
-        $cart->totalPrice = StripePlugin::$app->orders->convertFromCents($this->getCartTotalPrice($cart), $cart->currency);
-        $cart->number = $cart->number ?? StripePlugin::$app->orders->getRandomStr();
-        $cart->cartStatus = Cart::STATUS_PENDING;
+        $this->processCart($cart, $items);
+    }
 
-        $user = Craft::$app->getUser()->getIdentity();
-        if (!is_null($user)) {
-            $cart->userId = $user->id;
+    /**
+     * @param Cart $cart
+     * @param array $items
+     * @return void
+     * @throws CartItemException
+     * @throws \Throwable
+     * @throws \craft\errors\MissingComponentException
+     */
+    private function processCart(Cart $cart, array $items)
+    {
+        $this->populateCart($cart, []);
+        if (!$this->saveCart($cart)) {
+            throw new CartItemException(
+                Craft::t("site", json_encode($cart->getErrors())),
+                self::INTERNAL_SERVER_ERROR
+            );
         }
-
-        $this->saveCart($cart);
-
         $this->setSessionCart($cart->number);
     }
 
@@ -175,6 +195,28 @@ class Carts extends Component
         }
 
         return $cart;
+    }
+
+    /**
+     * @param Cart $cart
+     * @param array $items
+     * @param string $status
+     * @return void
+     * @throws \Exception
+     */
+    private function populateCart(Cart $cart, array $items, string $status = Cart::STATUS_PENDING)
+    {
+        $cart->items = $items;
+        $cart->currency = $this->getCartCurrency($cart);
+        $cart->itemCount = $this->getCartItemCount($cart);
+        $cart->totalPrice = StripePlugin::$app->orders->convertFromCents($this->getCartTotalPrice($cart), $cart->currency);
+        $cart->number = $cart->number ?? StripePlugin::$app->orders->getRandomStr();
+        $cart->cartStatus = $status;
+
+        $user = Craft::$app->getUser()->getIdentity();
+        if (!is_null($user)) {
+            $cart->userId = $user->id;
+        }
     }
 
     /**

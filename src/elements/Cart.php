@@ -249,7 +249,7 @@ class Cart extends Element
     public function rules()
     {
         $rules = [];
-        $rules[] = [['items'], 'required'];
+        $rules[] = [['number', 'cartStatus'], 'required'];
 
         return $rules;
     }
