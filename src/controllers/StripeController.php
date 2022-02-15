@@ -261,7 +261,7 @@ class StripeController extends BaseController
 
         $sessionSuccessUrl = Craft::$app->getSession()->get(PaymentForm::SESSION_CHECKOUT_SUCCESS_URL);
         Craft::$app->getSession()->remove(PaymentForm::SESSION_CHECKOUT_SUCCESS_URL);
-        $returnUrl = $sessionSuccessUrl ? $sessionSuccessUrl : $order->getPaymentForm()->checkoutSuccessUrl;
+        $returnUrl = $sessionSuccessUrl ? $sessionSuccessUrl : $order->getPaymentForm()->checkoutSuccessUrl ?? "";
         $url = '/';
 
         if ($returnUrl) {

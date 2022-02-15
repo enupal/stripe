@@ -591,6 +591,81 @@ class Orders extends Component
     }
 
     /**
+     * Process Cart Stripe Payment Listener
+     *
+     * @param $postData array
+     * @param $order Order
+     * @return Order|null
+     * @throws \Exception
+     * @throws \Throwable
+     */
+    public function processCartPayment($postData, $order = null)
+    {
+        $result = null;
+        $data = $postData['enupalStripe'];
+        $token = $data['token'] ?? null;
+        $cartNumber = $data['cartNumber'] ?? null;
+        $paymentType = $postData['paymentType'] ?? PaymentType::CC;
+        $data['couponCode'] = $postData['enupalCouponCode'] ?? null;
+
+        if (empty($token) || empty($cartNumber)){
+            Craft::error('Unable to get the stripe token or cartNumber', __METHOD__);
+            return $result;
+        }
+
+        $amount = $data['amount'] ?? null;
+
+        if ($amount === '' || $amount == 'NaN' || is_null($amount)){
+            Craft::error('Unable to get the final amount from the post request', __METHOD__);
+            return $result;
+        }
+
+        $cart = StripePlugin::$app->carts->getCartByNumber($cartNumber);
+
+        if (is_null($cart)) {
+            throw new \Exception(Craft::t('enupal-stripe','Unable to find the Cart associated to the order'));
+        }
+
+        if (is_null($order)){
+            $order = $this->populateOrder($data);
+        }
+
+        if ($paymentType != null){
+            // Possible card element
+            $order->paymentType = $paymentType;
+        }
+
+        $order->currency = $data['currency'];
+        $order->cartId = $cart->id;
+        $order->tax = $data['amountTax'];
+        $order->shipping = $data['amountShipping'];
+        $order->couponAmount = $data['amountDiscount'];
+
+
+        StripePlugin::$app->settings->initializeStripe();
+
+        $order->stripeTransactionId = $token;
+        $order->isSubscription = StripePlugin::$app->subscriptions->getIsSubscription($order->stripeTransactionId);
+
+        // revert cents - Async charges already make this conversion - On Checkout $paymentType is null
+        $order->totalPrice = $this->convertFromCents($order->totalPrice, $order->currency);
+        $order->tax = $this->convertFromCents($order->tax, $order->currency);
+        $order->shipping = $this->convertFromCents($order->shipping, $order->currency);
+        $order->couponAmount = $this->convertFromCents($order->couponAmount, $order->currency);
+
+        if (!$order->isSubscription){
+            $pluginSettings = StripePlugin::$app->settings->getSettings();
+            if (!$pluginSettings->capture){
+                $order->isCompleted = false;
+            }
+        }
+
+        $order = $this->finishCartOrder($order);
+
+        return $order;
+    }
+
+    /**
      * @param $planId
      * @param $paymentForm
      * @return null|float
@@ -1498,6 +1573,28 @@ class Orders extends Component
     private function getSubscriptionIsIncomplete($status)
     {
         return $status === 'incomplete' ? true : false;
+    }
+
+    /**
+     * @param $order
+     *
+     * @return null|Order
+     * @throws \Throwable
+     * @throws \yii\base\Exception
+     */
+    private function finishCartOrder($order)
+    {
+        // Finally save the order in Craft CMS
+        if (!StripePlugin::$app->orders->saveOrder($order)){
+            Craft::error('Something went wrong saving the Stripe Order: '.json_encode($order->getErrors()), __METHOD__);
+            return null;
+        }
+
+        Craft::info('Enupal Stripe - Order Created: './** @scrutinizer ignore-type */ $order->number, __METHOD__);
+
+        StripePlugin::$app->carts->setCartCompleted($order->getCart());
+
+        return $order;
     }
 
 	/**

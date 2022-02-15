@@ -61,23 +61,23 @@ class Checkout extends Component
         $askShippingAddress = $configSettings['enableShippingAddress'] ?? false;
         $askBillingAddress = $configSettings['enableBillingAddress'] ?? false;
         $checkoutPaymentMethods= $configSettings['checkoutPaymentMethods'] ?? [CheckoutPaymentType::CC];
-        $checkoutCancelUrl = $configSettings['checkoutPaymentMethods'] ?? "";
+        $checkoutCancelUrl = $configSettings['checkoutCancelUrl'] ?? "";
+        $checkoutSuccessUrl = $configSettings['checkoutSuccessUrl'] ?? "";
         $checkoutSubmitType = $configSettings['checkoutSubmitType'] ?? null;
         $checkoutLanguage = $configSettings['checkoutLanguage'] ?? 'auto';
         $checkoutAllowPromotionCodes = $configSettings['checkoutAllowPromotionCodes'] ?? false;
 
+        Craft::$app->getSession()->set(PaymentForm::SESSION_CHECKOUT_SUCCESS_URL, $checkoutSuccessUrl);
+
         $user = Craft::$app->getUser()->getIdentity() ?? null;
 
         $metadata = [
-            'stripe_payments_cart_id' => $cart->id,
+            'stripe_payments_cart_number' => $cart->number,
             'stripe_payments_user_id' => $user->id ?? null
         ];
 
         $metadata = array_merge($metadata, $cart->getCartMetadata());
         $paymentMethods = $checkoutPaymentMethods ?? ['card'];
-
-        // @todo validate if subscription
-        $sessionParams['payment_intent_data']['metadata'] = $metadata;
 
         $sessionParams = [
             'payment_method_types' => $paymentMethods,
@@ -85,6 +85,9 @@ class Checkout extends Component
             'success_url' => $this->getSiteUrl('enupal/stripe-payments/finish-order?session_id={CHECKOUT_SESSION_ID}'),
             'cancel_url' => $this->getSiteUrl($checkoutCancelUrl),
         ];
+
+        // @todo validate if subscription
+        $sessionParams['metadata'] = $metadata;
 
         if (!$pluginSettings->capture) {
             $sessionParams['payment_intent_data']['capture_method'] = 'manual';

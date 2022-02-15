@@ -50,7 +50,6 @@ class PaymentIntents extends Component
         PaymentIntent::update($paymentIntent->id, ['description' => $description]);
     }
 
-
     /**
      * @param PaymentIntent $paymentIntent
      * @param $checkoutSession
@@ -59,7 +58,11 @@ class PaymentIntents extends Component
      */
     public function createOrderFromPaymentIntent(PaymentIntent $paymentIntent, $checkoutSession)
     {
-        $metadata = $paymentIntent['metadata'];
+        $metadata = $checkoutSession['metadata'];
+        $cartNumber = $metadata['stripe_payments_cart_number'] ?? null;
+        if (!is_null($cartNumber)) {
+            return $this->createCartOrderFromPaymentIntent($paymentIntent, $checkoutSession);
+        }
         $formId = $metadata['stripe_payments_form_id'];
         $userId = $metadata['stripe_payments_user_id'];
         $quantity = $metadata['stripe_payments_quantity'];
@@ -123,6 +126,70 @@ class PaymentIntents extends Component
             }
 	        StripePlugin::$app->orders->saveOrder($order);
         }
+
+        return $order;
+    }
+
+    /**
+     * @param PaymentIntent $paymentIntent
+     * @param $checkoutSession
+     * @return \enupal\stripe\elements\Order|null
+     * @throws \Throwable
+     */
+    private function createCartOrderFromPaymentIntent(PaymentIntent $paymentIntent, $checkoutSession)
+    {
+        $metadata = $checkoutSession['metadata'];
+        $cartNumber = $metadata['stripe_payments_cart_number'];
+        $userId = $metadata['stripe_payments_user_id'];
+
+        $charge = $paymentIntent['charges']['data'][0];
+        $billing = $charge['billing_details'] ?? null;
+        $shipping = $charge['shipping'] ?? null;
+
+        $testMode = !$checkoutSession['livemode'];
+        $customer = StripePlugin::$app->customers->getStripeCustomer($paymentIntent['customer']);
+        StripePlugin::$app->customers->registerCustomer($customer, $testMode);
+
+        $data = [];
+        $data['enupalStripe']['metadata'] = $this->removePaymentIntentMetadata($metadata);
+        $data['enupalStripe']['token'] = $charge['id'];
+        $data['enupalStripe']['email'] = $billing['email'];
+        $data['enupalStripe']['amount'] = $checkoutSession['amount_total'];
+        $data['enupalStripe']['currency'] = strtoupper($checkoutSession['currency']);
+        $data['enupalStripe']['testMode'] = $testMode;
+        $data['enupalStripe']['paymentType'] = PaymentType::CC;//@todo fix this
+        $data['enupalStripe']['userId'] = $userId;
+        $data['enupalStripe']['cartNumber'] = $cartNumber;
+        $data['enupalStripe']['amountDiscount'] = $checkoutSession['total_details']['amount_discount'];
+        $data['enupalStripe']['amountTax'] = $checkoutSession['total_details']['amount_tax'];
+        $data['enupalStripe']['amountShipping'] = $checkoutSession['total_details']['amount_shipping'];
+
+        $billingAddress = $billing['address'] ?? null;
+        $shippingAddress = $shipping['address'] ?? null;
+
+        if (isset($billingAddress['city'])){
+            $data['enupalStripe']['billingAddress'] = [
+                'country' => $billingAddress['country'],
+                'zip' => $billingAddress['postal_code'],
+                'line1' => $billingAddress['line1'],
+                'city' => $billingAddress['city'],
+                'state' => $billingAddress['state'],
+                'name' => $billing['name'] ?? ''
+            ];
+        }
+
+        if (isset($shippingAddress['city'])){
+            $data['enupalStripe']['address'] = [
+                'country' => $shippingAddress['country'],
+                'zip' => $shippingAddress['postal_code'],
+                'line1' => $shippingAddress['line1'],
+                'city' => $shippingAddress['city'],
+                'state' => $shippingAddress['state'],
+                'name' => $shipping['name'] ?? ''
+            ];
+        }
+
+        $order = StripePlugin::$app->orders->processCartPayment($data);
 
         return $order;
     }
@@ -217,6 +284,7 @@ class PaymentIntents extends Component
     private function removePaymentIntentMetadata($metadata)
     {
         unset($metadata['stripe_payments_form_id']);
+        unset($metadata['stripe_payments_cart_number']);
         unset($metadata['stripe_payments_user_id']);
         unset($metadata['stripe_payments_quantity']);
         unset($metadata['stripe_payments_coupon_code']);

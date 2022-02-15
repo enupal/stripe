@@ -65,6 +65,7 @@ class Order extends Element
     public $orderStatusId;
 
     public $formId;
+    public $cartId;
     public $currency;
     public $totalPrice;
     public $shipping;
@@ -378,11 +379,11 @@ class Order extends Element
                 }
             case 'itemName':
                 {
-                    return $this->getPaymentForm()->name;
+                    return $this->getPaymentForm()->name ?? '';
                 }
             case 'itemSku':
                 {
-                    return '<a href="'.$this->getPaymentForm()->getCpEditUrl().'">'.$this->getPaymentForm()->handle.'</a>';
+                    return $this->getPaymentForm() ? '<a href="'.$this->getPaymentForm()->getCpEditUrl().'">'.$this->getPaymentForm()->handle.'</a>': '';
                 }
             case 'paymentType':
                 {
@@ -419,6 +420,7 @@ class Order extends Element
         $record->currency = $this->currency;
         $record->totalPrice = $this->totalPrice;
         $record->formId = $this->formId;
+        $record->cartId = $this->cartId;
         $record->quantity = $this->quantity;
         $record->stripeTransactionId = $this->stripeTransactionId;
         $record->email = $this->email;
@@ -462,6 +464,10 @@ class Order extends Element
      */
     public function getPaymentForm()
     {
+        if (is_null($this->formId)) {
+            return null;
+        }
+
         $paymentForm = StripePaymentsPlugin::$app->paymentForms->getPaymentFormById($this->formId);
 
         return $paymentForm;
@@ -491,6 +497,9 @@ class Order extends Element
         return $html;
     }
 
+    /**
+     * @return \craft\elements\User|null
+     */
     public function getUser()
     {
         if ($this->userId) {
@@ -498,6 +507,22 @@ class Order extends Element
 
             if ($user) {
                 return $user;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * @return array|Cart|null
+     */
+    public function getCart()
+    {
+        if ($this->cartId) {
+            $cart = Stripe::$app->carts->getCartById($this->cartId);
+
+            if ($cart) {
+                return $cart;
             }
         }
 

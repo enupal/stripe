@@ -76,6 +76,18 @@ class Carts extends Component implements HttpStatus
     }
 
     /**
+     * @param int $id
+     * @return array|Cart|null
+     */
+    public function getCartById(int $id)
+    {
+        $query = Cart::find();
+        $query->id = $id;
+
+        return $query->one();
+    }
+
+    /**
      * @param Cart $cart
      * @return void
      * @throws \Throwable
@@ -103,6 +115,20 @@ class Carts extends Component implements HttpStatus
         }
 
         return StripePlugin::$app->checkout->createCartCheckoutSession($cart);
+    }
+
+    /**
+     * @param Cart $cart
+     * @return void
+     * @throws \Throwable
+     */
+    public function setCartCompleted(Cart $cart)
+    {
+        $cart->cartStatus = Cart::STATUS_COMPLETED;
+
+        $this->saveCart($cart);
+
+        $this->removeSessionCart();
     }
 
     /**
@@ -247,6 +273,16 @@ class Carts extends Component implements HttpStatus
     {
         $session = Craft::$app->getSession();
         $session->set(self::SESSION_CART_NAME, $number);
+    }
+
+    /**
+     * @return void
+     * @throws \craft\errors\MissingComponentException
+     */
+    public function removeSessionCart()
+    {
+        $session = Craft::$app->getSession();
+        $session->remove(self::SESSION_CART_NAME);
     }
 
     /**

@@ -21,6 +21,7 @@ class OrdersQuery extends ElementQuery
     public $number;
     public $paymentType;
     public $formId;
+    public $cartId;
     public $email;
     public $stripeTransactionId;
     public $orderStatusId;
@@ -148,6 +149,24 @@ class OrdersQuery extends ElementQuery
     public function getUserId()
     {
         return $this->userId;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function cartId($value)
+    {
+        $this->cartId = $value;
+
+        return $this;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getCartId()
+    {
+        return $this->cartId;
     }
 
     /**
@@ -318,6 +337,7 @@ class OrdersQuery extends ElementQuery
             'enupalstripe_orders.tax',
             'enupalstripe_orders.shipping',
             'enupalstripe_orders.formId',
+            'enupalstripe_orders.cartId',
             'enupalstripe_orders.quantity',
             'enupalstripe_orders.stripeTransactionId',
             'enupalstripe_orders.transactionInfo',
@@ -408,6 +428,12 @@ class OrdersQuery extends ElementQuery
         if ($this->userId) {
             $this->subQuery->andWhere(Db::parseParam(
                 'enupalstripe_orders.userId', $this->userId)
+            );
+        }
+
+        if ($this->cartId) {
+            $this->subQuery->andWhere(Db::parseParam(
+                'enupalstripe_orders.cartId', $this->cartId)
             );
         }
 
