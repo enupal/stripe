@@ -195,7 +195,6 @@ class Plans extends Component
         StripePlugin::$app->settings->initializeStripe();
 
         $plan = Plan::retrieve($id);
-        Craft::dd($plan);
 
         return $plan;
     }
