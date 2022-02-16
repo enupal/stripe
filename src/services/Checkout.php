@@ -152,6 +152,12 @@ class Checkout extends Component
             $sessionParams['allow_promotion_codes'] = true;
         }
 
+        if ($form->automaticTax) {
+            $sessionParams['automatic_tax'] = [
+                'enabled' => true
+            ];
+        }
+
         $session = Session::create($sessionParams);
 
         return $session;
