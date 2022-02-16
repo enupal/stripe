@@ -19,6 +19,7 @@ use craft\records\Element;
  * @property string $name
  * @property string $handle
  * @property bool $enableCheckout
+ * @property bool $automaticTax
  * @property bool $checkoutCancelUrl
  * @property bool $checkoutSuccessUrl
  * @property bool $checkoutSubmitType
