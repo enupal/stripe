@@ -110,6 +110,11 @@ class PaymentForm extends Element
     /**
      * @var boolean
      */
+    public $automaticTax;
+
+    /**
+     * @var boolean
+     */
     public $checkoutAllowPromotionCodes;
 
     /**
@@ -533,6 +538,7 @@ class PaymentForm extends Element
 
         $record->tax = $this->tax;
         $record->useDynamicTaxRate = $this->useDynamicTaxRate;
+        $record->automaticTax = $this->automaticTax;
         $record->checkoutAllowPromotionCodes = $this->checkoutAllowPromotionCodes;
 
         $record->save(false);

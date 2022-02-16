@@ -11,6 +11,7 @@ namespace enupal\stripe\models;
 use Craft;
 use craft\base\Model;
 use craft\helpers\DateTimeHelper;
+use craft\i18n\Locale;
 use enupal\stripe\Stripe;
 use enupal\stripe\Stripe as StripePlugin;
 use Stripe\Invoice;
@@ -43,14 +44,15 @@ class Subscription extends Model
 
     public function __construct($subscription = [])
     {
-        $this->startDate = isset($subscription['current_period_start']) ? DateTimeHelper::toDateTime($subscription['current_period_start'])->format('m/d/Y') : null;
-        $this->endDate = isset($subscription['current_period_end']) ? DateTimeHelper::toDateTime($subscription['current_period_end'])->format('m/d/Y') : null;
+        $dateFormat = strtolower(Craft::$app->sites->getCurrentSite()->getLocale()->getDateFormat(Locale::LENGTH_SHORT, Locale::FORMAT_PHP));
+        $this->startDate = isset($subscription['current_period_start']) ? DateTimeHelper::toDateTime($subscription['current_period_start'])->format($dateFormat) : null;
+        $this->endDate = isset($subscription['current_period_end']) ? DateTimeHelper::toDateTime($subscription['current_period_end'])->format($dateFormat) : null;
         $this->daysUntilDue = $subscription['days_until_due'] ?? 0;
         $this->planNickName = $subscription['plan']['nickname'] ?? null ;
         $this->quantity = $subscription['quantity'] ?? null ;
         $this->interval = $subscription['plan']['interval'] ?? null ;
         $this->status = $subscription['status'] ?? null ;
-        $this->canceledAt = isset($subscription['canceled_at']) && $subscription['canceled_at'] ? DateTimeHelper::toDateTime($subscription['canceled_at'])->format('m/d/Y') : null;
+        $this->canceledAt = isset($subscription['canceled_at']) && $subscription['canceled_at'] ? DateTimeHelper::toDateTime($subscription['canceled_at'])->format($dateFormat) : null;
         $this->data = $subscription;
         $this->statusHtml = Stripe::$app->subscriptions->getSubscriptionStatusHtml($this->status);
         $this->cancelAtPeriodEnd = $subscription['cancel_at_period_end'];
