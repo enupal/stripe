@@ -1,5 +1,10 @@
 # Stripe Payments Changelog
 
+## 3.4.1 - 2022.02.16
+
+### Fixed
+- Fixed issue retrieving plans from Stripe
+
 ## 3.4.0 - 2022.02.16
 
 ### Added
