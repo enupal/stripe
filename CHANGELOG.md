@@ -1,9 +1,27 @@
 # Stripe Payments Changelog
 
+## 3.4.1 - 2022.02.16
+
+### Fixed
+- Fixed issue retrieving plans from Stripe
+
+## 3.4.0 - 2022.02.16
+
+### Added
+- Added [automatic tax](https://stripe.com/docs/payments/checkout/taxes?tax-calculation=stripe-tax) support (subscriptions only) on Stripe Checkout ([#249])
+
+### Updated
+- Updated subscription dates format on Order details to mach same CP locale format ([#247])
+- Updated subscription plan names to add the product name ([#244])
+
+[#249]: https://github.com/enupal/stripe/issues/249
+[#247]: https://github.com/enupal/stripe/issues/247
+[#244]: https://github.com/enupal/stripe/issues/244
+
 ## 3.3.11 - 2022.01.07
 
 ### Fixed
-- Fixed issue where orders (one-time and subscriptions) were duplicated if the checkout session event was sent multiple times (Stripe Checkout) ([#178])
+- Fixed issue where orders (one-time and subscriptions) were duplicated if the checkout session event was sent multiple times (Stripe Checkout) ([#196]) ([#180])
 
 [#196]: https://github.com/enupal/stripe/issues/196
 [#180]: https://github.com/enupal/stripe/issues/180

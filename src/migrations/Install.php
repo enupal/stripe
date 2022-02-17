@@ -66,6 +66,7 @@ class Install extends Migration
             'name' => $this->string()->notNull(),
             'handle' => $this->string()->notNull(),
             'enableCheckout' => $this->boolean()->defaultValue(true),
+            'automaticTax' => $this->boolean()->defaultValue(false),
             'paymentType' => $this->string(),
             'checkoutPaymentType' => $this->string(),
             'checkoutCancelUrl' => $this->string(),

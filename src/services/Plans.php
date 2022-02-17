@@ -103,7 +103,7 @@ class Plans extends Component
         StripePlugin::$app->settings->initializeStripe();
         $settings =  StripePlugin::$app->settings->getSettings();
         $startingAfter = null;
-        $plans = Plan::all(['limit' => 50, 'starting_after' => $startingAfter]);
+        $plans = Plan::all(['limit' => 50, 'starting_after' => $startingAfter, 'expand' => ['data.product']]);
         $option['label'] = 'Select Plan...';
         $option['value'] = '';
         $option['default'] = '';
@@ -167,14 +167,19 @@ class Plans extends Component
      */
     public function getDefaultPlanName($plan)
     {
-        $nickname = $plan['nickname'] != '' ? $plan['nickname'] : $plan['id'] ;
+        $nickname = !empty($plan['nickname']) ? $plan['nickname'] : $plan['id'] ;
         $intervalCount = $plan['interval_count'];
         $interval = $intervalCount > 1 ? $intervalCount.' '.$plan['interval'].'s' : $plan['interval'];
         $amount = $plan['amount'] ?? $plan['tiers'][0]['unit_amount'] ?? 0;
         $currency= strtoupper($plan['currency']);
         $amount = StripePlugin::$app->orders->convertFromCents($amount, $currency);
         $amount = Craft::$app->getFormatter()->asCurrency($amount, $currency);
-        $planName = $nickname.' '.$amount.'/'.$interval;
+        $productName = $plan['product']['name'] ?? null;
+        $planName = $nickname.' | '.$amount.'/'.$interval;
+
+        if (is_string($productName)) {
+            $planName = $productName.' | '.$planName;
+        }
 
         return $planName;
     }
