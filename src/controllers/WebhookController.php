@@ -107,7 +107,12 @@ class WebhookController extends FrontEndController
                 $paymentIntentId = $checkoutSession['payment_intent'];
                 $order = null;
 
-                if ($paymentIntentId === null){
+                // Cart logic
+                $metadata = $checkoutSession['metadata'];
+                $cartNumber = $metadata['stripe_payments_cart_number'] ?? null;
+                if (!is_null($cartNumber)) {
+                    $order = StripePlugin::$app->paymentIntents->createCartOrder($checkoutSession);
+                } else if (is_null($cartNumber) and is_null($paymentIntentId)){
                     // We have a subscription
                     $subscriptionId = $checkoutSession['subscription'];
                     $order = StripePlugin::$app->orders->getOrderByStripeId($subscriptionId);

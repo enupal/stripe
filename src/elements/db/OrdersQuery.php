@@ -22,6 +22,9 @@ class OrdersQuery extends ElementQuery
     public $paymentType;
     public $formId;
     public $cartId;
+    public $cartPaymentMethod;
+    public $cartItems;
+    public $isCart;
     public $email;
     public $stripeTransactionId;
     public $orderStatusId;
@@ -113,6 +116,24 @@ class OrdersQuery extends ElementQuery
     public function getIsSubscription()
     {
         return $this->isSubscription;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function isCart($value)
+    {
+        $this->isCart = $value;
+
+        return $this;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getIsCart()
+    {
+        return $this->isCart;
     }
 
     /**
@@ -355,6 +376,9 @@ class OrdersQuery extends ElementQuery
             'enupalstripe_orders.refunded',
             'enupalstripe_orders.dateRefunded',
             'enupalstripe_orders.isSubscription',
+            'enupalstripe_orders.isCart',
+            'enupalstripe_orders.cartItems',
+            'enupalstripe_orders.cartPaymentMethod',
             'enupalstripe_orders.dateOrdered'
         ]);
 
@@ -391,6 +415,12 @@ class OrdersQuery extends ElementQuery
         if ($this->isSubscription !== null) {
             $this->subQuery->andWhere(Db::parseParam(
                 'enupalstripe_orders.isSubscription', $this->isSubscription)
+            );
+        }
+
+        if ($this->isCart !== null) {
+            $this->subQuery->andWhere(Db::parseParam(
+                'enupalstripe_orders.isCart', $this->isCart)
             );
         }
 

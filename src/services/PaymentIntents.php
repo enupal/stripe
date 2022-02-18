@@ -58,11 +58,7 @@ class PaymentIntents extends Component
      */
     public function createOrderFromPaymentIntent(PaymentIntent $paymentIntent, $checkoutSession)
     {
-        $metadata = $checkoutSession['metadata'];
-        $cartNumber = $metadata['stripe_payments_cart_number'] ?? null;
-        if (!is_null($cartNumber)) {
-            return $this->createCartOrderFromPaymentIntent($paymentIntent, $checkoutSession);
-        }
+        $metadata = $paymentIntent['metadata'];
         $formId = $metadata['stripe_payments_form_id'];
         $userId = $metadata['stripe_payments_user_id'];
         $quantity = $metadata['stripe_payments_quantity'];
@@ -131,13 +127,22 @@ class PaymentIntents extends Component
     }
 
     /**
-     * @param PaymentIntent $paymentIntent
      * @param $checkoutSession
      * @return \enupal\stripe\elements\Order|null
      * @throws \Throwable
      */
-    private function createCartOrderFromPaymentIntent(PaymentIntent $paymentIntent, $checkoutSession)
+    private function createCartOrder(array $checkoutSession)
     {
+        $paymentIntentId = $checkoutSession['payment_intent'];
+        $subscriptionId = $checkoutSession['subscription'];
+        $cartItems = StripePlugin::$app->checkout->getAllCheckoutItems($checkoutSession['id']);
+
+        if (is_null($paymentIntentId) && !is_null($subscriptionId)) {
+            $subscription = StripePlugin::$app->subscriptions->getStripeSubscription($subscriptionId);
+            $invoice = StripePlugin::$app->customers->getStripeInvoice($subscription['latest_invoice']);
+            // @TODO - get the paymentIntent
+        }
+
         $metadata = $checkoutSession['metadata'];
         $cartNumber = $metadata['stripe_payments_cart_number'];
         $userId = $metadata['stripe_payments_user_id'];

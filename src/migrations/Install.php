@@ -134,7 +134,6 @@ class Install extends Migration
 
         $this->createTable('{{%enupalstripe_orders}}', [
             'id' => $this->primaryKey(),
-            'cartId' => $this->integer(),
             'formId' => $this->integer(),
             'userId' => $this->integer(),
             'testMode' => $this->boolean()->defaultValue(false),
@@ -164,6 +163,11 @@ class Install extends Migration
             'refunded' => $this->boolean()->defaultValue(false),
             'dateRefunded' => $this->dateTime(),
             'isSubscription' => $this->boolean()->defaultValue(false),
+            // cart
+            'cartId' => $this->integer(),
+            'isCart' => $this->boolean()->defaultValue(false),
+            'cartItems' => $this->longText(),
+            'cartPaymentMethod' => $this->string(),
             //
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
@@ -358,6 +362,28 @@ class Install extends Migration
             ),
             '{{%enupalstripe_orders}}',
             'formId',
+            false
+        );
+
+        $this->createIndex(
+            $this->db->getIndexName(
+                '{{%enupalstripe_orders}}',
+                'isSubscription',
+                false, true
+            ),
+            '{{%enupalstripe_orders}}',
+            'isSubscription',
+            false
+        );
+
+        $this->createIndex(
+            $this->db->getIndexName(
+                '{{%enupalstripe_orders}}',
+                'isCart',
+                false, true
+            ),
+            '{{%enupalstripe_orders}}',
+            'isCart',
             false
         );
 

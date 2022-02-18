@@ -65,7 +65,6 @@ class Order extends Element
     public $orderStatusId;
 
     public $formId;
-    public $cartId;
     public $currency;
     public $totalPrice;
     public $shipping;
@@ -99,6 +98,11 @@ class Order extends Element
     // subscriptions
     public $subscriptionStatus;
     public $isSubscription;
+    // cart
+    public $cartId;
+    public $isCart;
+    public $cartPaymentMethod;
+    public $cartItems;
 
     public $dateCreated;
     public $dateOrdered;
@@ -421,6 +425,9 @@ class Order extends Element
         $record->totalPrice = $this->totalPrice;
         $record->formId = $this->formId;
         $record->cartId = $this->cartId;
+        $record->cartPaymentMethod = $this->cartPaymentMethod;
+        $record->cartItems = $this->cartItems;
+        $record->isCart = $this->isCart;
         $record->quantity = $this->quantity;
         $record->stripeTransactionId = $this->stripeTransactionId;
         $record->email = $this->email;

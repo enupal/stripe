@@ -141,7 +141,6 @@ class CartController extends BaseController
         }catch (\Exception $exception) {
             return $this->errorResponse(new CartItemException($exception, Carts::INTERNAL_SERVER_ERROR));
         }
-        // add pbk stripe to peropery redirect or try first the windows load thing
         return $this->asJson($checkoutSession);
     }
 

@@ -1,5 +1,13 @@
 # Stripe Payments Changelog
 
+## WIP
+
+### Added
+- Added Cart element
+
+### Updated
+- Updated API version to `2020-08-27`
+
 ## 3.4.1 - 2022.02.16
 
 ### Fixed

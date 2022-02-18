@@ -23,6 +23,9 @@ use craft\records\Element;
  * @property $totalPrice
  * @property $formId
  * @property $cartId
+     * @property $cartPaymentMethod
+ * @property $cartItems
+ * @property $isCart
  * @property $quantity
  * @property $stripeTransactionId
  * @property $email

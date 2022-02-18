@@ -144,6 +144,30 @@ class Checkout extends Component
         return $session;
     }
 
+    public function getAllCheckoutItems(string $checkoutId)
+    {
+        StripePlugin::$app->settings->initializeStripe();
+
+        $startingAfter = null;
+        $items = Session::allLineItems($checkoutId, ['limit' => 50, 'starting_after' => $startingAfter]);
+        $cartItems = [];
+
+        while(isset($items['data']) && is_array($items['data'])) {
+            foreach ($items['data'] as $item) {
+                $cartItems[] = $item;
+            }
+
+            $startingAfter = $item['id'];
+            if ($items['has_more']){
+                $items = Session::allLineItems($checkoutId, ['limit' => 50, 'starting_after' => $startingAfter]);
+            }else{
+                $items = null;
+            }
+        }
+
+        return $cartItems;
+    }
+
     /**
      * @param PaymentForm $form
      * @param $postData
