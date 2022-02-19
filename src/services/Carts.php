@@ -170,7 +170,8 @@ class Carts extends Component implements HttpStatus
             $priceId = $isUpdate ? $key : $postItem['price'] ?? "";
             $quantity = $postItem['quantity'] ?? 0;
             $quantity = intval($quantity);
-            $description = $postItem['description'] ?? null;
+            unset($postItem['price']);
+            unset($postItem['quantity']);
 
             $price = StripePlugin::$app->prices->getPriceByStripeId($priceId);
 
@@ -181,7 +182,7 @@ class Carts extends Component implements HttpStatus
                 );
             }
             // if item is already in the cart, add the quantity
-            $items = $this->addOrUpdateItem($items, $priceId, $quantity, $isUpdate, $description);
+            $items = $this->addOrUpdateItem($items, $priceId, $quantity, $isUpdate, $postItem);
         }
 
         $this->processCart($cart, $items);
@@ -375,7 +376,7 @@ class Carts extends Component implements HttpStatus
         return $quantity;
     }
 
-    private function addOrUpdateItem($items, $priceId, int $quantity, $isUpdate, $description = null)
+    private function addOrUpdateItem($items, $priceId, int $quantity, $isUpdate, $extraData = [])
     {
         $priceIndex = null;
         $removeItem = $quantity <= 0;
@@ -395,10 +396,7 @@ class Carts extends Component implements HttpStatus
             'quantity' => $quantity
         ];
 
-        if (!is_null($description)) {
-            $priceToAdd['description'] = $description;
-        }
-
+        $priceToAdd = array_merge($priceToAdd, $extraData);
 
         if (is_null($priceIndex) && !$removeItem) {
             $items[] = $priceToAdd;

@@ -232,7 +232,7 @@ class StripeController extends BaseController
         $order = null;
         if (!is_null($cartNumber)) {
             $cart = StripePlugin::$app->carts->getCartByNumber($cartNumber, Cart::STATUS_COMPLETED);
-            if ($cart) {
+            if (!is_null($cart)) {
                 $order = StripePlugin::$app->orders->getOrderByCartId($cart->id);
             }
         } else if ($checkoutSession['payment_intent'] !== null) {

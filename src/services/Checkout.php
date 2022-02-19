@@ -139,6 +139,18 @@ class Checkout extends Component
             self::SESSION_MODE_PAYMENT
         ;
 
+        // @todo add support to shipping
+        /**
+        $sessionParams['shipping_options'] = [
+            [
+                'shipping_rate' => 'shr_1KE8XgLLWVlbcCFQgYFvBftd'
+            ],
+            [
+                'shipping_rate' => 'shr_1KE8WSLLWVlbcCFQJ7otZYxH'
+            ]
+        ];
+         * **/
+
         $session = Session::create($sessionParams);
 
         return $session;
