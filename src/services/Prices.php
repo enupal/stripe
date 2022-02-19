@@ -17,6 +17,8 @@ use Craft;
 
 class Prices extends Component
 {
+    const PRICE_TYPE_RECURRING = 'recurring';
+
     /**
      * @param int $amountInCents
      * @param string $currency

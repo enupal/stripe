@@ -118,6 +118,26 @@ class Carts extends Component implements HttpStatus
     }
 
     /**
+     * If at least 1 item in the cart is subscription return true
+     * @param Cart $cart
+     * @return bool
+     */
+    public function getIsSubscription(Cart $cart): bool
+    {
+        $items = $cart->getItems();
+
+        foreach ($items as $item) {
+            $price = StripePlugin::$app->prices->getPriceByStripeId($item['price']);
+
+            if ($price->getStripeObject()->type == Prices::PRICE_TYPE_RECURRING) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
      * @param Cart $cart
      * @return void
      * @throws \Throwable

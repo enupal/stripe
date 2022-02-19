@@ -33,8 +33,7 @@ class Subscriptions extends Component
         try {
             StripePlugin::$app->settings->initializeStripe();
 
-            $subscription = Subscription::retrieve($id);
-
+            $subscription = Subscription::retrieve(['id' => $id]);
         } catch (\Exception $e) {
             Craft::error('Unable to get subscription: '.$e->getMessage(), __METHOD__);
         }

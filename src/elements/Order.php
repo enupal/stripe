@@ -550,6 +550,20 @@ class Order extends Element
         return $variants;
     }
 
+    /**
+     * @return array|mixed
+     */
+    public function getCartItems()
+    {
+        $cartItems = [];
+
+        if ($this->cartItems){
+            $cartItems = json_decode($this->cartItems, true);
+        }
+
+        return $cartItems;
+    }
+
 	/**
 	 * @return string
 	 * @throws \Twig\Error\LoaderError

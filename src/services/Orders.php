@@ -132,6 +132,23 @@ class Orders extends Component
     }
 
     /**
+     * Returns an Order model if one is found in the database by number
+     *
+     * @param int $cartId
+     *
+     * @return null|Order
+     */
+    public function getOrderByCartId(int $cartId)
+    {
+        $query = Order::find();
+        $query->cartId($cartId);
+        /** @var Order $order */
+        $order = $query->one();
+
+        return $order;
+    }
+
+    /**
      * Returns a Order model if one is found in the database by stripe transaction id
      *
      * @param string $stripeTransactionId
@@ -317,6 +334,7 @@ class Orders extends Component
         $order->totalPrice = $data['amount'];
         $order->quantity = $data['quantity'] ?? 1;
         $order->shipping = $data['shippingAmount'] ?? 0;
+        $order->couponAmount = $data['discountAmount'] ?? 0;
         $order->tax = $data['taxAmount'] ?? 0;
         $shippingAddress = $data['address'] ?? null;
         $billingAddress = $data['billingAddress'] ?? null;
@@ -340,6 +358,12 @@ class Orders extends Component
         $variants = $data['metadata'] ?? [];
         if ($variants){
             $order->variants = json_encode($variants);
+        }
+
+        // cartItems
+        $cartItems = $data['cartItems'] ?? [];
+        if ($cartItems){
+            $order->cartItems = json_encode($cartItems);
         }
 
         return $order;
@@ -637,15 +661,9 @@ class Orders extends Component
 
         $order->currency = $data['currency'];
         $order->cartId = $cart->id;
-        $order->tax = $data['amountTax'];
-        $order->shipping = $data['amountShipping'];
-        $order->couponAmount = $data['amountDiscount'];
-
-
-        StripePlugin::$app->settings->initializeStripe();
-
         $order->stripeTransactionId = $token;
-        $order->isSubscription = StripePlugin::$app->subscriptions->getIsSubscription($order->stripeTransactionId);
+        $order->isSubscription = false;
+        $order->isCart = true;
 
         // revert cents - Async charges already make this conversion - On Checkout $paymentType is null
         $order->totalPrice = $this->convertFromCents($order->totalPrice, $order->currency);
@@ -653,11 +671,9 @@ class Orders extends Component
         $order->shipping = $this->convertFromCents($order->shipping, $order->currency);
         $order->couponAmount = $this->convertFromCents($order->couponAmount, $order->currency);
 
-        if (!$order->isSubscription){
-            $pluginSettings = StripePlugin::$app->settings->getSettings();
-            if (!$pluginSettings->capture){
-                $order->isCompleted = false;
-            }
+        $pluginSettings = StripePlugin::$app->settings->getSettings();
+        if (!$pluginSettings->capture){
+            $order->isCompleted = false;
         }
 
         $order = $this->finishCartOrder($order);

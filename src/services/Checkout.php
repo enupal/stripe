@@ -27,6 +27,8 @@ use yii\base\Component;
 class Checkout extends Component
 {
     const USAGE_TYPE_METERED = 'metered';
+    const SESSION_MODE_SUBSCRIPTION = 'subscription';
+    const SESSION_MODE_PAYMENT = 'payment';
 
     /**
      * @param $sessionId
@@ -58,8 +60,8 @@ class Checkout extends Component
         $configSettings = StripePlugin::$app->settings->getConfigSettings();
         StripePlugin::$app->settings->initializeStripe();
 
-        $askShippingAddress = $configSettings['enableShippingAddress'] ?? false;
-        $askBillingAddress = $configSettings['enableBillingAddress'] ?? false;
+        $askShippingAddress = $configSettings['checkoutEnableShippingAddress'] ?? false;
+        $askBillingAddress = $configSettings['checkoutEnableBillingAddress'] ?? false;
         $checkoutPaymentMethods= $configSettings['checkoutPaymentMethods'] ?? [CheckoutPaymentType::CC];
         $checkoutCancelUrl = $configSettings['checkoutCancelUrl'] ?? "";
         $checkoutSuccessUrl = $configSettings['checkoutSuccessUrl'] ?? "";
@@ -68,9 +70,7 @@ class Checkout extends Component
         $checkoutAllowPromotionCodes = $configSettings['checkoutAllowPromotionCodes'] ?? false;
 
         Craft::$app->getSession()->set(PaymentForm::SESSION_CHECKOUT_SUCCESS_URL, $checkoutSuccessUrl);
-
         $user = Craft::$app->getUser()->getIdentity() ?? null;
-
         $metadata = [
             'stripe_payments_cart_number' => $cart->number,
             'stripe_payments_user_id' => $user->id ?? null
@@ -86,7 +86,6 @@ class Checkout extends Component
             'cancel_url' => $this->getSiteUrl($checkoutCancelUrl),
         ];
 
-        // @todo validate if subscription
         $sessionParams['metadata'] = $metadata;
 
         if (!$pluginSettings->capture) {
@@ -123,8 +122,6 @@ class Checkout extends Component
         $sessionParams['locale'] = $checkoutLanguage;
         // @todo Here we need to add a getCheckoutLineItems() and add the proper tax
         $sessionParams['line_items'] = $cart->getItems();
-
-        // Adds support to allowPromotionCodes
         $allowPromotionCodes = (bool)$checkoutAllowPromotionCodes;
 
         if ($allowPromotionCodes) {
@@ -136,8 +133,11 @@ class Checkout extends Component
 
             $sessionParams['allow_promotion_codes'] = true;
         }
-        //@todo pass subscription if at least one item is subscription
-        $sessionParams['mode'] = 'payment';
+
+        $sessionParams['mode'] = StripePlugin::$app->carts->getIsSubscription($cart) ?
+            self::SESSION_MODE_SUBSCRIPTION :
+            self::SESSION_MODE_PAYMENT
+        ;
 
         $session = Session::create($sessionParams);
 

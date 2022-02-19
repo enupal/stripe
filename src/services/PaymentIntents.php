@@ -131,7 +131,7 @@ class PaymentIntents extends Component
      * @return \enupal\stripe\elements\Order|null
      * @throws \Throwable
      */
-    private function createCartOrder(array $checkoutSession)
+    public function createCartOrder(array $checkoutSession)
     {
         $paymentIntentId = $checkoutSession['payment_intent'];
         $subscriptionId = $checkoutSession['subscription'];
@@ -140,16 +140,34 @@ class PaymentIntents extends Component
         if (is_null($paymentIntentId) && !is_null($subscriptionId)) {
             $subscription = StripePlugin::$app->subscriptions->getStripeSubscription($subscriptionId);
             $invoice = StripePlugin::$app->customers->getStripeInvoice($subscription['latest_invoice']);
-            // @TODO - get the paymentIntent
+            $paymentIntentId = $invoice['payment_intent'];
+        }
+
+        if (is_null($paymentIntentId)) {
+            throw new \Exception("Unable to find the paymentIntentId related to the cart");
+        }
+
+        $paymentIntent = $this->getPaymentIntent($paymentIntentId);
+
+        if (is_null($paymentIntent)) {
+            throw new \Exception("Unable to find the paymentIntentId related to the cart: ".$paymentIntentId);
         }
 
         $metadata = $checkoutSession['metadata'];
         $cartNumber = $metadata['stripe_payments_cart_number'];
         $userId = $metadata['stripe_payments_user_id'];
+        $checkoutShippingAddress = $checkoutSession['shipping']?? null;
 
         $charge = $paymentIntent['charges']['data'][0];
+
+        $order = StripePlugin::$app->orders->getOrderByStripeId($charge['id']);
+        if ($order !== null) {
+            Craft::warning('Checkout session was already processed under order: '.$order->number, __METHOD__);
+            return $order;
+        }
+
         $billing = $charge['billing_details'] ?? null;
-        $shipping = $charge['shipping'] ?? null;
+        $shipping = is_null($checkoutShippingAddress) ? $charge['shipping'] ?? null : $checkoutShippingAddress;
 
         $testMode = !$checkoutSession['livemode'];
         $customer = StripePlugin::$app->customers->getStripeCustomer($paymentIntent['customer']);
@@ -165,9 +183,12 @@ class PaymentIntents extends Component
         $data['enupalStripe']['paymentType'] = PaymentType::CC;//@todo fix this
         $data['enupalStripe']['userId'] = $userId;
         $data['enupalStripe']['cartNumber'] = $cartNumber;
-        $data['enupalStripe']['amountDiscount'] = $checkoutSession['total_details']['amount_discount'];
-        $data['enupalStripe']['amountTax'] = $checkoutSession['total_details']['amount_tax'];
-        $data['enupalStripe']['amountShipping'] = $checkoutSession['total_details']['amount_shipping'];
+        $data['enupalStripe']['discountAmount'] = $checkoutSession['total_details']['amount_discount'];
+        $data['enupalStripe']['taxAmount'] = $checkoutSession['total_details']['amount_tax'];
+        $data['enupalStripe']['shippingAmount'] = $checkoutSession['total_details']['amount_shipping'];
+        //cart
+        $data['enupalStripe']['cartItems'] = $cartItems;
+        //$data['enupalStripe']['cartPaymentMethod'] = null; @todo
 
         $billingAddress = $billing['address'] ?? null;
         $shippingAddress = $shipping['address'] ?? null;
@@ -195,6 +216,7 @@ class PaymentIntents extends Component
         }
 
         $order = StripePlugin::$app->orders->processCartPayment($data);
+        StripePlugin::$app->messages->addMessage($order->id, "Payment Intent", $paymentIntent);
 
         return $order;
     }
