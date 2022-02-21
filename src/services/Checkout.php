@@ -60,16 +60,10 @@ class Checkout extends Component
         $configSettings = StripePlugin::$app->settings->getConfigSettings();
         StripePlugin::$app->settings->initializeStripe();
 
-        $askShippingAddress = $configSettings['checkoutEnableShippingAddress'] ?? false;
-        $askBillingAddress = $configSettings['checkoutEnableBillingAddress'] ?? false;
-        $checkoutPaymentMethods= $configSettings['checkoutPaymentMethods'] ?? [CheckoutPaymentType::CC];
-        $checkoutCancelUrl = $configSettings['checkoutCancelUrl'] ?? "";
-        $checkoutSuccessUrl = $configSettings['checkoutSuccessUrl'] ?? "";
-        $checkoutSubmitType = $configSettings['checkoutSubmitType'] ?? null;
-        $checkoutLanguage = $configSettings['checkoutLanguage'] ?? 'auto';
-        $checkoutAllowPromotionCodes = $configSettings['checkoutAllowPromotionCodes'] ?? false;
+        $checkoutPaymentMethods= $configSettings['cartPaymentMethods'] ?? [CheckoutPaymentType::CC];
+        $checkoutSubmitType = $configSettings['cartSubmitType'] ?? null;
 
-        Craft::$app->getSession()->set(PaymentForm::SESSION_CHECKOUT_SUCCESS_URL, $checkoutSuccessUrl);
+        Craft::$app->getSession()->set(PaymentForm::SESSION_CHECKOUT_SUCCESS_URL, $pluginSettings->cartSuccessUrl);
         $user = Craft::$app->getUser()->getIdentity() ?? null;
         $metadata = [
             'stripe_payments_cart_number' => $cart->number,
@@ -83,7 +77,7 @@ class Checkout extends Component
             'payment_method_types' => $paymentMethods,
 
             'success_url' => $this->getSiteUrl('enupal/stripe-payments/finish-order?session_id={CHECKOUT_SESSION_ID}'),
-            'cancel_url' => $this->getSiteUrl($checkoutCancelUrl),
+            'cancel_url' => $this->getSiteUrl($pluginSettings->cartCancelUrl),
         ];
 
         $sessionParams['metadata'] = $metadata;
@@ -96,11 +90,11 @@ class Checkout extends Component
             $sessionParams['submit_type'] = $checkoutSubmitType;
         }
 
-        if ($askBillingAddress) {
+        if ($pluginSettings->cartEnableBillingAddress) {
             $sessionParams['billing_address_collection'] = 'required';
         }
 
-        if ($askShippingAddress) {
+        if ($pluginSettings->cartEnableShippingAddress) {
             $sessionParams['shipping_address_collection'] = [
                 'allowed_countries' => $this->getShippingCountries()
             ];
@@ -119,10 +113,10 @@ class Checkout extends Component
             }
         }
 
-        $sessionParams['locale'] = $checkoutLanguage;
+        $sessionParams['locale'] = $pluginSettings->cartLanguage;
         // @todo Here we need to add a getCheckoutLineItems() and add the proper tax
         $sessionParams['line_items'] = $cart->getItems();
-        $allowPromotionCodes = (bool)$checkoutAllowPromotionCodes;
+        $allowPromotionCodes = $pluginSettings->cartAllowPromotionCodes;
 
         if ($allowPromotionCodes) {
             /* @todo add isSubscriptionValidation
@@ -140,7 +134,7 @@ class Checkout extends Component
         ;
 
         // @todo add support to shipping
-        /**
+
         $sessionParams['shipping_options'] = [
             [
                 'shipping_rate' => 'shr_1KE8XgLLWVlbcCFQgYFvBftd'
@@ -149,7 +143,12 @@ class Checkout extends Component
                 'shipping_rate' => 'shr_1KE8WSLLWVlbcCFQJ7otZYxH'
             ]
         ];
-         * **/
+
+        if ($pluginSettings->cartAutomaticTax) {
+            $sessionParams['automatic_tax'] = [
+                'enabled' => true
+            ];
+        }
 
         $session = Session::create($sessionParams);
 

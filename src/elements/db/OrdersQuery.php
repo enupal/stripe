@@ -379,6 +379,7 @@ class OrdersQuery extends ElementQuery
             'enupalstripe_orders.isCart',
             'enupalstripe_orders.cartItems',
             'enupalstripe_orders.cartPaymentMethod',
+            'enupalstripe_orders.cartShippingRateId',
             'enupalstripe_orders.dateOrdered'
         ]);
 

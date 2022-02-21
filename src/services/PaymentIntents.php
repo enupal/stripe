@@ -188,6 +188,8 @@ class PaymentIntents extends Component
         $data['enupalStripe']['shippingAmount'] = $checkoutSession['total_details']['amount_shipping'];
         //cart
         $data['enupalStripe']['cartItems'] = $cartItems;
+        $data['enupalStripe']['cartStripeId'] = $checkoutSession['id'];
+        $data['enupalStripe']['cartShippingRateId'] = $checkoutSession['shipping_rate'];
         //$data['enupalStripe']['cartPaymentMethod'] = null; @todo
 
         $billingAddress = $billing['address'] ?? null;

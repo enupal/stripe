@@ -53,7 +53,7 @@ class Stripe extends Plugin
 
     public $hasCpSection = true;
     public $hasCpSettings = true;
-    public $schemaVersion = '3.4.1';
+    public $schemaVersion = '3.4.2';
 
     public function init()
     {

@@ -28,6 +28,13 @@
             </li>
 
             <li>
+                <a href="{{ cpUrl('enupal-stripe/settings/cart') }}"
+                   {% if selectedSidebarItem == 'cart' %}class="sel"{% endif %}><i
+                            class="fa fa-shopping-cart fa-fw" aria-hidden="true"></i>&nbsp;{{ "Cart"|t('enupal-stripe') }}
+                </a>
+            </li>
+
+            <li>
                 <a href="{{ cpUrl('enupal-stripe/settings/connect') }}"
                    {% if selectedSidebarItem == 'connect' %}class="sel"{% endif %}><i
                             class="fa fa-shopping-bag fa-fw" aria-hidden="true"></i>&nbsp;{{ "Connect"|t('enupal-stripe') }}

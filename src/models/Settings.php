@@ -77,6 +77,16 @@ class Settings extends Model
     public $syncEnabledDateRange = false;
     public $syncStartDate;
     public $syncEndDate;
+    // Cart
+    public $cartEnableBillingAddress = false;
+    public $cartEnableShippingAddress = false;
+    public $cartAllowPromotionCodes = false;
+    public $cartAutomaticTax = false;
+    public $cartSuccessUrl = "";
+    public $cartCancelUrl = "";
+    public $cartShippingRates;
+    public $cartLanguage = "auto";
+    public $cartSubmitType;
 
     // Connect
     public $enableConnect = 0;

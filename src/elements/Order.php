@@ -102,6 +102,7 @@ class Order extends Element
     public $cartId;
     public $isCart;
     public $cartPaymentMethod;
+    public $cartShippingRateId;
     public $cartItems;
 
     public $dateCreated;
@@ -426,6 +427,7 @@ class Order extends Element
         $record->formId = $this->formId;
         $record->cartId = $this->cartId;
         $record->cartPaymentMethod = $this->cartPaymentMethod;
+        $record->cartShippingRateId = $this->cartShippingRateId;
         $record->cartItems = $this->cartItems;
         $record->isCart = $this->isCart;
         $record->quantity = $this->quantity;

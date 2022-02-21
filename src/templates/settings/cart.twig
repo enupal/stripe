@@ -1,0 +1,120 @@
+{#
+/**
+ * Stripe Payments plugin for Craft CMS 3.x
+ *
+ * @link      https://enupal.com/
+ * @copyright Copyright (c) 2018 Enupal LLC
+ */
+#}
+
+{% extends "enupal-stripe/_layouts/settings" %}
+{% import "_includes/forms" as forms %}
+
+{% set settings = settings is defined ? settings : craft.enupalStripe.getSettings()  %}
+{% set fullPageForm = true %}
+{% set saveShortcutRedirect = 'enupal-stripe/settings/cart' %}
+{% set currencyOptions = craft.enupalStripe.getCurrencyOptions() %}
+
+{% set savePaymentForm %}
+    <div class="buttons">
+        <input class="btn submit" type="submit" value="{{ 'Save'|t }}">
+    </div>
+{% endset %}
+
+{% set content %}
+
+    <input type="hidden" name="action"
+           value="enupal-stripe/settings/save-settings">
+
+    <div id="settings-cp">
+
+        {% namespace 'settings' %}
+            {{ forms.field({
+                label: "Cart Settings"|t('enupal-stripe'),
+                instructions: "Cart API settings"|t('enupal-stripe'),
+            }, null) }}
+            <hr>
+            {{ forms.textField({
+                label: "Success Return URL"|t('enupal-stripe'),
+                instructions: "Redirect buyers' to this URL after they complete their payments."|t('enupal-stripe'),
+                id: 'cartSuccessUrl',
+                name: 'cartSuccessUrl',
+                placeholder: '/thank-you?number={number}',
+                value: settings.cartSuccessUrl,
+                errors: settings.getErrors('cartSuccessUrl')
+            }) }}
+            <hr>
+
+            {{ forms.textField({
+                label: "Cancel URL"|t('enupal-stripe'),
+                instructions: "Redirect buyers' to this URL after they cancel/return from the Stripe Checkout page."|t('enupal-stripe'),
+                id: 'cartCancelUrl',
+                name: 'cartCancelUrl',
+                placeholder: '/checkout',
+                value: settings.cartCancelUrl,
+                errors: settings.getErrors('cartCancelUrl')
+            }) }}
+            <hr>
+
+            {{ forms.lightswitchField({
+                label: 'Shipping Address'|t('enupal-stripe'),
+                instructions: 'Enables buyers to specify the Shipping Address',
+                id: 'cartEnableShippingAddress',
+                name: 'cartEnableShippingAddress',
+                on: settings.cartEnableShippingAddress,
+                onLabel: "On"|t('enupal-stripe'),
+                offLabel: "Off"|t('enupal-stripe'),
+                errors: settings.getErrors('cartEnableShippingAddress'),
+            }) }}
+
+            <hr>
+
+            {{ forms.lightswitchField({
+                label: 'Billing Address'|t('enupal-stripe'),
+                instructions: 'Enables buyers to specify the Billing Address',
+                id: 'cartEnableBillingAddress',
+                name: 'cartEnableBillingAddress',
+                on: settings.cartEnableBillingAddress,
+                onLabel: "On"|t('enupal-stripe'),
+                offLabel: "Off"|t('enupal-stripe'),
+                errors: settings.getErrors('cartEnableBillingAddress'),
+            }) }}
+
+            <hr>
+
+            {{ forms.lightswitchField({
+                label: 'Automatic Tax'|t('enupal-stripe'),
+                instructions: 'Checkout uses the shipping address entered during the session to determine the customer’s location for calculating tax. If you don’t collect shipping information, Checkout uses the billing address. Make sure to read the <a href="https://stripe.com/docs/payments/checkout/taxes?tax-calculation=stripe-tax">Docs</a></span> and properly add tax_behavior when creating your products on Stripe',
+                id: 'cartAutomaticTax',
+                name: 'cartAutomaticTax',
+                on: settings.cartAutomaticTax,
+                onLabel: "On"|t('enupal-stripe'),
+                offLabel: "Off"|t('enupal-stripe'),
+                errors: settings.getErrors('cartAutomaticTax'),
+            }) }}
+
+            <hr>
+            {{ forms.lightswitchField({
+                label: 'Promotion Codes'|t('enupal-stripe'),
+                instructions: 'Enables buyers to specify promotional codes or Coupons',
+                id: 'cartAllowPromotionCodes',
+                name: 'cartAllowPromotionCodes',
+                on: settings.cartAllowPromotionCodes,
+                onLabel: "On"|t('enupal-stripe'),
+                offLabel: "Off"|t('enupal-stripe'),
+                errors: settings.getErrors('cartAllowPromotionCodes'),
+            }) }}
+
+            {% set languageOptions = craft.enupalStripe.getLanguageOptions() %}
+            {{ forms.selectField({
+                label: "Language <span class='info'>Stripe currently supports 12 languages</span>"|t('enupal-stripe'),
+                id: 'language',
+                name: 'language',
+                options: languageOptions,
+                value: stripeForm.language
+            }) }}
+        {% endnamespace %}
+
+    </div>
+
+{% endset %}

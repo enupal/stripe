@@ -168,6 +168,7 @@ class Install extends Migration
             'isCart' => $this->boolean()->defaultValue(false),
             'cartItems' => $this->longText(),
             'cartPaymentMethod' => $this->string(),
+            'cartShippingRateId' => $this->string(),
             //
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),

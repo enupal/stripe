@@ -142,7 +142,7 @@ class Carts extends Component implements HttpStatus
      * @return void
      * @throws \Throwable
      */
-    public function setCartCompleted(Cart $cart)
+    public function markCartAsCompleted(Cart $cart)
     {
         $cart->cartStatus = Cart::STATUS_COMPLETED;
 

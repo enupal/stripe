@@ -23,7 +23,8 @@ use craft\records\Element;
  * @property $totalPrice
  * @property $formId
  * @property $cartId
-     * @property $cartPaymentMethod
+ * @property $cartPaymentMethod
+ * @property $cartShippingRateId
  * @property $cartItems
  * @property $isCart
  * @property $quantity

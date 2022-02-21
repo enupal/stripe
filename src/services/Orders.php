@@ -14,6 +14,7 @@ use craft\helpers\Db;
 
 use craft\helpers\Json;
 use craft\helpers\UrlHelper;
+use enupal\stripe\elements\Cart;
 use enupal\stripe\elements\Order;
 use enupal\stripe\enums\PaymentType;
 use enupal\stripe\enums\SubscriptionType;
@@ -664,6 +665,7 @@ class Orders extends Component
         $order->stripeTransactionId = $token;
         $order->isSubscription = false;
         $order->isCart = true;
+        $order->cartShippingRateId = $data['cartShippingRateId'];
 
         // revert cents - Async charges already make this conversion - On Checkout $paymentType is null
         $order->totalPrice = $this->convertFromCents($order->totalPrice, $order->currency);
@@ -676,7 +678,8 @@ class Orders extends Component
             $order->isCompleted = false;
         }
 
-        $order = $this->finishCartOrder($order);
+        $cart->stripeId = $data['cartStripeId'];
+        $order = $this->finishCartOrder($order, $cart);
 
         return $order;
     }
@@ -1598,7 +1601,7 @@ class Orders extends Component
      * @throws \Throwable
      * @throws \yii\base\Exception
      */
-    private function finishCartOrder($order)
+    private function finishCartOrder($order, Cart $cart)
     {
         // Finally save the order in Craft CMS
         if (!StripePlugin::$app->orders->saveOrder($order)){
@@ -1608,7 +1611,7 @@ class Orders extends Component
 
         Craft::info('Enupal Stripe - Order Created: './** @scrutinizer ignore-type */ $order->number, __METHOD__);
 
-        StripePlugin::$app->carts->setCartCompleted($order->getCart());
+        StripePlugin::$app->carts->markCartAsCompleted($cart);
 
         return $order;
     }
