@@ -22,17 +22,38 @@
 {% endset %}
 
 {% set content %}
-
     <input type="hidden" name="action"
            value="enupal-stripe/settings/save-settings">
+    <input type="hidden" name="stripeScenario" value="cart">
 
     <div id="settings-cp">
 
         {% namespace 'settings' %}
             {{ forms.field({
                 label: "Cart Settings"|t('enupal-stripe'),
-                instructions: "Cart API settings"|t('enupal-stripe'),
+                instructions: "Cart API settings. All these settings can be overriden via the onBeforeCreateCartSession event"|t('enupal-stripe'),
             }, null) }}
+            <hr>
+
+            {% set checkoutPaymentMethods = craft.enupalStripe.getCheckoutPaymentMethods() %}
+            {% set checkoutPaymentTypeInput %}
+                <div class="flex">
+                    <div class="nowrapper">
+                        {{ forms.checkboxGroup({
+                            name: "cartPaymentMethods",
+                            options : checkoutPaymentMethods,
+                            values: settings.getCartPaymentMethods()
+                        }) }}
+                    </div>
+                </div>
+            {% endset %}
+
+            {{ forms.field({
+                id: 'cartPaymentMethods',
+                label: "Payment Method(s) <span class='info'>Remember to set the proper currency on your price products, e.g iDEAL only accepts EUR</span>"|t('enupal-stripe'),
+                errors: settings.getErrors('cartPaymentMethods'),
+                required: true
+            }, checkoutPaymentTypeInput) }}
             <hr>
             {{ forms.textField({
                 label: "Success Return URL"|t('enupal-stripe'),
@@ -84,7 +105,7 @@
 
             {{ forms.lightswitchField({
                 label: 'Automatic Tax'|t('enupal-stripe'),
-                instructions: 'Checkout uses the shipping address entered during the session to determine the customer’s location for calculating tax. If you don’t collect shipping information, Checkout uses the billing address. Make sure to read the <a href="https://stripe.com/docs/payments/checkout/taxes?tax-calculation=stripe-tax">Docs</a></span> and properly add tax_behavior when creating your products on Stripe',
+                instructions: 'Checkout uses the shipping address entered during the session to determine the customer’s location for calculating tax. If you don’t collect shipping information, Checkout uses the billing address. Make sure to read the <a href="https://stripe.com/docs/tax/set-up">Docs</a></span> and properly add tax_behavior when creating your products on Stripe',
                 id: 'cartAutomaticTax',
                 name: 'cartAutomaticTax',
                 on: settings.cartAutomaticTax,
@@ -107,11 +128,12 @@
 
             {% set languageOptions = craft.enupalStripe.getLanguageOptions() %}
             {{ forms.selectField({
-                label: "Language <span class='info'>Stripe currently supports 12 languages</span>"|t('enupal-stripe'),
-                id: 'language',
-                name: 'language',
+                label: "Checkout Language or Locale"|t('enupal-stripe'),
+                id: 'cartLanguage',
+                name: 'cartLanguage',
                 options: languageOptions,
-                value: stripeForm.language
+                value: settings.cartLanguage,
+                errors: settings.getErrors('cartLanguage'),
             }) }}
         {% endnamespace %}
 

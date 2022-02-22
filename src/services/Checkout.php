@@ -60,9 +60,6 @@ class Checkout extends Component
         $configSettings = StripePlugin::$app->settings->getConfigSettings();
         StripePlugin::$app->settings->initializeStripe();
 
-        $checkoutPaymentMethods= $configSettings['cartPaymentMethods'] ?? [CheckoutPaymentType::CC];
-        $checkoutSubmitType = $configSettings['cartSubmitType'] ?? null;
-
         Craft::$app->getSession()->set(PaymentForm::SESSION_CHECKOUT_SUCCESS_URL, $pluginSettings->cartSuccessUrl);
         $user = Craft::$app->getUser()->getIdentity() ?? null;
         $metadata = [
@@ -71,7 +68,7 @@ class Checkout extends Component
         ];
 
         $metadata = array_merge($metadata, $cart->getCartMetadata());
-        $paymentMethods = $checkoutPaymentMethods ?? ['card'];
+        $paymentMethods = $pluginSettings->cartPaymentMethods ?? ['card'];
 
         $sessionParams = [
             'payment_method_types' => $paymentMethods,
@@ -84,10 +81,6 @@ class Checkout extends Component
 
         if (!$pluginSettings->capture) {
             $sessionParams['payment_intent_data']['capture_method'] = 'manual';
-        }
-
-        if (!is_null($checkoutSubmitType)) {
-            $sessionParams['submit_type'] = $checkoutSubmitType;
         }
 
         if ($pluginSettings->cartEnableBillingAddress) {
@@ -147,6 +140,10 @@ class Checkout extends Component
         if ($pluginSettings->cartAutomaticTax) {
             $sessionParams['automatic_tax'] = [
                 'enabled' => true
+            ];
+
+            $sessionParams['customer_update'] = [
+                'shipping' => 'auto'
             ];
         }
 

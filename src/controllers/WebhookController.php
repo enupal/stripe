@@ -151,14 +151,15 @@ class WebhookController extends FrontEndController
                 $isSyncProduct = $stripeObject['metadata']['enupal_sync'] ?? false;
 
                 if ($isSyncProduct) {
-                    StripePlugin::$app->products->createOrUpdateProduct($stripeObject);
+                    $product = StripePlugin::$app->products->createOrUpdateProduct($stripeObject);
+                    if (!is_null($product)) {
+                        StripePlugin::$app->prices->syncPricesFromProduct($product);
+                    }
                 }
                 break;
             // Prices
             case 'price.created':
             case 'price.updated':
-                // Let's wait 1 second until we create the product on craft
-                sleep(1);
                 $stripeObject = $eventJson['data']['object'];
 
                 StripePlugin::$app->prices->createOrUpdatePrice($stripeObject);

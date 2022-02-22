@@ -35,7 +35,6 @@ class SettingsController extends BaseController
 
         $plugin = Stripe::$app->settings->getPlugin();
         $settingsModel = $plugin->getSettings();
-
         $settingsModel->setAttributes($settings, false);
 
         if (!Stripe::$app->settings->saveSettings($settingsModel, $scenario)) {

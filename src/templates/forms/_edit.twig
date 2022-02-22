@@ -363,8 +363,8 @@
     <div id="tab4" class="hidden">
         {% if (settings.useSca) and stripeForm.enableCheckout %}
             {{ forms.lightswitchField({
-                label: 'Automatic Tax (Subscriptions Only)<span class="info"><a href="https://stripe.com/docs/payments/checkout/taxes?tax-calculation=stripe-tax">Docs</a></span>'|t('enupal-stripe'),
-                instructions: 'Checkout uses the shipping address entered during the session to determine the customer’s location for calculating tax. If you don’t collect shipping information, Checkout uses the billing address. Make sure to read the <a href="https://stripe.com/docs/payments/checkout/taxes?tax-calculation=stripe-tax">Docs</a></span> and properly add tax_behavior when creating your products on Stripe',
+                label: 'Automatic Tax (Subscriptions Only)<span class="info"><a href="https://stripe.com/docs/tax/set-up">Docs</a></span>'|t('enupal-stripe'),
+                instructions: 'Checkout uses the shipping address entered during the session to determine the customer’s location for calculating tax. If you don’t collect shipping information, Checkout uses the billing address. Make sure to read the <a href="https://stripe.com/docs/tax/set-up">Docs</a></span> and properly add tax_behavior when creating your products on Stripe',
                 id: 'automaticTax',
                 name: 'automaticTax',
                 on: stripeForm.automaticTax,

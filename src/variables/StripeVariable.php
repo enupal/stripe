@@ -210,6 +210,14 @@ class StripeVariable extends Behavior
     /**
      * @return array
      */
+    public function getCheckoutPaymentMethods()
+    {
+        return Stripe::$app->paymentForms->getCheckoutPaymentTypes();
+    }
+
+    /**
+     * @return array
+     */
     public function getAmountTypeOptions()
     {
         return Stripe::$app->paymentForms->getAmountTypeOptions();

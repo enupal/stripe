@@ -9,6 +9,7 @@
 namespace enupal\stripe\models;
 
 use craft\base\Model;
+use enupal\stripe\enums\CheckoutPaymentType;
 use enupal\stripe\services\Vendors;
 use enupal\stripe\Stripe;
 
@@ -86,6 +87,7 @@ class Settings extends Model
     public $cartCancelUrl = "";
     public $cartShippingRates;
     public $cartLanguage = "auto";
+    public $cartPaymentMethods = [CheckoutPaymentType::CC];
     public $cartSubmitType;
 
     // Connect
@@ -196,8 +198,12 @@ class Settings extends Model
             [
                 ['vendorNotificationSubject', 'vendorNotificationSenderName', 'vendorNotificationSenderEmail', 'vendorNotificationReplyToEmail', 'vendorNotificationReplyToEmail'],
                 'required', 'when' => function($model) {
-                return $model->enableVendorNotification;
-            }
+                    return $model->enableVendorNotification;
+                }
+            ],
+            [
+                ['cartPaymentMethods', 'cartLanguage'],
+                'required', 'on' => 'cart'
             ],
             [
                 ['customerNotificationSenderEmail', 'customerNotificationReplyToEmail'],
@@ -222,6 +228,11 @@ class Settings extends Model
                 'number', 'min'=> '1', 'max'=>'100' , 'on' => 'connect', 'numberPattern' => '/^\d+(.\d{1,2})?$/',
             ]
         ];
+    }
+
+    public function getCartPaymentMethods()
+    {
+        return is_array($this->cartPaymentMethods) ? $this->cartPaymentMethods : json_decode($this->cartPaymentMethods, true);
     }
 
     public function validateDates(){

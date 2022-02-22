@@ -9,6 +9,7 @@
 namespace enupal\stripe\services;
 
 use enupal\stripe\elements\PaymentForm;
+use enupal\stripe\elements\Product;
 use Stripe\Price;
 use enupal\stripe\elements\Price as PriceElement;
 use yii\base\Component;
@@ -84,14 +85,15 @@ class Prices extends Component
 
     /**
      * @param array $stripeObject
+     * @param Product|null $product
      * @return PriceElement|null
      * @throws \Throwable
      * @throws \craft\errors\ElementNotFoundException
      * @throws \yii\base\Exception
      */
-    public function createOrUpdatePrice(array $stripeObject)
+    public function createOrUpdatePrice(array $stripeObject, ?Product $product = null)
     {
-        $product = StripePlugin::$app->products->getProductByStripeId($stripeObject['product']);
+        $product = is_null($product) ? StripePlugin::$app->products->getProductByStripeId($stripeObject['product']) : $product;
         if (is_null($product)) {
             Craft::error('Product not found related to price: '.$stripeObject['product'], __METHOD__);
             return null;
@@ -110,5 +112,28 @@ class Prices extends Component
         Craft::info('Stripe Price Updated: '.$price->stripeId , __METHOD__);
 
         return $price;
+    }
+
+    /**
+     * @param Product $product
+     * @return void
+     * @throws \Stripe\Exception\ApiErrorException
+     * @throws \Throwable
+     * @throws \craft\errors\ElementNotFoundException
+     * @throws \yii\base\Exception
+     */
+    public function syncPricesFromProduct(Product $product)
+    {
+        StripePlugin::$app->settings->initializeStripe();
+        $stripePrices = Price::all(['product' => $product->stripeId]);
+
+        foreach ($stripePrices['data'] as $stripePrice) {
+            $price = $this->getPriceByStripeId($stripePrice['id']);
+            if (is_null($price)) {
+                $toJson = json_encode($stripePrice);
+                $toArray = json_decode($toJson, true);
+                $this->createOrUpdatePrice($toArray, $product);
+            }
+        }
     }
 }
