@@ -93,6 +93,9 @@ class Shipping extends Component
         try {
             $shippingRates = $this->getAllShippingRates();
             foreach ($shippingRates as $shippingRate) {
+                if (!$shippingRate['active']) {
+                    continue;
+                }
                 $option = [
                     'label' => $shippingRate['display_name'],
                     'value' => $shippingRate['id']

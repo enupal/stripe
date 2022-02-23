@@ -119,8 +119,6 @@ class Checkout extends Component
         }
 
         // Shipping behavior
-
-
         if (!empty($pluginSettings->cartShippingRates)) {
             $shippingRates = [];
             foreach ($pluginSettings->cartShippingRates as $cartShippingRate) {
