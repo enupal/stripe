@@ -77,6 +77,40 @@
             }) }}
             <hr>
 
+            {% set languageOptions = craft.enupalStripe.getLanguageOptions() %}
+            {{ forms.selectField({
+                label: "Checkout Language or Locale"|t('enupal-stripe'),
+                id: 'cartLanguage',
+                name: 'cartLanguage',
+                options: languageOptions,
+                value: settings.cartLanguage,
+                errors: settings.getErrors('cartLanguage'),
+            }) }}
+            <hr>
+            {% set cartShippingRates = craft.enupalStripe.shipping.getShippingRatesAsOptions() %}
+            {% set testMode = craft.enupalStripe.getMode() %}
+            {% set url = "https://dashboard.stripe.com" %}
+            {% set url = testMode ? url~'/test' : url %}
+            {% set shippingUrl = url ~ "/shipping-rates" %}
+
+            {% if cartShippingRates|length > 0 %}
+                {{ forms.multiSelectField({
+                    label: "Shipping Options (Only for one-time payments)"|t('enupal-stripe'),
+                    instructions: 'Enables buyers choose a shipping option on the checkout page. <a href="https://stripe.com/docs/payments/checkout/shipping">More info</a>',
+                    id: 'cartShippingRates',
+                    name: 'cartShippingRates',
+                    options: cartShippingRates,
+                    values: settings.cartShippingRates
+                }) }}
+            {% else %}
+                {{ forms.field({
+                    label: "Shipping Options (Only for one-time payments)"|t('enupal-stripe'),
+                    instructions: 'Enables buyers choose a shipping option on the checkout page. <a href="https://stripe.com/docs/payments/checkout/shipping">More info</a>',
+                }, null) }}
+
+                {{ "Create your first shipping rate, then refresh this page" }} <a href="{{ shippingUrl }}">Here!</a>
+            {% endif %}
+            <hr>
             {{ forms.lightswitchField({
                 label: 'Shipping Address'|t('enupal-stripe'),
                 instructions: 'Enables buyers to specify the Shipping Address',
@@ -126,15 +160,6 @@
                 errors: settings.getErrors('cartAllowPromotionCodes'),
             }) }}
 
-            {% set languageOptions = craft.enupalStripe.getLanguageOptions() %}
-            {{ forms.selectField({
-                label: "Checkout Language or Locale"|t('enupal-stripe'),
-                id: 'cartLanguage',
-                name: 'cartLanguage',
-                options: languageOptions,
-                value: settings.cartLanguage,
-                errors: settings.getErrors('cartLanguage'),
-            }) }}
         {% endnamespace %}
 
     </div>

@@ -85,7 +85,7 @@ class Settings extends Model
     public $cartAutomaticTax = false;
     public $cartSuccessUrl = "";
     public $cartCancelUrl = "";
-    public $cartShippingRates;
+    public $cartShippingRates = [];
     public $cartLanguage = "auto";
     public $cartPaymentMethods = [CheckoutPaymentType::CC];
     public $cartSubmitType;

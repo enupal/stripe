@@ -57,7 +57,6 @@ class Checkout extends Component
     public function createCartCheckoutSession(Cart $cart)
     {
         $pluginSettings = StripePlugin::$app->settings->getSettings();
-        $configSettings = StripePlugin::$app->settings->getConfigSettings();
         StripePlugin::$app->settings->initializeStripe();
 
         Craft::$app->getSession()->set(PaymentForm::SESSION_CHECKOUT_SUCCESS_URL, $pluginSettings->cartSuccessUrl);
@@ -69,15 +68,19 @@ class Checkout extends Component
 
         $metadata = array_merge($metadata, $cart->getCartMetadata());
         $paymentMethods = $pluginSettings->cartPaymentMethods ?? ['card'];
+        $mode = StripePlugin::$app->carts->getIsSubscription($cart) ?
+            self::SESSION_MODE_SUBSCRIPTION :
+            self::SESSION_MODE_PAYMENT;
 
         $sessionParams = [
             'payment_method_types' => $paymentMethods,
-
+            'locale' => $pluginSettings->cartLanguage,
+            'line_items' => $cart->getItems(),
             'success_url' => $this->getSiteUrl('enupal/stripe-payments/finish-order?session_id={CHECKOUT_SESSION_ID}'),
             'cancel_url' => $this->getSiteUrl($pluginSettings->cartCancelUrl),
+            'metadata' => $metadata,
+            'mode' => $mode
         ];
-
-        $sessionParams['metadata'] = $metadata;
 
         if (!$pluginSettings->capture) {
             $sessionParams['payment_intent_data']['capture_method'] = 'manual';
@@ -106,37 +109,40 @@ class Checkout extends Component
             }
         }
 
-        $sessionParams['locale'] = $pluginSettings->cartLanguage;
-        // @todo Here we need to add a getCheckoutLineItems() and add the proper tax
-        $sessionParams['line_items'] = $cart->getItems();
         $allowPromotionCodes = $pluginSettings->cartAllowPromotionCodes;
-
         if ($allowPromotionCodes) {
-            /* @todo add isSubscriptionValidation
-            if ($isSubscription) {
+            if ($mode == self::SESSION_MODE_SUBSCRIPTION) {
                 $sessionParams['subscription_data']['payment_behavior'] = 'allow_incomplete';
             }
-            */
 
             $sessionParams['allow_promotion_codes'] = true;
         }
 
-        $sessionParams['mode'] = StripePlugin::$app->carts->getIsSubscription($cart) ?
-            self::SESSION_MODE_SUBSCRIPTION :
-            self::SESSION_MODE_PAYMENT
-        ;
+        // Shipping behavior
 
-        // @todo add support to shipping
 
-        $sessionParams['shipping_options'] = [
-            [
-                'shipping_rate' => 'shr_1KE8XgLLWVlbcCFQgYFvBftd'
-            ],
-            [
-                'shipping_rate' => 'shr_1KE8WSLLWVlbcCFQJ7otZYxH'
-            ]
-        ];
+        if (!empty($pluginSettings->cartShippingRates)) {
+            $shippingRates = [];
+            foreach ($pluginSettings->cartShippingRates as $cartShippingRate) {
+                $stripeShippingRate = StripePlugin::$app->shipping->getShippingRate($cartShippingRate);
+                if (!isset($stripeShippingRate['active']) || !$stripeShippingRate['active']) {
+                    Craft::warning("Skipped Shipping Rate on Cart Checkout: ".$cartShippingRate);
+                    continue;
+                }
 
+                $shippingRate = [
+                    'shipping_rate' => $cartShippingRate
+                ];
+                $shippingRates[] = $shippingRate;
+            }
+
+            if (!empty($shippingRates)) {
+                $sessionParams['shipping_options'] = $shippingRates;
+            }
+        }
+
+        // We go in favor of automatic tax, otherwise developers may need update each line_items using BeforeCreateCheckoutSession event
+        // to add tax_rates workflow. More info -> https://stripe.com/docs/billing/taxes/collect-taxes?tax-calculation=tax-rates
         if ($pluginSettings->cartAutomaticTax) {
             $sessionParams['automatic_tax'] = [
                 'enabled' => true

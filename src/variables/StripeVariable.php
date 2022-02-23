@@ -74,6 +74,11 @@ class StripeVariable extends Behavior
         return Stripe::$app->taxes;
     }
 
+    public function shipping()
+    {
+        return Stripe::$app->shipping;
+    }
+
     /**
      * Returns a new OrderQuery instance.
      *
