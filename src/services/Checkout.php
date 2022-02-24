@@ -17,6 +17,7 @@ use enupal\stripe\enums\AmountType;
 use enupal\stripe\enums\CheckoutPaymentType;
 use enupal\stripe\enums\SubmitTypes;
 use enupal\stripe\enums\SubscriptionType;
+use enupal\stripe\events\CheckoutEvent;
 use enupal\stripe\models\CustomPlan;
 use enupal\stripe\Stripe;
 use enupal\stripe\Stripe as StripePlugin;
@@ -29,6 +30,7 @@ class Checkout extends Component
     const USAGE_TYPE_METERED = 'metered';
     const SESSION_MODE_SUBSCRIPTION = 'subscription';
     const SESSION_MODE_PAYMENT = 'payment';
+    const EVENT_BEFORE_CREATE_SESSION = 'beforeCreateSession';
 
     /**
      * @param $sessionId
@@ -151,7 +153,14 @@ class Checkout extends Component
             ];
         }
 
-        $session = Session::create($sessionParams);
+        $event = new CheckoutEvent([
+            'sessionParams' => $sessionParams,
+            'isCart' => true
+        ]);
+
+        $this->trigger(self::EVENT_BEFORE_CREATE_SESSION, $event);
+
+        $session = Session::create($event->sessionParams);
 
         return $session;
     }
@@ -294,7 +303,14 @@ class Checkout extends Component
             ];
         }
 
-        $session = Session::create($sessionParams);
+        $event = new CheckoutEvent([
+            'sessionParams' => $sessionParams,
+            'isCart' => false
+        ]);
+
+        $this->trigger(self::EVENT_BEFORE_CREATE_SESSION, $event);
+
+        $session = Session::create($event->sessionParams);
 
         return $session;
     }
