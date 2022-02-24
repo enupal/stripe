@@ -223,6 +223,12 @@ class Order extends Element
         }
 
         $sources[] = ['heading' => StripePaymentsPlugin::t("Payment Type")];
+        // @TODO validate editions
+        $sources[] = [
+            'key' => 'cart:1',
+            'label' => Craft::t('enupal-stripe', 'Cart'),
+            'criteria' => ['isCart' => true]
+        ];
 
         $sources[] = [
             'key' => 'oneTime:1',
@@ -337,7 +343,7 @@ class Order extends Element
 
     protected static function defineDefaultTableAttributes(string $source): array
     {
-        $attributes = ['number', 'orderStatusId', 'itemName', 'itemSku', 'totalPrice', 'email', 'user', 'paymentStatus', 'dateOrdered'];
+        $attributes = ['number', 'orderStatusId', 'itemSku', 'totalPrice', 'email', 'user', 'paymentStatus', 'dateOrdered'];
 
         return $attributes;
     }
@@ -659,6 +665,10 @@ class Order extends Element
 
         if ($this->isSubscription()){
             $type = StripePaymentsPlugin::t("Subscription");
+        }
+
+        if ($this->isCart){
+            $type = StripePaymentsPlugin::t("Cart");
         }
 
         return $type;

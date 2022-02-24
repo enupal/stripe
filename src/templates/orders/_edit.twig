@@ -84,7 +84,11 @@
                             <div>{{ user.fullName()|slice(0, 1) }}</div><!----></div><span class="status active"></span></div><div class="customer-info-container ml-1"><div>{{ user.fullName() }}</div><!----><div class="w-full light">{{user.email}}</div><div class="w-full"><a href="{{ user.cpEditUrl }}">View User</a></div></div></div><!----></div><!---->
         </div>
     {% endif %}
-    {% include 'enupal-stripe/orders/_orderDetails' %}
+    {% if order.isCart %}
+        {% include 'enupal-stripe/orders/_cartOrderDetails' %}
+    {% else %}
+        {% include 'enupal-stripe/orders/_orderDetails' %}
+    {% endif %}
     {% include 'enupal-stripe/orders/_messages' %}
 
 {% endblock %}

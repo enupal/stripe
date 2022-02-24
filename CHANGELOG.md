@@ -4,6 +4,7 @@
 
 ### Added
 - Added Cart element
+- Added CheckoutEvent
 
 ### Updated
 - Updated API version to `2020-08-27`
