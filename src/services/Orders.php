@@ -824,7 +824,7 @@ class Orders extends Component
     {
         $result = false;
 
-        if (!$order->refunded) {
+        if ($order->refunded) {
             Stripe::$app->messages->addMessage($order->id, "Control Panel - Payment was already refunded", []);
             return $result;
         }

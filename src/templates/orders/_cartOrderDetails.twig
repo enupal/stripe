@@ -89,6 +89,20 @@
                 <td></td>
             </tr>
         {% endif %}
+        {% if order.shipping > 0 %}
+            <tr>
+                <td></td>
+                <td>
+                </td>
+                <td></td>
+                <td></td>
+                <td><strong>{{ "Shipping"|t('enupal-stripe') }}</strong></td>
+                <td>
+                    <span class="right">{{ order.shipping|currency(order.currency) }}</span>
+                </td>
+                <td></td>
+            </tr>
+        {% endif %}
         <tr>
             <td></td>
             <td>
