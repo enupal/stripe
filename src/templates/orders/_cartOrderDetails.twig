@@ -18,23 +18,26 @@
         {% set stripeUrl = order.testMode ? stripeUrl~'/test' : stripeUrl %}
         {% set subscriptions = [] %}
 
-        {% for carItem in order.getCartItems() %}
+        {% for cartItem in order.getCartItems() %}
+            {% set price = cartItem.price %}
             {% if price.recurring %}
-                {% set subscriptions = array|merge([carItem.price]) %}
+                {% set subscriptions = subscriptions|merge([price]) %}
             {% endif %}
             <tr class="infoRow">
                 <td>
                     {% set itemDescription = cartItem.description ? cartItem.description : 'Item #'~loop.index %}
-                    <a href="{{ stripeUrl~'/prices/'~ carItem.price.id }}">{{ itemDescription }}</a>
+                    <a href="{{ stripeUrl~'/prices/'~ price.id }}">{{ itemDescription }}</a>
                 </td>
                 <td>
-                    {{ carItem.quantity }}
+                    {{ cartItem.quantity }}
                 </td>
                 <td>
                     {% set paymentType = price.recurring ? "Subscription" : 'One-Time' %}
                     {{ paymentType }}
                 </td>
-                <td></td>
+                <td>
+                    {{ craft.enupalStripe.convertFromCents(cartItem.amount_subtotal, cartItem.currency)|currency(cartItem.currency) }}
+                </td>
                 <td></td>
                 <td>
                 </td>
@@ -56,15 +59,15 @@
             </td>
             <td></td>
         </tr>
-        {% if order.couponAmount > 0 and order.couponCode %}
-            <tr class="infoRow"  data-info="{{ order.couponSnapshot }}">
+        {% if order.couponAmount > 0 %}
+            <tr class="infoRow">
                 <td></td>
                 <td>
                 </td>
                 <td></td>
                 <td></td>
                 <td>
-                    <strong>{{ "Coupon Discount"|t('enupal-stripe')}}</strong><br>{{ order.couponName }}  <span class="tableRowInfo" data-icon="info" href="#"></span>
+                    <strong>{{ "Coupon Amount"|t('enupal-stripe')}}</strong>
                 </td>
                 <td>
                     <span class="right">-{{ order.couponAmount|currency(order.currency) }}</span>
@@ -72,16 +75,16 @@
                 <td></td>
             </tr>
         {% endif %}
-        {% if order.tax > 0 and order.isSubscription() %}
+        {% if order.tax > 0 %}
             <tr>
                 <td></td>
                 <td>
                 </td>
                 <td></td>
                 <td></td>
-                <td>{{ "Tax"|t('enupal-stripe') }}</td>
+                <td><strong>{{ "Tax"|t('enupal-stripe') }}</strong></td>
                 <td>
-                    <h2 class="right">{{ order.tax|currency(order.currency) }}</h2>
+                    <span class="right">{{ order.tax|currency(order.currency) }}</span>
                 </td>
                 <td></td>
             </tr>
@@ -108,7 +111,7 @@
         </tbody>
     </table>
 
-    {% if order.isSubscription %}
+    {% if subscriptions|length > 0 %}
         {% set subscription = order.getSubscription() %}
         <input type="hidden" id="subscriptionId" value="{{ order.stripeTransactionId }}">
         <hr>

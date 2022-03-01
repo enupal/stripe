@@ -144,7 +144,7 @@ class PaymentIntents extends Component
         }
 
         if (is_null($paymentIntentId)) {
-            throw new \Exception("Unable to find the paymentIntentId related to the cart");
+            throw new \Exception("Unable to find the paymentIntentId or subscriptionId related to the cart");
         }
 
         $paymentIntent = $this->getPaymentIntent($paymentIntentId);
@@ -157,10 +157,15 @@ class PaymentIntents extends Component
         $cartNumber = $metadata['stripe_payments_cart_number'];
         $userId = $metadata['stripe_payments_user_id'];
         $checkoutShippingAddress = $checkoutSession['shipping']?? null;
-
         $charge = $paymentIntent['charges']['data'][0];
 
-        $order = StripePlugin::$app->orders->getOrderByStripeId($charge['id']);
+        $stripeId = !is_null($subscriptionId) ? $subscriptionId : $charge['id'];
+
+        if (empty($stripeId)) {
+            throw new \Exception("Unable to find the stripe id related to the cart: ".$paymentIntentId);
+        }
+
+        $order = StripePlugin::$app->orders->getOrderByStripeId($stripeId);
         if ($order !== null) {
             Craft::warning('Checkout session was already processed under order: '.$order->number, __METHOD__);
             return $order;
@@ -175,7 +180,7 @@ class PaymentIntents extends Component
 
         $data = [];
         $data['enupalStripe']['metadata'] = $this->removePaymentIntentMetadata($metadata);
-        $data['enupalStripe']['token'] = $charge['id'];
+        $data['enupalStripe']['token'] = $stripeId;
         $data['enupalStripe']['email'] = $billing['email'];
         $data['enupalStripe']['amount'] = $checkoutSession['amount_total'];
         $data['enupalStripe']['currency'] = strtoupper($checkoutSession['currency']);

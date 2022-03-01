@@ -120,8 +120,8 @@ class Checkout extends Component
             $sessionParams['allow_promotion_codes'] = true;
         }
 
-        // Shipping behavior
-        if (!empty($pluginSettings->cartShippingRates)) {
+        // Shipping behavior, ony for one-time payments
+        if (!empty($pluginSettings->cartShippingRates) && $mode == self::SESSION_MODE_PAYMENT) {
             $shippingRates = [];
             foreach ($pluginSettings->cartShippingRates as $cartShippingRate) {
                 $stripeShippingRate = StripePlugin::$app->shipping->getShippingRate($cartShippingRate);

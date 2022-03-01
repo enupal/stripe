@@ -825,41 +825,42 @@ class Orders extends Component
         $result = false;
 
         if (!$order->refunded) {
-            try {
-                StripePlugin::$app->settings->initializeStripe();
-                $stripeId = $this->getChargeIdFromOrder($order);
-                $options = [];
-
-                if (!$order->isSubscription()){
-                    // Async transactions have py_ (payment) as stripeId and an amount is required
-                    if ($order->paymentType == PaymentType::IDEAL || $order->paymentType == PaymentType::SOFORT){
-                        $options['amount'] = $this->convertToCents($order->totalPrice, $order->currency);
-                    }
-                }
-
-                $options = [
-                    'charge' => $stripeId
-                ];
-
-                $refund = Refund::create($options);
-
-                if ($refund['status'] == 'succeeded' || $refund['status'] == 'pending') {
-                    $order->refunded = true;
-                    $now = Db::prepareDateForDb(new \DateTime());
-                    $order->dateRefunded = $now;
-                    $this->saveOrder($order, false);
-                    Stripe::$app->messages->addMessage($order->id,'Control Panel - Payment Refunded', $refund);
-
-                    $this->triggerOrderRefundEvent($order);
-                    $result = true;
-                }else{
-                    Stripe::$app->messages->addMessage($order->id,'Control Panel - Something went wrong on Refund process', $refund);
-                }
-            } catch (\Exception $e) {
-                Stripe::$app->messages->addMessage($order->id,'Control Panel - Failed to refund payment', ['error' => $e->getMessage()]);
-            }
-        }else{
             Stripe::$app->messages->addMessage($order->id, "Control Panel - Payment was already refunded", []);
+            return $result;
+        }
+
+        try {
+            StripePlugin::$app->settings->initializeStripe();
+            $stripeId = $this->getChargeIdFromOrder($order);
+            $options = [];
+
+            if (!$order->isSubscription()){
+                // Async transactions have py_ (payment) as stripeId and an amount is required
+                if ($order->paymentType == PaymentType::IDEAL || $order->paymentType == PaymentType::SOFORT){
+                    $options['amount'] = $this->convertToCents($order->totalPrice, $order->currency);
+                }
+            }
+
+            $options = [
+                'charge' => $stripeId
+            ];
+
+            $refund = Refund::create($options);
+
+            if ($refund['status'] == 'succeeded' || $refund['status'] == 'pending') {
+                $order->refunded = true;
+                $now = Db::prepareDateForDb(new \DateTime());
+                $order->dateRefunded = $now;
+                $this->saveOrder($order, false);
+                Stripe::$app->messages->addMessage($order->id,'Control Panel - Payment Refunded', $refund);
+
+                $this->triggerOrderRefundEvent($order);
+                $result = true;
+            }else{
+                Stripe::$app->messages->addMessage($order->id,'Control Panel - Something went wrong on Refund process', $refund);
+            }
+        } catch (\Exception $e) {
+            Stripe::$app->messages->addMessage($order->id,'Control Panel - Failed to refund payment', ['error' => $e->getMessage()]);
         }
 
         return $result;

@@ -127,7 +127,7 @@
             new Craft.StripeButton.TableRowAdditionalInfoIcon(this);
         });
         var isSubscription = false;
-        {% if order.isSubscription %}
+        {% if order.isSubscription() %}
             isSubscription = true;
         {% endif %}
         new EnupalStripeEditOrder(isSubscription);

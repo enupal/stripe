@@ -17,6 +17,7 @@ use enupal\stripe\models\SubscriptionGrant;
 use enupal\stripe\records\SubscriptionGrant as SubscriptionGrantRecord;
 use Stripe\Subscription;
 use enupal\stripe\models\Subscription as SubscriptionModel;
+use Stripe\SubscriptionItem;
 use yii\base\Component;
 use enupal\stripe\Stripe as StripePlugin;
 
@@ -34,6 +35,25 @@ class Subscriptions extends Component
             StripePlugin::$app->settings->initializeStripe();
 
             $subscription = Subscription::retrieve(['id' => $id]);
+        } catch (\Exception $e) {
+            Craft::error('Unable to get subscription: '.$e->getMessage(), __METHOD__);
+        }
+
+        return $subscription;
+    }
+
+    /**
+     * @param $id
+     * @return null|\Stripe\StripeObject
+     */
+    public function getStripeSubscriptionItem($id)
+    {
+        $subscription = null;
+
+        try {
+            StripePlugin::$app->settings->initializeStripe();
+
+            $subscription = SubscriptionItem::retrieve(['id' => $id]);
         } catch (\Exception $e) {
             Craft::error('Unable to get subscription: '.$e->getMessage(), __METHOD__);
         }

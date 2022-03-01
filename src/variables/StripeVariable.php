@@ -74,6 +74,11 @@ class StripeVariable extends Behavior
         return Stripe::$app->taxes;
     }
 
+    public function subscription()
+    {
+        return Stripe::$app->subscriptions;
+    }
+
     public function shipping()
     {
         return Stripe::$app->shipping;
