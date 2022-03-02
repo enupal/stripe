@@ -146,6 +146,7 @@ class WebhookController extends FrontEndController
                 break;
             // Products
             case 'product.created':
+            case 'product.deleted':
             case 'product.updated':
                 $stripeObject = $eventJson['data']['object'];
                 $isSyncProduct = $stripeObject['metadata']['enupal_sync'] ?? false;
@@ -159,6 +160,7 @@ class WebhookController extends FrontEndController
                 break;
             // Prices
             case 'price.created':
+            case 'price.deleted':
             case 'price.updated':
                 $stripeObject = $eventJson['data']['object'];
 

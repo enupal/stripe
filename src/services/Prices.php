@@ -8,6 +8,7 @@
 
 namespace enupal\stripe\services;
 
+use craft\base\Element;
 use enupal\stripe\elements\PaymentForm;
 use enupal\stripe\elements\Product;
 use Stripe\Price;
@@ -60,25 +61,29 @@ class Prices extends Component
      * Returns a Price model if one is found in the database by stripe transaction id
      *
      * @param string $stripeId
+     * @param string|null $status
      *
      * @return null|PriceElement
      */
-    public function getPriceByStripeId(string $stripeId)
+    public function getPriceByStripeId(string $stripeId, $status = Element::STATUS_ENABLED)
     {
         $query = PriceElement::find();
         $query->stripeId($stripeId);
+        $query->status($status);
 
         return $query->one();
     }
 
     /**
      * @param int $productId Returns a Prices related to a product
+     * @param string|null $status
      * @return array|\craft\base\ElementInterface[]|null
      */
-    public function getPricesByProductId(int $productId)
+    public function getPricesByProductId(int $productId, $status = Element::STATUS_ENABLED)
     {
         $query = PriceElement::find();
         $query->productId($productId);
+        $query->status($status);
 
         return $query->all();
     }
@@ -93,16 +98,17 @@ class Prices extends Component
      */
     public function createOrUpdatePrice(array $stripeObject, ?Product $product = null)
     {
-        $product = is_null($product) ? StripePlugin::$app->products->getProductByStripeId($stripeObject['product']) : $product;
+        $product = is_null($product) ? StripePlugin::$app->products->getProductByStripeId($stripeObject['product'], null) : $product;
         if (is_null($product)) {
             Craft::error('Product not found related to price: '.$stripeObject['product'], __METHOD__);
             return null;
         }
 
-        $price = $this->getPriceByStripeId($stripeObject['id']) ?? new PriceElement();
+        $price = $this->getPriceByStripeId($stripeObject['id'], null) ?? new PriceElement();
         $price->stripeId = $stripeObject['id'];
         $price->stripeObject = json_encode($stripeObject);
         $price->productId = $product->id;
+        $price->enabled = (bool)$stripeObject['active'];
 
         if (!Craft::$app->elements->saveElement($price)) {
             Craft::error('Unable to create new Price: '.json_encode($price->getErrors()), __METHOD__);

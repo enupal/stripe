@@ -209,8 +209,7 @@ class Product extends Element
             }
             case 'prices':
             {
-                $numberOfPrices = count($this->getPrices());
-                return $numberOfPrices == 0 ? 'No prices': $numberOfPrices;
+                return count($this->getPrices());
             }
         }
 
@@ -266,11 +265,12 @@ class Product extends Element
     }
 
     /**
+     * @param string|null $status
      * @return array|\craft\base\ElementInterface[]|null
      */
-    public function getPrices()
+    public function getPrices($status = self::STATUS_ENABLED)
     {
-        return StripePlugin::$app->prices->getPricesByProductId($this->id);
+        return StripePlugin::$app->prices->getPricesByProductId($this->id, $status);
     }
 
     /**

@@ -39,7 +39,7 @@ class ProductsController extends BaseController
         $variables['productId'] = $productId;
         $variables['product'] = $product;
         $variables['stripeObject'] = $product->getStripeObject();
-        $variables['prices'] = $product->getPrices();
+        $variables['prices'] = $product->getPrices(null);
 
         $variables['settings'] = Stripe::$app->settings->getSettings();
 
