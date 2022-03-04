@@ -50,7 +50,6 @@ class Stripe extends Plugin
      * @var App
      */
     public static $app;
-
     public $hasCpSection = true;
     public $hasCpSettings = true;
     public $schemaVersion = '3.4.2';
@@ -351,7 +350,7 @@ class Stripe extends Plugin
      */
     private function getSiteUrlRules()
     {
-        return [
+        $rules = [
             'enupal-stripe/update-billing-info' =>
                 'enupal-stripe/stripe/update-billing-info',
             'enupal/stripe-payments' =>
@@ -372,6 +371,11 @@ class Stripe extends Plugin
                 'enupal-stripe/utilities/get-oauth-link',
             'enupal-stripe/authorize-oauth' =>
                 'enupal-stripe/utilities/authorize-oauth',
+
+
+        ];
+
+        $proRules = [
             // CART
             'enupal-stripe/cart/add' =>
                 'enupal-stripe/cart/add',
@@ -382,9 +386,10 @@ class Stripe extends Plugin
             'enupal-stripe/cart/clear' =>
                 'enupal-stripe/cart/clear',
             'enupal-stripe/cart/checkout' =>
-                'enupal-stripe/cart/checkout',
-
+                'enupal-stripe/cart/checkout'
         ];
+
+        return array_merge($rules, $proRules);
     }
 }
 

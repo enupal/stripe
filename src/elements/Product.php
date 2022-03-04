@@ -13,6 +13,8 @@ use craft\base\Element;
 use craft\elements\db\ElementQueryInterface;
 use craft\helpers\UrlHelper;
 use craft\elements\actions\Delete;
+use enupal\stripe\elements\actions\DisableProducts;
+use enupal\stripe\elements\actions\EnableProducts;
 use enupal\stripe\elements\db\ProductQuery;
 use enupal\stripe\records\Product as ProductRecord;
 use enupal\stripe\Stripe as StripePlugin;
@@ -143,11 +145,12 @@ class Product extends Element
     {
         $actions = [];
 
-        // Delete @todo update to disabled products on stipe
         $actions[] = Craft::$app->getElements()->createAction([
-            'type' => Delete::class,
-            'confirmationMessage' => StripePlugin::t('Are you sure you want to disable the selected products?'),
-            'successMessage' => StripePlugin::t('Products disabled.'),
+            'type' => DisableProducts::class
+        ]);
+
+        $actions[] = Craft::$app->getElements()->createAction([
+            'type' => EnableProducts::class
         ]);
 
         return $actions;

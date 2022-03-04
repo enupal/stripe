@@ -10,6 +10,9 @@ namespace enupal\stripe\services;
 
 use craft\base\Element;
 use enupal\stripe\elements\Product as ProductElement;
+use enupal\stripe\Stripe as StripePlugin;
+use Stripe\Exception\ApiErrorException;
+use Stripe\Product;
 use yii\base\Component;
 use Craft;
 
@@ -44,6 +47,48 @@ class Products extends Component
         $query->status($status);
 
         return $query->one();
+    }
+
+    /**
+     * @param ProductElement[] $products
+     * @return bool
+     * @throws \Exception
+     */
+    public function disableProducts(array $products)
+    {
+        StripePlugin::$app->settings->initializeStripe();
+
+        foreach ($products as $product) {
+            try {
+                Product::update($product->stripeId, ['active' => false]);
+            } catch (\Exception $e) {
+                Craft::error('Something went wrong updating the product: '.$e->getMessage());
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * @param ProductElement[] $products
+     * @return bool
+     * @throws \Exception
+     */
+    public function enableProducts(array $products)
+    {
+        StripePlugin::$app->settings->initializeStripe();
+
+        foreach ($products as $product) {
+            try {
+                Product::update($product->stripeId, ['active' => true]);
+            } catch (\Exception $e) {
+                Craft::error('Something went wrong updating the product: '.$e->getMessage());
+                return false;
+            }
+        }
+
+        return true;
     }
 
     /**
