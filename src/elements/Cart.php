@@ -279,7 +279,7 @@ class Cart extends Element
             $this->cartMetadata = json_decode($this->cartMetadata, true);
         }
 
-        return $this->cartMetadata;
+        return $this->cartMetadata ?? [];
     }
 
     /**
@@ -320,6 +320,7 @@ class Cart extends Element
           "number" => $this->number,
           "metadata" => $this->getCartMetadata(),
           "total_price" => $this->totalPrice,
+          "total_price_with_currency" => $this->totalPrice ? Craft::$app->getFormatter()->asCurrency($this->totalPrice, $this->currency): 0,
           "currency" => $this->currency,
           "item_count" => $this->itemCount,
           "items" => $extendedResponse ? $this->getFullItems() : $this->getItems()

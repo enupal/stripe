@@ -9,12 +9,9 @@
 namespace enupal\stripe\services;
 
 use Craft;
-use craft\helpers\Json;
 use craft\helpers\UrlHelper;
 use enupal\stripe\elements\Cart;
 use enupal\stripe\elements\PaymentForm;
-use enupal\stripe\enums\AmountType;
-use enupal\stripe\enums\CheckoutPaymentType;
 use enupal\stripe\enums\SubmitTypes;
 use enupal\stripe\enums\SubscriptionType;
 use enupal\stripe\events\CheckoutEvent;
