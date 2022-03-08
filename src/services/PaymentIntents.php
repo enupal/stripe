@@ -155,7 +155,7 @@ class PaymentIntents extends Component
 
         $metadata = $checkoutSession['metadata'];
         $cartNumber = $metadata['stripe_payments_cart_number'];
-        $userId = $metadata['stripe_payments_user_id'];
+        $userId = $metadata['stripe_payments_user_id'] ?? null;
         $checkoutShippingAddress = $checkoutSession['shipping']?? null;
         $charge = $paymentIntent['charges']['data'][0];
 

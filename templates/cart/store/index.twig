@@ -54,7 +54,7 @@
             {% for product in products %}
                 {% set productObject = product.getStripeObject() %}
                 <div class="example-product col-md-3 boxlayout">
-                    <h3>{{ productObject.name }}</h3>
+                    <h4>{{ productObject.name }}</h4>
                     {% set prices = product.getPrices() %}
                     <form data-cart-submit="data-cart-submit">
                         <div class="form-group">
