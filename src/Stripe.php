@@ -44,6 +44,9 @@ use yii\web\UserEvent;
 
 class Stripe extends Plugin
 {
+    const EDITION_LITE = 'lite';
+    const EDITION_PRO = 'pro';
+
     /**
      * Enable use of Stripe::$app-> in place of Craft::$app->
      *
@@ -170,6 +173,14 @@ class Stripe extends Plugin
             ->onAdd("enupalStripe.fields.{uid}", [$this, 'handleChangedField'])
             ->onUpdate("enupalStripe.fields{uid}", [$this, 'handleChangedField'])
             ->onRemove("enupalStripe.fields.{uid}", [$this, 'handleDeletedField']);
+    }
+
+    public static function editions(): array
+    {
+        return [
+            self::EDITION_LITE,
+            self::EDITION_PRO,
+        ];
     }
 
     public function handleChangedField(\craft\events\ConfigEvent $event)
@@ -375,19 +386,21 @@ class Stripe extends Plugin
 
         ];
 
-        $proRules = [
-            // CART
-            'enupal-stripe/cart/add' =>
-                'enupal-stripe/cart/add',
-            'enupal-stripe/cart' =>
-                'enupal-stripe/cart/index',
-            'enupal-stripe/cart/update' =>
-                'enupal-stripe/cart/update',
-            'enupal-stripe/cart/clear' =>
-                'enupal-stripe/cart/clear',
-            'enupal-stripe/cart/checkout' =>
-                'enupal-stripe/cart/checkout'
-        ];
+        if (Plugin::getInstance()->is(self::EDITION_PRO)) {
+            $proRules = [
+                // CART
+                'enupal-stripe/cart/add' =>
+                    'enupal-stripe/cart/add',
+                'enupal-stripe/cart' =>
+                    'enupal-stripe/cart/index',
+                'enupal-stripe/cart/update' =>
+                    'enupal-stripe/cart/update',
+                'enupal-stripe/cart/clear' =>
+                    'enupal-stripe/cart/clear',
+                'enupal-stripe/cart/checkout' =>
+                    'enupal-stripe/cart/checkout'
+            ];
+        }
 
         return array_merge($rules, $proRules);
     }
