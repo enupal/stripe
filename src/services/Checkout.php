@@ -49,12 +49,16 @@ class Checkout extends Component
 
     /**
      * @param Cart $cart
-     * @return Session
+     * @return Session|null
      * @throws \Stripe\Exception\ApiErrorException
      * @throws \yii\base\Exception
      */
     public function createCartCheckoutSession(Cart $cart)
     {
+        if (!StripePlugin::getInstance()->is(StripePlugin::EDITION_PRO)) {
+            return null;
+        }
+
         $pluginSettings = StripePlugin::$app->settings->getSettings();
         StripePlugin::$app->settings->initializeStripe();
 

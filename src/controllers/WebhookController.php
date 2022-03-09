@@ -27,7 +27,8 @@ class WebhookController extends FrontEndController
             http_response_code(400);
             exit();
         }
-        
+
+        $isPro = StripePlugin::getInstance()->is(StripePlugin::EDITION_PRO);
         $eventJson = json_decode($input, true);
         Craft::info(json_encode($eventJson), __METHOD__);
 
@@ -110,7 +111,7 @@ class WebhookController extends FrontEndController
                 // Cart logic
                 $metadata = $checkoutSession['metadata'];
                 $cartNumber = $metadata['stripe_payments_cart_number'] ?? null;
-                if (!is_null($cartNumber)) {
+                if (!is_null($cartNumber) && $isPro) {
                     $order = StripePlugin::$app->paymentIntents->createCartOrder($checkoutSession);
                 } else if (is_null($cartNumber) and is_null($paymentIntentId)){
                     // We have a subscription
@@ -148,8 +149,11 @@ class WebhookController extends FrontEndController
             case 'product.created':
             case 'product.deleted':
             case 'product.updated':
+                if (!$isPro) {
+                    break;
+                }
                 $stripeObject = $eventJson['data']['object'];
-                $isSyncProduct = $stripeObject['metadata']['enupal_sync'] ?? false;
+                $isSyncProduct = $stripeObject['metadata']['enupal_sync'] ?? $stripeObject['metadata']['enupal-sync'] ?? false;
 
                 if ($isSyncProduct) {
                     $product = StripePlugin::$app->products->createOrUpdateProduct($stripeObject);
@@ -162,6 +166,9 @@ class WebhookController extends FrontEndController
             case 'price.created':
             case 'price.deleted':
             case 'price.updated':
+                if (!$isPro) {
+                    break;
+                }
                 $stripeObject = $eventJson['data']['object'];
 
                 StripePlugin::$app->prices->createOrUpdatePrice($stripeObject);

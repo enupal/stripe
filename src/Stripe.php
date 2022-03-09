@@ -258,10 +258,12 @@ class Stripe extends Plugin
             ];
         }
 
-        $navs['subnav']['products'] = [
-            "label" => self::t("Products"),
-            "url" => 'enupal-stripe/products'
-        ];
+        if (self::getInstance()->is(self::EDITION_PRO)) {
+            $navs['subnav']['products'] = [
+                "label" => self::t("Products"),
+                "url" => 'enupal-stripe/products'
+            ];
+        }
 
         if ($settings->useSca){
             $navs['subnav']['tax'] = [
@@ -386,7 +388,8 @@ class Stripe extends Plugin
 
         ];
 
-        if (Plugin::getInstance()->is(self::EDITION_PRO)) {
+        $proRules = [];
+        if (self::getInstance()->is(self::EDITION_PRO)) {
             $proRules = [
                 // CART
                 'enupal-stripe/cart/add' =>
