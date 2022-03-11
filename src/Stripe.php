@@ -60,7 +60,6 @@ class Stripe extends Plugin
     public function init()
     {
         parent::init();
-
         self::$app = $this->get('app');
 
         Event::on(UserWeb::class, UserWeb::EVENT_AFTER_LOGOUT, function(UserEvent $event) {

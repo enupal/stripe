@@ -289,7 +289,9 @@ class Cart extends Element
     public function getFullItems()
     {
         $items = $this->getItems();
-        $response = [];
+        $response['items'] = [];
+        $response['products'] = [];
+        $products = [];
         foreach ($items as $itemData) {
             if (!isset($itemData['price'])) {
                 Craft::error('Price is not set', __METHOD__);
@@ -301,9 +303,22 @@ class Cart extends Element
                 $stripeObject = $item->getStripeObject();
                 $stripeObject->price = $stripeObject->id;
                 $stripeObject->quantity = $itemData['quantity'];
+                if (isset($itemData['adjustable_quantity'])) {
+                    $stripeObject->adjustable_quantity = $itemData['adjustable_quantity'];
+                }
+                if (isset($itemData['description'])) {
+                    $stripeObject->description = $itemData['description'];
+                }
                 unset($stripeObject->id);
-                $response[] = $item->getStripeObject();
+                $response['items'][] = $stripeObject;
+                $products[$stripeObject->product] = 1;
             }
+        }
+
+        foreach ($products as $productId => $enabled) {
+            $product = StripePlugin::$app->products->getProductByStripeId($productId);
+            $productStripeObject = $product->getStripeObject();
+            $response['products'][$productId] = $productStripeObject;
         }
 
         return $response;
@@ -314,16 +329,16 @@ class Cart extends Element
      */
     public function asArray()
     {
-        $configSettings = StripePlugin::$app->settings->getConfigSettings();
-        $extendedResponse = $configSettings['cartExtendedResponse'] ?? false;
+        $fullItems = $this->getFullItems();
         return [
-          "number" => $this->number,
-          "metadata" => $this->getCartMetadata(),
-          "total_price" => $this->totalPrice,
-          "total_price_with_currency" => $this->totalPrice ? Craft::$app->getFormatter()->asCurrency($this->totalPrice, $this->currency): 0,
-          "currency" => $this->currency,
-          "item_count" => $this->itemCount,
-          "items" => $extendedResponse ? $this->getFullItems() : $this->getItems()
+            "number" => $this->number,
+            "metadata" => $this->getCartMetadata(),
+            "total_price" => $this->totalPrice,
+            "total_price_with_currency" => $this->totalPrice ? Craft::$app->getFormatter()->asCurrency($this->totalPrice, $this->currency): 0,
+            "currency" => $this->currency,
+            "item_count" => $this->itemCount,
+            "items" => $fullItems['items'],
+            "products" => $fullItems['products']
         ];
     }
 }

@@ -276,7 +276,7 @@ class Carts extends Component implements HttpStatus
         $cart->currency = $this->getCartCurrency($cart);
         $cart->itemCount = $this->getCartItemCount($cart);
         $cart->totalPrice = StripePlugin::$app->orders->convertFromCents($this->getCartTotalPrice($cart), $cart->currency);
-        $cart->number = $cart->number ?? StripePlugin::$app->orders->getRandomStr();
+        $cart->number = $cart->number ?? $this->generateCartToken();
         $cart->cartStatus = $status;
 
         $user = Craft::$app->getUser()->getIdentity();
@@ -294,6 +294,15 @@ class Carts extends Component implements HttpStatus
     {
         $session = Craft::$app->getSession();
         $session->set(self::SESSION_CART_NAME, $number);
+    }
+
+    /**
+     * @return string
+     * @throws \Exception
+     */
+    private function generateCartToken()
+    {
+        return bin2hex(random_bytes(16));
     }
 
     /**
