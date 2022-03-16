@@ -51,6 +51,16 @@
             value: settings.cartCancelUrl,
             errors: settings.getErrors('cartCancelUrl')
         }) }}
+
+        <hr>
+        {{ forms.selectField({
+            label: "Default Currency"|t('enupal-stripe'),
+            instructions: "The currency will be retrieved from the cart items, this is the default currency for empty carts."|t('enupal-stripe'),
+            id: 'cartCurrency',
+            name: 'cartCurrency',
+            options: craft.enupalStripe.getCurrencyOptions(),
+            value: settings.cartCurrency
+        }) }}
         <hr>
 
         {% set languageOptions = craft.enupalStripe.getLanguageOptions() %}

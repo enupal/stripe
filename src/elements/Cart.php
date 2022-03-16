@@ -330,12 +330,16 @@ class Cart extends Element
     public function asArray()
     {
         $fullItems = $this->getFullItems();
+        $settings = StripePlugin::$app->settings->getSettings();
+        $currency = $this->currency ?? $settings->cartCurrency;
+        $totalPrice = $this->totalPrice ?? 0;
+
         return [
             "number" => $this->number,
             "metadata" => $this->getCartMetadata(),
-            "total_price" => $this->totalPrice,
-            "total_price_with_currency" => $this->totalPrice ? Craft::$app->getFormatter()->asCurrency($this->totalPrice, $this->currency): 0,
-            "currency" => $this->currency,
+            "total_price" => $totalPrice,
+            "total_price_with_currency" => Craft::$app->getFormatter()->asCurrency($totalPrice, $currency),
+            "currency" => $currency,
             "item_count" => $this->itemCount,
             "items" => $fullItems['items'],
             "products" => $fullItems['products']

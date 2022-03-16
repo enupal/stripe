@@ -89,6 +89,7 @@ class Settings extends Model
     public $cartLanguage = "auto";
     public $cartPaymentMethods = [CheckoutPaymentType::CC];
     public $cartSubmitType;
+    public $cartCurrency = 'USD';
 
     // Connect
     public $enableConnect = 0;
