@@ -165,7 +165,7 @@ $(function () {
             data: null,
             dataType : 'json',
             success: function(response) {
-                window.location.replace(response.url);
+                window.location(response.url);
                 hideLoading();
             }.bind(this),
             error: function(xhr, status, err) {

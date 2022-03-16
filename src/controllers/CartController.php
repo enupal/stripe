@@ -61,8 +61,10 @@ class CartController extends BaseController
 
         try {
             StripePlugin::$app->carts->addOrUpdateCart($cart, $postData);
-        } catch (\Exception $e) {
-            return $this->errorResponse($e->getMessage());
+        } catch (CartItemException $exception) {
+            return $this->errorResponse($exception);
+        } catch (\Exception $exception) {
+            return $this->errorResponse(new CartItemException($exception, Carts::INTERNAL_SERVER_ERROR));
         }
 
         return $this->asJson($cart->asArray());
@@ -152,6 +154,6 @@ class CartController extends BaseController
         Craft::error($exception->getMessage(), __METHOD__);
         Craft::$app->getResponse()->statusCode = $exception->getCode();
 
-        return $this->asJson(['error' => true, 'message' => $exception->getMessage()]);
+        return $this->asJson(['status'=>$exception->getCode(), 'error' => true, 'message' => $exception->getMessage()]);
     }
 }

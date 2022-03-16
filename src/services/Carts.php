@@ -178,7 +178,7 @@ class Carts extends Component implements HttpStatus
             if (is_null($price)) {
                 throw new CartItemException(
                     Craft::t("site", "Cannot find price: ".$priceId),
-                    self::BAD_REQUEST
+                    self::NOT_FOUND
                 );
             }
             // if item is already in the cart, add the quantity

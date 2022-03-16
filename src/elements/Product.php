@@ -12,7 +12,6 @@ use Craft;
 use craft\base\Element;
 use craft\elements\db\ElementQueryInterface;
 use craft\helpers\UrlHelper;
-use craft\elements\actions\Delete;
 use enupal\stripe\elements\actions\DisableProducts;
 use enupal\stripe\elements\actions\EnableProducts;
 use enupal\stripe\elements\db\ProductQuery;
@@ -171,6 +170,7 @@ class Product extends Element
     {
         $attributes = [
             'dateCreated' => StripePlugin::t('Created at'),
+            'dateUpdated' => StripePlugin::t('Updated at'),
             'stripeId' => StripePlugin::t('Stripe Id')
         ];
 
