@@ -191,6 +191,7 @@ class PaymentIntents extends Component
         $data['enupalStripe']['discountAmount'] = $checkoutSession['total_details']['amount_discount'];
         $data['enupalStripe']['taxAmount'] = $checkoutSession['total_details']['amount_tax'];
         $data['enupalStripe']['shippingAmount'] = $checkoutSession['total_details']['amount_shipping'];
+        $data['enupalStripe']['quantity'] = $this->getCartQuantity($cartItems);
         //cart
         $data['enupalStripe']['cartItems'] = $cartItems;
         $data['enupalStripe']['cartStripeId'] = $checkoutSession['id'];
@@ -227,7 +228,6 @@ class PaymentIntents extends Component
 
         return $order;
     }
-
 
     /**
      * @param $subscription
@@ -309,6 +309,20 @@ class PaymentIntents extends Component
         }
 
         return $paymentMethod;
+    }
+
+    /**
+     * @param array $cartItems
+     * @return int
+     */
+    private function getCartQuantity(array $cartItems)
+    {
+        $quantity = 0;
+        foreach ($cartItems as $cartItem) {
+            $quantity += (int)$cartItem['quantity'];
+        }
+
+        return $quantity;
     }
 
     /**

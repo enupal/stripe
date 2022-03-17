@@ -481,6 +481,29 @@ class Orders extends Component
     }
 
     /**
+     * @param Order|null $order
+     * @param string $url
+     * @return string
+     * @throws \Throwable
+     * @throws \yii\base\Exception
+     */
+    public function getReturnUrl(Order $order = null, string $url = '')
+    {
+        // by default return to the same page
+        $returnUrl = '';
+
+        if ($url) {
+            $returnUrl = $this->getSiteUrl($url);
+        }
+
+        if ($order) {
+            $returnUrl = Craft::$app->getView()->renderObjectTemplate($returnUrl, $order);
+        }
+
+        return $returnUrl;
+    }
+
+    /**
      * @param $order Order
      * @param $sourceObject
      * @param $type
@@ -1666,5 +1689,20 @@ class Orders extends Component
         unset($postData['redirect']);
 
         return $postData;
+    }
+
+    /**
+     * @param $url
+     *
+     * @return string
+     * @throws \yii\base\Exception
+     */
+    private function getSiteUrl($url)
+    {
+        if (UrlHelper::isAbsoluteUrl($url)) {
+            return $url;
+        }
+
+        return UrlHelper::siteUrl($url);
     }
 }

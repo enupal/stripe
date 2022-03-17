@@ -813,6 +813,12 @@ class StripeVariable extends Behavior
         return Stripe::$app->vendors->isSuperVendor($vendorId);
     }
 
+    public function getCartReturnUrl(Order $order)
+    {
+        $settings = Stripe::$app->settings->getSettings();
+
+        return Stripe::$app->orders->getReturnUrl($order, $settings->cartSuccessUrl);
+    }
 
     /**
      * @param $view
