@@ -123,6 +123,10 @@ class Orders extends Component
      */
     public function getOrderByNumber($number, int $siteId = null)
     {
+        if (empty($number)) {
+            return null;
+        }
+
         $query = Order::find();
         $query->number($number);
         $query->siteId($siteId);

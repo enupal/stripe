@@ -11,6 +11,11 @@ $(function () {
     $('button[data-cart-checkout=""]').on("click", function(e, res){
         checkoutCart();
     });
+    // Menu Icon
+    $('#enupal-stripe-cart').on("click", function(e, res){
+        checkoutCart();
+    });
+
     // Handles Cart updates event
     $("#enupal-stripe-cart").on("on-add-to-cart", function(e, res){
         $("body").find("[data-cart-render='item_count']").html(res.item_count);
@@ -165,7 +170,8 @@ $(function () {
             data: null,
             dataType : 'json',
             success: function(response) {
-                window.location(response.url);
+                // `assign` allow the user come back from browser back button
+                window.location.assign(response.url);
                 hideLoading();
             }.bind(this),
             error: function(xhr, status, err) {

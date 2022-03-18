@@ -42,7 +42,6 @@
             </div>
         </div>
     </div>
-
     {# Display Products #}
     <div class="row">
         <div class="col-md-12">
@@ -54,7 +53,7 @@
             {% for product in products %}
                 {% set productObject = product.getStripeObject() %}
                 <div class="example-product col-md-3 boxlayout">
-                    <h4>{{ productObject.name }}</h4>
+                    <h3>{{ productObject.name }}</h3>
                     {% set prices = product.getPrices() %}
                     <form data-cart-submit="data-cart-submit">
                         <div class="form-group">
@@ -93,5 +92,3 @@
         </div>
     </div>
 {% endblock %}
-
-{% includeJsFile "/store/js/store.js" %}
