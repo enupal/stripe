@@ -1,0 +1,34 @@
+{#
+/**
+ * Stripe Payments plugin for Craft CMS 3.x
+ *
+ * @link      https://enupal.com/
+ * @copyright Copyright (c) 2018 Enupal LLC
+ */
+#}
+
+{% extends "enupal-stripe/_layouts/settings" %}
+{% import "_includes/forms" as forms %}
+
+{% set settings = settings is defined ? settings : craft.enupalStripe.getSettings()  %}
+{% set fullPageForm = false %}
+
+{% set content %}
+    {{ forms.field({
+        label: "Sync your Products and Prices from Stripe"|t('enupal-stripe')|upper,
+        instructions : 'Products describe the specific goods or services you offer to your customers. You can create as many products as you need to represent your product catalog. You can also create multiple prices for each product. Check the Products and Prices docs <a href="https://stripe.com/docs/products-prices/overview">here</a>'|t('enupal-stripe')
+    }, null) }}
+    <hr>
+
+    <form method="POST">
+        {{ csrfInput() }}
+        <input type="hidden" name="action"
+               value="enupal-stripe/settings/products-sync">
+        <input type="hidden" aria-hidden="true" name="redirect"
+               value="{{ 'enupal-stripe/settings/products-sync'|hash }}">
+        <div class="buttons">
+            <input class="btn submit" type="submit" value="{{ 'Sync Products and Prices'|t('enupal-stripe') }}">
+        </div>
+    </form>
+
+{% endset %}

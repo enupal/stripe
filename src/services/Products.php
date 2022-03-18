@@ -95,7 +95,7 @@ class Products extends Component
      * @param array $stripeObject
      * @return ProductElement|null
      */
-    public function createOrUpdateProduct(array $stripeObject)
+    public function createOrUpdateProduct($stripeObject)
     {
         $product = $this->getProductByStripeId($stripeObject['id'], null) ?? new ProductElement();
         $product->stripeId = $stripeObject['id'];
