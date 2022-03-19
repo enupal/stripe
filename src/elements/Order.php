@@ -223,12 +223,13 @@ class Order extends Element
         }
 
         $sources[] = ['heading' => StripePaymentsPlugin::t("Payment Type")];
-        // @TODO validate editions
-        $sources[] = [
-            'key' => 'cart:1',
-            'label' => Craft::t('enupal-stripe', 'Cart'),
-            'criteria' => ['isCart' => true]
-        ];
+        if (StripePaymentsPlugin::getInstance()->is(StripePaymentsPlugin::EDITION_PRO)) {
+            $sources[] = [
+                'key' => 'cart:1',
+                'label' => Craft::t('enupal-stripe', 'Cart'),
+                'criteria' => ['isCart' => true]
+            ];
+        }
 
         $sources[] = [
             'key' => 'oneTime:1',
