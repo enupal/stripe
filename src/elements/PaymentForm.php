@@ -656,7 +656,7 @@ class PaymentForm extends Element
 
         $publicData = [
             'useSca' => $this->settings->useSca,
-            'checkoutSuccessUrl' => $this->checkoutSuccessUrl,
+            'checkoutSuccessUrl' => $checkoutSuccessUrl,
             'checkoutCancelUrl' => $checkoutCancelUrl,
             'paymentFormId' => $this->id,
             'handle' => $this->handle,

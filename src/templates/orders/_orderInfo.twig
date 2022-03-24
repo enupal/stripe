@@ -84,10 +84,12 @@
             </tr>
             <tr>
                 {% set customerId = craft.enupalStripe.getCustomerReference(order.email) %}
+                {% set url = "https://dashboard.stripe.com" %}
+                {% set url = order.testMode ? url~'/test' : url %}
                 <td><strong>{{ "Stripe Customer"|t('enupal-stripe') }}</strong>
                 </td>
                 <td>
-                    <a href="https://dashboard.stripe.com/test/customers/{{ customerId }}">{{ "View Customer" }}</a>
+                    <a href="{{ url }}/customers/{{ customerId }}">{{ "View Customer" }}</a>
                 </td>
             </tr>
         </table>

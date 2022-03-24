@@ -55,8 +55,8 @@ class Subscription extends Model
         $this->canceledAt = isset($subscription['canceled_at']) && $subscription['canceled_at'] ? DateTimeHelper::toDateTime($subscription['canceled_at'])->format($dateFormat) : null;
         $this->data = $subscription;
         $this->statusHtml = Stripe::$app->subscriptions->getSubscriptionStatusHtml($this->status);
-        $this->cancelAtPeriodEnd = $subscription['cancel_at_period_end'];
-        $this->customer = $subscription['customer'];
+        $this->cancelAtPeriodEnd = $subscription['cancel_at_period_end'] ?? null;
+        $this->customer = $subscription['customer'] ?? null;
 
         if (isset($subscription['plan']['usage_type']) && $subscription['plan']['usage_type'] === 'metered'){
             $this->meteredId = $subscription['items']['data'][0]['id'];

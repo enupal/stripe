@@ -9,6 +9,17 @@
 ### Updated
 - Updated API version to `2020-08-27`
 
+## 3.4.2 - 2022.03.24
+
+### Fixed
+- Fixed issue when retrieving the subscription model ([#262])
+- Fixed issue on overwrite checkoutSuccessUrl via options ([#257])
+- Fixed wrong customer url on order details ([#261])
+
+[#262]: https://github.com/enupal/stripe/issues/262
+[#257]: https://github.com/enupal/stripe/issues/257
+[#261]: https://github.com/enupal/stripe/issues/261
+
 ## 3.4.1 - 2022.02.16
 
 ### Fixed
