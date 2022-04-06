@@ -194,6 +194,18 @@ class StripeVariable extends Behavior
     }
 
     /**
+     * @param array $lineItems
+     * @param array $metadata
+     * @return string|\Stripe\Checkout\Session
+     * @throws \Stripe\Exception\ApiErrorException
+     * @throws \yii\base\Exception
+     */
+    public function checkout(array $lineItems, array $metadata = [])
+    {
+        return Stripe::$app->checkout->checkout($lineItems, $metadata);
+    }
+
+    /**
      * @return array
      */
     public function getCurrencyIsoOptions()

@@ -6,8 +6,8 @@
 
     {% namespace 'settings' %}
         {{ forms.field({
-            label: "Cart Settings"|t('enupal-stripe'),
-            instructions: "Cart API settings. All these settings can be overriden via the CheckoutEvent event"|t('enupal-stripe'),
+            label: "Checkout Settings"|t('enupal-stripe'),
+            instructions: "Stripe Checkout settings to be used by the <code>Cart API</code> and the <code>craft.enupalStripe.checkout</code> twig tag. <br> All settings can be overwritten via the  <a href='https://docs.enupal.com/stripe-payments/plugin-development/events.html#beforecreatesession'><code>beforeCreateSession</code></a> event"|t('enupal-stripe'),
         }, null) }}
         <hr>
 

@@ -660,8 +660,8 @@ class Orders extends Component
         $paymentType = $postData['paymentType'] ?? PaymentType::CC;
         $data['couponCode'] = $postData['enupalCouponCode'] ?? null;
 
-        if (empty($token) || empty($cartNumber)){
-            Craft::error('Unable to get the stripe token or cartNumber', __METHOD__);
+        if (empty($token)){
+            Craft::error('Unable to get the stripe token', __METHOD__);
             return $result;
         }
 
@@ -671,11 +671,13 @@ class Orders extends Component
             Craft::error('Unable to get the final amount from the post request', __METHOD__);
             return $result;
         }
+        $cart = null;
+        if (!is_null($cartNumber)) {
+            $cart = StripePlugin::$app->carts->getCartByNumber($cartNumber);
 
-        $cart = StripePlugin::$app->carts->getCartByNumber($cartNumber);
-
-        if (is_null($cart)) {
-            throw new \Exception(Craft::t('enupal-stripe','Unable to find the Cart associated to the order'));
+            if (is_null($cart)) {
+                throw new \Exception(Craft::t('enupal-stripe','Unable to find the Cart associated to the order'));
+            }
         }
 
         if (is_null($order)){
@@ -688,7 +690,7 @@ class Orders extends Component
         }
 
         $order->currency = $data['currency'];
-        $order->cartId = $cart->id;
+        $order->cartId = $cart->id ?? null;
         $order->stripeTransactionId = $token;
         $order->isSubscription = false;
         $order->isCart = true;
@@ -705,10 +707,11 @@ class Orders extends Component
             $order->isCompleted = false;
         }
 
-        $cart->stripeId = $data['cartStripeId'];
-        $order = $this->finishCartOrder($order, $cart);
+        if (!is_null($cart)) {
+            $cart->stripeId = $data['cartStripeId'];
+        }
 
-        return $order;
+        return $this->finishCartOrder($order, $cart);
     }
 
     /**
@@ -1623,13 +1626,12 @@ class Orders extends Component
     }
 
     /**
-     * @param $order
-     *
-     * @return null|Order
+     * @param Order $order
+     * @param Cart|null $cart
+     * @return null
      * @throws \Throwable
-     * @throws \yii\base\Exception
      */
-    private function finishCartOrder($order, Cart $cart)
+    private function finishCartOrder(Order $order, ?Cart $cart = null)
     {
         // Finally save the order in Craft CMS
         if (!StripePlugin::$app->orders->saveOrder($order)){
@@ -1637,9 +1639,11 @@ class Orders extends Component
             return null;
         }
 
-        Craft::info('Enupal Stripe - Order Created: './** @scrutinizer ignore-type */ $order->number, __METHOD__);
+        Craft::info('Enupal Stripe - Cart Order Created: './** @scrutinizer ignore-type */ $order->number, __METHOD__);
 
-        StripePlugin::$app->carts->markCartAsCompleted($cart);
+        if (!is_null($cart)) {
+            StripePlugin::$app->carts->markCartAsCompleted($cart);
+        }
 
         return $order;
     }

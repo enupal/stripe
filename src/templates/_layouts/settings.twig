@@ -14,6 +14,7 @@
 
 {% set selectedSubnavItem = craft.app.request.getSegment(2) %}
 {% set selectedSidebarItem = craft.app.request.getSegment(3) %}
+{% set selectedSidebarItemPro = craft.app.request.getSegment(4) %}
 {% set settings = craft.enupalStripe.getSettings %}
 
 {% set sidebar %}
@@ -49,18 +50,18 @@
                 </li>
             {% endif %}
             {% if plugin('enupal-stripe').is('pro') %}
-                <li class="heading"><span>{{ "Cart API"|t('enupal-stripe') }}</span>
+                <li class="heading"><span>{{ "PRO"|t('enupal-stripe') }}</span>
                 </li>
                 <li>
-                    <a href="{{ cpUrl('enupal-stripe/settings/cart') }}"
-                       {% if selectedSidebarItem == 'cart' %}class="sel"{% endif %}><i
-                                class="fa fa-shopping-cart fa-fw" aria-hidden="true"></i>&nbsp;{{ "Cart"|t('enupal-stripe') }}
+                    <a href="{{ cpUrl('enupal-stripe/settings/pro/checkout') }}"
+                       {% if selectedSidebarItemPro == 'checkout' %}class="sel"{% endif %}><i
+                                class="fa fa-shopping-cart fa-fw" aria-hidden="true"></i>&nbsp;{{ "Checkout"|t('enupal-stripe') }}
                     </a>
                 </li>
 
                 <li>
-                    <a href="{{ cpUrl('enupal-stripe/settings/products-sync') }}"
-                       {% if selectedSidebarItem == 'products-sync' %}class="sel"{% endif %}><i
+                    <a href="{{ cpUrl('enupal-stripe/settings/pro/products-sync') }}"
+                       {% if selectedSidebarItemPro == 'products-sync' %}class="sel"{% endif %}><i
                                 class="fa fa-refresh fa-fw" aria-hidden="true"></i>&nbsp;{{ "Products sync"|t('enupal-stripe') }}
                     </a>
                 </li>

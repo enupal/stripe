@@ -154,7 +154,8 @@ class PaymentIntents extends Component
         }
 
         $metadata = $checkoutSession['metadata'];
-        $cartNumber = $metadata['stripe_payments_cart_number'];
+        $cartNumber = $metadata[Checkout::METADATA_CART_NUMBER] ?? null;
+        $checkoutTwig = $metadata[Checkout::METADATA_CHECKOUT_TWIG] ?? null;
         $userId = $metadata['stripe_payments_user_id'] ?? null;
         $checkoutShippingAddress = $checkoutSession['shipping']?? null;
         $charge = $paymentIntent['charges']['data'][0];
@@ -163,6 +164,10 @@ class PaymentIntents extends Component
 
         if (empty($stripeId)) {
             throw new \Exception("Unable to find the stripe id related to the cart: ".$paymentIntentId);
+        }
+
+        if (is_null($checkoutTwig) && is_null($cartNumber)) {
+            throw new \Exception("Unable to the determinate the Checkout type order");
         }
 
         $order = StripePlugin::$app->orders->getOrderByStripeId($stripeId);
@@ -332,11 +337,12 @@ class PaymentIntents extends Component
     private function removePaymentIntentMetadata($metadata)
     {
         unset($metadata['stripe_payments_form_id']);
-        unset($metadata['stripe_payments_cart_number']);
         unset($metadata['stripe_payments_user_id']);
         unset($metadata['stripe_payments_quantity']);
         unset($metadata['stripe_payments_coupon_code']);
         unset($metadata['stripe_payments_amount_before_coupon']);
+        unset($metadata[Checkout::METADATA_CART_NUMBER]);
+        unset($metadata[Checkout::METADATA_CHECKOUT_TWIG]);
 
         return $metadata;
     }

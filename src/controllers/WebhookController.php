@@ -9,6 +9,7 @@
 namespace enupal\stripe\controllers;
 
 use Craft;
+use enupal\stripe\services\Checkout;
 use enupal\stripe\Stripe as StripePlugin;
 use Stripe\Webhook;
 
@@ -110,8 +111,10 @@ class WebhookController extends FrontEndController
 
                 // Cart logic
                 $metadata = $checkoutSession['metadata'];
-                $cartNumber = $metadata['stripe_payments_cart_number'] ?? null;
-                if (!is_null($cartNumber) && $isPro) {
+                $cartNumber = $metadata[Checkout::METADATA_CART_NUMBER] ?? null;
+                $checkoutSessionUrl = $metadata[Checkout::METADATA_CHECKOUT_TWIG] ?? null;
+
+                if ((!is_null($cartNumber) || !is_null($checkoutSessionUrl)) && $isPro) {
                     $order = StripePlugin::$app->paymentIntents->createCartOrder($checkoutSession);
                 } else if (is_null($cartNumber) and is_null($paymentIntentId)){
                     // We have a subscription
