@@ -486,7 +486,7 @@ var enupalStripe = {};
         }
     };
 
-    $(document).ready(function($) {
+    //$(document).ready(function($) {
         enupalStripe.init();
-    });
+    //});
 })(jQuery);
