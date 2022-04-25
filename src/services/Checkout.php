@@ -705,6 +705,15 @@ class Checkout extends Component
     private function getIsSubscription(array $lineItems): bool
     {
         foreach ($lineItems as $item) {
+            if (isset($item['price_data']['recurring'])) {
+                return true;
+            }
+        }
+
+        foreach ($lineItems as $item) {
+            if (!isset($item['price'])) {
+                continue;
+            }
             $price = StripePlugin::$app->prices->getPriceByStripeId($item['price']);
 
             if ($price->getStripeObject()->type == Prices::PRICE_TYPE_RECURRING) {
