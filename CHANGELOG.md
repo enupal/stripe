@@ -11,12 +11,12 @@
 - Added Checkout settings
 - Added Sync Product setting
 - Added Product and Price Elements
-- Added product.created webhook
-- Added product.updated webhook
-- Added product.deleted webhook
-- Added price.created webhook
-- Added price.updated webhook
-- Added price.deleted webhook
+- Added `product.created` webhook
+- Added `product.updated` webhook
+- Added `product.deleted` webhook
+- Added `price.created` webhook
+- Added `price.updated` webhook
+- Added `price.deleted` webhook
 - Added Sync product and prices from Stripe functionality via webhooks
 - Added Product element modal window view (hub modal on double click)
 - Added Stripe Product field type
