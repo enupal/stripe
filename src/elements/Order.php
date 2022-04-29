@@ -98,6 +98,12 @@ class Order extends Element
     // subscriptions
     public $subscriptionStatus;
     public $isSubscription;
+    // cart
+    public $cartId;
+    public $isCart;
+    public $cartPaymentMethod;
+    public $cartShippingRateId;
+    public $cartItems;
 
     public $dateCreated;
     public $dateOrdered;
@@ -217,6 +223,13 @@ class Order extends Element
         }
 
         $sources[] = ['heading' => StripePaymentsPlugin::t("Payment Type")];
+        if (StripePaymentsPlugin::getInstance()->is(StripePaymentsPlugin::EDITION_PRO)) {
+            $sources[] = [
+                'key' => 'cart:1',
+                'label' => Craft::t('enupal-stripe', 'Cart'),
+                'criteria' => ['isCart' => true]
+            ];
+        }
 
         $sources[] = [
             'key' => 'oneTime:1',
@@ -331,7 +344,7 @@ class Order extends Element
 
     protected static function defineDefaultTableAttributes(string $source): array
     {
-        $attributes = ['number', 'orderStatusId', 'itemName', 'itemSku', 'totalPrice', 'email', 'user', 'paymentStatus', 'dateOrdered'];
+        $attributes = ['number', 'orderStatusId', 'itemSku', 'totalPrice', 'email', 'user', 'paymentStatus', 'dateOrdered'];
 
         return $attributes;
     }
@@ -378,11 +391,11 @@ class Order extends Element
                 }
             case 'itemName':
                 {
-                    return $this->getPaymentForm()->name;
+                    return $this->getPaymentForm()->name ?? '';
                 }
             case 'itemSku':
                 {
-                    return '<a href="'.$this->getPaymentForm()->getCpEditUrl().'">'.$this->getPaymentForm()->handle.'</a>';
+                    return $this->getPaymentForm() ? '<a href="'.$this->getPaymentForm()->getCpEditUrl().'">'.$this->getPaymentForm()->handle.'</a>': '';
                 }
             case 'paymentType':
                 {
@@ -419,6 +432,11 @@ class Order extends Element
         $record->currency = $this->currency;
         $record->totalPrice = $this->totalPrice;
         $record->formId = $this->formId;
+        $record->cartId = $this->cartId;
+        $record->cartPaymentMethod = $this->cartPaymentMethod;
+        $record->cartShippingRateId = $this->cartShippingRateId;
+        $record->cartItems = $this->cartItems;
+        $record->isCart = $this->isCart;
         $record->quantity = $this->quantity;
         $record->stripeTransactionId = $this->stripeTransactionId;
         $record->email = $this->email;
@@ -462,6 +480,10 @@ class Order extends Element
      */
     public function getPaymentForm()
     {
+        if (is_null($this->formId)) {
+            return null;
+        }
+
         $paymentForm = StripePaymentsPlugin::$app->paymentForms->getPaymentFormById($this->formId);
 
         return $paymentForm;
@@ -491,6 +513,9 @@ class Order extends Element
         return $html;
     }
 
+    /**
+     * @return \craft\elements\User|null
+     */
     public function getUser()
     {
         if ($this->userId) {
@@ -498,6 +523,22 @@ class Order extends Element
 
             if ($user) {
                 return $user;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * @return array|Cart|null
+     */
+    public function getCart()
+    {
+        if ($this->cartId) {
+            $cart = Stripe::$app->carts->getCartById($this->cartId);
+
+            if ($cart) {
+                return $cart;
             }
         }
 
@@ -516,6 +557,20 @@ class Order extends Element
         }
 
         return $variants;
+    }
+
+    /**
+     * @return array|mixed
+     */
+    public function getCartItems()
+    {
+        $cartItems = [];
+
+        if ($this->cartItems){
+            $cartItems = json_decode($this->cartItems, true);
+        }
+
+        return $cartItems;
     }
 
 	/**
@@ -611,6 +666,10 @@ class Order extends Element
 
         if ($this->isSubscription()){
             $type = StripePaymentsPlugin::t("Subscription");
+        }
+
+        if ($this->isCart){
+            $type = StripePaymentsPlugin::t("Cart");
         }
 
         return $type;

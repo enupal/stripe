@@ -1,5 +1,38 @@
 # Stripe Payments Changelog
 
+## WIP
+
+### Added
+- Added [PRO edition](https://docs.enupal.com/stripe-payments/pro/overview.html)
+- Added [Cart API](https://docs.enupal.com/stripe-payments/pro/cart-api.html) support
+- Added [Checkout twig tag](https://docs.enupal.com/stripe-payments/pro/checkout.html)
+- Added [CheckoutEvent](https://docs.enupal.com/stripe-payments/plugin-development/events.html#beforecreatesession)
+- Added Cart element
+- Added Checkout settings
+- Added Sync Product setting
+- Added Product and Price Elements
+- Added `product.created` webhook
+- Added `product.updated` webhook
+- Added `product.deleted` webhook
+- Added `price.created` webhook
+- Added `price.updated` webhook
+- Added `price.deleted` webhook
+- Added Sync product and prices from Stripe functionality via webhooks
+- Added Product element modal window view (hub modal on double click)
+- Added Stripe Product field type
+- Added Cart API `GET /enupal-stripe/cart` resource
+- Added Cart API `POST /enupal-stripe/add` resource
+- Added Cart API `POST /enupal-stripe/update` resource
+- Added Cart API `POST /enupal-stripe/clear` resource
+- Added Cart API `POST /enupal-stripe/checkout` resource
+- Added shipping support
+- Added dynamic taxes support
+- Added promotional codes support
+- Added Cart API sample templates
+
+### Updated
+- Updated API version to `2020-08-27`
+
 ## 3.4.2 - 2022.03.24
 
 ### Fixed

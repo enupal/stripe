@@ -1,0 +1,24 @@
+{#
+/**
+ * Stripe Payments plugin for Craft CMS 3.x
+ *
+ * @link      https://enupal.com/
+ * @copyright Copyright (c) 2018 Enupal LLC
+ */
+#}
+
+{% extends "enupal-stripe/_layouts/elementindex" %}
+{% set title = "Products"|t %}
+{% set elementType = 'enupal\\stripe\\elements\\Product' %}
+{% do view.registerAssetBundle("enupal\\stripe\\web\\assets\\FontAwesomeAsset") %}
+
+{% set testMode = craft.enupalStripe.getMode() %}
+{% set stripeUrl = "https://dashboard.stripe.com" %}
+{% set stripeUrl = testMode ? stripeUrl~'/test' : stripeUrl %}
+
+{% block actionButton %}
+    <div class="buttons">
+        <a class="btn submit add icon" href="{{ stripeUrl }}/products/create">{{ "New Product"|t('enupal-stripe') }}</a>
+    </div>
+{% endblock %}
+

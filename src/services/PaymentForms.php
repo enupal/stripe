@@ -518,12 +518,12 @@ class PaymentForms extends Component
     public function getLanguageOptions()
     {
         $languages = [
-            'en' => 'English (en)',
             'auto' => 'Auto-detect locale',
+            'en' => 'English (en)',
             'zh' => 'Simplified Chinese',
             'da' => 'Danish',
             'nl' => 'Dutch',
-            'fi' => 'Finnish',
+            'fi'  => 'Finnish',
             'fr' => 'French',
             'de' => 'German',
             'it' => 'Italian',
@@ -532,7 +532,27 @@ class PaymentForms extends Component
             'es' => 'Spanish',
             'sv' => 'Swedish',
             'pt' => 'Portuguese',
-            'pl' => 'Polish'
+            'pl' => 'Polish',
+            'bg' => 'Bulgarian',
+            'hr' => 'Croatian',
+            'cs' => 'Czech',
+            'fil' => 'Filipino',
+            'el' => 'Greek',
+            'hu' => 'Hungarian',
+            'et' => 'Estonian',
+            'id' => 'Indonesian',
+            'ko' => 'Korean',
+            'lv' => 'Latvian',
+            'ms' => 'Malay',
+            'mt' => 'Maltese',
+            'lt' => 'Lithuanian',
+            'ro' => 'Romanian',
+            'ru' => 'Russian',
+            'sk' => 'Slovak',
+            'sl' => 'Slovenian',
+            'th' => 'Thai',
+            'tr' => 'Turkish',
+            'vi' => 'Vietnamese'
         ];
 
         return $languages;

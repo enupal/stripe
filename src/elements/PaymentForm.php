@@ -214,18 +214,7 @@ class PaymentForm extends Element
      */
     public function getReturnUrl(Order $order = null)
     {
-        // by default return to the same page
-        $returnUrl = '';
-
-        if ($this->returnUrl) {
-            $returnUrl = $this->getSiteUrl($this->returnUrl);
-        }
-
-        if ($order) {
-            $returnUrl = Craft::$app->getView()->renderObjectTemplate($returnUrl, $order);
-        }
-
-        return $returnUrl;
+        return StripePlugin::$app->orders->getReturnUrl($order, $this->returnUrl);
     }
 
     /**
@@ -569,21 +558,6 @@ class PaymentForm extends Element
         $rules[] = [['name', 'handle'], 'required'];
 
         return $rules;
-    }
-
-    /**
-     * @param $url
-     *
-     * @return string
-     * @throws \yii\base\Exception
-     */
-    private function getSiteUrl($url)
-    {
-        if (UrlHelper::isAbsoluteUrl($url)) {
-            return $url;
-        }
-
-        return UrlHelper::siteUrl($url);
     }
 
     /**

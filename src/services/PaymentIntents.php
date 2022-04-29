@@ -50,7 +50,6 @@ class PaymentIntents extends Component
         PaymentIntent::update($paymentIntent->id, ['description' => $description]);
     }
 
-
     /**
      * @param PaymentIntent $paymentIntent
      * @param $checkoutSession
@@ -127,6 +126,113 @@ class PaymentIntents extends Component
         return $order;
     }
 
+    /**
+     * @param $checkoutSession
+     * @return \enupal\stripe\elements\Order|null
+     * @throws \Throwable
+     */
+    public function createCartOrder(array $checkoutSession)
+    {
+        $paymentIntentId = $checkoutSession['payment_intent'];
+        $subscriptionId = $checkoutSession['subscription'];
+        $cartItems = StripePlugin::$app->checkout->getAllCheckoutItems($checkoutSession['id']);
+
+        if (is_null($paymentIntentId) && !is_null($subscriptionId)) {
+            $subscription = StripePlugin::$app->subscriptions->getStripeSubscription($subscriptionId);
+            $invoice = StripePlugin::$app->customers->getStripeInvoice($subscription['latest_invoice']);
+            $paymentIntentId = $invoice['payment_intent'];
+        }
+
+        if (is_null($paymentIntentId)) {
+            throw new \Exception("Unable to find the paymentIntentId or subscriptionId related to the cart");
+        }
+
+        $paymentIntent = $this->getPaymentIntent($paymentIntentId);
+
+        if (is_null($paymentIntent)) {
+            throw new \Exception("Unable to find the paymentIntentId related to the cart: ".$paymentIntentId);
+        }
+
+        $metadata = $checkoutSession['metadata'];
+        $cartNumber = $metadata[Checkout::METADATA_CART_NUMBER] ?? null;
+        $checkoutTwig = $metadata[Checkout::METADATA_CHECKOUT_TWIG] ?? null;
+        $userId = $metadata['stripe_payments_user_id'] ?? null;
+        $checkoutShippingAddress = $checkoutSession['shipping']?? null;
+        $charge = $paymentIntent['charges']['data'][0];
+
+        $stripeId = !is_null($subscriptionId) ? $subscriptionId : $charge['id'];
+
+        if (empty($stripeId)) {
+            throw new \Exception("Unable to find the stripe id related to the cart: ".$paymentIntentId);
+        }
+
+        if (is_null($checkoutTwig) && is_null($cartNumber)) {
+            throw new \Exception("Unable to the determinate the Checkout type order");
+        }
+
+        $order = StripePlugin::$app->orders->getOrderByStripeId($stripeId);
+        if ($order !== null) {
+            Craft::warning('Checkout session was already processed under order: '.$order->number, __METHOD__);
+            return $order;
+        }
+
+        $billing = $charge['billing_details'] ?? null;
+        $shipping = is_null($checkoutShippingAddress) ? $charge['shipping'] ?? null : $checkoutShippingAddress;
+
+        $testMode = !$checkoutSession['livemode'];
+        $customer = StripePlugin::$app->customers->getStripeCustomer($paymentIntent['customer']);
+        StripePlugin::$app->customers->registerCustomer($customer, $testMode);
+
+        $data = [];
+        $data['enupalStripe']['metadata'] = $this->removePaymentIntentMetadata($metadata);
+        $data['enupalStripe']['token'] = $stripeId;
+        $data['enupalStripe']['email'] = $billing['email'];
+        $data['enupalStripe']['amount'] = $checkoutSession['amount_total'];
+        $data['enupalStripe']['currency'] = strtoupper($checkoutSession['currency']);
+        $data['enupalStripe']['testMode'] = $testMode;
+        $data['enupalStripe']['paymentType'] = PaymentType::CC;//@todo fix this
+        $data['enupalStripe']['userId'] = $userId;
+        $data['enupalStripe']['cartNumber'] = $cartNumber;
+        $data['enupalStripe']['discountAmount'] = $checkoutSession['total_details']['amount_discount'];
+        $data['enupalStripe']['taxAmount'] = $checkoutSession['total_details']['amount_tax'];
+        $data['enupalStripe']['shippingAmount'] = $checkoutSession['total_details']['amount_shipping'];
+        $data['enupalStripe']['quantity'] = $this->getCartQuantity($cartItems);
+        //cart
+        $data['enupalStripe']['cartItems'] = $cartItems;
+        $data['enupalStripe']['cartStripeId'] = $checkoutSession['id'];
+        $data['enupalStripe']['cartShippingRateId'] = $checkoutSession['shipping_rate'];
+        //$data['enupalStripe']['cartPaymentMethod'] = null; @todo
+
+        $billingAddress = $billing['address'] ?? null;
+        $shippingAddress = $shipping['address'] ?? null;
+
+        if (isset($billingAddress['city'])){
+            $data['enupalStripe']['billingAddress'] = [
+                'country' => $billingAddress['country'],
+                'zip' => $billingAddress['postal_code'],
+                'line1' => $billingAddress['line1'],
+                'city' => $billingAddress['city'],
+                'state' => $billingAddress['state'],
+                'name' => $billing['name'] ?? ''
+            ];
+        }
+
+        if (isset($shippingAddress['city'])){
+            $data['enupalStripe']['address'] = [
+                'country' => $shippingAddress['country'],
+                'zip' => $shippingAddress['postal_code'],
+                'line1' => $shippingAddress['line1'],
+                'city' => $shippingAddress['city'],
+                'state' => $shippingAddress['state'],
+                'name' => $shipping['name'] ?? ''
+            ];
+        }
+
+        $order = StripePlugin::$app->orders->processCartPayment($data);
+        StripePlugin::$app->messages->addMessage($order->id, "Payment Intent", $paymentIntent);
+
+        return $order;
+    }
 
     /**
      * @param $subscription
@@ -211,6 +317,20 @@ class PaymentIntents extends Component
     }
 
     /**
+     * @param array $cartItems
+     * @return int
+     */
+    private function getCartQuantity(array $cartItems)
+    {
+        $quantity = 0;
+        foreach ($cartItems as $cartItem) {
+            $quantity += (int)$cartItem['quantity'];
+        }
+
+        return $quantity;
+    }
+
+    /**
      * @param $metadata
      * @return mixed
      */
@@ -221,6 +341,8 @@ class PaymentIntents extends Component
         unset($metadata['stripe_payments_quantity']);
         unset($metadata['stripe_payments_coupon_code']);
         unset($metadata['stripe_payments_amount_before_coupon']);
+        unset($metadata[Checkout::METADATA_CART_NUMBER]);
+        unset($metadata[Checkout::METADATA_CHECKOUT_TWIG]);
 
         return $metadata;
     }

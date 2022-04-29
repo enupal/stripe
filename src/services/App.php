@@ -112,6 +112,21 @@ class App extends Component
      */
     public $prices;
 
+    /**
+     * @var Products
+     */
+    public $products;
+
+    /**
+     * @var Carts
+     */
+    public $carts;
+
+    /**
+     * @var Shipping
+     */
+    public $shipping;
+
     public function init()
     {
         $this->settings = new Settings();
@@ -134,5 +149,8 @@ class App extends Component
         $this->commissions = new Commissions();
         $this->taxes = new Taxes();
         $this->prices = new Prices();
+        $this->products = new Products();
+        $this->carts = new Carts();
+        $this->shipping = new Shipping();
     }
 }

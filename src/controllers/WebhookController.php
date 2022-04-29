@@ -8,9 +8,8 @@
 
 namespace enupal\stripe\controllers;
 
-use craft\web\Controller as BaseController;
 use Craft;
-use enupal\stripe\Stripe;
+use enupal\stripe\services\Checkout;
 use enupal\stripe\Stripe as StripePlugin;
 use Stripe\Webhook;
 
@@ -29,7 +28,8 @@ class WebhookController extends FrontEndController
             http_response_code(400);
             exit();
         }
-        
+
+        $isPro = StripePlugin::getInstance()->is(StripePlugin::EDITION_PRO);
         $eventJson = json_decode($input, true);
         Craft::info(json_encode($eventJson), __METHOD__);
 
@@ -40,7 +40,7 @@ class WebhookController extends FrontEndController
 
         $stripeId = $eventJson['data']['object']['id'] ?? null;
 
-        $order = Stripe::$app->orders->getOrderByStripeId($stripeId);
+        $order = StripePlugin::$app->orders->getOrderByStripeId($stripeId);
 
         switch ($eventJson['type']) {
             case 'source.chargeable':
@@ -49,7 +49,7 @@ class WebhookController extends FrontEndController
                 }
                 // iDEAL or SOFORT
                 $type = $eventJson['data']['object']['type'];
-                $order = Stripe::$app->orders->asynchronousCharge($order, $eventJson, $type);
+                $order = StripePlugin::$app->orders->asynchronousCharge($order, $eventJson, $type);
 
                 break;
             case 'source.failed':
@@ -75,7 +75,7 @@ class WebhookController extends FrontEndController
                 // Finalize the order and trigger order complete event to send a confirmation to the customer over email.
                 if (!$order->isCompleted){
                     $order->isCompleted = true;
-                    Stripe::$app->orders->saveOrder($order);
+                    StripePlugin::$app->orders->saveOrder($order);
                 }
                 break;
             case 'charge.failed':
@@ -92,13 +92,13 @@ class WebhookController extends FrontEndController
                 }
                 // Capture Order
                 $object = $eventJson['data']['object'];
-                $order = Stripe::$app->orders->getOrderByStripeId($object['id']);
+                $order = StripePlugin::$app->orders->getOrderByStripeId($object['id']);
                 if (isset($object['captured']) && $object['captured'] && $order) {
                     $order->isCompleted = true;
-                    Stripe::$app->orders->saveOrder($order, false);
-                    Stripe::$app->messages->addMessage($order->id, 'Webhook - Payment captured', $object);
+                    StripePlugin::$app->orders->saveOrder($order, false);
+                    StripePlugin::$app->messages->addMessage($order->id, 'Webhook - Payment captured', $object);
 
-                    Stripe::$app->orders->triggerOrderCaptureEvent($order);
+                    StripePlugin::$app->orders->triggerOrderCaptureEvent($order);
                     Craft::info('Stripe Payments - Payment Captured order: '.$order->number, __METHOD__);
                 }
                 break;
@@ -109,7 +109,14 @@ class WebhookController extends FrontEndController
                 $paymentIntentId = $checkoutSession['payment_intent'];
                 $order = null;
 
-                if ($paymentIntentId === null){
+                // Cart logic
+                $metadata = $checkoutSession['metadata'];
+                $cartNumber = $metadata[Checkout::METADATA_CART_NUMBER] ?? null;
+                $checkoutSessionUrl = $metadata[Checkout::METADATA_CHECKOUT_TWIG] ?? null;
+
+                if ((!is_null($cartNumber) || !is_null($checkoutSessionUrl)) && $isPro) {
+                    $order = StripePlugin::$app->paymentIntents->createCartOrder($checkoutSession);
+                } else if (is_null($cartNumber) and is_null($paymentIntentId)){
                     // We have a subscription
                     $subscriptionId = $checkoutSession['subscription'];
                     $order = StripePlugin::$app->orders->getOrderByStripeId($subscriptionId);
@@ -118,12 +125,12 @@ class WebhookController extends FrontEndController
                         break;
                     }
 
-                    $subscription = Stripe::$app->subscriptions->getStripeSubscription($subscriptionId);
+                    $subscription = StripePlugin::$app->subscriptions->getStripeSubscription($subscriptionId);
                     if ($subscription){
-                        $order = Stripe::$app->paymentIntents->createOrderFromSubscription($subscription, $checkoutSession);
+                        $order = StripePlugin::$app->paymentIntents->createOrderFromSubscription($subscription, $checkoutSession);
                     }
                 }else{
-                    $paymentIntent = Stripe::$app->paymentIntents->getPaymentIntent($paymentIntentId);
+                    $paymentIntent = StripePlugin::$app->paymentIntents->getPaymentIntent($paymentIntentId);
 
                     if ($paymentIntent){
                         $chargeId = $paymentIntent['charges']['data'][0]['id'];
@@ -133,7 +140,7 @@ class WebhookController extends FrontEndController
                             break;
                         }
 
-                        $order = Stripe::$app->paymentIntents->createOrderFromPaymentIntent($paymentIntent, $checkoutSession);
+                        $order = StripePlugin::$app->paymentIntents->createOrderFromPaymentIntent($paymentIntent, $checkoutSession);
                     }
                 }
 
@@ -141,14 +148,43 @@ class WebhookController extends FrontEndController
                     Craft::error('Something went wrong creating the Order from checkout session', __METHOD__);
                 }
                 break;
+            // Products
+            case 'product.created':
+            case 'product.deleted':
+            case 'product.updated':
+                if (!$isPro) {
+                    break;
+                }
+                $stripeObject = $eventJson['data']['object'];
+                $isSyncProduct = $stripeObject['metadata']['enupal_sync'] ?? $stripeObject['metadata']['enupal-sync'] ?? false;
+
+                if ($isSyncProduct) {
+                    $product = StripePlugin::$app->products->createOrUpdateProduct($stripeObject);
+                    if (!is_null($product)) {
+                        StripePlugin::$app->prices->syncPricesFromProduct($product);
+                    }
+                }
+                break;
+            // Prices
+            case 'price.created':
+            case 'price.deleted':
+            case 'price.updated':
+                if (!$isPro) {
+                    break;
+                }
+                $stripeObject = $eventJson['data']['object'];
+
+                StripePlugin::$app->prices->createOrUpdatePrice($stripeObject);
+
+                break;
         }
 
         // Let's add a message to the order
         if ($order !== null){
-            Stripe::$app->messages->addMessage($order->id, $eventJson['type'], $eventJson);
+            StripePlugin::$app->messages->addMessage($order->id, $eventJson['type'], $eventJson);
         }
 
-        Stripe::$app->orders->triggerWebhookEvent($eventJson, $order);
+        StripePlugin::$app->orders->triggerWebhookEvent($eventJson, $order);
 
         http_response_code(200); // PHP 5.4 or greater
 

@@ -1,6 +1,7 @@
 {
     "/src/resources/stripe/dist/js/enupal-stripe.min.js": "/src/resources/stripe/dist/js/enupal-stripe.min.js",
     "/src/resources/stripe/dist/js/enupal-stripe-elements.min.js": "/src/resources/stripe/dist/js/enupal-stripe-elements.min.js",
+    "/src/resources/css/dist/enupalstripeproduct.css": "/src/resources/css/dist/enupalstripeproduct.css",
     "/src/resources/stripe/dist/css/enupal-stripe-elements.min.css": "/src/resources/stripe/dist/css/enupal-stripe-elements.min.css",
     "/src/resources/stripe/dist/css/enupal-button.min.css": "/src/resources/stripe/dist/css/enupal-button.min.css"
 }

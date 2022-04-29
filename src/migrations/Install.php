@@ -46,6 +46,9 @@ class Install extends Migration
         $this->dropTableIfExists('{{%enupalstripe_commissions}}');
         $this->dropTableIfExists('{{%enupalstripe_connect}}');
         $this->dropTableIfExists('{{%enupalstripe_vendors}}');
+        $this->dropTableIfExists('{{%enupalstripe_prices}}');
+        $this->dropTableIfExists('{{%enupalstripe_products}}');
+        $this->dropTableIfExists('{{%enupalstripe_carts}}');
 
         return true;
     }
@@ -160,6 +163,12 @@ class Install extends Migration
             'refunded' => $this->boolean()->defaultValue(false),
             'dateRefunded' => $this->dateTime(),
             'isSubscription' => $this->boolean()->defaultValue(false),
+            // cart
+            'cartId' => $this->integer(),
+            'isCart' => $this->boolean()->defaultValue(false),
+            'cartItems' => $this->longText(),
+            'cartPaymentMethod' => $this->string(),
+            'cartShippingRateId' => $this->string(),
             //
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
@@ -298,6 +307,45 @@ class Install extends Migration
             'dateUpdated' => $this->dateTime()->notNull(),
             'uid' => $this->uid()
         ]);
+
+        $this->createTable('{{%enupalstripe_products}}', [
+            'id' => $this->primaryKey(),
+            'stripeId' => $this->string()->notNull(),
+            'stripeObject' => $this->longText(),
+            //
+            'dateCreated' => $this->dateTime()->notNull(),
+            'dateUpdated' => $this->dateTime()->notNull(),
+            'uid' => $this->uid()
+        ]);
+
+        $this->createTable('{{%enupalstripe_prices}}', [
+            'id' => $this->primaryKey(),
+            'productId' => $this->integer()->notNull(),
+            'stripeId' => $this->string()->notNull(),
+            'stripeObject' => $this->longText(),
+            //
+            'dateCreated' => $this->dateTime()->notNull(),
+            'dateUpdated' => $this->dateTime()->notNull(),
+            'uid' => $this->uid()
+        ]);
+
+        $this->createTable('{{%enupalstripe_carts}}', [
+            'id' => $this->primaryKey(),
+            'number' => $this->string()->notNull(),
+            'stripeId' => $this->string(),
+            'items' => $this->longText(),
+            'cartMetadata' => $this->longText(),
+            'totalPrice' => $this->decimal(14, 4)->defaultValue(0),
+            'itemCount' => $this->integer(),
+            'currency' => $this->string(),
+            'userEmail' => $this->string(),
+            'userId' => $this->integer(),
+            'cartStatus' => $this->string(),
+            //
+            'dateCreated' => $this->dateTime()->notNull(),
+            'dateUpdated' => $this->dateTime()->notNull(),
+            'uid' => $this->uid()
+        ]);
     }
 
     /**
@@ -315,6 +363,28 @@ class Install extends Migration
             ),
             '{{%enupalstripe_orders}}',
             'formId',
+            false
+        );
+
+        $this->createIndex(
+            $this->db->getIndexName(
+                '{{%enupalstripe_orders}}',
+                'isSubscription',
+                false, true
+            ),
+            '{{%enupalstripe_orders}}',
+            'isSubscription',
+            false
+        );
+
+        $this->createIndex(
+            $this->db->getIndexName(
+                '{{%enupalstripe_orders}}',
+                'isCart',
+                false, true
+            ),
+            '{{%enupalstripe_orders}}',
+            'isCart',
             false
         );
 
@@ -404,6 +474,83 @@ class Install extends Migration
             ),
             '{{%enupalstripe_commissions}}',
             'number',
+            false
+        );
+
+        $this->createIndex(
+            $this->db->getIndexName(
+                '{{%enupalstripe_prices}}',
+                'productId',
+                false, true
+            ),
+            '{{%enupalstripe_prices}}',
+            'productId',
+            false
+        );
+
+        $this->createIndex(
+            $this->db->getIndexName(
+                '{{%enupalstripe_products}}',
+                'stripeId',
+                false, true
+            ),
+            '{{%enupalstripe_products}}',
+            'stripeId',
+            true
+        );
+
+        $this->createIndex(
+            $this->db->getIndexName(
+                '{{%enupalstripe_prices}}',
+                'stripeId',
+                false, true
+            ),
+            '{{%enupalstripe_prices}}',
+            'stripeId',
+            true
+        );
+
+        $this->createIndex(
+            $this->db->getIndexName(
+                '{{%enupalstripe_carts}}',
+                'stripeId',
+                false, true
+            ),
+            '{{%enupalstripe_carts}}',
+            'stripeId',
+            true
+        );
+
+        $this->createIndex(
+            $this->db->getIndexName(
+                '{{%enupalstripe_carts}}',
+                'number',
+                false, true
+            ),
+            '{{%enupalstripe_carts}}',
+            'number',
+            true
+        );
+
+        $this->createIndex(
+            $this->db->getIndexName(
+                '{{%enupalstripe_carts}}',
+                'userId',
+                false, true
+            ),
+            '{{%enupalstripe_carts}}',
+            'userId',
+            false
+        );
+
+        $this->createIndex(
+            $this->db->getIndexName(
+                '{{%enupalstripe_carts}}',
+                'cartStatus',
+                false, true
+            ),
+            '{{%enupalstripe_carts}}',
+            'cartStatus',
             false
         );
     }
@@ -499,6 +646,30 @@ class Install extends Migration
             ),
             '{{%enupalstripe_commissions}}', 'connectId',
             '{{%enupalstripe_connect}}', 'id', 'CASCADE', null
+        );
+
+        $this->addForeignKey(
+            $this->db->getForeignKeyName(
+                '{{%enupalstripe_prices}}', 'productId'
+            ),
+            '{{%enupalstripe_prices}}', 'productId',
+            '{{%enupalstripe_products}}', 'id', 'CASCADE', null
+        );
+
+        $this->addForeignKey(
+            $this->db->getForeignKeyName(
+                '{{%enupalstripe_carts}}', 'userId'
+            ),
+            '{{%enupalstripe_carts}}', 'userId',
+            '{{%users}}', 'id', 'CASCADE', null
+        );
+
+        $this->addForeignKey(
+            $this->db->getForeignKeyName(
+                '{{%enupalstripe_orders}}', 'cartId'
+            ),
+            '{{%enupalstripe_orders}}', 'cartId',
+            '{{%enupalstripe_carts}}', 'id', 'CASCADE', null
         );
     }
 

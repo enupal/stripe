@@ -135,6 +135,30 @@
                                                             {{ "Quantity:" }} {{ order.quantity }}
                                                         </td>
                                                     </tr>
+                                                    {% if order.couponAmount > 0 %}
+                                                        <tr>
+                                                            <td align="center" valign="top" mc:edit="body5"
+                                                                style="color: #434345; font-weight: bolder; font-family: 'Trebuchet MS', Helvetica, sans-serif, 'Lato', sans-serif; font-size: 16px; mso-line-height-rule: exactly; line-height: 24px; font-weight: 400;">
+                                                                {{ "Coupon Amount: " }} -{{ order.couponAmount|currency(order.currency) }}
+                                                            </td>
+                                                        </tr>
+                                                    {% endif %}
+                                                    {% if order.tax > 0 %}
+                                                        <tr>
+                                                            <td align="center" valign="top" mc:edit="body5"
+                                                                style="color: #434345; font-weight: bolder; font-family: 'Trebuchet MS', Helvetica, sans-serif, 'Lato', sans-serif; font-size: 16px; mso-line-height-rule: exactly; line-height: 24px; font-weight: 400;">
+                                                                {{ "Tax Amount: " }} {{ order.tax|currency(order.currency) }}
+                                                            </td>
+                                                        </tr>
+                                                    {% endif %}
+                                                    {% if order.shipping > 0 %}
+                                                        <tr>
+                                                            <td align="center" valign="top" mc:edit="body5"
+                                                                style="color: #434345; font-weight: bolder; font-family: 'Trebuchet MS', Helvetica, sans-serif, 'Lato', sans-serif; font-size: 16px; mso-line-height-rule: exactly; line-height: 24px; font-weight: 400;">
+                                                                {{ "Shipping Amount: " }} {{ order.shipping|currency(order.currency) }}
+                                                            </td>
+                                                        </tr>
+                                                    {% endif %}
                                                     <tr>
                                                         <td align="center" valign="top" mc:edit="body5"
                                                             style="color: #434345; font-weight: bolder; font-family: 'Trebuchet MS', Helvetica, sans-serif, 'Lato', sans-serif; font-size: 16px; mso-line-height-rule: exactly; line-height: 24px; font-weight: 400;">
@@ -144,7 +168,26 @@
                                                     <tr>
                                                         <td align="center" valign="top" mc:edit="body5"
                                                             style="color: #434345; font-weight: bolder; font-family: 'Trebuchet MS', Helvetica, sans-serif, 'Lato', sans-serif; font-size: 16px; mso-line-height-rule: exactly; line-height: 24px; font-weight: 400;">
-                                                            {{ "Product:" }} {{ order.getPaymentForm().name }}
+                                                            {% if order.isCart %}
+                                                                <h4>Items:</h4>
+                                                                {% for cartItem in order.getCartItems() %}
+                                                                    {% set price = cartItem.price %}
+                                                                    {% set itemDescription = cartItem.description ? cartItem.description : 'Item #'~loop.index %}
+                                                                    Item: {{ itemDescription }}
+                                                                    <br>
+                                                                    Quantity: {{ cartItem.quantity }}
+                                                                    <br>
+                                                                    {% set paymentType = price.recurring ? "Subscription" : 'One-Time' %}
+                                                                    Payment Type: {{ paymentType }}
+                                                                    <br>
+                                                                    Sub Total: {{ craft.enupalStripe.convertFromCents(cartItem.amount_subtotal, cartItem.currency)|currency(cartItem.currency) }}
+                                                                    <br>
+                                                                    <hr>
+                                                                    <br>
+                                                                {% endfor %}
+                                                            {% else %}
+                                                                {{ "Payment Form: " }} {{ order.getPaymentForm().name }}
+                                                            {% endif %}
                                                         </td>
                                                     </tr>
                                                     <tr>
@@ -182,8 +225,13 @@
                                                                                 <td align="center" valign="top" mc:edit="body6"
                                                                                     style="color: #ffffff; font-family: 'Trebuchet MS', Helvetica, sans-serif, 'Lato', sans-serif;  padding: 0 25px; font-size: 14px; mso-line-height-rule: exactly; line-height: 24px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.06em">
                                                                                       <span style="color: #ffffff;">
-                                                                                        <a style="text-decoration: none; color: #ffffff;"
-                                                                                           href="{{ order.getPaymentForm().getReturnUrl(order) }}">read more</a>
+                                                                                        {% if order.isCart %}
+                                                                                            <a style="text-decoration: none; color: #ffffff;"
+                                                                                               href="{{ craft.enupalStripe.getCartReturnUrl(order) }}">read more</a>
+                                                                                        {% else %}
+                                                                                              <a style="text-decoration: none; color: #ffffff;"
+                                                                                              href="{{ order.getPaymentForm().getReturnUrl(order) }}">read more</a>
+                                                                                        {% endif %}
                                                                                       </span>
                                                                                 </td>
                                                                             </tr>

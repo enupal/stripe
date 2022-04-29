@@ -9,9 +9,11 @@
 namespace enupal\stripe\variables;
 
 use enupal\stripe\elements\db\PaymentFormsQuery;
+use enupal\stripe\elements\db\ProductQuery;
 use enupal\stripe\elements\Order;
 use enupal\stripe\elements\db\OrdersQuery;
 use enupal\stripe\elements\PaymentForm;
+use enupal\stripe\elements\Product;
 use enupal\stripe\enums\FrequencyType;
 use enupal\stripe\services\PaymentForms;
 use enupal\stripe\Stripe;
@@ -52,9 +54,34 @@ class StripeVariable extends Behavior
         return $query;
     }
 
+    /**
+     * Returns a new ProductQuery instance.
+     *
+     * @param mixed $criteria
+     * @return ProductQuery
+     */
+    public function products($criteria = null): ProductQuery
+    {
+        $query = Product::find();
+        if ($criteria) {
+            Craft::configure($query, $criteria);
+        }
+        return $query;
+    }
+
     public function tax()
     {
         return Stripe::$app->taxes;
+    }
+
+    public function subscription()
+    {
+        return Stripe::$app->subscriptions;
+    }
+
+    public function shipping()
+    {
+        return Stripe::$app->shipping;
     }
 
     /**
@@ -167,6 +194,18 @@ class StripeVariable extends Behavior
     }
 
     /**
+     * @param array $lineItems
+     * @param array $metadata
+     * @return string|\Stripe\Checkout\Session
+     * @throws \Stripe\Exception\ApiErrorException
+     * @throws \yii\base\Exception
+     */
+    public function checkout(array $lineItems, array $metadata = [])
+    {
+        return Stripe::$app->checkout->checkout($lineItems, $metadata);
+    }
+
+    /**
      * @return array
      */
     public function getCurrencyIsoOptions()
@@ -188,6 +227,14 @@ class StripeVariable extends Behavior
     public function getLanguageOptions()
     {
         return Stripe::$app->paymentForms->getLanguageOptions();
+    }
+
+    /**
+     * @return array
+     */
+    public function getCheckoutPaymentMethods()
+    {
+        return Stripe::$app->paymentForms->getCheckoutPaymentTypes();
     }
 
     /**
@@ -778,6 +825,12 @@ class StripeVariable extends Behavior
         return Stripe::$app->vendors->isSuperVendor($vendorId);
     }
 
+    public function getCartReturnUrl(Order $order)
+    {
+        $settings = Stripe::$app->settings->getSettings();
+
+        return Stripe::$app->orders->getReturnUrl($order, $settings->cartSuccessUrl);
+    }
 
     /**
      * @param $view

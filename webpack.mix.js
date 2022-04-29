@@ -15,6 +15,9 @@ mix
 .sass(
  'src/resources/stripe/src/css/enupal-stripe-elements.scss',
  'src/resources/stripe/dist/css/enupal-stripe-elements.min.css')
+.sass(
+ 'src/resources/css/enupalstripeproduct.scss',
+ 'src/resources/css/dist/enupalstripeproduct.css')
 .js([
 'src/resources/stripe/src/js/enupal-stripe-elements.js',
 ], 'src/resources/stripe/dist/js/enupal-stripe-elements.min.js');

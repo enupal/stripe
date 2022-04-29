@@ -1,0 +1,60 @@
+{% extends "_layouts/cp" %}
+{% import "_includes/forms" as forms %}
+
+{% set selectedSubnavItem = "products" %}
+{% set fullPageForm = true %}
+{% set title = "Product: "~stripeObject.name %}
+
+{% set testMode = craft.enupalStripe.getMode() %}
+{% set stripeUrl = "https://dashboard.stripe.com" %}
+{% set stripeUrl = testMode ? stripeUrl~'/test' : stripeUrl %}
+
+{% set crumbs = [
+    {    label: "Products"|t('enupal-stripe'), url: url('enupal-stripe/products') }
+] %}
+
+{% hook "cp.enupal-stripe.product.edit" %}
+
+{% block actionButton %}
+    <a id="share-btn" href="{{ stripeUrl }}/products/{{ stripeObject.id }}" class="btn sharebtn" target="_blank">Edit Product</a>
+{% endblock %}
+
+{% block details %}
+    {% namespace 'fields' %}
+
+        {% include 'enupal-stripe/products/_productInfo' with {'displayStripeObject': true} %}
+
+    {% endnamespace %}
+    <hr>
+    <div class="meta read-only">
+        <div class="data">
+            <h5 class="heading">{{ "Date Created"|t('enupal-stripe') }}</h5>
+            <div class="value">{{ product.dateCreated|date('short') }} {{ product.dateCreated|time('short') }}</div>
+        </div>
+        <div class="data">
+            <h5 class="heading">{{ "Date Updated"|t('enupal-stripe') }}</h5>
+            <div class="value">{{ product.dateUpdated|date('short') }} {{ product.dateUpdated|time('short') }}</div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block content %}
+    <div id="modal-product" class="order-edit-modal modal fitted" style="display: none;">
+            <div id="modal" class="body">
+            <header class="header">
+                <h2>Stripe Product Object</h2>
+            </header>
+            <div class="json-object">
+                <pre>
+                    <code>{{ stripeObject|json_encode(constant('JSON_PRETTY_PRINT')) }}</code>
+                </pre>
+            </div>
+        </div>
+        <div class="footer"><div class="buttons right"><button type="button" id="close-modal" class="btn-link-default btn">Close</button></div></div>
+    </div>
+    {% if not stripeObject.livemode %}
+        <span class="testMode">Test Mode</span>
+    {% endif %}
+
+    {% include 'enupal-stripe/products/_prices' %}
+{% endblock %}

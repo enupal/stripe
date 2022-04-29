@@ -1,0 +1,58 @@
+{#
+/**
+ * Stripe Payments plugin for Craft CMS 3.x
+ *
+ * @link      https://enupal.com/
+ * @copyright Copyright (c) 2018 Enupal LLC
+ */
+#}
+
+{% import "_includes/forms" as forms %}
+
+<div class="meta read-only">
+    <div class="data">
+        <h3 class="heading">{{ "Status"|t('enupal-stripe') }}</h3>
+        <div class="value">{{ product.getStatusHtml()|raw }}</div>
+    </div>
+    <div class="data">
+        <h3 class="heading">{{ "Name"|t('enupal-stripe') }}</h3>
+        <div class="value">{{ stripeObject.name }}</div>
+    </div>
+    {% if stripeObject.description %}
+        <div class="data">
+            <h3 class="heading">{{ "Description"|t('enupal-stripe') }}</h3>
+            <div class="value">{{ stripeObject.description }}</div>
+        </div>
+    {% endif %}
+    <div class="data">
+        <h3 class="heading">{{ "Stripe Id"|t('enupal-stripe') }}</h3>
+        <div class="value"> {{ stripeObject.id }}</div>
+    </div>
+    {% if displayStripeObject %}
+    <div class="data">
+        <h3 class="heading">{{ "Product Object"|t('enupal-stripe') }}</h3>
+        <div class="value"><a id="show-product" href="#show-product">{{ "Show Product"|t('enupal-stripe') }}</a></div>
+    </div>
+    {% endif %}
+    {% if stripeObject.images %}
+        <div class="data">
+            <h3 class="heading">{{ "Image"|t('enupal-stripe') }}</h3>
+            <div class="value"> <div class="elements">
+                    <div data-image-width="564" data-image-height="185" data-own-file="" data-movable="" data-replaceable="" class="element hasthumb large removable sel" data-type="craft\elements\Asset"  data-status="enabled" data-editable="" style="visibility: visible;" tabindex="0">
+                        <div class="elementthumb checkered">
+                            <img id="image-1" sizes="100px" srcset="{{ stripeObject.images[0] }}">
+                        </div>
+                    </div>
+                </div></div>
+        </div>
+    {% endif %}
+</div>
+
+{% do view.registerAssetBundle("enupal\\stripe\\web\\assets\\FontAwesomeAsset") %}
+{% do view.registerAssetBundle("enupal\\stripe\\web\\assets\\ProductsAsset") %}
+
+{% js %}
+    $(document).ready(function() {
+    new EnupalStripeProduct();
+    });
+{% endjs %}
