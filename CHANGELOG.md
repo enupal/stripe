@@ -1,6 +1,6 @@
 # Stripe Payments Changelog
 
-## WIP
+## 4.0.0 - 2022.04.29
 
 ### Added
 - Added [PRO edition](https://docs.enupal.com/stripe-payments/pro/overview.html)
