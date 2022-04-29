@@ -21,6 +21,10 @@ class OrdersQuery extends ElementQuery
     public $number;
     public $paymentType;
     public $formId;
+    public $cartId;
+    public $cartPaymentMethod;
+    public $cartItems;
+    public $isCart;
     public $email;
     public $stripeTransactionId;
     public $orderStatusId;
@@ -117,6 +121,24 @@ class OrdersQuery extends ElementQuery
     /**
      * @inheritdoc
      */
+    public function isCart($value)
+    {
+        $this->isCart = $value;
+
+        return $this;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getIsCart()
+    {
+        return $this->isCart;
+    }
+
+    /**
+     * @inheritdoc
+     */
     public function paymentType($value)
     {
         $this->paymentType = $value;
@@ -148,6 +170,24 @@ class OrdersQuery extends ElementQuery
     public function getUserId()
     {
         return $this->userId;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function cartId($value)
+    {
+        $this->cartId = $value;
+
+        return $this;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getCartId()
+    {
+        return $this->cartId;
     }
 
     /**
@@ -318,6 +358,7 @@ class OrdersQuery extends ElementQuery
             'enupalstripe_orders.tax',
             'enupalstripe_orders.shipping',
             'enupalstripe_orders.formId',
+            'enupalstripe_orders.cartId',
             'enupalstripe_orders.quantity',
             'enupalstripe_orders.stripeTransactionId',
             'enupalstripe_orders.transactionInfo',
@@ -335,6 +376,10 @@ class OrdersQuery extends ElementQuery
             'enupalstripe_orders.refunded',
             'enupalstripe_orders.dateRefunded',
             'enupalstripe_orders.isSubscription',
+            'enupalstripe_orders.isCart',
+            'enupalstripe_orders.cartItems',
+            'enupalstripe_orders.cartPaymentMethod',
+            'enupalstripe_orders.cartShippingRateId',
             'enupalstripe_orders.dateOrdered'
         ]);
 
@@ -374,6 +419,12 @@ class OrdersQuery extends ElementQuery
             );
         }
 
+        if ($this->isCart !== null) {
+            $this->subQuery->andWhere(Db::parseParam(
+                'enupalstripe_orders.isCart', $this->isCart)
+            );
+        }
+
         if ($this->stripeTransactionId) {
             $this->subQuery->andWhere(Db::parseParam(
                 'enupalstripe_orders.stripeTransactionId', $this->stripeTransactionId)
@@ -408,6 +459,12 @@ class OrdersQuery extends ElementQuery
         if ($this->userId) {
             $this->subQuery->andWhere(Db::parseParam(
                 'enupalstripe_orders.userId', $this->userId)
+            );
+        }
+
+        if ($this->cartId) {
+            $this->subQuery->andWhere(Db::parseParam(
+                'enupalstripe_orders.cartId', $this->cartId)
             );
         }
 

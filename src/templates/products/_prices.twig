@@ -1,0 +1,158 @@
+{% import "_includes/forms" as forms %}
+{% set testMode = craft.enupalStripe.getMode() %}
+{% set stripeUrl = "https://dashboard.stripe.com" %}
+{% set stripeUrl = testMode ? stripeUrl~'/test' : stripeUrl %}
+
+{% set priceLabel = prices|length > 1 ? 'Prices'|t('enupal-stripe') ~ ' (' ~prices|length~')' : 'Price' %}
+    {% if prices %}
+        {{ forms.field({
+            label: priceLabel,
+            id: 'prices'
+        }) }}
+    <div id="variants" class="matrix variant-matrix" style="position: relative;">
+        <div class="blocks">
+            {% for price in prices %}
+                {% set priceObject = price.getStripeObject() %}
+                <div class="price-matrixblock matrixblock single-col" data-id="{{ price.id }}" tabindex="0">
+                    <input class="default-input" type="hidden" name="prices[{{ price.id }}][isDefault]" value="{{ loop.first }}">
+                    <div class="titlebar">
+                        <div class="preview"></div>
+                    </div>
+                    <div class="actions">
+                        <a id="share-btn" href="{{ stripeUrl ~ '/prices/' ~ priceObject.id }}" class="sharebtn price-edit" target="_blank">Edit Price</a>
+                    </div>
+                    <div class="fields">
+                        <div class="status-properties meta">
+                            <div id="prices-{{ price.id }}-status-field" class="field">
+                                <div class="heading">
+                                    <label id="prices-{{ price.id }}-status-label" for="prices-{{ price.id }}-status">
+                                        <strong> Status </strong>
+                                    </label>
+                                </div>
+                                <div class="input ltr">
+                                    {{ price.getStatusHtml|raw }}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="id-properties meta">
+                            <div id="prices-{{ price.id }}-id-field" class="field">
+                                <div class="heading">
+                                    <label id="prices-{{ price.id }}-id-label" for="prices-{{ price.id }}-id">
+                                        <strong> Nickname </strong>
+                                    </label>
+                                </div>
+                                <div class="input ltr">
+                                    <div class="value">{{ priceObject.nickname }}</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="id-properties meta">
+                            <div id="prices-{{ price.id }}-id-field" class="field">
+                                <div class="heading">
+                                    <label id="prices-{{ price.id }}-id-label" for="prices-{{ price.id }}-id">
+                                        <strong> Stripe ID </strong>
+                                    </label>
+                                </div>
+                                <div class="input ltr">
+                                    <div class="value">{{ priceObject.id }}</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="price-properties meta">
+                            <div id="prices-{{ price.id }}-price-field" class="field">
+                                <div class="heading">
+                                    <label id="prices-{{ price.id }}-price-label" for="prices-{{ price.id }}-price">
+                                        <strong> Price ({{ priceObject.currency|upper }}) </strong>
+                                    </label>
+                                </div>
+                                <div class="input ltr">
+                                    <div class="value">{{ craft.enupalStripe.convertFromCents(priceObject.unit_amount, priceObject.currency ) }}</div>
+                                </div>
+                            </div>
+                        </div>
+                        {% if priceObject.recurring %}
+                            <div class="price-properties meta">
+                                <div id="prices-{{ price.id }}-price-field" class="field price-properties-dimensions">
+                                    <div class="heading">
+                                        <label id="prices-{{ price.id }}-price-label" for="prices-{{ price.id }}-price">
+                                            <strong>  Recurring </strong>
+                                        </label>
+                                    </div>
+                                    <div class="input ltr">
+                                        {% if priceObject.recurring.aggregate_usage %}
+                                            <div class="flex">
+                                                <div class="textwrapper">
+                                                    <div class="value text fullwidth">Aggregate Usage:</div>
+                                                </div>
+                                                <div class="label light code">{{ priceObject.recurring.aggregate_usage }}</div>
+                                            </div>
+                                        {% endif %}
+                                        <div class="flex">
+                                            <div class="textwrapper">
+                                                <div class="value text fullwidth">Interval:</div>
+                                            </div>
+                                            <div class="label light code">{{ priceObject.recurring.interval }}</div>
+                                        </div>
+                                        <div class="flex">
+                                            <div class="textwrapper">
+                                                <div class="value text fullwidth">Interval Count:</div>
+                                            </div>
+                                            <div class="label light code">{{ priceObject.recurring.interval_count }}</div>
+                                        </div>
+                                        <div class="flex">
+                                            <div class="textwrapper">
+                                                <div class="value text fullwidth">Usage Type:</div>
+                                            </div>
+                                            <div class="label light code">{{ priceObject.recurring.usage_type }}</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endif %}
+                        <div class="price-properties meta">
+                            <div id="prices-{{ price.id }}-price-field" class="field">
+                                <div class="heading">
+                                    <label id="prices-{{ price.id }}-price-label" for="prices-{{ price.id }}-price">
+                                        <strong>  Date Created </strong>
+                                    </label>
+                                </div>
+                                <div class="input ltr">
+                                    <div class="value">{{ price.dateCreated|date('short') }} {{ price.dateCreated|time('short') }}</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="price-properties meta">
+                            <div id="prices-{{ price.id }}-price-field" class="field">
+                                <div class="heading">
+                                    <label id="prices-{{ price.id }}-price-label" for="prices-{{ price.id }}-price">
+                                        <strong>  Date Updated </strong>
+                                    </label>
+                                </div>
+                                <div class="input ltr">
+                                    <div class="value">{{ price.dateUpdated|date('short') }} {{ price.dateUpdated|time('short') }}</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+
+        </div>
+    </div>
+
+{% else %}
+        <p>No prices</p>
+{% endif %}
+
+{% js %}
+    $(document).ready(function() {
+        // Remove Save button on Element Editor (double click on index page or adding a Product field)
+        var saveButton = $("button[type=submit]", $(".element-editor"));
+        if (saveButton !== undefined || saveButton !== null) {
+            saveButton.addClass("hidden");
+        }
+    });
+{% endjs %}

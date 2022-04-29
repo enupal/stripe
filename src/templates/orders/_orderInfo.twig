@@ -41,13 +41,15 @@
                 </td>
                 <td>{{ order.currency }}</td>
             </tr>
-            <tr>
-                <td><strong>{{ "Method"|t('enupal-stripe') }}</strong>
-                </td>
-                <td>
-                    <span id="order-number-short">{{ order.getPaymentMethod() }}</span>
-                </td>
-            </tr>
+            {% if not order.isCart %}
+                <tr>
+                    <td><strong>{{ "Method"|t('enupal-stripe') }}</strong>
+                    </td>
+                    <td>
+                        <span id="order-number-short">{{ order.getPaymentMethod() }}</span>
+                    </td>
+                </tr>
+            {% endif %}
             <tr>
                 <td><strong>{{ "Type"|t('enupal-stripe') }}</strong>
                 </td>

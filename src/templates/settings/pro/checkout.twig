@@ -1,0 +1,44 @@
+{#
+/**
+ * Stripe Payments plugin for Craft CMS 3.x
+ *
+ * @link      https://enupal.com/
+ * @copyright Copyright (c) 2018 Enupal LLC
+ */
+#}
+
+{% extends "enupal-stripe/_layouts/settings" %}
+{% import "_includes/forms" as forms %}
+
+{% set settings = settings is defined ? settings : craft.enupalStripe.getSettings()  %}
+{% set fullPageForm = true %}
+{% set saveShortcutRedirect = 'enupal-stripe/settings/cart' %}
+{% set currencyOptions = craft.enupalStripe.getCurrencyOptions() %}
+{% set pluginStoreLink = currentUser.admin ? cpUrl('plugin-store/enupal-stripe') : 'https://plugins.craftcms.com/enupal-stripe' %}
+{% set savePaymentForm %}
+    <div class="buttons">
+        <input class="btn submit" type="submit" value="{{ 'Save'|t }}">
+    </div>
+{% endset %}
+
+{% set content %}
+    {% if plugin('enupal-stripe').is('pro') %}
+        {% include "enupal-stripe/settings/pro/_cartPro" %}
+    {% else %}
+        <div class="pane">
+            <p>
+                <span class="warning-icon"></span>
+                <a href="https://docs.enupal.com/stripe-payments/getting-started/cart.html">Stripe Payments <b>[pro]</b></a> gives you access to the powerful Cart API, to create complex e-commerce sites with just a few lines of code; all the complexity handled by Stripe Checkout: Taxes, Shipping, Coupons, over 18 Payment Methods, simple one checkout UI, sync products from Stripe, and more...
+            </p>
+            <br>
+            <a class="btn submit" href="{{ pluginStoreLink }}"> Upgrade now</a>
+        </div>
+    {% endif %}
+
+{% endset %}
+
+{% css %}
+    .content-pane ul {
+    list-style-type: circle;
+    }
+{% endcss %}

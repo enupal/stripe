@@ -4,7 +4,9 @@
     <table id="" class=" fullwidth collapsible ">
         <thead>
         <tr>
-            <th scope="col">{{ 'Payment Form'|t('enupal-stripe') }}</th>
+            {% if form %}
+                <th scope="col">{{ 'Payment Form'|t('enupal-stripe') }}</th>
+            {% endif %}
             <th scope="col">{{ 'Quantity'|t('enupal-stripe') }}</th>
             <th scope="col">{{ 'Type'|t('enupal-stripe') }}</th>
             <th scope="col"></th>
@@ -15,9 +17,11 @@
         <tbody>
 
         <tr class="infoRow">
+            {% if form %}
             <td>
                 <a href="{{ form.cpEditUrl }}">{{ form.name }}</a>
             </td>
+            {% endif %}
             <td>
                 {{ order.quantity }}
             </td>

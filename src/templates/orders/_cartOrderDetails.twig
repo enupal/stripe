@@ -1,0 +1,259 @@
+{% set form = order.getPaymentForm() %}
+<div id="order-details" class="order-details pane">
+    <h3>Details</h3>
+    <table id="" class=" fullwidth collapsible ">
+        <thead>
+        <tr>
+            <th scope="col">{{ 'Item'|t('enupal-stripe') }}</th>
+            <th scope="col">{{ 'Quantity'|t('enupal-stripe') }}</th>
+            <th scope="col">{{ 'Type'|t('enupal-stripe') }}</th>
+            <th scope="col">{{ 'Amount'|t('enupal-stripe') }}</th>
+            <th scope="col"></th>
+            <th scope="col"></th>
+            <th scope="col"></th>
+        </tr>
+        </thead>
+        <tbody>
+        {% set stripeUrl = "https://dashboard.stripe.com" %}
+        {% set stripeUrl = order.testMode ? stripeUrl~'/test' : stripeUrl %}
+        {% set subscriptions = [] %}
+
+        {% for cartItem in order.getCartItems() %}
+            {% set price = cartItem.price %}
+            {% if price.recurring %}
+                {% set subscriptions = subscriptions|merge([price]) %}
+            {% endif %}
+            <tr class="infoRow">
+                <td>
+                    {% set itemDescription = cartItem.description ? cartItem.description : 'Item #'~loop.index %}
+                    <a href="{{ stripeUrl~'/prices/'~ price.id }}">{{ itemDescription }}</a>
+                </td>
+                <td>
+                    {{ cartItem.quantity }}
+                </td>
+                <td>
+                    {% set paymentType = price.recurring ? "Subscription" : 'One-Time' %}
+                    {{ paymentType }}
+                </td>
+                <td>
+                    {{ craft.enupalStripe.convertFromCents(cartItem.amount_subtotal, cartItem.currency)|currency(cartItem.currency) }}
+                </td>
+                <td></td>
+                <td>
+                </td>
+                <td>
+                </td>
+            </tr>
+        {% endfor %}
+
+        <tr>
+            <td></td>
+            <td>
+                <strong></strong><br>
+            </td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td>
+                <span class="right"></span>
+            </td>
+            <td></td>
+        </tr>
+        {% if order.couponAmount > 0 %}
+            <tr class="infoRow">
+                <td></td>
+                <td>
+                </td>
+                <td></td>
+                <td></td>
+                <td>
+                    <strong>{{ "Coupon Amount"|t('enupal-stripe')}}</strong>
+                </td>
+                <td>
+                    <span class="right">-{{ order.couponAmount|currency(order.currency) }}</span>
+                </td>
+                <td></td>
+            </tr>
+        {% endif %}
+        {% if order.tax > 0 %}
+            <tr>
+                <td></td>
+                <td>
+                </td>
+                <td></td>
+                <td></td>
+                <td><strong>{{ "Tax"|t('enupal-stripe') }}</strong></td>
+                <td>
+                    <span class="right">{{ order.tax|currency(order.currency) }}</span>
+                </td>
+                <td></td>
+            </tr>
+        {% endif %}
+        {% if order.shipping > 0 %}
+            <tr>
+                <td></td>
+                <td>
+                </td>
+                <td></td>
+                <td></td>
+                <td><strong>{{ "Shipping Amount"|t('enupal-stripe') }}</strong></td>
+                <td>
+                    <span class="right">{{ order.shipping|currency(order.currency) }}</span>
+                </td>
+                <td></td>
+            </tr>
+        {% endif %}
+        <tr>
+            <td></td>
+            <td>
+                <div class="isPaid">
+                    {% if order.isCompleted and not order.refunded  %}
+                        <span>{{ 'PAID'|t('enupal-stripe') }}</span>
+                    {% elseif order.refunded %}
+                        <span>{{ 'Refunded'|t('enupal-stripe') }}</span>
+                    {% endif %}
+                </div>
+            </td>
+            <td></td>
+            <td></td>
+            <td><h2>{{ "Total Amount"|t('enupal-stripe') }}</h2></td>
+            <td>
+                <h2 class="right">{{ order.totalPrice|currency(order.currency) }}</h2>
+            </td>
+            <td></td>
+        </tr>
+        </tbody>
+    </table>
+
+    {% if subscriptions|length > 0 %}
+        {% set subscription = order.getSubscription() %}
+        <input type="hidden" id="subscriptionId" value="{{ order.stripeTransactionId }}">
+        <hr>
+        <h3>{{ "Subscription"|t('enupal-stripe') }}</h3>
+        <div class="order-details pane">
+            <table id="" class="data fullwidth collapsible">
+                <thead>
+                <tr>
+                    <th scope="col">{{ 'Plan nickname'|t('enupal-stripe') }}</th>
+                    <th scope="col">{{ 'Status'|t('enupal-stripe') }}</th>
+                    <th scope="col">{{ 'Interval'|t('enupal-stripe') }}</th>
+                    <th scope="col">{{ 'Period Start'|t('enupal-stripe') }}</th>
+                    <th scope="col">{{ 'Period end'|t('enupal-stripe') }}</th>
+                    <th scope="col">{{ 'Quantity'|t('enupal-stripe') }}</th>
+                    {% if subscription.meteredId %}
+                        <th scope="col">{{ 'Metered Id'|t('enupal-stripe') }} <span class="info"> <a target="_blank" href="https://docs.enupal.com/stripe-payments/stripe-payment-forms/metered-billing-plan.html">{{ "Report the usage"|t('enupal-stripe') }}</a>  using this id</span></th>
+                        <th scope="col">{{ 'Usage Info'|t('enupal-stripe') }} <span class="info"> All amounts are in cents</span></th>
+                    {% endif %}
+                    <th id="cancel-title" scope="col"></th>
+                    <th scope="col"></th>
+                </tr>
+                </thead>
+                <tbody>
+                <td id="subs-nickname">
+
+                </td>
+                <td id="subs-status">
+
+                </td>
+                <td id="subs-interval">
+
+                </td>
+                <td id="subs-start">
+
+                </td>
+                <td id="subs-end">
+
+                </td>
+                {% if subscription.meteredId is null %}
+
+                    <td id="subs-quantity">
+
+                    </td>
+                {% else %}
+                    <td>
+                        {{ subscription.meteredQuantity }}
+                    </td>
+                {% endif %}
+                {% if subscription.meteredId %}
+                    <td>
+                        <span class="code">{{ subscription.meteredId }}</span>
+                    </td>
+                    <td  class="infoRow"  data-info="{{ subscription.meteredInfoAsJson }}">
+                        Usage <span class="tableRowInfo" data-icon="info" href="#"></span>
+                    </td>
+                {% endif %}
+                <td style="width:10%;" id="subs-cancel">
+                    <div id="cancel-subscription" class="btn small">{{ "Cancel"|t('enupal-stripe') }} </div><div class="spinner hidden"></div>
+                </td>
+                <td class="hidden" style="width:10%;" id="canceled-at">
+                </td>
+                <td class="hidden" style="width:10%;" id="subs-reactivate">
+                    <div id="reactivate-subscription" class="btn small">{{ "Reactivate"|t('enupal-stripe') }} </div><div class="spinner hidden"></div>
+                </td>
+                <td style="width:10%;" id="subs-load">
+                    <div id="refresh-subscription" class="btn small">{{ "Refresh"|t('enupal-stripe') }} </div><div class="spinner hidden"></div>
+                </td>
+                </tbody>
+            </table>
+        </div>
+    {% endif %}
+
+    {% for key, variant in order.getFormFields() %}
+        {% if loop.first %}
+            <hr>
+            <h3>{{ "Form Fields"|t('enupal-stripe') }}</h3>
+            <div class="order-details pane">
+            <table id="" class="data fullwidth collapsible">
+            <thead>
+            <tr>
+                <th scope="col">{{ 'Label'|t('enupal-stripe') }}</th>
+                <th scope="col"></th>
+                <th scope="col">{{ 'Value'|t('enupal-stripe') }}</th>
+                <th scope="col"></th>
+            </tr>
+            </thead>
+            <tbody>
+        {% endif %}
+        <tr class="infoRow">
+            <td>
+                {{ key }}
+            </td>
+            <td>
+            </td>
+            <td>
+                {% if variant is iterable %}
+                    {% for val in variant %}
+                        {{ val }}
+                    {% endfor %}
+                {% else %}
+                    {{ variant }}
+                {% endif %}
+            </td>
+            <td>
+            </td>
+        </tr>
+        {% if loop.last %}
+            </tbody>
+            </table>
+            </div>
+        {% endif %}
+    {% endfor %}
+
+    {% if order.shippingAddressId %}
+        <hr>
+        <h3>{{ 'Shipping Address'|t('enupal-stripe') }}</h3>
+        <div class="pane">
+            {{ order.getShippingAddress()|raw }}
+        </div>
+    {% endif %}
+
+    {% if order.billingAddressId %}
+        <hr>
+        <h3>{{ 'Billing Address'|t('enupal-stripe') }}</h3>
+        <div class="pane">
+            {{ order.getBillingAddress()|raw }}
+        </div>
+    {% endif %}
+
+</div>
+

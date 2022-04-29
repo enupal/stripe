@@ -9,12 +9,12 @@
 namespace enupal\stripe\services;
 
 use Craft;
-use craft\helpers\Json;
 use craft\helpers\UrlHelper;
+use enupal\stripe\elements\Cart;
 use enupal\stripe\elements\PaymentForm;
-use enupal\stripe\enums\AmountType;
 use enupal\stripe\enums\SubmitTypes;
 use enupal\stripe\enums\SubscriptionType;
+use enupal\stripe\events\CheckoutEvent;
 use enupal\stripe\models\CustomPlan;
 use enupal\stripe\Stripe;
 use enupal\stripe\Stripe as StripePlugin;
@@ -25,6 +25,11 @@ use yii\base\Component;
 class Checkout extends Component
 {
     const USAGE_TYPE_METERED = 'metered';
+    const SESSION_MODE_SUBSCRIPTION = 'subscription';
+    const SESSION_MODE_PAYMENT = 'payment';
+    const EVENT_BEFORE_CREATE_SESSION = 'beforeCreateSession';
+    const METADATA_CHECKOUT_TWIG = 'stripe_payments_checkout_twig';
+    const METADATA_CART_NUMBER = 'stripe_payments_cart_number';
 
     /**
      * @param $sessionId
@@ -42,6 +47,73 @@ class Checkout extends Component
         }
 
         return $checkoutSession;
+    }
+
+    /**
+     * @param array $lineItems
+     * @param array $metadata
+     * @return string|Session
+     * @throws \Stripe\Exception\ApiErrorException
+     * @throws \yii\base\Exception
+     */
+    public function checkout(array $lineItems, array $metadata = [])
+    {
+        if (!StripePlugin::getInstance()->is(StripePlugin::EDITION_PRO)) {
+            return "This feature is only available on Stripe Payments Pro";
+        }
+
+        $metadata[self::METADATA_CHECKOUT_TWIG] = true;
+        $session = $this->createCheckoutSessionPro($lineItems, $metadata);
+
+        return $session;
+    }
+
+    /**
+     * @param Cart $cart
+     * @return Session|null
+     * @throws \Stripe\Exception\ApiErrorException
+     * @throws \yii\base\Exception
+     */
+    public function createCartCheckoutSession(Cart $cart)
+    {
+        if (!StripePlugin::getInstance()->is(StripePlugin::EDITION_PRO)) {
+            return null;
+        }
+
+        $metadata = [
+            self::METADATA_CART_NUMBER => $cart->number
+        ];
+
+        $metadata = array_merge($metadata, $cart->getCartMetadata());
+        unset($metadata[self::METADATA_CHECKOUT_TWIG]);
+
+        $lineItems = $this->fixCartItems($cart->getItems());
+
+        return $this->createCheckoutSessionPro($lineItems, $metadata);
+    }
+
+    public function getAllCheckoutItems(string $checkoutId)
+    {
+        StripePlugin::$app->settings->initializeStripe();
+
+        $startingAfter = null;
+        $items = Session::allLineItems($checkoutId, ['limit' => 50, 'starting_after' => $startingAfter]);
+        $cartItems = [];
+
+        while(isset($items['data']) && is_array($items['data'])) {
+            foreach ($items['data'] as $item) {
+                $cartItems[] = $item;
+            }
+
+            $startingAfter = $item['id'];
+            if ($items['has_more']){
+                $items = Session::allLineItems($checkoutId, ['limit' => 50, 'starting_after' => $startingAfter]);
+            }else{
+                $items = null;
+            }
+        }
+
+        return $cartItems;
     }
 
     /**
@@ -158,7 +230,14 @@ class Checkout extends Component
             ];
         }
 
-        $session = Session::create($sessionParams);
+        $event = new CheckoutEvent([
+            'sessionParams' => $sessionParams,
+            'isCart' => false
+        ]);
+
+        $this->trigger(self::EVENT_BEFORE_CREATE_SESSION, $event);
+
+        $session = Session::create($event->sessionParams);
 
         return $session;
     }
@@ -489,5 +568,159 @@ class Checkout extends Component
     public function getShippingCountries()
     {
         return ["AC", "AD", "AE", "AF", "AG", "AI", "AL", "AM", "AO", "AQ", "AR", "AT", "AU", "AW", "AX", "AZ", "BA", "BB", "BD", "BE", "BF", "BG", "BH", "BI", "BJ", "BL", "BM", "BN", "BO", "BQ", "BR", "BS", "BT", "BV", "BW", "BY", "BZ", "CA", "CD", "CF", "CG", "CH", "CI", "CK", "CL", "CM", "CN", "CO", "CR", "CV", "CW", "CY", "CZ", "DE", "DJ", "DK", "DM", "DO", "DZ", "EC", "EE", "EG", "EH", "ER", "ES", "ET", "FI", "FJ", "FK", "FO", "FR", "GA", "GB", "GD", "GE", "GF", "GG", "GH", "GI", "GL", "GM", "GN", "GP", "GQ", "GR", "GS", "GT", "GU", "GW", "GY", "HK", "HN", "HR", "HT", "HU", "ID", "IE", "IL", "IM", "IN", "IO", "IQ", "IS", "IT", "JE", "JM", "JO", "JP", "KE", "KG", "KH", "KI", "KM", "KN", "KR", "KW", "KY", "KZ", "LA", "LB", "LC", "LI", "LK", "LR", "LS", "LT", "LU", "LV", "LY", "MA", "MC", "MD", "ME", "MF", "MG", "MK", "ML", "MM", "MN", "MO", "MQ", "MR", "MS", "MT", "MU", "MV", "MW", "MX", "MY", "MZ", "NA", "NC", "NE", "NG", "NI", "NL", "NO", "NP", "NR", "NU", "NZ", "OM", "PA", "PE", "PF", "PG", "PH", "PK", "PL", "PM", "PN", "PR", "PS", "PT", "PY", "QA", "RE", "RO", "RS", "RU", "RW", "SA", "SB", "SC", "SE", "SG", "SH", "SI", "SJ", "SK", "SL", "SM", "SN", "SO", "SR", "SS", "ST", "SV", "SX", "SZ", "TA", "TC", "TD", "TF", "TG", "TH", "TJ", "TK", "TL", "TM", "TN", "TO", "TR", "TT", "TV", "TW", "TZ", "UA", "UG", "US", "UY", "UZ", "VA", "VC", "VE", "VG", "VN", "VU", "WF", "WS", "XK", "YE", "YT", "ZA", "ZM", "ZW", "ZZ"];
+    }
+
+    /**
+     * When a cart is updated with 0 is removed but the index need to be in order on stripe
+     * @param array $items
+     * @return array
+     */
+    private function fixCartItems(array $items)
+    {
+        $result = [];
+        foreach ($items as $item) {
+            $result[] = $item;
+        }
+
+        return $result;
+    }
+
+    /**
+     * @param array $lineItems
+     * @param array $metadata
+     * @return Session
+     * @throws \Stripe\Exception\ApiErrorException
+     * @throws \yii\base\Exception
+     */
+    private function createCheckoutSessionPro(array $lineItems, array $metadata): Session
+    {
+        StripePlugin::$app->settings->initializeStripe();
+        $pluginSettings = StripePlugin::$app->settings->getSettings();
+        Craft::$app->getSession()->set(PaymentForm::SESSION_CHECKOUT_SUCCESS_URL, $pluginSettings->cartSuccessUrl);
+
+        $paymentMethods = $pluginSettings->cartPaymentMethods ?? ['card'];
+        $user = Craft::$app->getUser()->getIdentity() ?? null;
+        $metadata['stripe_payments_user_id'] = $user->id ?? null;
+
+        $mode = $this->getIsSubscription($lineItems) ?
+            self::SESSION_MODE_SUBSCRIPTION :
+            self::SESSION_MODE_PAYMENT;
+
+        $sessionParams = [
+            'payment_method_types' => $paymentMethods,
+            'locale' => $pluginSettings->cartLanguage,
+            'line_items' => $lineItems,
+            'success_url' => $this->getSiteUrl('enupal/stripe-payments/finish-order?session_id={CHECKOUT_SESSION_ID}'),
+            'cancel_url' => $this->getSiteUrl($pluginSettings->cartCancelUrl),
+            'metadata' => $metadata,
+            'mode' => $mode
+        ];
+
+        if (!$pluginSettings->capture) {
+            $sessionParams['payment_intent_data']['capture_method'] = 'manual';
+        }
+
+        if ($pluginSettings->cartEnableBillingAddress) {
+            $sessionParams['billing_address_collection'] = 'required';
+        }
+
+        if ($pluginSettings->cartEnableShippingAddress) {
+            $sessionParams['shipping_address_collection'] = [
+                'allowed_countries' => $this->getShippingCountries()
+            ];
+        }
+
+        if (!is_null($user)) {
+            $customer = StripePlugin::$app->customers->getCustomerByEmail($user->email, $pluginSettings->testMode);
+
+            $sessionParams['customer_email'] = $user->email;
+            if ($customer !== null) {
+                $stripeCustomer = StripePlugin::$app->customers->getStripeCustomer($customer->stripeId);
+                if ($stripeCustomer !== null) {
+                    $sessionParams['customer'] = $customer->stripeId;
+                    unset($sessionParams['customer_email']);
+                }
+            }
+        }
+
+        $allowPromotionCodes = $pluginSettings->cartAllowPromotionCodes;
+        if ($allowPromotionCodes) {
+            if ($mode == self::SESSION_MODE_SUBSCRIPTION) {
+                $sessionParams['subscription_data']['payment_behavior'] = 'allow_incomplete';
+            }
+
+            $sessionParams['allow_promotion_codes'] = true;
+        }
+
+        // Shipping behavior, only for one-time payments
+        if (!empty($pluginSettings->cartShippingRates) && $mode == self::SESSION_MODE_PAYMENT) {
+            $shippingRates = [];
+            foreach ($pluginSettings->cartShippingRates as $cartShippingRate) {
+                $stripeShippingRate = StripePlugin::$app->shipping->getShippingRate($cartShippingRate);
+                if (!isset($stripeShippingRate['active']) || !$stripeShippingRate['active']) {
+                    Craft::warning("Skipped Shipping Rate on Cart Checkout: " . $cartShippingRate);
+                    continue;
+                }
+
+                $shippingRate = [
+                    'shipping_rate' => $cartShippingRate
+                ];
+                $shippingRates[] = $shippingRate;
+            }
+
+            if (!empty($shippingRates)) {
+                $sessionParams['shipping_options'] = $shippingRates;
+            }
+        }
+
+        // We go in favor of automatic tax, otherwise developers may need update each line_items using BeforeCreateCheckoutSession event
+        // to add tax_rates workflow. More info -> https://stripe.com/docs/billing/taxes/collect-taxes?tax-calculation=tax-rates
+        if ($pluginSettings->cartAutomaticTax) {
+            $sessionParams['automatic_tax'] = [
+                'enabled' => true
+            ];
+
+            $sessionParams['customer_update'] = [
+                'shipping' => 'auto'
+            ];
+        }
+
+        $event = new CheckoutEvent([
+            'sessionParams' => $sessionParams,
+            'isCart' => true
+        ]);
+
+        $this->trigger(self::EVENT_BEFORE_CREATE_SESSION, $event);
+
+        $session = Session::create($event->sessionParams);
+
+        return $session;
+    }
+
+    /**
+     * If at least 1 item in the cart is subscription return true
+     * @param array $lineItems
+     * @return bool
+     */
+    private function getIsSubscription(array $lineItems): bool
+    {
+        foreach ($lineItems as $item) {
+            if (isset($item['price_data']['recurring'])) {
+                return true;
+            }
+        }
+
+        foreach ($lineItems as $item) {
+            if (!isset($item['price'])) {
+                continue;
+            }
+            $price = StripePlugin::$app->prices->getPriceByStripeId($item['price']);
+
+            if ($price->getStripeObject()->type == Prices::PRICE_TYPE_RECURRING) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

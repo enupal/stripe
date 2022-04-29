@@ -10,6 +10,7 @@ namespace enupal\stripe\controllers;
 
 use craft\helpers\UrlHelper;
 use craft\web\Controller as BaseController;
+use enupal\stripe\elements\Cart;
 use enupal\stripe\elements\PaymentForm;
 use enupal\stripe\enums\PaymentType;
 use enupal\stripe\Stripe as StripePlugin;
@@ -220,6 +221,7 @@ class StripeController extends BaseController
         sleep(5);
 
         $checkoutSession = StripePlugin::$app->checkout->getCheckoutSession($sessionId);
+        $cartNumber = $checkoutSession['metadata']['stripe_payments_cart_number'] ?? null;
         if ($checkoutSession === null) {
             Craft::error('Unable to find the chekout session id', __METHOD__);
             return $this->redirect('/');
@@ -227,7 +229,13 @@ class StripeController extends BaseController
         // Get the order from the payment intent id
         $stripeId = null;
         $paymentIntent = null;
-        if ($checkoutSession['payment_intent'] !== null) {
+        $order = null;
+        if (!is_null($cartNumber)) {
+            $cart = StripePlugin::$app->carts->getCartByNumber($cartNumber, Cart::STATUS_COMPLETED);
+            if (!is_null($cart)) {
+                $order = StripePlugin::$app->orders->getOrderByCartId($cart->id);
+            }
+        } else if ($checkoutSession['payment_intent'] !== null) {
             $paymentIntent = StripePlugin::$app->paymentIntents->getPaymentIntent($checkoutSession['payment_intent']);
             if ($paymentIntent === null) {
                 Craft::error('Unable to find the payment intent id: ' . $checkoutSession['payment_intent'], __METHOD__);
@@ -239,12 +247,12 @@ class StripeController extends BaseController
             $stripeId = $checkoutSession['subscription'];
         }
 
-        if ($stripeId === null) {
+        if ($stripeId === null && is_null($order)) {
             Craft::error('Unable to find the stripe id from the checkout session: ', __METHOD__);
             return $this->redirect('/');
         }
 
-        $order = StripePlugin::$app->orders->getOrderByStripeId($stripeId);
+        $order = is_null($order) ? StripePlugin::$app->orders->getOrderByStripeId($stripeId): $order;
 
         if ($order === null) {
             Craft::error('Unable to find the order by stripe id: ' . $stripeId, __METHOD__);
@@ -261,7 +269,7 @@ class StripeController extends BaseController
 
         $sessionSuccessUrl = Craft::$app->getSession()->get(PaymentForm::SESSION_CHECKOUT_SUCCESS_URL);
         Craft::$app->getSession()->remove(PaymentForm::SESSION_CHECKOUT_SUCCESS_URL);
-        $returnUrl = $sessionSuccessUrl ? $sessionSuccessUrl : $order->getPaymentForm()->checkoutSuccessUrl;
+        $returnUrl = $sessionSuccessUrl ? $sessionSuccessUrl : $order->getPaymentForm()->checkoutSuccessUrl ?? "";
         $url = '/';
 
         if ($returnUrl) {

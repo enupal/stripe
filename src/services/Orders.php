@@ -14,6 +14,7 @@ use craft\helpers\Db;
 
 use craft\helpers\Json;
 use craft\helpers\UrlHelper;
+use enupal\stripe\elements\Cart;
 use enupal\stripe\elements\Order;
 use enupal\stripe\enums\PaymentType;
 use enupal\stripe\enums\SubscriptionType;
@@ -122,9 +123,30 @@ class Orders extends Component
      */
     public function getOrderByNumber($number, int $siteId = null)
     {
+        if (empty($number)) {
+            return null;
+        }
+
         $query = Order::find();
         $query->number($number);
         $query->siteId($siteId);
+        /** @var Order $order */
+        $order = $query->one();
+
+        return $order;
+    }
+
+    /**
+     * Returns an Order model if one is found in the database by number
+     *
+     * @param int $cartId
+     *
+     * @return null|Order
+     */
+    public function getOrderByCartId(int $cartId)
+    {
+        $query = Order::find();
+        $query->cartId($cartId);
         /** @var Order $order */
         $order = $query->one();
 
@@ -317,6 +339,7 @@ class Orders extends Component
         $order->totalPrice = $data['amount'];
         $order->quantity = $data['quantity'] ?? 1;
         $order->shipping = $data['shippingAmount'] ?? 0;
+        $order->couponAmount = $data['discountAmount'] ?? 0;
         $order->tax = $data['taxAmount'] ?? 0;
         $shippingAddress = $data['address'] ?? null;
         $billingAddress = $data['billingAddress'] ?? null;
@@ -340,6 +363,12 @@ class Orders extends Component
         $variants = $data['metadata'] ?? [];
         if ($variants){
             $order->variants = json_encode($variants);
+        }
+
+        // cartItems
+        $cartItems = $data['cartItems'] ?? [];
+        if ($cartItems){
+            $order->cartItems = json_encode($cartItems);
         }
 
         return $order;
@@ -453,6 +482,29 @@ class Orders extends Component
         ];
 
         return $result;
+    }
+
+    /**
+     * @param Order|null $order
+     * @param string $url
+     * @return string
+     * @throws \Throwable
+     * @throws \yii\base\Exception
+     */
+    public function getReturnUrl(Order $order = null, string $url = '')
+    {
+        // by default return to the same page
+        $returnUrl = '';
+
+        if ($url) {
+            $returnUrl = $this->getSiteUrl($url);
+        }
+
+        if ($order) {
+            $returnUrl = Craft::$app->getView()->renderObjectTemplate($returnUrl, $order);
+        }
+
+        return $returnUrl;
     }
 
     /**
@@ -588,6 +640,78 @@ class Orders extends Component
         $order = $this->finishOrder($order, $paymentForm);
 
         return $order;
+    }
+
+    /**
+     * Process Cart Stripe Payment Listener
+     *
+     * @param $postData array
+     * @param $order Order
+     * @return Order|null
+     * @throws \Exception
+     * @throws \Throwable
+     */
+    public function processCartPayment($postData, $order = null)
+    {
+        $result = null;
+        $data = $postData['enupalStripe'];
+        $token = $data['token'] ?? null;
+        $cartNumber = $data['cartNumber'] ?? null;
+        $paymentType = $postData['paymentType'] ?? PaymentType::CC;
+        $data['couponCode'] = $postData['enupalCouponCode'] ?? null;
+
+        if (empty($token)){
+            Craft::error('Unable to get the stripe token', __METHOD__);
+            return $result;
+        }
+
+        $amount = $data['amount'] ?? null;
+
+        if ($amount === '' || $amount == 'NaN' || is_null($amount)){
+            Craft::error('Unable to get the final amount from the post request', __METHOD__);
+            return $result;
+        }
+        $cart = null;
+        if (!is_null($cartNumber)) {
+            $cart = StripePlugin::$app->carts->getCartByNumber($cartNumber);
+
+            if (is_null($cart)) {
+                throw new \Exception(Craft::t('enupal-stripe','Unable to find the Cart associated to the order'));
+            }
+        }
+
+        if (is_null($order)){
+            $order = $this->populateOrder($data);
+        }
+
+        if ($paymentType != null){
+            // Possible card element
+            $order->paymentType = $paymentType;
+        }
+
+        $order->currency = $data['currency'];
+        $order->cartId = $cart->id ?? null;
+        $order->stripeTransactionId = $token;
+        $order->isSubscription = false;
+        $order->isCart = true;
+        $order->cartShippingRateId = $data['cartShippingRateId'];
+
+        // revert cents - Async charges already make this conversion - On Checkout $paymentType is null
+        $order->totalPrice = $this->convertFromCents($order->totalPrice, $order->currency);
+        $order->tax = $this->convertFromCents($order->tax, $order->currency);
+        $order->shipping = $this->convertFromCents($order->shipping, $order->currency);
+        $order->couponAmount = $this->convertFromCents($order->couponAmount, $order->currency);
+
+        $pluginSettings = StripePlugin::$app->settings->getSettings();
+        if (!$pluginSettings->capture){
+            $order->isCompleted = false;
+        }
+
+        if (!is_null($cart)) {
+            $cart->stripeId = $data['cartStripeId'];
+        }
+
+        return $this->finishCartOrder($order, $cart);
     }
 
     /**
@@ -730,42 +854,43 @@ class Orders extends Component
     {
         $result = false;
 
-        if (!$order->refunded) {
-            try {
-                StripePlugin::$app->settings->initializeStripe();
-                $stripeId = $this->getChargeIdFromOrder($order);
-                $options = [];
-
-                if (!$order->isSubscription()){
-                    // Async transactions have py_ (payment) as stripeId and an amount is required
-                    if ($order->paymentType == PaymentType::IDEAL || $order->paymentType == PaymentType::SOFORT){
-                        $options['amount'] = $this->convertToCents($order->totalPrice, $order->currency);
-                    }
-                }
-
-                $options = [
-                    'charge' => $stripeId
-                ];
-
-                $refund = Refund::create($options);
-
-                if ($refund['status'] == 'succeeded' || $refund['status'] == 'pending') {
-                    $order->refunded = true;
-                    $now = Db::prepareDateForDb(new \DateTime());
-                    $order->dateRefunded = $now;
-                    $this->saveOrder($order, false);
-                    Stripe::$app->messages->addMessage($order->id,'Control Panel - Payment Refunded', $refund);
-
-                    $this->triggerOrderRefundEvent($order);
-                    $result = true;
-                }else{
-                    Stripe::$app->messages->addMessage($order->id,'Control Panel - Something went wrong on Refund process', $refund);
-                }
-            } catch (\Exception $e) {
-                Stripe::$app->messages->addMessage($order->id,'Control Panel - Failed to refund payment', ['error' => $e->getMessage()]);
-            }
-        }else{
+        if ($order->refunded) {
             Stripe::$app->messages->addMessage($order->id, "Control Panel - Payment was already refunded", []);
+            return $result;
+        }
+
+        try {
+            StripePlugin::$app->settings->initializeStripe();
+            $stripeId = $this->getChargeIdFromOrder($order);
+            $options = [];
+
+            if (!$order->isSubscription()){
+                // Async transactions have py_ (payment) as stripeId and an amount is required
+                if ($order->paymentType == PaymentType::IDEAL || $order->paymentType == PaymentType::SOFORT){
+                    $options['amount'] = $this->convertToCents($order->totalPrice, $order->currency);
+                }
+            }
+
+            $options = [
+                'charge' => $stripeId
+            ];
+
+            $refund = Refund::create($options);
+
+            if ($refund['status'] == 'succeeded' || $refund['status'] == 'pending') {
+                $order->refunded = true;
+                $now = Db::prepareDateForDb(new \DateTime());
+                $order->dateRefunded = $now;
+                $this->saveOrder($order, false);
+                Stripe::$app->messages->addMessage($order->id,'Control Panel - Payment Refunded', $refund);
+
+                $this->triggerOrderRefundEvent($order);
+                $result = true;
+            }else{
+                Stripe::$app->messages->addMessage($order->id,'Control Panel - Something went wrong on Refund process', $refund);
+            }
+        } catch (\Exception $e) {
+            Stripe::$app->messages->addMessage($order->id,'Control Panel - Failed to refund payment', ['error' => $e->getMessage()]);
         }
 
         return $result;
@@ -1500,6 +1625,29 @@ class Orders extends Component
         return $status === 'incomplete' ? true : false;
     }
 
+    /**
+     * @param Order $order
+     * @param Cart|null $cart
+     * @return null
+     * @throws \Throwable
+     */
+    private function finishCartOrder(Order $order, ?Cart $cart = null)
+    {
+        // Finally save the order in Craft CMS
+        if (!StripePlugin::$app->orders->saveOrder($order)){
+            Craft::error('Something went wrong saving the Stripe Order: '.json_encode($order->getErrors()), __METHOD__);
+            return null;
+        }
+
+        Craft::info('Enupal Stripe - Cart Order Created: './** @scrutinizer ignore-type */ $order->number, __METHOD__);
+
+        if (!is_null($cart)) {
+            StripePlugin::$app->carts->markCartAsCompleted($cart);
+        }
+
+        return $order;
+    }
+
 	/**
 	 * @param $order
 	 * @param $paymentForm
@@ -1549,5 +1697,20 @@ class Orders extends Component
         unset($postData['redirect']);
 
         return $postData;
+    }
+
+    /**
+     * @param $url
+     *
+     * @return string
+     * @throws \yii\base\Exception
+     */
+    private function getSiteUrl($url)
+    {
+        if (UrlHelper::isAbsoluteUrl($url)) {
+            return $url;
+        }
+
+        return UrlHelper::siteUrl($url);
     }
 }

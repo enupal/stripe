@@ -12,6 +12,7 @@ use Craft;
 use craft\helpers\DateTimeHelper;
 use craft\web\Controller as BaseController;
 use enupal\stripe\jobs\SyncOneTimePayments;
+use enupal\stripe\jobs\SyncProducts;
 use enupal\stripe\jobs\SyncSubscriptionPayments;
 use enupal\stripe\models\Settings;
 use enupal\stripe\Stripe;
@@ -35,7 +36,6 @@ class SettingsController extends BaseController
 
         $plugin = Stripe::$app->settings->getPlugin();
         $settingsModel = $plugin->getSettings();
-
         $settingsModel->setAttributes($settings, false);
 
         if (!Stripe::$app->settings->saveSettings($settingsModel, $scenario)) {
@@ -85,6 +85,23 @@ class SettingsController extends BaseController
         else{
             Craft::$app->getSession()->setNotice(Stripe::t('Stripe plans updated.'));
         }
+
+        return $this->redirectToPostedUrl();
+    }
+
+    /**
+     * Sync products and prices from Stripe
+     *
+     * @return \yii\web\Response
+     * @throws \craft\errors\MissingComponentException
+     * @throws \yii\web\BadRequestHttpException
+     */
+    public function actionProductsSync()
+    {
+        $this->requirePostRequest();
+
+        Craft::$app->queue->push(new SyncProducts());
+        Craft::$app->getSession()->setNotice(Stripe::t('Sync Products and Prices job added to the queue'));
 
         return $this->redirectToPostedUrl();
     }

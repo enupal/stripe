@@ -10,12 +10,14 @@
 namespace enupal\stripe;
 
 use Craft;
+use craft\base\Element;
 use craft\commerce\elements\Product;
+use enupal\stripe\elements\Product as EnupalProduct;
 use craft\elements\User;
+use craft\events\DefineHtmlEvent;
 use craft\events\ElementEvent;
 use craft\events\RegisterComponentTypesEvent;
 use craft\events\RegisterUrlRulesEvent;
-use craft\events\UserEvent;
 use craft\services\Elements;
 use craft\services\Fields;
 use craft\services\Users;
@@ -24,7 +26,9 @@ use enupal\stripe\elements\PaymentForm;
 use enupal\stripe\events\AfterPopulatePaymentFormEvent;
 use enupal\stripe\events\OrderCompleteEvent;
 use enupal\stripe\events\WebhookEvent;
+use enupal\stripe\fields\StripeProducts;
 use enupal\stripe\services\App;
+use enupal\stripe\services\Carts;
 use enupal\stripe\services\Orders;
 use craft\commerce\elements\Order as CommerceOrder;
 use enupal\stripe\services\PaymentForms;
@@ -35,25 +39,34 @@ use enupal\stripe\fields\StripePaymentForms as StripePaymentFormsField;
 use enupal\stripe\variables\StripeVariable;
 use enupal\stripe\models\Settings;
 use craft\base\Plugin;
+use yii\web\User as UserWeb;
+use yii\web\UserEvent;
 
 class Stripe extends Plugin
 {
+    const EDITION_LITE = 'lite';
+    const EDITION_PRO = 'pro';
+
     /**
      * Enable use of Stripe::$app-> in place of Craft::$app->
      *
      * @var App
      */
     public static $app;
-
     public $hasCpSection = true;
     public $hasCpSettings = true;
-    public $schemaVersion = '3.4.0';
+    public $schemaVersion = '4.0.0';
 
     public function init()
     {
         parent::init();
-
         self::$app = $this->get('app');
+
+        Event::on(UserWeb::class, UserWeb::EVENT_AFTER_LOGOUT, function(UserEvent $event) {
+            $session = Craft::$app->getSession();
+            $session->remove(Carts::SESSION_CART_NAME);
+        }
+        );
 
         Event::on(UrlManager::class, UrlManager::EVENT_REGISTER_CP_URL_RULES, function(RegisterUrlRulesEvent $event) {
             $event->rules = array_merge($event->rules, $this->getCpUrlRules());
@@ -62,6 +75,31 @@ class Stripe extends Plugin
 
         Event::on(UrlManager::class, UrlManager::EVENT_REGISTER_SITE_URL_RULES, function(RegisterUrlRulesEvent $event) {
             $event->rules = array_merge($event->rules, $this->getSiteUrlRules());
+        }
+        );
+
+        Event::on(Element::class, Element::EVENT_DEFINE_SIDEBAR_HTML, function(DefineHtmlEvent $event) {
+            if ($event->sender instanceof EnupalProduct) {
+                $product = $event->sender;
+
+                $variables['stripeObject'] = $product->getStripeObject();
+                $variables['product'] = $product;
+                $variables['displayStripeObject'] = false;
+                $rendered = Craft::$app->getView()->renderTemplate('enupal-stripe/products/_productInfo', $variables);
+                $event->html = $rendered;
+            }
+        }
+        );
+
+        Event::on(Element::class, Element::EVENT_DEFINE_META_FIELDS_HTML, function(DefineHtmlEvent $event) {
+            if ($event->sender instanceof EnupalProduct) {
+                $product = $event->sender;
+
+                $variables['stripeObject'] = $product->getStripeObject();
+                $variables['prices'] = $product->getPrices();
+                $rendered = Craft::$app->getView()->renderTemplate('enupal-stripe/products/_prices', $variables);
+                $event->html = $rendered;
+            }
         }
         );
 
@@ -78,6 +116,7 @@ class Stripe extends Plugin
 
         Event::on(Fields::class, Fields::EVENT_REGISTER_FIELD_TYPES, function(RegisterComponentTypesEvent $event) {
             $event->types[] = StripePaymentFormsField::class;
+            $event->types[] = StripeProducts::class;
         });
 
         Event::on(Elements::class, Elements::EVENT_AFTER_SAVE_ELEMENT, function(ElementEvent $event) {
@@ -133,6 +172,14 @@ class Stripe extends Plugin
             ->onAdd("enupalStripe.fields.{uid}", [$this, 'handleChangedField'])
             ->onUpdate("enupalStripe.fields{uid}", [$this, 'handleChangedField'])
             ->onRemove("enupalStripe.fields.{uid}", [$this, 'handleDeletedField']);
+    }
+
+    public static function editions(): array
+    {
+        return [
+            self::EDITION_LITE,
+            self::EDITION_PRO,
+        ];
     }
 
     public function handleChangedField(\craft\events\ConfigEvent $event)
@@ -207,6 +254,13 @@ class Stripe extends Plugin
             $navs['subnav']['vendors'] = [
                 "label" => self::t("Vendors"),
                 "url" => 'enupal-stripe/vendors'
+            ];
+        }
+
+        if (self::getInstance()->is(self::EDITION_PRO)) {
+            $navs['subnav']['products'] = [
+                "label" => self::t("Products"),
+                "url" => 'enupal-stripe/products'
             ];
         }
 
@@ -286,6 +340,9 @@ class Stripe extends Plugin
             'enupal-stripe/vendors/edit/<vendorId:\d+>' =>
                 'enupal-stripe/vendors/edit-vendor',
 
+            'enupal-stripe/products/edit/<productId:\d+>' =>
+                'enupal-stripe/products/edit-product',
+
             'enupal-stripe/connects/new' =>
                 'enupal-stripe/connects/edit-connect',
 
@@ -305,7 +362,7 @@ class Stripe extends Plugin
      */
     private function getSiteUrlRules()
     {
-        return [
+        $rules = [
             'enupal-stripe/update-billing-info' =>
                 'enupal-stripe/stripe/update-billing-info',
             'enupal/stripe-payments' =>
@@ -326,7 +383,28 @@ class Stripe extends Plugin
                 'enupal-stripe/utilities/get-oauth-link',
             'enupal-stripe/authorize-oauth' =>
                 'enupal-stripe/utilities/authorize-oauth',
+
+
         ];
+
+        $proRules = [];
+        if (self::getInstance()->is(self::EDITION_PRO)) {
+            $proRules = [
+                // CART
+                'enupal-stripe/cart/add' =>
+                    'enupal-stripe/cart/add',
+                'enupal-stripe/cart' =>
+                    'enupal-stripe/cart/index',
+                'enupal-stripe/cart/update' =>
+                    'enupal-stripe/cart/update',
+                'enupal-stripe/cart/clear' =>
+                    'enupal-stripe/cart/clear',
+                'enupal-stripe/cart/checkout' =>
+                    'enupal-stripe/cart/checkout'
+            ];
+        }
+
+        return array_merge($rules, $proRules);
     }
 }
 

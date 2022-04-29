@@ -1,0 +1,97 @@
+{% extends 'store/_layouts/main' %}
+
+{% set extraHead %}
+    <link rel="stylesheet" href="/store/css/global.css" />
+    <link rel="stylesheet" href="/store/css/cart.min.css" />
+{% endset %}
+
+{% block main %}
+    {% set products = craft.enupalStripe.products().all() %}
+    {% set firstProduct = products|first %}
+    {% set firstPrice = firstProduct.getPrices()|first %}
+    <h2>Cart API</h2>
+    <div class="col-md-12">
+        <div class="example example-live">
+            <div class="well well-sm">
+                <img src="//cdn.shopify.com/s/files/1/0538/1121/t/2/assets/loader.gif?v=1057792694421703981" id="cart-visible-loading" class="hidden pull-right" width="16" height="11" alt="Loading...">
+                You have
+                <strong data-cart-render="item_count"></strong>
+                items in your cart for a total of
+                <strong data-cart-render="total_price_money_with_currency"></strong>.
+            </div>
+            <div class="row">
+                {% if firstProduct and firstPrice %}
+                    <div class="col-xs-4">
+                        <button data-cart-add="{{ firstPrice.getStripeObject().id }}" data-cart-quantity="1" class="btn btn-block btn-default">
+                            <span class="hidden-xs">Add </span>
+                            <span class="visible-xs-inline">+</span>
+                            {{ firstProduct.getStripeObject().name }}
+                        </button>
+                    </div>
+                {% endif %}
+                <div class="col-xs-4">
+                    <button data-cart-clear="" class="btn btn-block btn-default">
+                        Clear<span class="hidden-xs"> Cart</span>
+                    </button>
+                </div>
+                <div class="col-xs-4">
+                    <button data-cart-checkout="" class="btn btn-block btn-default">
+                        Checkout<span class="hidden-xs"> Cart</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    {# Display Products #}
+    <div class="row">
+        <div class="col-md-12">
+            <h2>Products</h2>
+        </div>
+    </div>
+    <div class="col-md-12">
+        <div class="row">
+            {% for product in products %}
+                {% set productObject = product.getStripeObject() %}
+                <div class="example-product col-md-3 boxlayout">
+                    <h3>{{ productObject.name }}</h3>
+                    {% set prices = product.getPrices() %}
+                    {% if productObject.images|length  %}
+                        <img src="{{ productObject.images[0] }}" alt="">
+                    {% endif %}
+                    <form data-cart-submit="data-cart-submit">
+                        <div class="form-group">
+                            <label for="demo-advanced-id">Select a Price</label>
+                            <select id="demo-advanced-id" name="id" class="form-control input-sm">
+                                {% for price in product.getPrices() %}
+                                    {% set priceObject = price.getStripeObject() %}
+                                    {% set priceName = priceObject.nickname ? priceObject.nickname ~ ' ' ~ price.getUnitAmount() : price.getUnitAmount() %}
+                                    <option value="{{ priceObject.id }}">{{ priceName }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="form-group"><label for="demo-advanced-quantity">Quantity</label>
+                            <select
+                                    id="demo-advanced-quantity" name="quantity" class="form-control input-sm">
+                                <option>0</option>
+                                <option selected="selected">1</option>
+                                <option>2</option>
+                                <option>3</option>
+                                <option>4</option>
+                                <option>5</option>
+                            </select>
+                        </div>
+                        <div class="form-group"><label for="demo-advanced-custom-label">Add a Custom Label <small
+                                        class="text-muted">(Optional)</small></label><input type="text"
+                                                                                            name="custom_label"
+                                                                                            class="form-control input-sm">
+                        </div>
+                        <div class="form-group">
+                            <button type="submit" class="btn btn-default">Add to Cart</button>
+                        </div>
+                    </form>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+{% endblock %}

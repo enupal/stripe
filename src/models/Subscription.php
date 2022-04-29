@@ -48,9 +48,9 @@ class Subscription extends Model
         $this->startDate = isset($subscription['current_period_start']) ? DateTimeHelper::toDateTime($subscription['current_period_start'])->format($dateFormat) : null;
         $this->endDate = isset($subscription['current_period_end']) ? DateTimeHelper::toDateTime($subscription['current_period_end'])->format($dateFormat) : null;
         $this->daysUntilDue = $subscription['days_until_due'] ?? 0;
-        $this->planNickName = $subscription['plan']['nickname'] ?? null ;
-        $this->quantity = $subscription['quantity'] ?? null ;
-        $this->interval = $subscription['plan']['interval'] ?? null ;
+        $this->planNickName = $this->getNickNames($subscription);
+        $this->quantity = $this->getQuantity($subscription);
+        $this->interval = $subscription['items']['data'][0]['plan']['interval'] ?? null;
         $this->status = $subscription['status'] ?? null ;
         $this->canceledAt = isset($subscription['canceled_at']) && $subscription['canceled_at'] ? DateTimeHelper::toDateTime($subscription['canceled_at'])->format($dateFormat) : null;
         $this->data = $subscription;
@@ -67,6 +67,30 @@ class Subscription extends Model
                 $this->meteredInfoAsJson = json_encode($this->meteredInfo);
             }
         }
+    }
+
+    private function getQuantity($subscription)
+    {
+        $quantity = 0;
+        foreach ($subscription['items']['data'] as $item) {
+            $quantity += $item['quantity'];
+        }
+
+        return $quantity;
+    }
+
+    private function getNickNames($subscription)
+    {
+        $nickName = "";
+        $count = 1;
+
+        foreach ($subscription['items']['data'] as $item) {
+            $name = $item['plan']['nickname'] ?? 'Subscription '.$count;
+            $nickName .= $name.", ";
+            $count++;
+        }
+
+        return rtrim($nickName, ", ");
     }
 
     /**

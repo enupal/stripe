@@ -113,6 +113,9 @@ class Plans extends Component
         {
             foreach ($plans['data'] as $plan) {
                 $isValid = true;
+                if (!$plan['active']) {
+                    continue;
+                }
                 if ($checkDuplicateLabels){
                     foreach ($options as $option) {
                         if ($option['label'] === $this->getDefaultPlanName($plan)){
