@@ -84,6 +84,68 @@ class Customers extends Component
     }
 
     /**
+     * @param User $user
+     * @param $testMode
+     * @return Customer|null
+     * @throws \Exception
+     */
+    public function getStripeCustomerByUser(User $user, $testMode = null)
+    {
+        StripePlugin::$app->settings->initializeStripe();
+        $settings = StripePlugin::$app->settings->getSettings();
+        $testMode = is_null($testMode) ? $settings->testMode : $testMode;
+
+        $orders = StripePlugin::$app->orders->getOrdersByUser($user->id);
+
+        $customer = null;
+        foreach ($orders as $order) {
+            /** @var Order $order */
+            if ($order->isSubscription()) {
+                $customer = $this->getCustomerByEmail($order->email, $testMode);
+                if (is_null($customer)) {
+                    return null;
+                } else{
+                    break;
+                }
+            }
+        }
+        
+        if (is_null($customer)) {
+            return null;
+        }
+
+        $stripeCustomer = $this->getStripeCustomer($customer->stripeId);
+
+        return $stripeCustomer;
+    }
+
+    /**
+     * @param string $orderNumber
+     * @param $testMode
+     * @return Customer|null
+     * @throws \Exception
+     */
+    public function getStripeCustomerByOrderNumber($orderNumber, $testMode = null)
+    {
+        StripePlugin::$app->settings->initializeStripe();
+        $settings = StripePlugin::$app->settings->getSettings();
+        $testMode = is_null($testMode) ? $settings->testMode : $testMode;
+
+        /** @var Order $order */
+        $order = StripePlugin::$app->orders->getOrderByNumber($orderNumber);
+        $customer = null;
+        if (isset($order) && $order->isSubscription()) {
+            $customer = $this->getCustomerByEmail($order->email, $testMode);
+        }
+
+        if (is_null($customer)) {
+            return null;
+        }
+
+        return $this->getStripeCustomer($customer->stripeId);
+    }
+
+    /**
      * @param $id
      * @return Invoice|null
      * @throws \Exception

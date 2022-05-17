@@ -63,7 +63,7 @@ class Settings extends Model
     public $vendorNotificationTemplate;
     public $vendorTemplateOverride;
     // Checkout Email
-    public $currentUserEmail = 0;
+    public $currentUserEmail = 1;
     public $updateCustomerEmailOnStripe = 0;
     // Get plans with nickname
     public $plansWithNickname = 0;
