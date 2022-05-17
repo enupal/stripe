@@ -22,7 +22,7 @@ class StripeController extends BaseController
     /**
      * @inheritdoc
      */
-    protected $allowAnonymous = true;
+    protected array|int|bool $allowAnonymous = true;
 
     /**
      * @return \yii\web\Response

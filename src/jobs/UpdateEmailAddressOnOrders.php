@@ -28,7 +28,7 @@ class UpdateEmailAddressOnOrders extends BaseJob implements RetryableJobInterfac
      *
      * @return string
      */
-    protected function defaultDescription(): string
+    protected function defaultDescription(): ?string
     {
         return StripePlugin::t('Updating order emails');
     }
@@ -36,7 +36,7 @@ class UpdateEmailAddressOnOrders extends BaseJob implements RetryableJobInterfac
     /**
      * @inheritdoc
      */
-    public function execute($queue)
+    public function execute($queue): void
     {
         $result = false;
         $totalSteps = count($this->orders);

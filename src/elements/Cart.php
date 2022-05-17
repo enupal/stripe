@@ -28,7 +28,7 @@ class Cart extends Element
 
     // General - Properties
     // =========================================================================
-    public $id;
+    public ?int $id;
     public $number;
     public $stripeId;
     public $totalPrice;
@@ -53,7 +53,7 @@ class Cart extends Element
     /**
      * @inheritdoc
      */
-    public static function refHandle()
+    public static function refHandle(): ?string
     {
         return 'cart';
     }
@@ -93,7 +93,7 @@ class Cart extends Element
     /**
      * @inheritdoc
      */
-    public function getCpEditUrl()
+    public function getCpEditUrl(): ?string
     {
         return UrlHelper::cpUrl(
             'enupal-stripe/carts/edit/'.$this->id
@@ -105,7 +105,7 @@ class Cart extends Element
      *
      * @return string
      */
-    public function __toString()
+    public function __toString(): string
     {
         return (string)$this->number;
     }
@@ -214,7 +214,7 @@ class Cart extends Element
      * @inheritdoc
      * @throws \Exception
      */
-    public function afterSave(bool $isNew)
+    public function afterSave(bool $isNew): void
     {
         // Get the Cart record
         if (!$isNew) {
@@ -246,7 +246,7 @@ class Cart extends Element
     /**
      * @inheritdoc
      */
-    public function rules()
+    public function rules(): array
     {
         $rules = [];
         $rules[] = [['number', 'cartStatus'], 'required'];

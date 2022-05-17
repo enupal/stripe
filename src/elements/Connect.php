@@ -25,7 +25,7 @@ class Connect extends Element
 {
     // General - Properties
     // =========================================================================
-    public $id;
+    public ?int $id;
     public $vendorId;
     public $products;
     public $productType;
@@ -45,7 +45,7 @@ class Connect extends Element
     /**
      * @inheritdoc
      */
-    public static function refHandle()
+    public static function refHandle(): ?string
     {
         return 'connect';
     }
@@ -85,7 +85,7 @@ class Connect extends Element
     /**
      * @inheritdoc
      */
-    public function getCpEditUrl()
+    public function getCpEditUrl(): ?string
     {
         return UrlHelper::cpUrl(
             'enupal-stripe/connects/edit/'.$this->id
@@ -98,7 +98,7 @@ class Connect extends Element
      * @return string
      */
     /** @noinspection PhpInconsistentReturnPointsInspection */
-    public function __toString()
+    public function __toString(): string
     {
         $name = $this->id;
 
@@ -233,7 +233,7 @@ class Connect extends Element
      * @inheritdoc
      * @throws \Exception
      */
-    public function afterSave(bool $isNew)
+    public function afterSave(bool $isNew): void
     {
         // Get the Connect record
         if (!$isNew) {
@@ -260,7 +260,7 @@ class Connect extends Element
     /**
      * @inheritdoc
      */
-    public function rules()
+    public function rules(): array
     {
         $rules = [];
         $rules[] = [['vendorId', 'productType', 'rate'], 'required'];

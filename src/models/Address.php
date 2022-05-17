@@ -133,7 +133,7 @@ class Address extends Model
     /**
      * @inheritdoc
      */
-    public function extraFields()
+    public function extraFields(): array
     {
         return [
             'country',
@@ -168,7 +168,7 @@ class Address extends Model
     /**
      * @return array
      */
-    public function rules()
+    public function rules(): array
     {
         $rules = parent::rules();
         $rules[] = [['firstName'], 'required'];

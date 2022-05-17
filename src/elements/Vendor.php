@@ -27,7 +27,7 @@ class Vendor extends Element
 {
     // General - Properties
     // =========================================================================
-    public $id;
+    public ?int $id;
     public $userId;
     public $stripeId;
     public $paymentType;
@@ -47,7 +47,7 @@ class Vendor extends Element
     /**
      * @inheritdoc
      */
-    public static function refHandle()
+    public static function refHandle(): ?string
     {
         return 'connect';
     }
@@ -87,7 +87,7 @@ class Vendor extends Element
     /**
      * @inheritdoc
      */
-    public function getCpEditUrl()
+    public function getCpEditUrl(): ?string
     {
         return UrlHelper::cpUrl(
             'enupal-stripe/vendors/edit/'.$this->id
@@ -100,7 +100,7 @@ class Vendor extends Element
      * @return string
      */
     /** @noinspection PhpInconsistentReturnPointsInspection */
-    public function __toString()
+    public function __toString(): string
     {
         return $this->getVendorName();
     }
@@ -219,7 +219,7 @@ class Vendor extends Element
      * @inheritdoc
      * @throws \Exception
      */
-    public function afterSave(bool $isNew)
+    public function afterSave(bool $isNew): void
     {
         // Get the Vendor record
         if (!$isNew) {
@@ -245,7 +245,7 @@ class Vendor extends Element
     /**
      * @inheritdoc
      */
-    public function rules()
+    public function rules(): array
     {
         return [
             [['userId'], 'required'],

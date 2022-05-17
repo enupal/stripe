@@ -25,7 +25,7 @@ class PaymentFormsController extends BaseController
      *
      * @var string[]
      */
-    protected $allowAnonymous = [
+    protected array|int|bool $allowAnonymous = [
         'save-form'
     ];
 

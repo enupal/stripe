@@ -17,8 +17,8 @@ class ConnectQuery extends ElementQuery
 {
     // General - Properties
     // =========================================================================
-    public $id;
-    public $dateCreated;
+    public mixed $id;
+    public mixed $dateCreated;
     public $vendorId;
     public $products;
     public $productType;

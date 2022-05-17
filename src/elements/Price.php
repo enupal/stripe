@@ -25,7 +25,7 @@ class Price extends Element
 {
     // General - Properties
     // =========================================================================
-    public $id;
+    public ?int $id;
     public $stripeId;
     public $productId;
     public $stripeObject;
@@ -43,7 +43,7 @@ class Price extends Element
     /**
      * @inheritdoc
      */
-    public static function refHandle()
+    public static function refHandle(): ?string
     {
         return 'price';
     }
@@ -83,7 +83,7 @@ class Price extends Element
     /**
      * @inheritdoc
      */
-    public function getCpEditUrl()
+    public function getCpEditUrl(): ?string
     {
         return UrlHelper::cpUrl(
             'enupal-stripe/prices/edit/'.$this->id
@@ -95,7 +95,7 @@ class Price extends Element
      *
      * @return string
      */
-    public function __toString()
+    public function __toString(): string
     {
         $name = $this->getUnitAmount() ?? $this->stripeId;
 
@@ -204,7 +204,7 @@ class Price extends Element
      * @inheritdoc
      * @throws \Exception
      */
-    public function afterSave(bool $isNew)
+    public function afterSave(bool $isNew): void
     {
         // Get the Price record
         if (!$isNew) {
@@ -229,7 +229,7 @@ class Price extends Element
     /**
      * @inheritdoc
      */
-    public function rules()
+    public function rules(): array
     {
         $rules = [];
         $rules[] = [['stripeId', 'stripeObject', 'productId'], 'required'];

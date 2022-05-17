@@ -15,7 +15,7 @@ class VendorsQuery extends ElementQuery
 {
     // General - Properties
     // =========================================================================
-    public $id;
+    public mixed $id;
     public $userId;
     public $stripeId;
     public $paymentType;
