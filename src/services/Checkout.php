@@ -132,9 +132,10 @@ class Checkout extends Component
         $askBillingAddress = $publicData['enableBillingAddress'] ?? false;
         $data = $publicData['stripe'];
         $couponCode = $postData['enupalCouponCode'] ?? null;
+        $user = Craft::$app->getUser()->getIdentity();
         $metadata = [
             'stripe_payments_form_id' => $form->id,
-            'stripe_payments_user_id' => Craft::$app->getUser()->getIdentity()->id ?? null,
+            'stripe_payments_user_id' => $user->id ?? null,
             'stripe_payments_quantity' => $publicData['quantity'],
             'stripe_payments_coupon_code' => $couponCode,
             'stripe_payments_amount_before_coupon' => $data['amount']
@@ -178,15 +179,21 @@ class Checkout extends Component
         }
 
         if ($data['email']) {
+            $stripeCustomer = null;
             $customer = StripePlugin::$app->customers->getCustomerByEmail($data['email'], $publicData['testMode']);
-
-            $sessionParams['customer_email'] = $data['email'];
             if ($customer !== null) {
                 $stripeCustomer = StripePlugin::$app->customers->getStripeCustomer($customer->stripeId);
-                if ($stripeCustomer !== null) {
-                    $sessionParams['customer'] = $customer->stripeId;
-                    unset($sessionParams['customer_email']);
-                }
+            }
+
+            if (is_null($stripeCustomer) && !is_null($user)) {
+                $stripeCustomer = StripePlugin::$app->customers->getStripeCustomerByUser($user);
+            }
+
+            $sessionParams['customer_email'] = $data['email'];
+
+            if ($stripeCustomer !== null) {
+                $sessionParams['customer'] = $stripeCustomer->id;
+                unset($sessionParams['customer_email']);
             }
         }
 
@@ -631,15 +638,21 @@ class Checkout extends Component
         }
 
         if (!is_null($user)) {
+            $stripeCustomer = null;
             $customer = StripePlugin::$app->customers->getCustomerByEmail($user->email, $pluginSettings->testMode);
-
-            $sessionParams['customer_email'] = $user->email;
             if ($customer !== null) {
                 $stripeCustomer = StripePlugin::$app->customers->getStripeCustomer($customer->stripeId);
-                if ($stripeCustomer !== null) {
-                    $sessionParams['customer'] = $customer->stripeId;
-                    unset($sessionParams['customer_email']);
-                }
+            }
+
+            if (is_null($stripeCustomer)) {
+                $stripeCustomer = StripePlugin::$app->customers->getStripeCustomerByUser($user);
+            }
+
+            $sessionParams['customer_email'] = $user->email;
+
+            if ($stripeCustomer !== null) {
+                $sessionParams['customer'] = $stripeCustomer->id;
+                unset($sessionParams['customer_email']);
             }
         }
 

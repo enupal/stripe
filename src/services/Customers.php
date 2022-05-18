@@ -98,14 +98,28 @@ class Customers extends Component
         $orders = StripePlugin::$app->orders->getOrdersByUser($user->id);
 
         $customer = null;
+        // let's try first with subs
         foreach ($orders as $order) {
             /** @var Order $order */
             if ($order->isSubscription() && (filter_var($order->testMode, FILTER_VALIDATE_BOOLEAN) === filter_var($testMode, FILTER_VALIDATE_BOOLEAN))) {
                 $customer = $this->getCustomerByEmail($order->email, $testMode);
-                if (is_null($customer)) {
-                    return null;
-                } else{
+                if (!is_null($customer)) {
                     break;
+                }
+            }
+        }
+
+        if (is_null($customer)) {
+            // now with one time
+            foreach ($orders as $order) {
+                /** @var Order $order */
+                if (!$order->isSubscription() && (filter_var($order->testMode, FILTER_VALIDATE_BOOLEAN) === filter_var($testMode, FILTER_VALIDATE_BOOLEAN))) {
+                    $customer = $this->getCustomerByEmail($order->email, $testMode);
+                    if (is_null($customer)) {
+                        return null;
+                    } else {
+                        break;
+                    }
                 }
             }
         }
