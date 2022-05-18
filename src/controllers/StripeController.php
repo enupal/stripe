@@ -150,22 +150,50 @@ class StripeController extends BaseController
         $this->requirePostRequest();
         $request = Craft::$app->getRequest();
         $returnUrl = $request->getBodyParam('returnUrl') ?? UrlHelper::siteUrl('/');
+        $orderNumber = $request->getBodyParam('orderNumber') ?? null;
         $user = Craft::$app->getUser()->getIdentity();
 
-        if (is_null($user)) {
-            return $this->redirectToPostedUrl();
+        if (is_null($user) && is_null($orderNumber)) {
+            Craft::$app->getUrlManager()->setRouteParams([
+                    'customerPortalError' => "Order number is required for guest orders"
+                ]
+            );
+            return null;
         }
 
-        $stripeUser = StripePlugin::$app->customers->getStripeCustomerByEmail($user->email);
+        $stripeUser = null;
+
+        if (!is_null($user)) {
+            $stripeUser = StripePlugin::$app->customers->getStripeCustomerByEmail($user->email);
+
+            if (is_null($stripeUser)) {
+                $stripeUser = StripePlugin::$app->customers->getStripeCustomerByUser($user);
+            }
+        }
+
+        // if the user sends the order number let's override it
+        if (!empty($orderNumber)) {
+            $stripeUserByOrder = StripePlugin::$app->customers->getStripeCustomerByOrderNumber($orderNumber);
+            if (!is_null($stripeUserByOrder)) {
+                $stripeUser = $stripeUserByOrder;
+            }
+        }
 
         if (is_null($stripeUser)) {
-            return $this->redirectToPostedUrl();
+            Craft::$app->getUrlManager()->setRouteParams([
+                'customerPortalError' => "Unable to find the Stripe Customer, please try to enter an order number"
+            ]);
+            return null;
         }
 
         $result = StripePlugin::$app->customers->createCustomerPortalSession($stripeUser['id'], $returnUrl);
 
         if ($result === null) {
-            return $this->redirectToPostedUrl();
+            Craft::$app->getUrlManager()->setRouteParams([
+                    'customerPortalError' => "Unable to create the Stripe customer portal"
+                ]
+            );
+            return null;
         }
 
         return $this->redirect($result['url']);

@@ -12,6 +12,7 @@ namespace enupal\stripe;
 use Craft;
 use craft\base\Element;
 use craft\commerce\elements\Product;
+use craft\events\UserEvent;
 use enupal\stripe\elements\Product as EnupalProduct;
 use craft\elements\User;
 use craft\events\DefineHtmlEvent;
@@ -40,7 +41,6 @@ use enupal\stripe\variables\StripeVariable;
 use enupal\stripe\models\Settings;
 use craft\base\Plugin;
 use yii\web\User as UserWeb;
-use yii\web\UserEvent;
 
 class Stripe extends Plugin
 {
