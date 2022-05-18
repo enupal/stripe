@@ -27,7 +27,7 @@ class Taxes extends Component
     {
         StripePlugin::$app->settings->initializeStripe();
         $startingAfter = null;
-        $taxes = TaxRate::all(['limit' => 50, 'starting_after' => $startingAfter]);
+        $taxes = TaxRate::all(['limit' => 50, 'active' => true, 'starting_after' => $startingAfter]);
 
         $result = [];
 
@@ -41,7 +41,7 @@ class Taxes extends Component
 
             if ($taxes['has_more'] && !is_null($lastTax)){
                 $startingAfter = $lastTax['id'];
-                $taxes = TaxRate::all(['limit' => 50, 'starting_after' => $startingAfter]);
+                $taxes = TaxRate::all(['limit' => 50, 'active' => true, 'starting_after' => $startingAfter]);
             }else{
                 $taxes = null;
             }
