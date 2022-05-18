@@ -62,7 +62,7 @@ class Stripe extends Plugin
         parent::init();
         self::$app = $this->get('app');
 
-        Event::on(UserWeb::class, UserWeb::EVENT_AFTER_LOGOUT, function(UserEvent $event) {
+        Event::on(UserWeb::class, UserWeb::EVENT_AFTER_LOGOUT, function(\yii\web\UserEvent $event) {
             $session = Craft::$app->getSession();
             $session->remove(Carts::SESSION_CART_NAME);
         }

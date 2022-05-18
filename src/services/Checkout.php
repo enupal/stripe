@@ -235,6 +235,12 @@ class Checkout extends Component
             $sessionParams['automatic_tax'] = [
                 'enabled' => true
             ];
+
+            if (isset($sessionParams['customer'])) {
+                $sessionParams['customer_update'] = [
+                    'shipping' => 'auto'
+                ];
+            }
         }
 
         $event = new CheckoutEvent([
@@ -693,9 +699,11 @@ class Checkout extends Component
                 'enabled' => true
             ];
 
-            $sessionParams['customer_update'] = [
-                'shipping' => 'auto'
-            ];
+            if (isset($sessionParams['customer'])) {
+                $sessionParams['customer_update'] = [
+                    'shipping' => 'auto'
+                ];
+            }
         }
 
         $event = new CheckoutEvent([
