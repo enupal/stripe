@@ -155,7 +155,7 @@ class StripeController extends BaseController
 
         if (is_null($user) && is_null($orderNumber)) {
             Craft::$app->getUrlManager()->setRouteParams([
-                    'customerPortalErrors' => "Order number is required for guest orders"
+                    'customerPortalError' => "Order number is required for guest orders"
                 ]
             );
             return null;
@@ -181,7 +181,7 @@ class StripeController extends BaseController
 
         if (is_null($stripeUser)) {
             Craft::$app->getUrlManager()->setRouteParams([
-                'customerPortalErrors' => "Unable to find the Stripe Customer, please try to enter an order number"
+                'customerPortalError' => "Unable to find the Stripe Customer, please try to enter an order number"
             ]);
             return null;
         }
@@ -190,7 +190,7 @@ class StripeController extends BaseController
 
         if ($result === null) {
             Craft::$app->getUrlManager()->setRouteParams([
-                    'customerPortalErrors' => "Unable to create the Stripe customer portal"
+                    'customerPortalError' => "Unable to create the Stripe customer portal"
                 ]
             );
             return null;

@@ -100,7 +100,7 @@ class Customers extends Component
         $customer = null;
         foreach ($orders as $order) {
             /** @var Order $order */
-            if ($order->isSubscription()) {
+            if ($order->isSubscription() && (filter_var($order->testMode, FILTER_VALIDATE_BOOLEAN) === filter_var($testMode, FILTER_VALIDATE_BOOLEAN))) {
                 $customer = $this->getCustomerByEmail($order->email, $testMode);
                 if (is_null($customer)) {
                     return null;
@@ -109,7 +109,7 @@ class Customers extends Component
                 }
             }
         }
-        
+
         if (is_null($customer)) {
             return null;
         }
