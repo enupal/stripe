@@ -175,10 +175,16 @@ class Emails extends Component
             $customerTemplateOverride = Craft::parseEnv($settings->customerTemplateOverride);
             // let's check if the file exists
             $overridePath = $originalPath.DIRECTORY_SEPARATOR.$customerTemplateOverride;
-            foreach ($extensions as $extension) {
-                if (file_exists($overridePath.$extension)){
-                    $templateOverride = $customerTemplateOverride;
-                    $template = $templateOverride;
+            //check first without extension check
+            if (file_exists($overridePath)) {
+                $templateOverride = $customerTemplateOverride;
+                $template = $templateOverride;
+            } else {
+                foreach ($extensions as $extension) {
+                    if (file_exists($overridePath.$extension)){
+                        $templateOverride = $customerTemplateOverride;
+                        $template = $templateOverride;
+                    }
                 }
             }
         }
@@ -235,12 +241,19 @@ class Emails extends Component
             $vendorTemplateOverride = Craft::parseEnv($settings->vendorTemplateOverride);
             // let's check if the file exists
             $overridePath = $originalPath.DIRECTORY_SEPARATOR.$vendorTemplateOverride;
-            foreach ($extensions as $extension) {
-                if (file_exists($overridePath.$extension)){
-                    $templateOverride = $vendorTemplateOverride;
-                    $template = $templateOverride;
+
+            if (file_exists($overridePath)) {
+                $templateOverride = $vendorTemplateOverride;
+                $template = $templateOverride;
+            } else {
+                foreach ($extensions as $extension) {
+                    if (file_exists($overridePath.$extension)){
+                        $templateOverride = $vendorTemplateOverride;
+                        $template = $templateOverride;
+                    }
                 }
             }
+
         }
 
         if (is_null($templateOverride)){
@@ -294,12 +307,18 @@ class Emails extends Component
             // let's check if the file exists
             $adminTemplateOverride = Craft::parseEnv($settings->adminTemplateOverride);
             $overridePath = $originalPath.DIRECTORY_SEPARATOR.$adminTemplateOverride;
-            foreach ($extensions as $extension) {
-                if (file_exists($overridePath.$extension)){
-                    $templateOverride = $adminTemplateOverride;
-                    $template = $templateOverride;
+            if (file_exists($overridePath)) {
+                $templateOverride = $adminTemplateOverride;
+                $template = $templateOverride;
+            } else {
+                foreach ($extensions as $extension) {
+                    if (file_exists($overridePath.$extension)){
+                        $templateOverride = $adminTemplateOverride;
+                        $template = $templateOverride;
+                    }
                 }
             }
+
         }
 
         if (is_null($templateOverride)){
