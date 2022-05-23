@@ -1596,6 +1596,10 @@ class PaymentForms extends Component
             CheckoutPaymentType::BOLETO => 'Boleto',
             CheckoutPaymentType::OXXO => 'OXXO',
             CheckoutPaymentType::KLARNA => 'Klarna',
+            CheckoutPaymentType::US_BANK_ACCOUNT => 'US Bank Account',
+            CheckoutPaymentType::ACH_DIRECT_DEBIT => 'ACH Direct Debit',
+            CheckoutPaymentType::AU_BECS_DEBIT => 'BECS Direct Debit',
+            CheckoutPaymentType::KONBINI => 'Konbini',
         ];
     }
 

@@ -27,6 +27,7 @@
         {{ forms.field({
             id: 'cartPaymentMethods',
             label: "Payment Method(s) <span class='info'>Remember to set the proper currency on your price products, e.g iDEAL only accepts EUR</span>"|t('enupal-stripe'),
+            instructions: 'Payment methods <a href="https://stripe.com/docs/payments/payment-methods/overview">guide</a>',
             errors: settings.getErrors('cartPaymentMethods'),
             required: true
         }, checkoutPaymentTypeInput) }}

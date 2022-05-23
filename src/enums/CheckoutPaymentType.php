@@ -16,6 +16,10 @@ abstract class CheckoutPaymentType extends BaseEnum
     // Constants
     // =========================================================================
     const CC = 'card';
+    const ACH_DIRECT_DEBIT = 'ach_direct_debit';
+    const AU_BECS_DEBIT = 'au_becs_debit';
+    const KONBINI = 'konbini';
+    const US_BANK_ACCOUNT = 'us_bank_account';
     const IDEAL = 'ideal';
     const FPX = 'fpx';
     const ALIPAY = 'alipay';
