@@ -31,8 +31,6 @@ class Order extends Element
 {
     // General - Properties
     // =========================================================================
-    public ?int $id;
-
     public $testMode;
 
     public $userId;

@@ -35,10 +35,6 @@ use yii\base\Model;
 class PaymentForm extends Element
 {
     const SESSION_CHECKOUT_SUCCESS_URL = 'enupalCheckoutSuccessUrl';
-    /**
-     * @inheritdoc
-     */
-    public ?int $id;
 
     /**
      * @var string Name.

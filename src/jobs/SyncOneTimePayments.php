@@ -182,9 +182,6 @@ class SyncOneTimePayments extends BaseJob implements RetryableJobInterface
         }
 
         Craft::info('Sync process finished, Total: '.$step. ', Failed: '.$failed, __METHOD__);
-        $result = true;
-
-        return $result;
     }
 
     /**

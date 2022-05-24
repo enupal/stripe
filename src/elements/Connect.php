@@ -25,7 +25,6 @@ class Connect extends Element
 {
     // General - Properties
     // =========================================================================
-    public ?int $id;
     public $vendorId;
     public $products;
     public $productType;

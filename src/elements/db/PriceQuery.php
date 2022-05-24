@@ -15,7 +15,6 @@ class PriceQuery extends ElementQuery
 {
     // General - Properties
     // =========================================================================
-    public mixed $id;
     public $stripeId;
     public $productId;
     public $stripeObject;

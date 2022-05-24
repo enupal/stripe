@@ -16,8 +16,6 @@ class OrdersQuery extends ElementQuery
 {
     // General - Properties
     // =========================================================================
-    public mixed $id;
-    public mixed $dateCreated;
     public $number;
     public $paymentType;
     public $formId;

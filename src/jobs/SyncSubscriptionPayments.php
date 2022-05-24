@@ -206,8 +206,6 @@ class SyncSubscriptionPayments extends BaseJob implements RetryableJobInterface
         }catch (\Exception $e) {
             Craft::error('Sync process failed: '.$e->getMessage(), __METHOD__);
         }
-
-        return $result;
     }
 
     /**

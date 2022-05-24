@@ -63,8 +63,6 @@ class SyncProducts extends BaseJob implements RetryableJobInterface
         }
 
         Craft::info('Product Sync process finished, Total: '.$step. ', Skipped: '.$skipped.', Failed: '.$failed, __METHOD__);
-
-        return true;
     }
 
     /**

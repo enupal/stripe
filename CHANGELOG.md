@@ -1,5 +1,10 @@
 # Stripe Payments Changelog
 
+## WIP
+
+### Updated
+- Updated to read Stripe Api keys from `config/custom.php` following [Craft 4 update](https://github.com/craftcms/cms/pull/10100)
+
 ## 4.0.1 - 2022.05.18
 
 ### Added

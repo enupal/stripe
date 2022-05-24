@@ -25,7 +25,6 @@ class Price extends Element
 {
     // General - Properties
     // =========================================================================
-    public ?int $id;
     public $stripeId;
     public $productId;
     public $stripeObject;

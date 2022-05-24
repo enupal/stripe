@@ -26,7 +26,6 @@ class Product extends Element
 {
     // General - Properties
     // =========================================================================
-    public ?int $id;
     public $stripeId;
     public $stripeObject;
 

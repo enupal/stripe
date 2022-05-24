@@ -27,7 +27,6 @@ class Vendor extends Element
 {
     // General - Properties
     // =========================================================================
-    public ?int $id;
     public $userId;
     public $stripeId;
     public $paymentType;

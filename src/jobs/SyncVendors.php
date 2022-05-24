@@ -80,8 +80,6 @@ class SyncVendors extends BaseJob implements RetryableJobInterface
         }
 
         Craft::info('Sync Vendors process finished, Total: '.$step. ', Skipped: '.$skipped, __METHOD__);
-
-        return $result;
     }
 
     private function getUsersByUserGroupId()

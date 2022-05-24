@@ -25,7 +25,6 @@ class Commission extends Element
 {
     // General - Properties
     // =========================================================================
-    public ?int $id;
     public $orderId;
     public $productId;
     public $connectId;

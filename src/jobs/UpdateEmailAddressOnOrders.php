@@ -61,10 +61,6 @@ class UpdateEmailAddressOnOrders extends BaseJob implements RetryableJobInterfac
         }
 
         Craft::info('Updated email addresses for orders, total: '.$totalSteps, __METHOD__);
-        $result = true;
-
-
-        return $result;
     }
 
     /**

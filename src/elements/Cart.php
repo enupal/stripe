@@ -28,7 +28,6 @@ class Cart extends Element
 
     // General - Properties
     // =========================================================================
-    public ?int $id;
     public $number;
     public $stripeId;
     public $totalPrice;
