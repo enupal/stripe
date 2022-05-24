@@ -1,5 +1,25 @@
 # Stripe Payments Changelog
 
+## 4.0.1 - 2022.05.18
+
+### Added
+- Added error messages on Customer Portal (update billing) ([#232])
+- Added support to update billing details [for guest users](https://docs.enupal.com/stripe-payments/templating/update-billing.html) ([#279])
+
+### Fixed
+- Fixed issue related to update billing (Customer portal simple reloads page) ([#232])
+- Fixed issue on email template overrides ([#258])
+- Fixed issue on Automatic tax ([#255])
+- Fixed issue on showing archive tax rates ([#243])
+- Fixed issue when craft cms user is activated ([#278])
+
+[#232]: https://github.com/enupal/stripe/issues/232
+[#278]: https://github.com/enupal/stripe/issues/278
+[#279]: https://github.com/enupal/stripe/issues/279
+[#258]: https://github.com/enupal/stripe/issues/258
+[#255]: https://github.com/enupal/stripe/issues/255
+[#243]: https://github.com/enupal/stripe/issues/243
+
 ## 4.0.0 - 2022.04.29
 
 ### Added
