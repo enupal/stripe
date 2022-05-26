@@ -613,7 +613,7 @@ class PaymentForm extends Element
                 }
             } else {
                 // Multiple plans
-                foreach ($this->enupalMultiplePlans as $item) {
+                foreach ($this->enupalMultiplePlans->all() as $item) {
                     if ($item->selectPlan->value) {
                         $plan = StripePlugin::$app->plans->getStripePlan($item->selectPlan->value);
                         if ($plan) {
