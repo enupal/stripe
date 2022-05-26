@@ -103,7 +103,6 @@ class Order extends Element
     public $cartShippingRateId;
     public $cartItems;
 
-    public ?\DateTime $dateCreated;
     public $dateOrdered;
 
     /**

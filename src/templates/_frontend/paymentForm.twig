@@ -3,7 +3,7 @@
 {% set formClass = paymentForm.enableCheckout ? "enupal-stripe-form" : "enupal-stripe-form-elements" %}
 {% set customAmountStep = options.customAmountStep ?? 1 %}
 
-{% spaceless %}
+{% apply spaceless %}
     <form class="{{ formClass }}" id="enupal-stripe-{{ paymentForm.id }}" method="POST">
         {{ csrfInput() }}
         <input type="hidden" aria-hidden="true" name="action"
@@ -343,4 +343,4 @@
     };
     #}
  {% endjs %}
-{% endspaceless %}
+{% endapply %}
