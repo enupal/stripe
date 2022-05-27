@@ -26,7 +26,6 @@ class Product extends Element
 {
     // General - Properties
     // =========================================================================
-    public $id;
     public $stripeId;
     public $stripeObject;
 
@@ -43,7 +42,7 @@ class Product extends Element
     /**
      * @inheritdoc
      */
-    public static function refHandle()
+    public static function refHandle(): ?string
     {
         return 'product';
     }
@@ -91,7 +90,7 @@ class Product extends Element
     /**
      * @inheritdoc
      */
-    public function getCpEditUrl()
+    public function getCpEditUrl(): ?string
     {
         return UrlHelper::cpUrl(
             'enupal-stripe/products/edit/'.$this->id
@@ -103,7 +102,7 @@ class Product extends Element
      *
      * @return string
      */
-    public function __toString()
+    public function __toString(): string
     {
         $name = $this->getStripeObject()->name ?? $this->stripeId;
 
@@ -223,7 +222,7 @@ class Product extends Element
      * @inheritdoc
      * @throws \Exception
      */
-    public function afterSave(bool $isNew)
+    public function afterSave(bool $isNew): void
     {
         // Get the Product record
         if (!$isNew) {
@@ -247,7 +246,7 @@ class Product extends Element
     /**
      * @inheritdoc
      */
-    public function rules()
+    public function rules(): array
     {
         $rules = [];
         $rules[] = [['stripeId', 'stripeObject'], 'required'];

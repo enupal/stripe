@@ -17,7 +17,6 @@ class CommissionsQuery extends ElementQuery
 {
     // General - Properties
     // =========================================================================
-    public $id;
     public $orderId;
     public $productId;
     public $connectId;

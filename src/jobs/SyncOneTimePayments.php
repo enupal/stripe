@@ -44,7 +44,7 @@ class SyncOneTimePayments extends BaseJob implements RetryableJobInterface
      *
      * @return string
      */
-    protected function defaultDescription(): string
+    protected function defaultDescription(): ?string
     {
         return StripePlugin::t('Syncing One-Time Orders');
     }
@@ -52,7 +52,7 @@ class SyncOneTimePayments extends BaseJob implements RetryableJobInterface
     /**
      * @inheritdoc
      */
-    public function execute($queue)
+    public function execute($queue): void
     {
         $result = false;
         StripePlugin::$app->settings->initializeStripe();
@@ -182,9 +182,6 @@ class SyncOneTimePayments extends BaseJob implements RetryableJobInterface
         }
 
         Craft::info('Sync process finished, Total: '.$step. ', Failed: '.$failed, __METHOD__);
-        $result = true;
-
-        return $result;
     }
 
     /**

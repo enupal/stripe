@@ -296,7 +296,7 @@ class StripeVariable extends Behavior
     /**
      * @param $paymentForm PaymentForm
      * @param $block
-     * @return \Twig_Markup
+     * @return \Twig\Markup
      * @throws \Throwable
      * @throws \yii\base\Exception
      */
@@ -356,7 +356,7 @@ class StripeVariable extends Behavior
      *
      * @param $paymentForm PaymentForm
      *
-     * @return \Twig_Markup
+     * @return \Twig\Markup
      * @throws \Twig\Error\LoaderError
      * @throws \Twig\Error\RuntimeError
      * @throws \Twig\Error\SyntaxError
@@ -393,7 +393,7 @@ class StripeVariable extends Behavior
      * @param $paymentForm PaymentForm
      *
      * @param string $type
-     * @return \Twig_Markup
+     * @return \Twig\Markup
      * @throws \Twig\Error\LoaderError
      * @throws \Twig\Error\RuntimeError
      * @throws \Twig\Error\SyntaxError

@@ -127,7 +127,7 @@ class App extends Component
      */
     public $shipping;
 
-    public function init()
+    public function init(): void
     {
         $this->settings = new Settings();
         $this->paymentForms = new PaymentForms();

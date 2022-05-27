@@ -25,7 +25,6 @@ class Commission extends Element
 {
     // General - Properties
     // =========================================================================
-    public $id;
     public $orderId;
     public $productId;
     public $connectId;
@@ -51,7 +50,7 @@ class Commission extends Element
     /**
      * @inheritdoc
      */
-    public static function refHandle()
+    public static function refHandle(): ?string
     {
         return 'commission';
     }
@@ -83,7 +82,7 @@ class Commission extends Element
     /**
      * @inheritdoc
      */
-    public function getCpEditUrl()
+    public function getCpEditUrl(): ?string
     {
         return UrlHelper::cpUrl(
             'enupal-stripe/commissions/edit/'.$this->id
@@ -96,7 +95,7 @@ class Commission extends Element
      * @return string
      */
     /** @noinspection PhpInconsistentReturnPointsInspection */
-    public function __toString()
+    public function __toString(): string
     {
         return $this->number;
     }
@@ -249,7 +248,7 @@ class Commission extends Element
      * @inheritdoc
      * @throws \Exception
      */
-    public function afterSave(bool $isNew)
+    public function afterSave(bool $isNew): void
     {
         // Get the Commission record
         if (!$isNew) {
@@ -282,7 +281,7 @@ class Commission extends Element
     /**
      * @inheritdoc
      */
-    public function rules()
+    public function rules(): array
     {
         return [
             [['orderId', 'productId', 'connectId', 'orderType', 'commissionStatus'], 'required']

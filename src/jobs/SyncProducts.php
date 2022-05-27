@@ -26,7 +26,7 @@ class SyncProducts extends BaseJob implements RetryableJobInterface
      *
      * @return string
      */
-    protected function defaultDescription(): string
+    protected function defaultDescription(): ?string
     {
         return StripePlugin::t('Syncing Stripe Products and Prices');
     }
@@ -34,7 +34,7 @@ class SyncProducts extends BaseJob implements RetryableJobInterface
     /**
      * @inheritdoc
      */
-    public function execute($queue)
+    public function execute($queue): void
     {
         StripePlugin::$app->settings->initializeStripe();
         $stripeProducts = Product::all();
@@ -63,8 +63,6 @@ class SyncProducts extends BaseJob implements RetryableJobInterface
         }
 
         Craft::info('Product Sync process finished, Total: '.$step. ', Skipped: '.$skipped.', Failed: '.$failed, __METHOD__);
-
-        return true;
     }
 
     /**

@@ -6,7 +6,7 @@
 {% endset %}
 
 {% block main %}
-    {% set number = craft.request.getQuery('number') %}
+    {% set number = craft.app.request.getQuery('number') %}
     {% set order = craft.enupalStripe.getOrderByNumber(number) %}
     {% if not order %}
         <h2> Order not found: {{ number }}</h2>

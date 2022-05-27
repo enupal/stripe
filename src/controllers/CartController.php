@@ -19,7 +19,7 @@ use yii\web\Response;
 
 class CartController extends BaseController
 {
-    protected $allowAnonymous = true;
+    protected array|int|bool $allowAnonymous = true;
     public $enableCsrfValidation = false;
 
     /**

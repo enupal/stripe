@@ -26,7 +26,7 @@ class SyncVendors extends BaseJob implements RetryableJobInterface
      *
      * @return string
      */
-    protected function defaultDescription(): string
+    protected function defaultDescription(): ?string
     {
         return StripePlugin::t('Syncing Vendors');
     }
@@ -34,7 +34,7 @@ class SyncVendors extends BaseJob implements RetryableJobInterface
     /**
      * @inheritdoc
      */
-    public function execute($queue)
+    public function execute($queue): void
     {
         $result = false;
 
@@ -80,8 +80,6 @@ class SyncVendors extends BaseJob implements RetryableJobInterface
         }
 
         Craft::info('Sync Vendors process finished, Total: '.$step. ', Skipped: '.$skipped, __METHOD__);
-
-        return $result;
     }
 
     private function getUsersByUserGroupId()

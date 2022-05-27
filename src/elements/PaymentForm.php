@@ -35,10 +35,6 @@ use yii\base\Model;
 class PaymentForm extends Element
 {
     const SESSION_CHECKOUT_SUCCESS_URL = 'enupalCheckoutSuccessUrl';
-    /**
-     * @inheritdoc
-     */
-    public $id;
 
     /**
      * @var string Name.
@@ -120,7 +116,7 @@ class PaymentForm extends Element
     /**
      * @inheritdoc
      */
-    public $enabled;
+    public bool $enabled;
 
     public $quantity;
     public $hasUnlimitedStock;
@@ -182,7 +178,7 @@ class PaymentForm extends Element
     /**
      * @inheritdoc
      */
-    public function behaviors()
+    public function behaviors(): array
     {
         return array_merge(parent::behaviors(), [
             'fieldLayout' => [
@@ -192,7 +188,7 @@ class PaymentForm extends Element
         ]);
     }
 
-    public function init()
+    public function init(): void
     {
         parent::init();
 
@@ -261,7 +257,7 @@ class PaymentForm extends Element
     /**
      * @inheritdoc
      */
-    public static function refHandle()
+    public static function refHandle(): ?string
     {
         return 'stripe-payment-forms';
     }
@@ -301,7 +297,7 @@ class PaymentForm extends Element
     /**
      * @inheritdoc
      */
-    public function getFieldLayout()
+    public function getFieldLayout(): ?\craft\models\FieldLayout
     {
         $behaviors = $this->getBehaviors();
         $fieldLayout = $behaviors['fieldLayout'];
@@ -312,7 +308,7 @@ class PaymentForm extends Element
     /**
      * @inheritdoc
      */
-    public function getCpEditUrl()
+    public function getCpEditUrl(): ?string
     {
         return UrlHelper::cpUrl(
             'enupal-stripe/forms/edit/' . $this->id
@@ -324,7 +320,7 @@ class PaymentForm extends Element
      *
      * @return string
      */
-    public function __toString()
+    public function __toString(): string
     {
         return $this->name;
     }
@@ -454,7 +450,7 @@ class PaymentForm extends Element
      * @param bool $isNew
      * @throws \Exception
      */
-    public function afterSave(bool $isNew)
+    public function afterSave(bool $isNew): void
     {
         $record = new PaymentFormRecord();
         // Get the PaymentForm record
@@ -538,7 +534,7 @@ class PaymentForm extends Element
     /**
      * @inheritdoc
      */
-    public function rules()
+    public function rules(): array
     {
         $rules = [];
         $rules[] = [['name', 'handle'], 'required'];
@@ -617,7 +613,7 @@ class PaymentForm extends Element
                 }
             } else {
                 // Multiple plans
-                foreach ($this->enupalMultiplePlans as $item) {
+                foreach ($this->enupalMultiplePlans->all() as $item) {
                     if ($item->selectPlan->value) {
                         $plan = StripePlugin::$app->plans->getStripePlan($item->selectPlan->value);
                         if ($plan) {

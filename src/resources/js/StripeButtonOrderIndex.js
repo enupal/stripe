@@ -2,6 +2,7 @@ if (typeof Craft.StripeButton === typeof undefined) {
     Craft.StripeButton = {};
 }
 
+
 /**
  * Class Craft.PaymentForm.OrderIndex
  */

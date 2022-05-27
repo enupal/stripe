@@ -1,5 +1,15 @@
 # Stripe Payments Changelog
 
+## 5.0.0 - 2022.05.27
+
+> {tip} If you're migrating from Craft 3 please make sure to migrate your `stripePayments` settings from your `config/general.php` to `config/custom.php` file [docs](https://docs.enupal.com/stripe-payments/getting-started/saving-your-stripe-api-keys.html#migrating-from-craft-3-to-craft-4). Enjoy!
+
+### Added
+- Added Craft CMS 4 support
+
+### Updated
+- Updated to read Stripe Api keys from `config/custom.php` following [Craft 4 update](https://github.com/craftcms/cms/pull/10100)
+
 ## 4.0.1 - 2022.05.18
 
 ### Added
