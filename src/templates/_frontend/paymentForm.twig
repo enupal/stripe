@@ -10,7 +10,7 @@
                value="enupal-stripe/stripe/save-order">
         {%- if redirectUri is not empty %}
             {% if redirectUri|slice(0, 1)|lower == '?' %}
-                {%- set redirectUri = craft.request.getUrl()~paymentForm.returnUrl %}
+                {%- set redirectUri = craft.app.request.getUrl()~paymentForm.returnUrl %}
             {% endif %}
 
             <input type="hidden" aria-hidden="true" name="redirect"
