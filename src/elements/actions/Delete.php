@@ -53,7 +53,7 @@ class Delete extends ElementAction
 	/**
 	 * @inheritdoc
 	 */
-	public function getConfirmationMessage()
+	public function getConfirmationMessage(): ?string
 	{
 		return Craft::t('enupal-stripe', "Are you sure you want to delete the selected payment forms, and all of it's orders?");
 	}

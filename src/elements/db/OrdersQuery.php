@@ -16,8 +16,6 @@ class OrdersQuery extends ElementQuery
 {
     // General - Properties
     // =========================================================================
-    public $id;
-    public $dateCreated;
     public $number;
     public $paymentType;
     public $formId;

@@ -17,5 +17,5 @@ class FrontEndController extends BaseController
     // Disable CSRF validation for the entire controller
     public $enableCsrfValidation = false;
 
-    protected $allowAnonymous = true;
+    protected array|int|bool $allowAnonymous = true;
 }

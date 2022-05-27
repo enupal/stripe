@@ -11,6 +11,7 @@ namespace enupal\stripe\services;
 use Craft;
 use craft\base\Field;
 use craft\db\Query;
+use craft\fieldlayoutelements\CustomField;
 use craft\fields\Dropdown;
 use craft\fields\Lightswitch;
 use craft\fields\Matrix;
@@ -19,6 +20,7 @@ use craft\fields\PlainText;
 use craft\fields\Table;
 use craft\helpers\FileHelper;
 use craft\helpers\Json;
+use craft\helpers\StringHelper;
 use craft\helpers\UrlHelper;
 use enupal\stripe\enums\CheckoutPaymentType;
 use enupal\stripe\enums\PaymentType;
@@ -798,23 +800,28 @@ class PaymentForms extends Component
         }
 
         // Create a tab
-        $tabName = "Tab1";
-        $requiredFields = [];
-        $postedFieldLayout = [];
+        $config['uid'] = StringHelper::UUID();
+        $config['tabs'][0] = [];
+        $config['tabs'][0]['name'] = "Tab1";
+        $config['tabs'][0]['uid'] = StringHelper::UUID();
 
         // Add our variant fields
         if ($matrixBasicField->id != null) {
-            $postedFieldLayout[$tabName][] = $matrixBasicField->id;
+            $config['tabs'][0]['elements'][0]['uid'] = StringHelper::UUID();
+            $config['tabs'][0]['elements'][0]['type'] = CustomField::class;
+            $config['tabs'][0]['elements'][0]['fieldUid'] = $matrixBasicField->uid;
         }
 
         if ($matrixMultiplePlans->id != null) {
-            $postedFieldLayout[$tabName][] = $matrixMultiplePlans->id;
+            $config['tabs'][0]['elements'][1]['uid'] = StringHelper::UUID();
+            $config['tabs'][0]['elements'][1]['type'] = CustomField::class;
+            $config['tabs'][0]['elements'][1]['fieldUid'] = $matrixMultiplePlans->uid;
         }
 
         // Set the field layout
-        $fieldLayout = Craft::$app->fields->assembleLayout($postedFieldLayout, $requiredFields);
-
+        $fieldLayout = Craft::$app->fields->createLayout($config);
         $fieldLayout->type = PaymentForm::class;
+
         // Set the tab to the form
         $paymentForm->setFieldLayout($fieldLayout);
 

@@ -45,7 +45,7 @@ class SyncSubscriptionPayments extends BaseJob implements RetryableJobInterface
      *
      * @return string
      */
-    protected function defaultDescription(): string
+    protected function defaultDescription(): ?string
     {
         return StripePlugin::t('Syncing Subscription Orders');
     }
@@ -53,7 +53,7 @@ class SyncSubscriptionPayments extends BaseJob implements RetryableJobInterface
     /**
      * @inheritdoc
      */
-    public function execute($queue)
+    public function execute($queue): void
     {
         $result = false;
         StripePlugin::$app->settings->initializeStripe();
@@ -206,8 +206,6 @@ class SyncSubscriptionPayments extends BaseJob implements RetryableJobInterface
         }catch (\Exception $e) {
             Craft::error('Sync process failed: '.$e->getMessage(), __METHOD__);
         }
-
-        return $result;
     }
 
     /**

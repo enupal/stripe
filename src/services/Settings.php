@@ -133,7 +133,7 @@ class Settings extends Component
      */
     public function getConfigSettings()
     {
-        return Craft::$app->config->getGeneral()->stripePayments ?? null;
+        return Craft::$app->config->getCustom()->stripePayments ?? null;
     }
 
     /**

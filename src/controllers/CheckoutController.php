@@ -14,7 +14,7 @@ use craft\web\Controller as BaseController;
 
 class CheckoutController extends BaseController
 {
-    protected $allowAnonymous = true;
+    protected array|int|bool $allowAnonymous = true;
 
     /**
      * @return \yii\web\Response

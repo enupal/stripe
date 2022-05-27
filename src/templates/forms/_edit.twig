@@ -17,7 +17,7 @@
 {% set fullPageForm = true %}
 {% set saveShortcutRedirect = continueEditingUrl %}
 {% set tab = stripeForm.getFieldLayout().getTabs()[0] %}
-{% set fields = tab.getFields() %}
+{% set fields = tab.getLayout().getCustomFields() %}
 
 {% set tabs = {
     general:  {

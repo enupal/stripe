@@ -33,7 +33,7 @@ class SetStatus extends ElementAction
      * @throws \Twig\Error\RuntimeError
      * @throws \Twig\Error\SyntaxError
      */
-    public function getTriggerHtml(): string
+    public function getTriggerHtml(): ?string
     {
         return Craft::$app->view->renderTemplate('enupal-stripe/_setstatus/trigger');
     }

@@ -53,7 +53,7 @@ class EnableProducts extends ElementAction
     /**
      * @inheritdoc
      */
-    public function getConfirmationMessage()
+    public function getConfirmationMessage(): ?string
     {
         return Craft::t('enupal-stripe', "Are you sure you want to enable the selected products?");
     }

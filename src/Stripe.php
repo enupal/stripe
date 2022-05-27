@@ -53,9 +53,9 @@ class Stripe extends Plugin
      * @var App
      */
     public static $app;
-    public $hasCpSection = true;
-    public $hasCpSettings = true;
-    public $schemaVersion = '4.0.0';
+    public bool $hasCpSection = true;
+    public bool $hasCpSettings = true;
+    public string $schemaVersion = '5.0.0';
 
     public function init()
     {
@@ -199,7 +199,7 @@ class Stripe extends Plugin
      * @inheritdoc
      * @throws \Throwable
      */
-    protected function afterInstall()
+    protected function afterInstall(): void
     {
         Stripe::$app->paymentForms->createDefaultVariantFields();
     }
@@ -207,7 +207,7 @@ class Stripe extends Plugin
     /**
      * @inheritdoc
      */
-    protected function afterUninstall()
+    protected function afterUninstall(): void
     {
         Stripe::$app->paymentForms->deleteVariantFields();
     }
@@ -215,7 +215,7 @@ class Stripe extends Plugin
     /**
      * @inheritdoc
      */
-    protected function createSettingsModel()
+    protected function createSettingsModel(): ?\craft\base\Model
     {
         return new Settings();
     }
@@ -223,7 +223,7 @@ class Stripe extends Plugin
     /**
      * @inheritdoc
      */
-    public function getCpNavItem()
+    public function getCpNavItem(): ?array
     {
         $parent = parent::getCpNavItem();
         $navs = [
@@ -292,7 +292,7 @@ class Stripe extends Plugin
      * @throws \Twig\Error\SyntaxError
      * @throws \yii\base\Exception
      */
-    protected function settingsHtml()
+    protected function settingsHtml(): ?string
     {
         return Craft::$app->getView()->renderTemplate('enupal-stripe/settings/index');
     }

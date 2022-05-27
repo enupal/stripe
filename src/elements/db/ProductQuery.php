@@ -15,7 +15,6 @@ class ProductQuery extends ElementQuery
 {
     // General - Properties
     // =========================================================================
-    public $id;
     public $stripeId;
     public $stripeObject;
 

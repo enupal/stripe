@@ -103,7 +103,7 @@ class Connects extends Component
     {
         $pluginHandle = 'commerce';
         $projectConfig = Craft::$app->getProjectConfig();
-        $commerceSettings = $projectConfig->get(Plugins::CONFIG_PLUGINS_KEY.'.'.$pluginHandle);
+        $commerceSettings = $projectConfig->get(\craft\services\ProjectConfig::PATH_PLUGINS.'.'.$pluginHandle);
         $isInstalled = $commerceSettings['enabled'] ?? false;
 
         return $isInstalled;

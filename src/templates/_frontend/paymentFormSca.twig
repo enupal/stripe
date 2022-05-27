@@ -3,14 +3,14 @@
 {% set formClass = paymentForm.enableCheckout ? "enupal-stripe-form" : "enupal-stripe-form-elements" %}
 {% set customAmountStep = options.customAmountStep ?? 1 %}
 
-{% spaceless %}
+{% apply spaceless %}
     <form class="{{ formClass }}" id="enupal-stripe-{{ paymentForm.id }}" method="POST">
         {{ csrfInput() }}
         <input type="hidden" aria-hidden="true" name="action"
                value="enupal-stripe/stripe/save-order">
         {%- if redirectUri is not empty %}
             {% if redirectUri|slice(0, 1)|lower == '?' %}
-                {%- set redirectUri = craft.request.getUrl()~paymentForm.returnUrl %}
+                {%- set redirectUri = craft.app.request.getUrl()~paymentForm.returnUrl %}
             {% endif %}
 
             <input type="hidden" aria-hidden="true" name="redirect"
@@ -343,4 +343,4 @@
         };
         #}
     {% endjs %}
-{% endspaceless %}
+{% endapply %}

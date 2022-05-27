@@ -370,7 +370,7 @@ class Vendors extends Component
         $booleanFields = [];
         $user = new User();
         $fieldLayout = $user->getFieldLayout();
-        $fields = $fieldLayout->getFields();
+        $fields = $fieldLayout->getCustomFields();
 
         foreach ($fields as $field) {
             if ($field instanceof Lightswitch) {
