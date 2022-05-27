@@ -59,7 +59,7 @@
                 instructions: "The start date of the date range you wish to sync"|t('enupal-stripe'),
                 id: 'syncStartDate',
                 name: 'syncStartDate',
-                value: settings.syncStartDate.date is defined ? craft.enupalStripe.getDate(settings.syncStartDate.date) : now|date_modify("-30 days"),
+                value: settings.syncStartDate.date is defined and settings.getErrors()|length == 0 ? craft.enupalStripe.getDate(settings.syncStartDate.date) : now|date_modify("-30 days"),
                 errors: (settings is defined ? settings.getErrors('syncStartDate') : null)
             }) }}
 
@@ -68,7 +68,7 @@
                 instructions: "The end date of the date range you wish to sync."|t('enupal-stripe'),
                 id: 'syncEndDate',
                 name: 'syncEndDate',
-                value: settings.syncEndDate.date is defined ? craft.enupalStripe.getDate(settings.syncEndDate.date) : now,
+                value: settings.syncEndDate.date is defined and settings.getErrors()|length == 0 ? craft.enupalStripe.getDate(settings.syncEndDate.date) : now,
                 errors: (settings is defined ? settings.getErrors('syncEndDate') : null)
             }) }}
         </div>
