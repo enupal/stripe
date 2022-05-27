@@ -1,11 +1,11 @@
 <p align="center">
 	<a href="https://enupal.com/en/craft-plugins/stripe-payments" target="_blank">
-	<img width="212" height="212" src="https://enupal.com/assets/docs/stripe-payments-icon.svg" alt="Stripe Payments for Craft CMS 3.x"></a>
+	<img width="212" height="212" src="https://enupal.com/assets/docs/stripe-payments-icon.svg" alt="Stripe Payments for Craft CMS"></a>
 </p>
 
-# Stripe Payments Plugin for Craft CMS 3.x
+# Stripe Payments Plugin for Craft CMS
 
-Stripe Payments allows customers sign up for recurring and one-time payments with Stripe, perfect for orders, donations, subscriptions, and events. Create simple payment forms in seconds easily without coding. For Craft CMS 3.x
+Stripe Payments allows customers sign up for recurring and one-time payments with Stripe, perfect for orders, donations, subscriptions, and events. Create simple payment forms in seconds easily without coding. For Craft CMS
 
 ![Screenshot](https://enupal.com/assets/docs/stripe-payments-new-checkout.png)
 
@@ -13,7 +13,10 @@ Stripe Payments allows customers sign up for recurring and one-time payments wit
 
 ### Start accepting one-time and recurring payments on your Craft CMS site 
 
- * One line of Code: `{{ craft.enupalStripe.paymentForm('handle') }} `
+ * One line of Code: `{{ craft.enupalStripe.paymentForm('handle') }}`
+ * [Stripe Payments full tutorial](https://youtu.be/Te1ojDiVaR8)
+ * [Cart API:](https://docs.enupal.com/stripe-payments/pro/cart-api.html#post-enupal-stripe-cart-add) A collection of endpoints to retrieve, add, update, clear items, and checkout a Cart
+ * [Checkout twig tag:](https://docs.enupal.com/stripe-payments/pro/checkout.html) Build any checkout page, display multiple Price items (one-time, recurring), super secure, user-friendly, multiple payment methods, taxes, shipping, Apple and Google Pay, with just a few lines of twig code
  * Secure Payment Processing powered by [Stripe Checkout](https://stripe.com/checkout) and [Stripe Elements](https://stripe.com/elements)
  * Stripe Elements: Card, iDEAL and SOFORT.
  * [Strong Customer Authentication (SCA)](https://enupal.com/craft-plugins/stripe-payments/docs/getting-started/sca) ready with the new Stripe Checkout
