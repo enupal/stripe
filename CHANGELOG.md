@@ -1,5 +1,9 @@
 # Stripe Payments Changelog
 
+## 4.0.2 - 2022.05.28
+### Fixed
+- Fixed issue when running sync order job from the Settings -> Sync orders
+
 ## 4.0.1 - 2022.05.18
 
 ### Added
