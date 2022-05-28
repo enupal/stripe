@@ -1,5 +1,9 @@
 # Stripe Payments Changelog
 
+## 5.0.1 - 2022.05.28
+### Fixed
+- Fixed issue when creating a Stripe Products field type
+
 ## 5.0.0 - 2022.05.27
 
 > {tip} If you're migrating from Craft 3 please make sure to migrate your `stripePayments` settings from your `config/general.php` to `config/custom.php` file [docs](https://docs.enupal.com/stripe-payments/getting-started/saving-your-stripe-api-keys.html#migrating-from-craft-3-to-craft-4). Enjoy!
