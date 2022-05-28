@@ -34,7 +34,7 @@ class StripePaymentForms extends BaseRelationField
     /**
      * @inheritdoc
      */
-    protected static function elementType(): string
+    public static function elementType(): string
     {
         return PaymentForm::class;
     }
