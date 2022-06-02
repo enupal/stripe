@@ -97,7 +97,7 @@ class Price extends Element
      */
     public function __toString()
     {
-        $name = $this->getUnitAmount() ?? $this->stripeId;
+        $name = $this->stripeId;
 
         return (string)$name;
     }
@@ -172,13 +172,16 @@ class Price extends Element
     protected static function defineTableAttributes(): array
     {
         $attributes['stripeId'] = ['label' => StripePlugin::t('Stripe Id')];
+        $attributes['nickName'] = ['label' => StripePlugin::t('Nickname')];
+        $attributes['unitAmount'] = ['label' => StripePlugin::t('Unit Amount')];
+        $attributes['type'] = ['label' => StripePlugin::t('Type')];
 
         return $attributes;
     }
 
     protected static function defineDefaultTableAttributes(string $source): array
     {
-        $attributes = ['stripeId', 'unitAmount'];
+        $attributes = ['stripeId', 'nickName', 'unitAmount', 'type'];
 
         return $attributes;
     }
@@ -194,6 +197,14 @@ class Price extends Element
             case 'unitAmount':
             {
                 return $this->getUnitAmount();
+            }
+            case 'type':
+            {
+                return $this->getType();
+            }
+            case 'nickName':
+            {
+                return $this->getNickname() ?? '';
             }
         }
 
@@ -251,6 +262,19 @@ class Price extends Element
         }
 
         return $this->stripeObject;
+    }
+
+    public function getType()
+    {
+        return $this->getStripeObject()->type ?? null;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getNickname()
+    {
+        return $this->getStripeObject()->nickname ?? null;
     }
 
     /**
