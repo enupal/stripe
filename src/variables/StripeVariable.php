@@ -9,12 +9,15 @@
 namespace enupal\stripe\variables;
 
 use enupal\stripe\elements\db\PaymentFormsQuery;
+use enupal\stripe\elements\db\PriceQuery;
 use enupal\stripe\elements\db\ProductQuery;
 use enupal\stripe\elements\Order;
 use enupal\stripe\elements\db\OrdersQuery;
 use enupal\stripe\elements\PaymentForm;
+use enupal\stripe\elements\Price;
 use enupal\stripe\elements\Product;
 use enupal\stripe\enums\FrequencyType;
+use enupal\stripe\services\App;
 use enupal\stripe\services\PaymentForms;
 use enupal\stripe\Stripe;
 use craft\helpers\Template as TemplateHelper;
@@ -38,6 +41,11 @@ class StripeVariable extends Behavior
      * @var PaymentForm
      */
     public $paymentForms;
+
+    public function app(): App
+    {
+        return Stripe::$app;
+    }
 
     /**
      * Returns a new OrderQuery instance.
@@ -63,6 +71,21 @@ class StripeVariable extends Behavior
     public function products($criteria = null): ProductQuery
     {
         $query = Product::find();
+        if ($criteria) {
+            Craft::configure($query, $criteria);
+        }
+        return $query;
+    }
+
+    /**
+     * Returns a new PriceQuery instance.
+     *
+     * @param mixed $criteria
+     * @return PriceQuery
+     */
+    public function prices($criteria = null): PriceQuery
+    {
+        $query = Price::find();
         if ($criteria) {
             Craft::configure($query, $criteria);
         }
