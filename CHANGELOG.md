@@ -1,5 +1,13 @@
 # Stripe Payments Changelog
 
+## 4.0.3 - 2022.06.02
+### Added
+- Added the `craft.enupalStripe.app` service layer to twig variable ([#289])
+- Added the `Stripe Prices` field type ([#288])
+
+[#288]: https://github.com/enupal/stripe/issues/288
+[#289]: https://github.com/enupal/stripe/issues/289
+
 ## 4.0.2 - 2022.05.28
 ### Fixed
 - Fixed issue when running sync order job from the Settings -> Sync orders
