@@ -96,7 +96,7 @@ class Price extends Element
      */
     public function __toString(): string
     {
-        $name = $this->getUnitAmount() ?? $this->stripeId;
+        $name = $this->getLabel() ?? $this->stripeId;
 
         return (string)$name;
     }
@@ -171,13 +171,15 @@ class Price extends Element
     protected static function defineTableAttributes(): array
     {
         $attributes['stripeId'] = ['label' => StripePlugin::t('Stripe Id')];
+        $attributes['unitAmount'] = ['label' => StripePlugin::t('Unit Amount')];
+        $attributes['type'] = ['label' => StripePlugin::t('Type')];
 
         return $attributes;
     }
 
     protected static function defineDefaultTableAttributes(string $source): array
     {
-        $attributes = ['stripeId', 'unitAmount'];
+        $attributes = ['stripeId', 'unitAmount', 'type'];
 
         return $attributes;
     }
@@ -193,6 +195,10 @@ class Price extends Element
             case 'unitAmount':
             {
                 return $this->getUnitAmount();
+            }
+            case 'type':
+            {
+                return $this->getType();
             }
         }
 
@@ -241,6 +247,19 @@ class Price extends Element
         $unitAmount = StripePlugin::$app->orders->convertFromCents($this->getStripeObject()->unit_amount, $this->getStripeObject()->currency);
 
         return Craft::$app->getFormatter()->asCurrency($unitAmount, $this->getStripeObject()->currency);
+    }
+
+    public function getType()
+    {
+        return $this->getStripeObject()->type ?? null;
+    }
+
+    /**
+     * @return string|null
+     */
+    private function getLabel()
+    {
+        return $this->getStripeObject()->nickname ?? null;
     }
 
     public function getStripeObject()
