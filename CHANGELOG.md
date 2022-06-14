@@ -1,5 +1,9 @@
 # Stripe Payments Changelog
 
+## 5.0.3 - 2022.06.14
+### Added
+- Added support for [Affirm](https://stripe.com/en-gb/payments/affirm) payment method 
+
 ## 5.0.2 - 2022.06.02
 ### Added
 - Added the `craft.enupalStripe.app` service layer to twig variable ([#289])
