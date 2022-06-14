@@ -1596,6 +1596,7 @@ class PaymentForms extends Component
             CheckoutPaymentType::BOLETO => 'Boleto',
             CheckoutPaymentType::OXXO => 'OXXO',
             CheckoutPaymentType::KLARNA => 'Klarna',
+            CheckoutPaymentType::AFFIRM => 'Affirm',
         ];
     }
 

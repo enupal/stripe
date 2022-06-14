@@ -33,4 +33,5 @@ abstract class CheckoutPaymentType extends BaseEnum
     const BOLETO = 'boleto';
     const OXXO = 'oxxo';
     const KLARNA = 'klarna';
+    const AFFIRM = 'affirm';
 }
