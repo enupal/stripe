@@ -125,7 +125,7 @@ class SyncOneTimePayments extends BaseJob implements RetryableJobInterface
                 $newOrder->quantity = 1;
                 $newOrder->isSubscription = false;
                 $newOrder->dateOrdered = DateTimeHelper::toDateTime($charge['created'])->format('Y-m-d H:i:s');
-                $newOrder->dateCreated = $newOrder->dateOrdered;
+                $newOrder->dateCreated = DateTimeHelper::toDateTime($charge['created']);
                 $newOrder->orderStatusId = $this->defaultStatusId;
                 $newOrder->stripeTransactionId = $charge['id'];
                 $newOrder->email = $email;
