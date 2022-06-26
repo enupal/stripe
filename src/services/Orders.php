@@ -33,6 +33,7 @@ use Stripe\Invoice;
 use Stripe\InvoiceItem;
 use Stripe\Refund;
 use Stripe\Source;
+use Stripe\Subscription;
 use yii\base\Component;
 use enupal\stripe\records\Order as OrderRecord;
 use enupal\stripe\records\Customer as CustomerRecord;
@@ -1160,6 +1161,7 @@ class Orders extends Component
 
         // Add the plan to the customer
         $subscriptionSettings = [
+            "customer" => $customer->id,
             "plan" => $planId,
             "trial_from_plan" => true,
             'metadata' => $this->getStripeMetadata($data)
@@ -1183,8 +1185,7 @@ class Orders extends Component
         }
 
         $subscriptionSettings['metadata'] = $this->getStripeMetadata($data);
-
-        $subscription = $customer->subscriptions->create($subscriptionSettings);
+        $subscription = Subscription::create($subscriptionSettings);
 
         return $subscription;
     }
@@ -1243,6 +1244,7 @@ class Orders extends Component
 
         // Add the plan to the customer
         $subscriptionSettings = [
+            "customer" => $customer->id,
             "plan" => $plan['id']
         ];
 
@@ -1258,7 +1260,7 @@ class Orders extends Component
 
         $subscriptionSettings['metadata'] = $this->getStripeMetadata($data);
 
-        $subscription = $customer->subscriptions->create($subscriptionSettings);
+        $subscription = Subscription::create($subscriptionSettings);
 
         return $subscription;
     }
@@ -1303,6 +1305,7 @@ class Orders extends Component
 
         // Add the plan to the customer
         $subscriptionSettings = [
+            "customer" => $customer->id,
             "plan" => $plan['id'],
             "trial_from_plan" => true
         ];
@@ -1313,8 +1316,7 @@ class Orders extends Component
         }
 
         $subscriptionSettings['metadata'] = $this->getStripeMetadata($data);
-
-        $subscription = $customer->subscriptions->create($subscriptionSettings);
+        $subscription = Subscription::create($subscriptionSettings);
 
         return $subscription;
     }
