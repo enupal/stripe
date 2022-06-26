@@ -132,7 +132,7 @@ class SyncSubscriptionPayments extends BaseJob implements RetryableJobInterface
                             $newOrder->totalPrice = StripePlugin::$app->orders->convertFromCents($invoice['amount_paid'], $newOrder->currency);
                             $newOrder->quantity = $subscription['quantity'];
                             $newOrder->dateOrdered = DateTimeHelper::toDateTime($invoice['created'])->format('Y-m-d H:i:s');
-                            $newOrder->dateCreated = $newOrder->dateOrdered;
+                            $newOrder->dateCreated = DateTimeHelper::toDateTime($invoice['created']);
                             $newOrder->orderStatusId = $this->defaultStatusId;
                             $newOrder->stripeTransactionId = $subscriptionId;
                             $newOrder->email = $email;

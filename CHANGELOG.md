@@ -1,5 +1,13 @@
 # Stripe Payments Changelog
 
+## 5.0.4 - 2022.06.26
+### Fixed
+- Fixed issue on subscription when using stripe elements ([#295])
+- Fixed issue when sync one-time and recurring orders ([#296])
+
+[#295]: https://github.com/enupal/stripe/issues/295
+[#296]: https://github.com/enupal/stripe/issues/296
+
 ## 5.0.3 - 2022.06.14
 ### Added
 - Added support for [Affirm](https://stripe.com/en-gb/payments/affirm) payment method 
