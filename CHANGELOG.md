@@ -1,5 +1,10 @@
 # Stripe Payments Changelog
 
+## 4.0.6 - 2022.07.11
+### Fixed
+- Fixed parsing address after Stripe Checkout when only shipping address is enabled
+
+
 ## 4.0.5 - 2022.07.03
 ### Fixed
 - Fixed issue on subscription when using stripe elements ([#295])
