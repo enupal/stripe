@@ -1,5 +1,11 @@
 # Stripe Payments Changelog
 
+## 5.0.5 - 2022.07.13
+### Fixed
+- Fixed issue when using metered volume plans ([#305])
+
+[#305]: https://github.com/enupal/stripe/issues/305
+
 ## 5.0.4 - 2022.06.26
 ### Fixed
 - Fixed issue on subscription when using stripe elements ([#295])
