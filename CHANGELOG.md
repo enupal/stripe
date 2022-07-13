@@ -1,5 +1,11 @@
 # Stripe Payments Changelog
 
+## 4.0.7 - 2022.07.13
+### Fixed
+- Fixed issue when using metered volume plans ([#305])
+
+[#305]: https://github.com/enupal/stripe/issues/305
+
 ## 4.0.6 - 2022.07.11
 ### Fixed
 - Fixed parsing address after Stripe Checkout when only shipping address is enabled

@@ -197,7 +197,7 @@ class Plans extends Component
         $plan = null;
         StripePlugin::$app->settings->initializeStripe();
 
-        $plan = Plan::retrieve($id);
+        $plan = Plan::retrieve(["id" => $id, 'expand' => ['tiers']]);
 
         return $plan;
     }
