@@ -10,6 +10,7 @@ namespace enupal\stripe\services;
 
 use Craft;
 use enupal\stripe\models\CustomPlan;
+use Stripe\Price;
 use yii\base\Component;
 use enupal\stripe\Stripe as StripePlugin;
 use Stripe\Plan;
@@ -197,7 +198,7 @@ class Plans extends Component
         $plan = null;
         StripePlugin::$app->settings->initializeStripe();
 
-        $plan = Plan::retrieve($id);
+        $plan = Plan::retrieve(["id" => $id, 'expand' => ['tiers']]);
 
         return $plan;
     }
