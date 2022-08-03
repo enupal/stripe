@@ -86,7 +86,7 @@ class Subscription extends Model
 
     private function getNickNames($subscription)
     {
-        $nickName = $subscription['plan']['nickname'] ?? "";
+        $nickName = "";
         $count = 1;
 
         if (!isset($subscription['items']['data'])) {
