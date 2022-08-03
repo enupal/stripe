@@ -1,5 +1,11 @@
 # Stripe Payments Changelog
 
+## 4.0.9 - 2022.08.03
+### Fixed
+- Fixed issue when displaying subscription details ([#262])
+
+[#262]: https://github.com/enupal/stripe/issues/262
+
 ## 4.0.8 - 2022.08.03
 ### Fixed
 - Fixed issue when displaying subscription details ([#262])
