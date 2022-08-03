@@ -72,6 +72,11 @@ class Subscription extends Model
     private function getQuantity($subscription)
     {
         $quantity = 0;
+
+        if (!isset($subscription['items']['data'] )) {
+            return $quantity;
+        }
+
         foreach ($subscription['items']['data'] as $item) {
             $quantity += $item['quantity'];
         }
@@ -84,8 +89,12 @@ class Subscription extends Model
         $nickName = "";
         $count = 1;
 
+        if (!isset($subscription['items']['data'])) {
+            return $nickName;
+        }
+
         foreach ($subscription['items']['data'] as $item) {
-            $name = $item['plan']['nickname'] ?? 'Subscription '.$count;
+            $name = $item['plan']['nickname'] ?? 'Plan '.$count;
             $nickName .= $name.", ";
             $count++;
         }
