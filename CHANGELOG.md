@@ -1,5 +1,9 @@
 # Stripe Payments Changelog
 
+## 4.0.10 - 2022.09.01
+### Fixed
+- Fixed issue after processing cart checkout order.
+
 ## 4.0.9 - 2022.08.03
 ### Fixed
 - Fixed issue when displaying subscription details ([#262])
