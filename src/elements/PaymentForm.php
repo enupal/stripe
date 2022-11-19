@@ -12,6 +12,7 @@ use Craft;
 use craft\base\Element;
 use craft\behaviors\FieldLayoutBehavior;
 use craft\elements\db\ElementQueryInterface;
+use craft\elements\User;
 use craft\helpers\Json;
 use enupal\stripe\elements\actions\Delete;
 use enupal\stripe\enums\SubmitTypes;
@@ -174,6 +175,14 @@ class PaymentForm extends Element
      * @var Settings
      */
     protected $settings;
+
+    /**
+     * @inheritdoc
+     */
+    public function canView(User $user): bool
+    {
+        return true;
+    }
 
     /**
      * @inheritdoc
