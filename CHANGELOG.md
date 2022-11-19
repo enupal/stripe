@@ -1,5 +1,9 @@
 # Stripe Payments Changelog
 
+## 5.0.8 - 2022.11.19
+### Fixed
+- Fixed issue where edit URL disappears on Element Index pages like Payment Forms, Orders, etc.
+
 ## 5.0.7 - 2022.09.01
 ### Fixed
 - Fixed issue after processing cart checkout order.
