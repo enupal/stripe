@@ -11,6 +11,7 @@ namespace enupal\stripe\elements;
 use Craft;
 use craft\base\Element;
 use craft\elements\db\ElementQueryInterface;
+use craft\elements\User;
 use craft\helpers\UrlHelper;
 use craft\elements\actions\Delete;
 use enupal\stripe\elements\db\PriceQuery;
@@ -28,6 +29,14 @@ class Price extends Element
     public $stripeId;
     public $productId;
     public $stripeObject;
+
+    /**
+     * @inheritdoc
+     */
+    public function canView(User $user): bool
+    {
+        return true;
+    }
 
     /**
      * Returns the element type name.

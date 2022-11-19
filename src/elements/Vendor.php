@@ -34,6 +34,14 @@ class Vendor extends Element
     public $vendorRate;
 
     /**
+     * @inheritdoc
+     */
+    public function canView(User $user): bool
+    {
+        return true;
+    }
+
+    /**
      * Returns the element type name.
      *
      * @return string

@@ -11,6 +11,7 @@ namespace enupal\stripe\elements;
 use Craft;
 use craft\base\Element;
 use craft\elements\db\ElementQueryInterface;
+use craft\elements\User;
 use craft\helpers\UrlHelper;
 use craft\elements\actions\Delete;
 use enupal\stripe\elements\db\CommissionsQuery;
@@ -36,6 +37,14 @@ class Commission extends Element
     public $testMode;
     public $currency;
     public $datePaid;
+
+    /**
+     * @inheritdoc
+     */
+    public function canView(User $user): bool
+    {
+        return true;
+    }
 
     /**
      * Returns the element type name.
