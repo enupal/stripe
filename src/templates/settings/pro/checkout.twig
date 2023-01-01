@@ -12,7 +12,7 @@
 
 {% set settings = settings is defined ? settings : craft.enupalStripe.getSettings()  %}
 {% set fullPageForm = true %}
-{% set saveShortcutRedirect = 'enupal-stripe/settings/cart' %}
+{% set saveShortcutRedirect = 'enupal-stripe/settings/pro/checkout' %}
 {% set currencyOptions = craft.enupalStripe.getCurrencyOptions() %}
 {% set pluginStoreLink = currentUser.admin ? cpUrl('plugin-store/enupal-stripe') : 'https://plugins.craftcms.com/enupal-stripe' %}
 {% set savePaymentForm %}
