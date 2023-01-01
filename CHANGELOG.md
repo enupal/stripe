@@ -1,5 +1,17 @@
 # Stripe Payments Changelog
 
+## 5.0.9 - 2023.01.01
+### Added
+- Added validation on minimum amount on backend when using custom amount. ([#326])
+
+### Fixed
+- Fixed issue where custom name was not created when passing options ([#328])
+- Fixed redirect issue when saving Checkout settings  ([#321])
+
+[#328]: https://github.com/enupal/stripe/issues/328
+[#321]: https://github.com/enupal/stripe/issues/321
+[#326]: https://github.com/enupal/stripe/issues/326
+
 ## 5.0.8 - 2022.11.19
 ### Fixed
 - Fixed issue where edit URL disappears on Element Index pages like Payment Forms, Orders, etc.
