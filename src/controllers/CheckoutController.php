@@ -9,8 +9,11 @@
 namespace enupal\stripe\controllers;
 
 use Craft;
+use enupal\stripe\elements\PaymentForm;
+use enupal\stripe\enums\AmountType;
 use enupal\stripe\Stripe;
 use craft\web\Controller as BaseController;
+use enupal\stripe\Stripe as StripePlugin;
 
 class CheckoutController extends BaseController
 {
@@ -39,8 +42,27 @@ class CheckoutController extends BaseController
 
         $form = Stripe::$app->paymentForms->getPaymentFormById($formId);
 
+        if (!$this->validateForm($form, $data)) {
+            return $this->asJson(['success' => false, 'errors' => ["invalid_amount" => "invalid minimum amount"]]);
+        }
+
         $session = Stripe::$app->checkout->createCheckoutSession($form, $data);
 
         return $this->asJson(['success' => true, 'sessionId' => $session['id']]);
+    }
+
+    /**
+     * @param PaymentForm $form
+     * @param array $data
+     * @return bool
+     */
+    private function validateForm(PaymentForm $form, array $data) {
+        if ($form->amountType == AmountType::ONE_TIME_CUSTOM_AMOUNT) {
+            if ((float)$form->minimumAmount > (float)StripePlugin::$app->orders->convertFromCents($data["amount"], $data['enupalStripeData']['stripe']["currency"])) {
+                return false;
+            }
+        }
+
+        return true;
     }
 }
