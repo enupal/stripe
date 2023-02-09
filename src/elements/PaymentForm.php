@@ -115,6 +115,21 @@ class PaymentForm extends Element
     /**
      * @var boolean
      */
+    public $adjustableQuantity;
+
+    /**
+     * @var integer
+     */
+    public $adjustableQuantityMin;
+
+    /**
+     * @var integer
+     */
+    public $adjustableQuantityMax;
+
+    /**
+     * @var boolean
+     */
     public $checkoutAllowPromotionCodes;
 
     /**
@@ -528,6 +543,9 @@ class PaymentForm extends Element
         $record->tax = $this->tax;
         $record->useDynamicTaxRate = $this->useDynamicTaxRate;
         $record->automaticTax = $this->automaticTax;
+        $record->adjustableQuantity = $this->adjustableQuantity;
+        $record->adjustableQuantityMin = $this->adjustableQuantityMin;
+        $record->adjustableQuantityMax = $this->adjustableQuantityMax;
         $record->checkoutAllowPromotionCodes = $this->checkoutAllowPromotionCodes;
 
         $record->save(false);

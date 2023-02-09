@@ -51,7 +51,7 @@ class Customers extends Component
         StripePlugin::$app->settings->initializeStripe();
         $stripeCustomer = null;
         try {
-            $stripeCustomer = Customer::retrieve(["id" => $id, "expand" => ["default_source"]]);
+            $stripeCustomer = Customer::retrieve(["id" => $id, "expand" => ["default_source", "sources"]]);
         } catch (\Exception $e) {
             Craft::error($e->getMessage() . " - getting a new customer");
         }

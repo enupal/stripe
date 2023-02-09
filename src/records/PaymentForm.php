@@ -21,6 +21,9 @@ use craft\records\Element;
  * @property bool $enableCheckout
  * @property bool $automaticTax
  * @property bool $checkoutCancelUrl
+ * @property bool $adjustableQuantity
+ * @property integer $adjustableQuantityMin
+ * @property integer $adjustableQuantityMax
  * @property bool $checkoutSuccessUrl
  * @property bool $checkoutSubmitType
  * @property string $paymentType

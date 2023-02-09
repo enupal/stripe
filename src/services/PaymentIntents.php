@@ -61,7 +61,8 @@ class PaymentIntents extends Component
         $metadata = $paymentIntent['metadata'];
         $formId = $metadata['stripe_payments_form_id'];
         $userId = $metadata['stripe_payments_user_id'];
-        $quantity = $metadata['stripe_payments_quantity'];
+        $checkoutItems = StripePlugin::$app->checkout->getAllCheckoutItems($checkoutSession['id']);
+        $quantity = $this->getCheckoutItemsQuantity($checkoutItems);
         $couponCode = $metadata['stripe_payments_coupon_code'];
         $amountBeforeCoupon = $metadata['stripe_payments_amount_before_coupon'];
 
@@ -196,7 +197,7 @@ class PaymentIntents extends Component
         $data['enupalStripe']['discountAmount'] = $checkoutSession['total_details']['amount_discount'];
         $data['enupalStripe']['taxAmount'] = $checkoutSession['total_details']['amount_tax'];
         $data['enupalStripe']['shippingAmount'] = $checkoutSession['total_details']['amount_shipping'];
-        $data['enupalStripe']['quantity'] = $this->getCartQuantity($cartItems);
+        $data['enupalStripe']['quantity'] = $this->getCheckoutItemsQuantity($cartItems);
         //cart
         $data['enupalStripe']['cartItems'] = $cartItems;
         $data['enupalStripe']['cartStripeId'] = $checkoutSession['id'];
@@ -245,7 +246,8 @@ class PaymentIntents extends Component
         $metadata = $subscription['metadata'];
         $formId = $metadata['stripe_payments_form_id'];
         $userId = $metadata['stripe_payments_user_id'];
-        $quantity = $metadata['stripe_payments_quantity'];
+        $checkoutItems = StripePlugin::$app->checkout->getAllCheckoutItems($checkoutSession['id']);
+        $quantity = $this->getCheckoutItemsQuantity($checkoutItems);
         $testMode = !$checkoutSession['livemode'];
         $shippingAddress = $checkoutSession['shipping']['address'] ?? null;
         $customer = StripePlugin::$app->customers->getStripeCustomer($subscription['customer']);
@@ -317,14 +319,14 @@ class PaymentIntents extends Component
     }
 
     /**
-     * @param array $cartItems
+     * @param array $checkoutItems
      * @return int
      */
-    private function getCartQuantity(array $cartItems)
+    private function getCheckoutItemsQuantity(array $checkoutItems)
     {
         $quantity = 0;
-        foreach ($cartItems as $cartItem) {
-            $quantity += (int)$cartItem['quantity'];
+        foreach ($checkoutItems as $item) {
+            $quantity += (int)$item['quantity'];
         }
 
         return $quantity;

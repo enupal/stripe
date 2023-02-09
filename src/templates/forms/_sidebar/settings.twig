@@ -215,6 +215,37 @@
 </div>
 
 <div class="meta">
+    {{ forms.lightswitchField({
+        label: "Adjustable Quantity <span class='info'>Enable your customers to update the quantity of an item during checkout.</span>"|t('enupal-stripe'),
+        id: 'adjustableQuantity',
+        name: 'adjustableQuantity',
+        on: stripeForm.adjustableQuantity
+    }) }}
+
+    <div id="adjustable-quantity-wrapper" class="meta {% if not stripeForm.adjustableQuantity %} hidden {% endif %}">
+        {{ forms.textField({
+            label: "Minimum"|t('enupal-stripe'),
+            id: 'adjustableQuantityMin',
+            name: 'adjustableQuantityMin',
+            placeholder: 'Enter min',
+            value: (stripeForm.adjustableQuantityMin == '0' ? '0'|number : (stripeForm.adjustableQuantityMin ? stripeForm.adjustableQuantityMin|number ?: '')),
+            errors: stripeForm.getErrors('adjustableQuantityMin'),
+            autofocus: true,
+        }) }}
+
+        {{ forms.textField({
+            label: "Maximum"|t('enupal-stripe'),
+            id: 'adjustableQuantityMax',
+            name: 'adjustableQuantityMax',
+            placeholder: 'Enter max',
+            value: (stripeForm.adjustableQuantityMax == '0' ? '0'|number : (stripeForm.adjustableQuantityMax ? stripeForm.adjustableQuantityMax|number ?: '')),
+            errors: stripeForm.getErrors('adjustableQuantityMax'),
+            autofocus: true,
+        }) }}
+    </div>
+</div>
+
+<div class="meta">
     {% if (settings.useSca) and stripeForm.enableCheckout %}
         {{ forms.lightswitchField({
             label: "Coupons <span class='info'>Allows promotional codes. Only for when Stripe Checkout is enabled</span>"|t('enupal-stripe'),
