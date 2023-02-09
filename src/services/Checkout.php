@@ -470,7 +470,7 @@ class Checkout extends Component
      */
     private function processDynamicTaxes(array $lineItem, PaymentForm $paymentForm)
     {
-        $price = StripePlugin::$app->prices->cretePrice($lineItem['amount'], $lineItem['currency'], $paymentForm);
+        $price = StripePlugin::$app->prices->createPrice($lineItem);
 
         if (!is_null($price)) {
             unset($lineItem['amount']);

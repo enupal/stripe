@@ -22,25 +22,21 @@ class Prices extends Component
     const PRICE_TYPE_RECURRING = 'recurring';
 
     /**
-     * @param int $amountInCents
-     * @param string $currency
-     * @param PaymentForm $paymentForm
+     * @param array $lineItem
      * @return Price
      * @throws \Stripe\Exception\ApiErrorException
      */
-    public function cretePrice(int $amountInCents, string $currency, $paymentForm)
+    public function createPrice(array $lineItem)
     {
         StripePlugin::$app->settings->initializeStripe();
-
-        $price = Price::create([
-            'unit_amount' => $amountInCents,
-            'currency' => $currency,
+        return Price::create([
+            'unit_amount' => $lineItem['amount'],
+            'currency' => $lineItem['currency'],
+            'nickname' => $lineItem['description'] ?? "",
             'product_data' => [
-                'name' => $paymentForm->companyName
+                'name' => $lineItem['name']
             ]
         ]);
-
-        return $price;
     }
 
     /**
