@@ -1,5 +1,18 @@
 # Stripe Payments Changelog
 
+## 5.1.0 - 2023.02.09
+### Added
+- Adds support for [adjustable quantity](https://stripe.com/docs/payments/checkout/adjustable-quantity?locale=en-GB) 
+to enable your customers to update the quantity of an item during checkout. Settings added on Payment Forms to set max and min ([#338])
+- Adds support to expand `sources` info on Stripe Customer object ([#337])
+
+### Fixed
+- Fixed issue when converting subscription date ([#340])
+
+[#338]: https://github.com/enupal/stripe/issues/338
+[#340]: https://github.com/enupal/stripe/issues/340
+[#337]: https://github.com/enupal/stripe/issues/337
+
 ## 5.0.9 - 2023.01.01
 ### Added
 - Added validation on minimum amount on backend when using custom amount. ([#326])
