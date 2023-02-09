@@ -45,14 +45,14 @@ class Subscription extends Model
     public function __construct($subscription = [])
     {
         $dateFormat = strtolower(Craft::$app->sites->getCurrentSite()->getLocale()->getDateFormat(Locale::LENGTH_SHORT, Locale::FORMAT_PHP));
-        $this->startDate = isset($subscription['current_period_start']) ? DateTimeHelper::toDateTime($subscription['current_period_start'])->format($dateFormat) : null;
-        $this->endDate = isset($subscription['current_period_end']) ? DateTimeHelper::toDateTime($subscription['current_period_end'])->format($dateFormat) : null;
+        $this->startDate = isset($subscription['current_period_start']) ? $this->convertDate($subscription['current_period_start'], $dateFormat) : null;
+        $this->endDate = isset($subscription['current_period_end']) ? $this->convertDate($subscription['current_period_end'], $dateFormat) : null;
         $this->daysUntilDue = $subscription['days_until_due'] ?? 0;
         $this->planNickName = $this->getNickNames($subscription);
         $this->quantity = $this->getQuantity($subscription);
         $this->interval = $subscription['items']['data'][0]['plan']['interval'] ?? null;
         $this->status = $subscription['status'] ?? null ;
-        $this->canceledAt = isset($subscription['canceled_at']) && $subscription['canceled_at'] ? DateTimeHelper::toDateTime($subscription['canceled_at'])->format($dateFormat) : null;
+        $this->canceledAt = isset($subscription['canceled_at']) && $subscription['canceled_at'] ? $this->convertDate($subscription['canceled_at'], $dateFormat) : null;
         $this->data = $subscription;
         $this->statusHtml = Stripe::$app->subscriptions->getSubscriptionStatusHtml($this->status);
         $this->cancelAtPeriodEnd = $subscription['cancel_at_period_end'] ?? null;
@@ -67,6 +67,16 @@ class Subscription extends Model
                 $this->meteredInfoAsJson = json_encode($this->meteredInfo);
             }
         }
+    }
+
+    private function convertDate($date, $dateFormat) {
+        try {
+            return DateTimeHelper::toDateTime($date)->format($dateFormat);
+        }catch (\Exception $exception) {
+            Craft::error($exception->getMessage(), __METHOD__);
+        }
+
+        return $date;
     }
 
     private function getQuantity($subscription)
