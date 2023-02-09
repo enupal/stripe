@@ -391,12 +391,19 @@ class Checkout extends Component
             }
         }
 
+        if ($paymentForm->adjustableQuantity) {
+            $publicData['quantity'] = $paymentForm->adjustableQuantityMin > $publicData['quantity'] ? (int)$paymentForm->adjustableQuantityMin : $publicData['quantity'];
+        }
+
+        $maxQuantity = $paymentForm->adjustableQuantityMax > $paymentForm->quantity ? $paymentForm->quantity : (int)$paymentForm->adjustableQuantityMax;
+
         $lineItem = [
             'name' => $data['name'],
             'description' => $data['description'],
             'amount' => $data['amount'],
             'currency' => $data['currency'],
             'quantity' => $publicData['quantity'],
+            'adjustable_quantity' => ['enabled' => (bool)$paymentForm->adjustableQuantity, 'minimum' => (int)$paymentForm->adjustableQuantityMin, 'maximum' => $maxQuantity]
         ];
 
         $logoAssets = $paymentForm->getLogoAssets();

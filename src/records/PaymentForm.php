@@ -20,6 +20,9 @@ use craft\records\Element;
  * @property string $handle
  * @property bool $enableCheckout
  * @property bool $automaticTax
+ * @property bool $adjustableQuantity
+ * @property integer $adjustableQuantityMin
+ * @property integer $adjustableQuantityMax
  * @property bool $checkoutCancelUrl
  * @property bool $checkoutSuccessUrl
  * @property bool $checkoutSubmitType

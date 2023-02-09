@@ -37,6 +37,7 @@
             this.$recurringTypeField = $("#fields-recurringPaymentType-field");
             this.$enableSubscription = $("#fields-enableSubscriptions");
             this.$enableCheckout = $("#fields-enableCheckout");
+            this.$enableAdjustableQuantity = $("#fields-adjustableQuantity");
             this.$enableSingleCustomAmount = $("#fields-enableCustomPlanAmount");
             this.$enableTemplateOverrides = $("#fields-enableTemplateOverrides");
 
@@ -48,6 +49,7 @@
             this.addListener(this.$refreshPlansButton, 'click', 'handleRefreshPlans');
             this.addListener(this.$enableSubscription, 'change', 'handleEnableSubscription');
             this.addListener(this.$enableCheckout, 'change', 'handleEnableCheckout');
+            this.addListener(this.$enableAdjustableQuantity, 'change', 'handleEnableAdjustableQuantity');
             this.addListener(this.$enableSingleCustomAmount, 'change', 'handleEnableSingleCustomAmount');
             this.addListener(this.$enableTemplateOverrides, 'change', 'handleEnableTemplateOverrides');
 
@@ -56,6 +58,7 @@
             this.handleSubscriptionTypeSelect();
             this.handleEnableTemplateOverrides();
             this.handleEnableCheckout();
+            this.handleEnableAdjustableQuantity();
         },
 
         handleEnableSingleCustomAmount: function(option) {
@@ -82,12 +85,26 @@
             }
         },
 
+        handleEnableAdjustableQuantity: function(option) {
+            var $wrapper = $("#fields-adjustable-quantity-wrapper");
+
+            var value = $("input[name='fields[adjustableQuantity]']").val();
+
+            if (value == 1){
+                $wrapper.removeClass('hidden');
+            }
+            else{
+                $wrapper.addClass('hidden');
+            }
+        },
+
         handleEnableCheckout: function(option) {
             var $elementsWrapper = $("#fields-paymentType-field");
             var $checkoutElementsWrapper = $("#fields-checkoutPaymentType-field");
             var $successUrlWrapper = $("#fields-checkoutSuccessUrl-field");
             var $cancelUrlWrapper = $("#fields-checkoutCancelUrl-field");
             var $submitTypeWrapper = $("#fields-checkoutSubmitType-field");
+            var $adjustableQuantityWrapper = $("#fields-adjustableQuantity-field");
             var $returnUrlForm = $("#fields-returnUrl-field");
 
             var value = $("input[name='fields[enableCheckout]']").val();
@@ -104,6 +121,7 @@
                 $successUrlWrapper.addClass('hidden');
                 $cancelUrlWrapper.addClass('hidden');
                 $submitTypeWrapper.addClass('hidden');
+                $adjustableQuantityWrapper.addClass('hidden');
             }
             else{
                 $("#fields-sca-warning").addClass("hidden");
@@ -113,16 +131,19 @@
                 $successUrlWrapper.addClass('hidden');
                 $cancelUrlWrapper.addClass('hidden');
                 $submitTypeWrapper.addClass('hidden');
+                $adjustableQuantityWrapper.addClass('hidden');
 
                 if (useSca == 1){
                     $returnUrlForm.addClass("hidden");
                     $successUrlWrapper.removeClass('hidden');
                     $cancelUrlWrapper.removeClass('hidden');
                     $submitTypeWrapper.removeClass('hidden');
+                    $adjustableQuantityWrapper.removeClass('hidden');
                 }else {
                     $successUrlWrapper.addClass('hidden');
                     $cancelUrlWrapper.addClass('hidden');
                     $submitTypeWrapper.addClass('hidden');
+                    $adjustableQuantityWrapper.addClass('hidden');
                 }
             }
         },
