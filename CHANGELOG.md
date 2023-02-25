@@ -1,5 +1,9 @@
 # Stripe Payments Changelog
 
+## 5.1.1 - 2023.02.25
+### Fixed
+- Fixed issue that prevents creating checkout sessions on one-time payments
+
 ## 5.1.0 - 2023.02.09
 ### Added
 - Adds support for [adjustable quantity](https://stripe.com/docs/payments/checkout/adjustable-quantity?locale=en-GB) 
