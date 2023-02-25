@@ -570,6 +570,48 @@ class PaymentForm extends Element
                 return $model->enableCheckout != 1;
             }
         ];
+
+        $rules[] = [
+            ['quantity'], 'integer', 'when' => function($model) {
+                return !$model->hasUnlimitedStock;
+            }
+        ];
+
+        $rules[] = [
+            ['quantity'], 'required', 'when' => function($model) {
+                return !$model->hasUnlimitedStock;
+            }
+        ];
+
+        $rules[] = [
+            ['quantity'], 'compare', 'compareValue' => 0, 'operator' => '>', 'when' => function($model) {
+                return !$model->hasUnlimitedStock;
+            }
+        ];
+
+        $rules[] = [
+            ['adjustableQuantityMin', 'adjustableQuantityMax'], 'integer', 'when' => function($model) {
+                return $model->adjustableQuantity;
+            }
+        ];
+
+        $rules[] = [
+            ['adjustableQuantityMin'], 'compare', 'compareValue' => 0, 'operator' => '>', 'when' => function($model) {
+                return $model->adjustableQuantity;
+            }
+        ];
+
+        $rules[] = [
+            ['adjustableQuantityMin'], 'compare', 'compareValue' => $this->adjustableQuantityMax, 'operator' => '<', 'when' => function($model) {
+                return $model->adjustableQuantity;
+            }
+        ];
+
+        $rules[] = [
+            ['adjustableQuantityMax'], 'compare', 'compareValue' => $this->adjustableQuantityMin, 'operator' => '>', 'when' => function($model) {
+                return $model->adjustableQuantity;
+            }
+        ];
         $rules[] = [
             ['checkoutPaymentType'], 'required', 'when' => function($model) {
                 $settings = StripePlugin::$app->settings->getSettings();
