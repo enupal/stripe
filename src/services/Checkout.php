@@ -395,16 +395,23 @@ class Checkout extends Component
             $publicData['quantity'] = $paymentForm->adjustableQuantityMin > $publicData['quantity'] ? (int)$paymentForm->adjustableQuantityMin : $publicData['quantity'];
         }
 
-        $maxQuantity = $paymentForm->adjustableQuantityMax > $paymentForm->quantity ? $paymentForm->quantity : (int)$paymentForm->adjustableQuantityMax;
-
         $lineItem = [
             'name' => $data['name'],
             'description' => $data['description'],
             'amount' => $data['amount'],
             'currency' => $data['currency'],
-            'quantity' => $publicData['quantity'],
-            'adjustable_quantity' => ['enabled' => (bool)$paymentForm->adjustableQuantity, 'minimum' => (int)$paymentForm->adjustableQuantityMin, 'maximum' => $maxQuantity]
+            'quantity' => $publicData['quantity']
         ];
+
+        if ($paymentForm->adjustableQuantity) {
+            $maxQuantity = (int)$paymentForm->adjustableQuantityMax;
+            if (!$paymentForm->hasUnlimitedStock) {
+                $maxQuantity = $paymentForm->adjustableQuantityMax > $paymentForm->quantity ? $paymentForm->quantity : (int)$paymentForm->adjustableQuantityMax;
+            }
+
+            $minQuantity = $paymentForm->adjustableQuantityMin <= 0 ? 1 : (int)$paymentForm->adjustableQuantityMin;
+            $lineItem['adjustable_quantity'] = ['enabled' => true, 'minimum' => $minQuantity, 'maximum' => $maxQuantity];
+        }
 
         $logoAssets = $paymentForm->getLogoAssets();
         $logoUrls = [];

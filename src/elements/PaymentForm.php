@@ -571,6 +571,49 @@ class PaymentForm extends Element
                 return $model->enableCheckout && $settings->useSca;
             }
         ];
+
+        $rules[] = [
+            ['quantity'], 'integer', 'when' => function($model) {
+                return !$model->hasUnlimitedStock;
+            }
+        ];
+
+        $rules[] = [
+            ['quantity'], 'required', 'when' => function($model) {
+                return !$model->hasUnlimitedStock;
+            }
+        ];
+
+        $rules[] = [
+            ['quantity'], 'compare', 'compareValue' => 0, 'operator' => '>', 'when' => function($model) {
+                return !$model->hasUnlimitedStock;
+            }
+        ];
+
+        $rules[] = [
+            ['adjustableQuantityMin', 'adjustableQuantityMax'], 'integer', 'when' => function($model) {
+                return $model->adjustableQuantity;
+            }
+        ];
+
+        $rules[] = [
+            ['adjustableQuantityMin'], 'compare', 'compareValue' => 0, 'operator' => '>', 'when' => function($model) {
+                return $model->adjustableQuantity;
+            }
+        ];
+
+        $rules[] = [
+            ['adjustableQuantityMin'], 'compare', 'compareValue' => $this->adjustableQuantityMax, 'operator' => '<', 'when' => function($model) {
+                return $model->adjustableQuantity;
+            }
+        ];
+
+        $rules[] = [
+            ['adjustableQuantityMax'], 'compare', 'compareValue' => $this->adjustableQuantityMin, 'operator' => '>', 'when' => function($model) {
+                return $model->adjustableQuantity;
+            }
+        ];
+
         $rules[] = [['name', 'handle'], 'string', 'max' => 255];
         $rules[] = [['name', 'handle'], UniqueValidator::class, 'targetClass' => PaymentFormRecord::class];
         $rules[] = [['name', 'handle'], 'required'];
