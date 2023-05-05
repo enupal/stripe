@@ -1,5 +1,9 @@
 # Stripe Payments Changelog
 
+## 4.1.2 - 2023.02.25
+### Fixed
+- Fixed issue when syncing products, prices were limited to 10
+
 ## 4.1.1 - 2023.02.25
 ### Fixed
 - Fixed issue that prevents creating checkout sessions on one-time payments
