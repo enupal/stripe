@@ -130,7 +130,7 @@ class Prices extends Component
         StripePlugin::$app->settings->initializeStripe();
         $stripePrices = Price::all(['product' => $product->stripeId]);
 
-        foreach ($stripePrices['data'] as $stripePrice) {
+        foreach ($stripePrices->autoPagingIterator() as $stripePrice) {
             $price = $this->getPriceByStripeId($stripePrice['id']);
             if (is_null($price)) {
                 $toJson = json_encode($stripePrice);
