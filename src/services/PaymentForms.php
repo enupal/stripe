@@ -870,6 +870,12 @@ class PaymentForms extends Component
      */
     public function createDefaultVariantFields()
     {
+        $stripeFields = Craft::$app->projectConfig->get("enupalStripe.fields", true);
+        if (!empty($stripeFields)) {
+            // Not needed as fields will be loaded from projectConfig and avoid duplicate fields and cause issues on deployments
+            return;
+        }
+
         $this->createFormFieldsMatrixField();
         $this->createMultiplePlansMatrixField();
     }
