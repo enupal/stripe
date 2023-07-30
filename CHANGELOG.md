@@ -1,5 +1,13 @@
 # Stripe Payments Changelog
 
+## 5.2.0 - 2023.07.30
+### Fixed
+- Fixed issue related to projectConfig and missing tables when deploying to new env with `allowAdminChanges` set to `false`. ([#356]) ([#357]) ([#345])
+
+[#356]: https://github.com/enupal/stripe/issues/356
+[#357]: https://github.com/enupal/stripe/issues/357
+[#345]: https://github.com/enupal/stripe/issues/345
+
 ## 5.1.2 - 2023.05.05
 ### Fixed
 - Fixed issue when syncing products, prices were limited to 10
