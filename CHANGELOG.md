@@ -1,5 +1,13 @@
 # Stripe Payments Changelog
 
+
+## 5.3.0 - 2023.09.01 [CRITICAL]
+### Fixed
+- Fixed vulnerability that allows the creation of spam orders. ([#363])
+- The `enupal-stripe/stripe/save-order` action is now disabled for when SCA (Strong Customer Authentication) is enabled on the plugin settings
+
+[#363]: https://github.com/enupal/stripe/issues/363
+
 ## 5.2.0 - 2023.07.30
 ### Fixed
 - Fixed issue related to projectConfig and missing tables when deploying to new env with `allowAdminChanges` set to `false`. ([#356]) ([#357]) ([#345])
