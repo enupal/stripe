@@ -359,7 +359,9 @@ class Orders extends Component
             }
         }
 
-        $order->testMode = $data['testMode'];
+        $pluginSettings = StripePlugin::$app->settings->getSettings();
+
+        $order->testMode = $pluginSettings->testMode;
         // Variants
         $variants = $data['metadata'] ?? [];
         if ($variants){
@@ -571,7 +573,7 @@ class Orders extends Component
 
         $paymentForm = StripePlugin::$app->paymentForms->getPaymentFormById((int)$formId);
 
-        if (is_null($paymentForm)) {
+        if (is_null($paymentForm) || !$paymentForm->enabled) {
             throw new \Exception(Craft::t('enupal-stripe','Unable to find the Stripe Button associated to the order'));
         }
 

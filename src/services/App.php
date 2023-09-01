@@ -127,6 +127,11 @@ class App extends Component
      */
     public $shipping;
 
+    /**
+     * @var Tokens
+     */
+    public $tokens;
+
     public function init()
     {
         $this->settings = new Settings();
@@ -152,5 +157,6 @@ class App extends Component
         $this->products = new Products();
         $this->carts = new Carts();
         $this->shipping = new Shipping();
+        $this->tokens = new Tokens();
     }
 }

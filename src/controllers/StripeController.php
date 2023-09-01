@@ -15,6 +15,7 @@ use enupal\stripe\elements\PaymentForm;
 use enupal\stripe\enums\PaymentType;
 use enupal\stripe\Stripe as StripePlugin;
 use Craft;
+use yii\web\BadRequestHttpException;
 use yii\web\NotFoundHttpException;
 
 class StripeController extends BaseController
@@ -34,8 +35,25 @@ class StripeController extends BaseController
     {
         $this->requirePostRequest();
 
-        $enableCheckout = Craft::$app->getRequest()->getBodyParam('enableCheckout') ?? true;
-        $postData = $_POST;
+        $settings = StripePlugin::$app->settings->getSettings();
+        if ($settings->useSca) {
+            throw new NotFoundHttpException("Strong Customer Authentication is enabled on this site, this endpoint is disabled");
+        }
+
+        $postData = Craft::$app->getRequest()->getBodyParams();
+        $token = $postData['enupalStripe']['token'] ?? null;
+        $formId = $postData['enupalStripe']['formId'] ?? null;
+        $paymentForm = StripePlugin::$app->paymentForms->getPaymentFormById((int)$formId);
+
+        if (is_null($paymentForm) || !$paymentForm->enabled) {
+            throw new BadRequestHttpException("Unable to get Payment Form");
+        }
+
+        $enableCheckout = $paymentForm->enableCheckout;
+
+        if (!$this->validateStripeToken($token, $postData)) {
+            throw new BadRequestHttpException("Invalid Stripe Token");
+        }
 
         if (isset($postData['billingAddress'])) {
             $postData['enupalStripe']['billingAddress'] = $postData['billingAddress'];
@@ -72,7 +90,7 @@ class StripeController extends BaseController
         $order = StripePlugin::$app->orders->processPayment($postData);
 
         if (is_null($order)) {
-            throw new NotFoundHttpException("Unable to process the Payment");
+            throw new BadRequestHttpException("Unable to process the Payment");
         }
 
         if ($order->getErrors()) {
@@ -93,6 +111,26 @@ class StripeController extends BaseController
         }
 
         return $this->redirectToPostedUrl($order);
+    }
+
+    private function validateStripeToken($token, array $postData): bool
+    {
+        try {
+            if (!empty($token) && !is_null(StripePlugin::$app->tokens->getStripeToken($token)) && (int)$postData['paymentType'] == PaymentType::CC) {
+                return true;
+            }
+
+            if (empty($token)) {
+                if (!isset($postData['paymentType'])) {
+                    throw new BadRequestHttpException("Unable to process request");
+                }
+                return (int)$postData['paymentType'] == PaymentType::IDEAL || (int)$postData['paymentType'] == PaymentType::SOFORT;
+            }
+        }catch (\Exception $e) {
+            Craft::error("Unable to validate stripe token: ".$e->getMessage(), __METHOD__);
+        }
+
+        return false;
     }
 
     /**
