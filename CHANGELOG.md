@@ -1,5 +1,9 @@
 # Stripe Payments Changelog
 
+## 4.3.1 - 2023.09.02
+### Fixed
+- Fixed issue on legacy Stripe Checkout
+
 ## 4.3.0 - 2023.09.01 [CRITICAL]
 ### Fixed
 - Fixed vulnerability that allows the creation of spam orders. ([#363])
