@@ -116,7 +116,7 @@ class StripeController extends BaseController
     private function validateStripeToken($token, array $postData): bool
     {
         try {
-            if (!empty($token) && !is_null(StripePlugin::$app->tokens->getStripeToken($token)) && (int)$postData['paymentType'] == PaymentType::CC) {
+            if (!empty($token) && !is_null(StripePlugin::$app->tokens->getStripeToken($token))) {
                 return true;
             }
 
