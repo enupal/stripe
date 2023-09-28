@@ -1,5 +1,9 @@
 # Stripe Payments Changelog
 
+## 5.4.0 - 2023.09.28
+### Updated
+- Updated Stripe lib to v10
+
 ## 5.3.1 - 2023.09.02
 ### Fixed
 - Fixed issue on legacy Stripe Checkout
