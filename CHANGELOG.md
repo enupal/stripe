@@ -1,5 +1,14 @@
 # Stripe Payments Changelog
 
+## 5.5.0 - 2023.10.30
+### Added
+- Added Craft CMS requirement `^4.5.0`
+
+### Fixed
+- Fixed issue when adding subscription plan on customer chooses plan only on Craft CMS `^4.5.0` and for new installations ([#369])
+
+[#369]: https://github.com/enupal/stripe/issues/369
+
 ## 5.4.0 - 2023.09.28
 ### Updated
 - Updated Stripe lib to v10
