@@ -1496,7 +1496,7 @@ class PaymentForms extends Component
                             'handle' => 'selectPlan',
                             'instructions' => "Can't see your plans? Go to [Subscriptions]($subscriptionUrl) and click on Refresh Plans",
                             'required' => 1,
-                            'typesettings' => '{"options":[{"label":"Select Plan...","value":"","default":""}]}',
+                            'typesettings' => '{"columnType":"string", "options":[{"label":"Select Plan...","value":"","default":""}]}',
                             'translationMethod' => Field::TRANSLATION_METHOD_SITE,
                         ],
                         'new2' => [
