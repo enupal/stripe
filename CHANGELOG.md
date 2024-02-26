@@ -1,5 +1,11 @@
 # Stripe Payments Changelog
 
+## 4.3.2 - 2024.02.26
+### Fixed
+- Fixed issue where Subscription Grant user group was not updated after updating plan. ([#374])
+
+[#374]: https://github.com/enupal/stripe/issues/374
+
 ## 4.3.1 - 2023.09.02
 ### Fixed
 - Fixed issue on legacy Stripe Checkout
