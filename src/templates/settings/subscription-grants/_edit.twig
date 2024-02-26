@@ -78,7 +78,7 @@
 
     {{ forms.lightswitchField({
         label: "Remove when canceled?"|t('enupal-stripe'),
-        instructions: "Remove this user group if the subscription is canceled (at the end of the billing period)"|t('enupal-stripe'),
+        instructions: "Remove the user from this user group if the subscription is canceled (at the end of the billing period)"|t('enupal-stripe'),
         name: 'removeWhenCanceled',
         on:   subscriptionGrant.removeWhenCanceled
     }) }}
