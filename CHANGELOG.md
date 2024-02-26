@@ -1,5 +1,11 @@
 # Stripe Payments Changelog
 
+## 5.5.1 - 2024.02.26
+### Fixed
+- Fixed issue where Subscription Grant user group was not updated after updating plan. ([#374])
+
+[#374]: https://github.com/enupal/stripe/issues/374
+
 ## 5.5.0 - 2023.10.30
 ### Added
 - Added Craft CMS requirement `^4.5.0`

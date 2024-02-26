@@ -257,6 +257,26 @@ class Subscriptions extends Component
 
                 break;
 
+            case 'customer.subscription.updated':
+                // remove current user groups and add new one
+                $userGroups = $user->getGroups();
+                $currentUserGroupIds = [];
+
+                if ($userGroups){
+                    foreach ($userGroups as $userGroup) {
+                        $currentUserGroupIds[] = $userGroup->id;
+                    }
+                }
+
+                $grantUserGroupIds = $this->getCurrentUserGroups();
+                $removedUserGroupIds = array_diff($currentUserGroupIds, $grantUserGroupIds);
+                Craft::$app->getUsers()->assignUserToGroups($user->id, $removedUserGroupIds);
+                Craft::info("Groups (".json_encode($grantUserGroupIds).") removed to user: ".$user->username, __METHOD__);
+
+                // add new plan
+                $this->handleSubscriptionGrants($planId, $user);
+                break;
+
             case 'customer.subscription.deleted':
                 $userGroups = $user->getGroups();
                 $currentUserGroupIds = [];
@@ -332,6 +352,25 @@ class Subscriptions extends Component
         }
 
         return $newGroups;
+    }
+
+    /**
+     * @return array
+     */
+    public function getCurrentUserGroups()
+    {
+        $subscriptionGrants =  (new Query())
+            ->select(['*'])
+            ->from(["{{%enupalstripe_subscriptiongrants}}"])
+            ->all();
+
+        $currentGroups = [];
+
+        foreach ($subscriptionGrants as $subscriptionGrant) {
+            $currentGroups[] = $subscriptionGrant['userGroupId'];
+        }
+
+        return $currentGroups;
     }
 
     /**
