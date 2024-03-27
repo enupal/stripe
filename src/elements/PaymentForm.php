@@ -439,7 +439,7 @@ class PaymentForm extends Element
      * @throws \yii\base\InvalidConfigException
      * @throws \yii\base\InvalidConfigException
      */
-    protected function tableAttributeHtml(string $attribute): string
+    protected function attributeHtml(string $attribute): string
     {
         switch ($attribute) {
             case 'amount':
