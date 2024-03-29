@@ -250,7 +250,7 @@ class Commission extends Element
             }
         }
 
-        return parent::tableAttributeHtml($attribute);
+        return parent::attributeHtml($attribute);
     }
 
     /**

@@ -410,7 +410,7 @@ class Order extends Element
 
         }
 
-        return parent::tableAttributeHtml($attribute);
+        return parent::attributeHtml($attribute);
     }
 
     /**

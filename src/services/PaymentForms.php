@@ -148,7 +148,7 @@ class PaymentForms extends Component
 
         try {
             // Set the field context
-            Craft::$app->content->fieldContext = $paymentForm->getFieldContext();
+            Craft::$app->getFields()->fieldContext = $paymentForm->getFieldContext();
             if ($isNewForm) {
                 $fieldLayout = $paymentForm->getFieldLayout();
 
@@ -784,13 +784,13 @@ class PaymentForms extends Component
             return null;
         }
 
-        $currentFieldContext = Craft::$app->getContent()->fieldContext;
-        Craft::$app->getContent()->fieldContext = StripePlugin::$app->settings->getFieldContext();
+        $currentFieldContext = Craft::$app->getFields()->fieldContext;
+        Craft::$app->getFields()->fieldContext = StripePlugin::$app->settings->getFieldContext();
 
         $matrixBasicField = Craft::$app->fields->getFieldByHandle(self::BASIC_FORM_FIELDS_HANDLE);
         $matrixMultiplePlans = Craft::$app->fields->getFieldByHandle(self::MULTIPLE_PLANS_HANDLE);
         // Give back the current field context
-        Craft::$app->getContent()->fieldContext = $currentFieldContext;
+        Craft::$app->getFields()->fieldContext = $currentFieldContext;
 
         if (is_null($matrixBasicField) || is_null($matrixMultiplePlans)) {
             // Can't add variants to this payment form (Someone delete the fields)
@@ -833,7 +833,7 @@ class PaymentForms extends Component
      */
     public function deleteVariantFields()
     {
-        $currentFieldContext = Craft::$app->getContent()->fieldContext;
+        $currentFieldContext = Craft::$app->getFields()->fieldContext;
 
         $stripeFields = (new Query())
             ->select(['id'])
@@ -841,7 +841,7 @@ class PaymentForms extends Component
             ->where(['like', 'context', 'enupalStripe:'])
             ->all();
 
-        Craft::$app->getContent()->fieldContext = StripePlugin::$app->settings->getFieldContext();
+        Craft::$app->getFields()->fieldContext = StripePlugin::$app->settings->getFieldContext();
 
         if ($stripeFields) {
             foreach ($stripeFields as $stripeField) {
@@ -854,7 +854,7 @@ class PaymentForms extends Component
         }
 
         // Give back the current field context
-        Craft::$app->getContent()->fieldContext = $currentFieldContext;
+        Craft::$app->getFields()->fieldContext = $currentFieldContext;
 
         // Delete also from project config
         $fields = Craft::$app->projectConfig->get('enupalStripe.fields');
@@ -1126,7 +1126,7 @@ class PaymentForms extends Component
         $matrixSettings = [
             'minBlocks' => "",
             'maxBlocks' => "",
-            'blockTypes' => [
+            'matrixBlockTypes' => [
                 'new1' => [
                     'name' => 'Single Line',
                     'handle' => 'singleLine',
@@ -1449,10 +1449,10 @@ class PaymentForms extends Component
 
     public function getStripeMatrixFieldFromDb($handle)
     {
-        $currentFieldContext = Craft::$app->getContent()->fieldContext;
-        Craft::$app->getContent()->fieldContext = StripePlugin::$app->settings->getFieldContext();
+        $currentFieldContext = Craft::$app->getFields()->fieldContext;
+        Craft::$app->getFields()->fieldContext = StripePlugin::$app->settings->getFieldContext();
         $matrixBasicField = Craft::$app->fields->getFieldByHandle($handle);
-        Craft::$app->getContent()->fieldContext = $currentFieldContext;
+        Craft::$app->getFields()->fieldContext = $currentFieldContext;
 
         $projectConfig = Craft::$app->config->getGeneral()->useProjectConfigFile ?? false;
 
@@ -1485,7 +1485,7 @@ class PaymentForms extends Component
         $matrixSettings = [
             'minBlocks' => "",
             'maxBlocks' => "",
-            'blockTypes' => [
+            'matrixBlockTypes' => [
                 'new1' => [
                     'name' => 'Subscription Plan',
                     'handle' => 'subscriptionPlan',

@@ -32,8 +32,8 @@ class Plans extends Component
             return false;
         }
 
-        $currentFieldContext = Craft::$app->getContent()->fieldContext;
-        Craft::$app->getContent()->fieldContext = StripePlugin::$app->settings->getFieldContext();
+        $currentFieldContext = Craft::$app->getFields()->fieldContext;
+        Craft::$app->getFields()->fieldContext = StripePlugin::$app->settings->getFieldContext();
         $matrixMultiplePlansField = Craft::$app->fields->getFieldByHandle(StripePlugin::$app->paymentForms::MULTIPLE_PLANS_HANDLE);
 
         $matrixFields = $matrixMultiplePlansField->getBlockTypeFields();
@@ -46,7 +46,7 @@ class Plans extends Component
             }
         }
 
-        Craft::$app->getContent()->fieldContext = $currentFieldContext;
+        Craft::$app->getFields()->fieldContext = $currentFieldContext;
 
         return true;
     }
@@ -67,8 +67,8 @@ class Plans extends Component
             return false;
         }
 
-        $currentFieldContext = Craft::$app->getContent()->fieldContext;
-        Craft::$app->getContent()->fieldContext = StripePlugin::$app->settings->getFieldContext();
+        $currentFieldContext = Craft::$app->getFields()->fieldContext;
+        Craft::$app->getFields()->fieldContext = StripePlugin::$app->settings->getFieldContext();
         $matrixMultiplePlansField = Craft::$app->fields->getFieldByHandle(StripePlugin::$app->paymentForms::MULTIPLE_PLANS_HANDLE);
 
         $matrixFields = $matrixMultiplePlansField->getBlockTypeFields();
@@ -88,7 +88,7 @@ class Plans extends Component
             }
         }
 
-        Craft::$app->getContent()->fieldContext = $currentFieldContext;
+        Craft::$app->getFields()->fieldContext = $currentFieldContext;
 
         return $finalPlans;
     }

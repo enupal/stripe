@@ -22,8 +22,8 @@ class m180621_000000_add_handle_to_basic_fields extends Migration
     {
         $fieldsService = Craft::$app->getFields();
 
-        $currentFieldContext = Craft::$app->getContent()->fieldContext;
-        Craft::$app->getContent()->fieldContext = StripePlugin::$app->settings->getFieldContext();
+        $currentFieldContext = Craft::$app->getFields()->fieldContext;
+        Craft::$app->getFields()->fieldContext = StripePlugin::$app->settings->getFieldContext();
         /**
          * @var craft\fields\Matrix
          */
@@ -31,7 +31,7 @@ class m180621_000000_add_handle_to_basic_fields extends Migration
 
         $blockTypes = $matrixBasicField->getBlockTypes();
 
-        Craft::$app->getContent()->fieldContext = $currentFieldContext;
+        Craft::$app->getFields()->fieldContext = $currentFieldContext;
 
         foreach ($blockTypes as $blockType) {
             if ($blockType->handle != 'hidden'){
