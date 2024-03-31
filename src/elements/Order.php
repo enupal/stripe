@@ -159,6 +159,14 @@ class Order extends Element
     /**
      * @inheritdoc
      */
+    public function canDelete(User $user): bool
+    {
+        return true;
+    }
+
+    /**
+     * @inheritdoc
+     */
     public function getCpEditUrl(): ?string
     {
         return UrlHelper::cpUrl(
