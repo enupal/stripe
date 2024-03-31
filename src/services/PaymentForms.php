@@ -1796,11 +1796,12 @@ class PaymentForms extends Component
             $fieldLayoutTab->sortOrder = 1;
             $fieldLayoutTab->setLayout($fieldLayout);
             $fieldLayout->type = Entry::class;
+            $layoutElements = [];
 
             foreach ($blockTypeConfig['fields'] as $fieldConfig) {
                 $field = $fields[] = Craft::$app->getFields()->createField([
                     'type' => $fieldConfig['type'],
-                    'name' => $this->uniqueName($fieldConfig['name'], $fieldNames),
+                    'name' => $fieldConfig['name'],
                     'handle' => $this->uniqueHandle($fieldConfig['handle'], $fieldHandles),
                     'context' => StripePlugin::$app->settings->getFieldContext(),
                     'columnSuffix' => $fieldConfig['columnSuffix'] ?? null,
@@ -1825,7 +1826,7 @@ class PaymentForms extends Component
             Craft::$app->getFields()->saveLayout($fieldLayout);
             $entryType->setFieldLayout($fieldLayout);
             Craft::$app->entries->saveEntryType($entryType);
-            
+
             $entryTypeUids[] = $entryType->uid;
         }
 
