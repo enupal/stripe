@@ -1,5 +1,13 @@
 # Stripe Payments Changelog
 
+## 6.0.1 - 2024.03.31
+### Updated
+- Updated sidebar logo
+
+## 6.0.0 - 2024.03.31
+### Added
+- Added Craft CMS 5 support 
+
 ## 5.5.1 - 2024.02.26
 ### Fixed
 - Fixed issue where Subscription Grant user group was not updated after updating plan. ([#374])
