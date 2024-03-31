@@ -842,7 +842,7 @@ class PaymentForms extends Component
         $currentFieldContext = Craft::$app->getFields()->fieldContext;
 
         $stripeFields = (new Query())
-            ->select(['id'])
+            ->select(['id', 'type'])
             ->from(["{{%fields}}"])
             ->where(['like', 'context', 'enupalStripe:'])
             ->all();
@@ -851,6 +851,13 @@ class PaymentForms extends Component
 
         if ($stripeFields) {
             foreach ($stripeFields as $stripeField) {
+                if ($stripeField['type'] == Matrix::class) {
+                    /** @var Matrix $matrixField */
+                    $matrixField = Craft::$app->fields->getFieldById($stripeField['id']);
+                    foreach ($matrixField->getEntryTypes() as $entryType) {
+                        Craft::$app->getEntries()->deleteEntryTypeById($entryType->id);
+                    }
+                }
                 if (Craft::$app->fields->deleteFieldById($stripeField['id'])){
                     Craft::info('Stripe Payments Field deleted: '.$stripeField['id'], __METHOD__);
                 } else{
@@ -1254,7 +1261,7 @@ class PaymentForms extends Component
                             'type' => Lightswitch::class,
                             'name' => 'Required',
                             'handle' => 'required',
-                            'instructions' => 'This field is required?',
+                            'instructions' => 'is this field required?',
                             'required' => 0,
                             'settings' => '{"default":""}',
                             'translationMethod' => Field::TRANSLATION_METHOD_SITE,
@@ -1296,7 +1303,7 @@ class PaymentForms extends Component
                             'type' => Lightswitch::class,
                             'name' => 'Required',
                             'handle' => 'required',
-                            'instructions' => 'This field is required?',
+                            'instructions' => 'is this field required?',
                             'required' => 0,
                             'settings' => '{"default":""}',
                             'translationMethod' => Field::TRANSLATION_METHOD_SITE,
@@ -1338,7 +1345,7 @@ class PaymentForms extends Component
                             'type' => Lightswitch::class,
                             'name' => 'Required',
                             'handle' => 'required',
-                            'instructions' => 'This field is required?',
+                            'instructions' => 'is this field required?',
                             'required' => 0,
                             'settings' => '{"default":""}',
                             'translationMethod' => Field::TRANSLATION_METHOD_SITE,
@@ -1389,7 +1396,7 @@ class PaymentForms extends Component
                             'type' => Lightswitch::class,
                             'name' => 'Required',
                             'handle' => 'required',
-                            'instructions' => 'This field is required?',
+                            'instructions' => 'is this field required?',
                             'required' => 0,
                             'settings' => '{"default":""}',
                             'translationMethod' => Field::TRANSLATION_METHOD_SITE,
@@ -1431,7 +1438,7 @@ class PaymentForms extends Component
                             'type' => Lightswitch::class,
                             'name' => 'Required',
                             'handle' => 'required',
-                            'instructions' => 'This field is required?',
+                            'instructions' => 'is this field required?',
                             'required' => 0,
                             'settings' => '{"default":""}',
                             'translationMethod' => Field::TRANSLATION_METHOD_SITE,
@@ -1784,7 +1791,7 @@ class PaymentForms extends Component
 
         foreach ($entryTypesConfig as $blockTypeConfig) {
             $entryType = new EntryType([
-                'name' => $this->uniqueName($blockTypeConfig['name'], $entryTypeNames),
+                'name' => $blockTypeConfig['name'],
                 'handle' => $this->uniqueHandle($blockTypeConfig['handle'], $entryTypeHandles),
                 'hasTitleField' => false,
                 'titleFormat' => null,
