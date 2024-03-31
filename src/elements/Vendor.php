@@ -202,7 +202,7 @@ class Vendor extends Element
      * @throws \yii\base\Exception
      * @throws \yii\base\InvalidConfigException
      */
-    protected function tableAttributeHtml(string $attribute): string
+    protected function attributeHtml(string $attribute): string
     {
         switch ($attribute) {
             case 'stripeId':
@@ -219,7 +219,7 @@ class Vendor extends Element
             }
         }
 
-        return parent::tableAttributeHtml($attribute);
+        return parent::attributeHtml($attribute);
     }
 
     /**

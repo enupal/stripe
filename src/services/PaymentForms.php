@@ -11,6 +11,7 @@ namespace enupal\stripe\services;
 use Craft;
 use craft\base\Field;
 use craft\db\Query;
+use craft\elements\Entry;
 use craft\fieldlayoutelements\CustomField;
 use craft\fields\Dropdown;
 use craft\fields\Lightswitch;
@@ -18,10 +19,15 @@ use craft\fields\Matrix;
 use craft\fields\Number;
 use craft\fields\PlainText;
 use craft\fields\Table;
+use craft\helpers\ArrayHelper;
 use craft\helpers\FileHelper;
 use craft\helpers\Json;
 use craft\helpers\StringHelper;
 use craft\helpers\UrlHelper;
+use craft\models\EntryType;
+use craft\models\FieldLayout;
+use craft\models\FieldLayoutTab;
+use craft\services\ProjectConfig;
 use enupal\stripe\enums\CheckoutPaymentType;
 use enupal\stripe\enums\PaymentType;
 use enupal\stripe\enums\SubscriptionType;
@@ -148,7 +154,7 @@ class PaymentForms extends Component
 
         try {
             // Set the field context
-            Craft::$app->content->fieldContext = $paymentForm->getFieldContext();
+            Craft::$app->getFields()->fieldContext = $paymentForm->getFieldContext();
             if ($isNewForm) {
                 $fieldLayout = $paymentForm->getFieldLayout();
 
@@ -784,13 +790,13 @@ class PaymentForms extends Component
             return null;
         }
 
-        $currentFieldContext = Craft::$app->getContent()->fieldContext;
-        Craft::$app->getContent()->fieldContext = StripePlugin::$app->settings->getFieldContext();
+        $currentFieldContext = Craft::$app->getFields()->fieldContext;
+        Craft::$app->getFields()->fieldContext = StripePlugin::$app->settings->getFieldContext();
 
         $matrixBasicField = Craft::$app->fields->getFieldByHandle(self::BASIC_FORM_FIELDS_HANDLE);
         $matrixMultiplePlans = Craft::$app->fields->getFieldByHandle(self::MULTIPLE_PLANS_HANDLE);
         // Give back the current field context
-        Craft::$app->getContent()->fieldContext = $currentFieldContext;
+        Craft::$app->getFields()->fieldContext = $currentFieldContext;
 
         if (is_null($matrixBasicField) || is_null($matrixMultiplePlans)) {
             // Can't add variants to this payment form (Someone delete the fields)
@@ -833,18 +839,25 @@ class PaymentForms extends Component
      */
     public function deleteVariantFields()
     {
-        $currentFieldContext = Craft::$app->getContent()->fieldContext;
+        $currentFieldContext = Craft::$app->getFields()->fieldContext;
 
         $stripeFields = (new Query())
-            ->select(['id'])
+            ->select(['id', 'type'])
             ->from(["{{%fields}}"])
             ->where(['like', 'context', 'enupalStripe:'])
             ->all();
 
-        Craft::$app->getContent()->fieldContext = StripePlugin::$app->settings->getFieldContext();
+        Craft::$app->getFields()->fieldContext = StripePlugin::$app->settings->getFieldContext();
 
         if ($stripeFields) {
             foreach ($stripeFields as $stripeField) {
+                if ($stripeField['type'] == Matrix::class) {
+                    /** @var Matrix $matrixField */
+                    $matrixField = Craft::$app->fields->getFieldById($stripeField['id']);
+                    foreach ($matrixField->getEntryTypes() as $entryType) {
+                        Craft::$app->getEntries()->deleteEntryTypeById($entryType->id);
+                    }
+                }
                 if (Craft::$app->fields->deleteFieldById($stripeField['id'])){
                     Craft::info('Stripe Payments Field deleted: '.$stripeField['id'], __METHOD__);
                 } else{
@@ -854,7 +867,7 @@ class PaymentForms extends Component
         }
 
         // Give back the current field context
-        Craft::$app->getContent()->fieldContext = $currentFieldContext;
+        Craft::$app->getFields()->fieldContext = $currentFieldContext;
 
         // Delete also from project config
         $fields = Craft::$app->projectConfig->get('enupalStripe.fields');
@@ -1122,314 +1135,23 @@ class PaymentForms extends Component
     private function createFormFieldsMatrixField()
     {
         $fieldsService = Craft::$app->getFields();
-
-        $matrixSettings = [
-            'minBlocks' => "",
-            'maxBlocks' => "",
-            'blockTypes' => [
-                'new1' => [
-                    'name' => 'Single Line',
-                    'handle' => 'singleLine',
-                    'fields' => [
-                        'new1' => [
-                            'type' => PlainText::class,
-                            'name' => 'Label',
-                            'handle' => 'label',
-                            'instructions' => '',
-                            'required' => 1,
-                            'typesettings' => '{"placeholder":"","code":"","multiline":"","initialRows":"4","charLimit":"","columnType":"text"}',
-                            'translationMethod' => Field::TRANSLATION_METHOD_SITE,
-                        ],
-                        'new2' => [
-                            'type' => PlainText::class,
-                            'name' => 'Handle',
-                            'handle' => 'fieldHandle',
-                            'instructions' => '',
-                            'required' => 1,
-                            'typesettings' => '{"placeholder":"","code":"","multiline":"","initialRows":"4","charLimit":"","columnType":"text"}',
-                            'translationMethod' => Field::TRANSLATION_METHOD_SITE,
-                        ],
-                        'new3' => [
-                            'type' => PlainText::class,
-                            'name' => 'Placeholder',
-                            'handle' => 'placeholder',
-                            'instructions' => '',
-                            'required' => 0,
-                            'typesettings' => '{"placeholder":"","code":"","multiline":"","initialRows":"4","charLimit":"","columnType":"text"}',
-                            'translationMethod' => Field::TRANSLATION_METHOD_SITE,
-                        ],
-                        'new4' => [
-                            'type' => Lightswitch::class,
-                            'name' => 'Required',
-                            'handle' => 'required',
-                            'instructions' => 'This field is required?',
-                            'required' => 0,
-                            'typesettings' => '{"default":""}',
-                            'translationMethod' => Field::TRANSLATION_METHOD_SITE,
-                        ]
-                    ]
-                ],
-                'new2' => [
-                    'name' => 'Paragraph',
-                    'handle' => 'paragraph',
-                    'fields' => [
-                        'new1' => [
-                            'type' => PlainText::class,
-                            'name' => 'Label',
-                            'handle' => 'label',
-                            'instructions' => '',
-                            'required' => 1,
-                            'typesettings' => '{"placeholder":"","code":"","multiline":"","initialRows":"4","charLimit":"","columnType":"text"}',
-                            'translationMethod' => Field::TRANSLATION_METHOD_SITE,
-                        ],
-                        'new2' => [
-                            'type' => PlainText::class,
-                            'name' => 'Handle',
-                            'handle' => 'fieldHandle',
-                            'instructions' => '',
-                            'required' => 1,
-                            'typesettings' => '{"placeholder":"","code":"","multiline":"","initialRows":"4","charLimit":"","columnType":"text"}',
-                            'translationMethod' => Field::TRANSLATION_METHOD_SITE,
-                        ],
-                        'new3' => [
-                            'type' => PlainText::class,
-                            'name' => 'Placeholder',
-                            'handle' => 'placeholder',
-                            'instructions' => '',
-                            'required' => 0,
-                            'typesettings' => '{"placeholder":"","code":"","multiline":"","initialRows":"4","charLimit":"","columnType":"text"}',
-                            'translationMethod' => Field::TRANSLATION_METHOD_SITE,
-                        ],
-                        'new4' => [
-                            'type' => Number::class,
-                            'name' => 'Initial Rows',
-                            'handle' => 'initialRows',
-                            'instructions' => '',
-                            'required' => 1,
-                            'typesettings' => '{"min":"2","max":null,"decimals":"0","size":null}',
-                            'translationMethod' => Field::TRANSLATION_METHOD_SITE,
-                        ],
-                        'new5' => [
-                            'type' => Lightswitch::class,
-                            'name' => 'Required',
-                            'handle' => 'required',
-                            'instructions' => 'This field is required?',
-                            'required' => 0,
-                            'typesettings' => '{"default":""}',
-                            'translationMethod' => Field::TRANSLATION_METHOD_SITE,
-                        ]
-                    ]
-                ],
-                'new3' => [
-                    'name' => 'Dropdown',
-                    'handle' => 'dropdown',
-                    'fields' => [
-                        'new1' => [
-                            'type' => PlainText::class,
-                            'name' => 'Label',
-                            'handle' => 'label',
-                            'instructions' => '',
-                            'required' => 1,
-                            'typesettings' => '{"placeholder":"","code":"","multiline":"","initialRows":"4","charLimit":"","columnType":"text"}',
-                            'translationMethod' => Field::TRANSLATION_METHOD_SITE,
-                        ],
-                        'new2' => [
-                            'type' => PlainText::class,
-                            'name' => 'Handle',
-                            'handle' => 'fieldHandle',
-                            'instructions' => '',
-                            'required' => 1,
-                            'typesettings' => '{"placeholder":"","code":"","multiline":"","initialRows":"4","charLimit":"","columnType":"text"}',
-                            'translationMethod' => Field::TRANSLATION_METHOD_SITE,
-                        ],
-                        'new3' => [
-                            'type' => Table::class,
-                            'name' => 'Options',
-                            'handle' => 'options',
-                            'required' => '1',
-                            'instructions' => '',
-                            'typesettings' => '{"addRowLabel":"Add an option","maxRows":"","minRows":"1","columns":{"col1":{"heading":"Option Label","handle":"optionLabel","width":"","type":"singleline"},"col2":{"heading":"Value","handle":"value","width":"","type":"singleline"}},"defaults":{"row1":{"col1":"","col2":""}},"columnType":"text"}',
-                            'translationMethod' => Field::TRANSLATION_METHOD_SITE,
-                        ],
-                        'new4' => [
-                            'type' => Lightswitch::class,
-                            'name' => 'Required',
-                            'handle' => 'required',
-                            'instructions' => 'This field is required?',
-                            'required' => 0,
-                            'typesettings' => '{"default":""}',
-                            'translationMethod' => Field::TRANSLATION_METHOD_SITE,
-                        ]
-                    ]
-                ],
-                'new4' => [
-                    'name' => 'Radio Buttons',
-                    'handle' => 'radioButtons',
-                    'fields' => [
-                        'new1' => [
-                            'type' => PlainText::class,
-                            'name' => 'Label',
-                            'handle' => 'label',
-                            'instructions' => '',
-                            'required' => 1,
-                            'typesettings' => '{"placeholder":"","code":"","multiline":"","initialRows":"4","charLimit":"","columnType":"text"}',
-                            'translationMethod' => Field::TRANSLATION_METHOD_SITE,
-                        ],
-                        'new2' => [
-                            'type' => PlainText::class,
-                            'name' => 'Handle',
-                            'handle' => 'fieldHandle',
-                            'instructions' => '',
-                            'required' => 1,
-                            'typesettings' => '{"placeholder":"","code":"","multiline":"","initialRows":"4","charLimit":"","columnType":"text"}',
-                            'translationMethod' => Field::TRANSLATION_METHOD_SITE,
-                        ],
-                        'new3' => [
-                            'type' => Table::class,
-                            'name' => 'Options',
-                            'handle' => 'options',
-                            'required' => '1',
-                            'instructions' => '',
-                            'typesettings' => '{"addRowLabel":"Add an option","maxRows":"","minRows":"1","columns":{"col1":{"heading":"Option Label","handle":"optionLabel","width":"","type":"singleline"},"col2":{"heading":"Value","handle":"value","width":"","type":"singleline"}},"defaults":{"row1":{"col1":"","col2":""}},"columnType":"text"}',
-                            'translationMethod' => Field::TRANSLATION_METHOD_SITE,
-                        ],
-                        'new4' => [
-                            'type' => Lightswitch::class,
-                            'name' => 'Required',
-                            'handle' => 'required',
-                            'instructions' => 'This field is required?',
-                            'required' => 0,
-                            'typesettings' => '{"default":""}',
-                            'translationMethod' => Field::TRANSLATION_METHOD_SITE,
-                        ]
-                    ]
-                ],
-                'new5' => [
-                    'name' => 'Number',
-                    'handle' => 'number',
-                    'fields' => [
-                        'new1' => [
-                            'type' => PlainText::class,
-                            'name' => 'Label',
-                            'handle' => 'label',
-                            'instructions' => '',
-                            'required' => 1,
-                            'typesettings' => '{"placeholder":"","code":"","multiline":"","initialRows":"4","charLimit":"","columnType":"text"}',
-                            'translationMethod' => Field::TRANSLATION_METHOD_SITE,
-                        ],
-                        'new2' => [
-                            'type' => PlainText::class,
-                            'name' => 'Handle',
-                            'handle' => 'fieldHandle',
-                            'instructions' => '',
-                            'required' => 1,
-                            'typesettings' => '{"placeholder":"","code":"","multiline":"","initialRows":"4","charLimit":"","columnType":"text"}',
-                            'translationMethod' => Field::TRANSLATION_METHOD_SITE,
-                        ],
-                        'new3' => [
-                            'type' => Number::class,
-                            'name' => 'Min Value',
-                            'handle' => 'minValue',
-                            'required' => 0,
-                            'instructions' => '',
-                            'typesettings' => '{"min":null,"max":null,"decimals":"0","size":null}',
-                            'translationMethod' => Field::TRANSLATION_METHOD_SITE,
-                        ],
-                        'new4' => [
-                            'type' => Number::class,
-                            'name' => 'Max Value',
-                            'handle' => 'maxValue',
-                            'required' => 0,
-                            'instructions' => '',
-                            'typesettings' => '{"min":null,"max":null,"decimals":"0","size":null}',
-                            'translationMethod' => Field::TRANSLATION_METHOD_SITE,
-                        ],
-                        'new5' => [
-                            'type' => Lightswitch::class,
-                            'name' => 'Required',
-                            'handle' => 'required',
-                            'instructions' => 'This field is required?',
-                            'required' => 0,
-                            'typesettings' => '{"default":""}',
-                            'translationMethod' => Field::TRANSLATION_METHOD_SITE,
-                        ]
-                    ]
-                ],
-                'new6' => [
-                    'name' => 'CheckBoxes',
-                    'handle' => 'checkboxes',
-                    'fields' => [
-                        'new1' => [
-                            'type' => PlainText::class,
-                            'name' => 'Label',
-                            'handle' => 'label',
-                            'instructions' => '',
-                            'required' => 1,
-                            'typesettings' => '{"placeholder":"","code":"","multiline":"","initialRows":"4","charLimit":"","columnType":"text"}',
-                            'translationMethod' => Field::TRANSLATION_METHOD_SITE,
-                        ],
-                        'new2' => [
-                            'type' => PlainText::class,
-                            'name' => 'Handle',
-                            'handle' => 'fieldHandle',
-                            'instructions' => '',
-                            'required' => 1,
-                            'typesettings' => '{"placeholder":"","code":"","multiline":"","initialRows":"4","charLimit":"","columnType":"text"}',
-                            'translationMethod' => Field::TRANSLATION_METHOD_SITE,
-                        ],
-                        'new3' => [
-                            'type' => Table::class,
-                            'name' => 'Options',
-                            'handle' => 'options',
-                            'required' => '1',
-                            'instructions' => '',
-                            'typesettings' => '{"addRowLabel":"Add an option","maxRows":"","minRows":"1","columns":{"col1":{"heading":"Option Label","handle":"optionLabel","width":"","type":"singleline"},"col2":{"heading":"Value","handle":"value","width":"","type":"singleline"}},"defaults":{"row1":{"col1":"","col2":""}},"columnType":"text"}',
-                            'translationMethod' => Field::TRANSLATION_METHOD_SITE,
-                        ],
-                        'new4' => [
-                            'type' => Lightswitch::class,
-                            'name' => 'Required',
-                            'handle' => 'required',
-                            'instructions' => 'This field is required?',
-                            'required' => 0,
-                            'typesettings' => '{"default":""}',
-                            'translationMethod' => Field::TRANSLATION_METHOD_SITE,
-                        ]
-                    ]
-                ],
-                'new7' => [
-                    'name' => 'Hidden',
-                    'handle' => 'hidden',
-                    'fields' => [
-                        'new1' => [
-                            'type' => PlainText::class,
-                            'name' => 'Handle',
-                            'handle' => 'label',
-                            'instructions' => 'This field will not visible in the form, just in the source code',
-                            'required' => 1,
-                            'typesettings' => '{"placeholder":"","code":"","multiline":"","initialRows":"4","charLimit":"","columnType":"text"}',
-                            'translationMethod' => Field::TRANSLATION_METHOD_SITE,
-                        ],
-                        'new2' => [
-                            'type' => PlainText::class,
-                            'name' => 'Hidden Value',
-                            'handle' => 'hiddenValue',
-                            'instructions' => 'You can use twig code',
-                            'required' => 1,
-                            'typesettings' => '{"placeholder":"{{ craft.request.path }}","code":"","multiline":"","initialRows":"4","charLimit":"","columnType":"text"}',
-                            'translationMethod' => Field::TRANSLATION_METHOD_SITE
-                        ]
-                    ]
-                ],
-            ]
-        ];
-
+        $projectConfig = Craft::$app->getProjectConfig();
         $matrixBasicField = $this->getStripeMatrixFieldFromDb(self::BASIC_FORM_FIELDS_HANDLE);
 
         if (!is_null($matrixBasicField)) {
             Craft::info('Skipped '.self::BASIC_FORM_FIELDS_HANDLE. ' as already exists', __METHOD__);
             return true;
         }
+
+        $entryTypesConfig = $this->getBasicFormEntryTypesConfig()['entryTypes'];
+        $entryTypeUids = $this->getEntryTypeUids($projectConfig, $entryTypesConfig);
+
+        $matrixSettings = [
+            'maxEntries' => "",
+            'minEntries' => "",
+            'entryTypes' => $entryTypeUids,
+            'viewMode' => Matrix::VIEW_MODE_BLOCKS,
+        ];
 
         // Our basic fields is a matrix field
         $matrixBasicField = $fieldsService->createField([
@@ -1447,12 +1169,316 @@ class PaymentForms extends Component
         return true;
     }
 
+    private function getBasicFormEntryTypesConfig()
+    {
+        return [
+            'minEntries' => "",
+            'maxEntries' => "",
+            'entryTypes' => [
+                'new1' => [
+                    'name' => 'Single Line',
+                    'handle' => 'singleLine',
+                    'fields' => [
+                        'new1' => [
+                            'type' => PlainText::class,
+                            'name' => 'Label',
+                            'handle' => 'label',
+                            'instructions' => '',
+                            'required' => 1,
+                            'settings' => '{"placeholder":"","code":"","multiline":"","initialRows":"4","charLimit":"","columnType":"text"}',
+                            'translationMethod' => Field::TRANSLATION_METHOD_SITE,
+                        ],
+                        'new2' => [
+                            'type' => PlainText::class,
+                            'name' => 'Handle',
+                            'handle' => 'fieldHandle',
+                            'instructions' => '',
+                            'required' => 1,
+                            'settings' => '{"placeholder":"","code":"","multiline":"","initialRows":"4","charLimit":"","columnType":"text"}',
+                            'translationMethod' => Field::TRANSLATION_METHOD_SITE,
+                        ],
+                        'new3' => [
+                            'type' => PlainText::class,
+                            'name' => 'Placeholder',
+                            'handle' => 'placeholder',
+                            'instructions' => '',
+                            'required' => 0,
+                            'settings' => '{"placeholder":"","code":"","multiline":"","initialRows":"4","charLimit":"","columnType":"text"}',
+                            'translationMethod' => Field::TRANSLATION_METHOD_SITE,
+                        ],
+                        'new4' => [
+                            'type' => Lightswitch::class,
+                            'name' => 'Required',
+                            'handle' => 'required',
+                            'instructions' => 'is this field required?',
+                            'required' => 0,
+                            'settings' => '{"default":""}',
+                            'translationMethod' => Field::TRANSLATION_METHOD_SITE,
+                        ]
+                    ]
+                ],
+                'new2' => [
+                    'name' => 'Paragraph',
+                    'handle' => 'paragraph',
+                    'fields' => [
+                        'new1' => [
+                            'type' => PlainText::class,
+                            'name' => 'Label',
+                            'handle' => 'label',
+                            'instructions' => '',
+                            'required' => 1,
+                            'settings' => '{"placeholder":"","code":"","multiline":"","initialRows":"4","charLimit":"","columnType":"text"}',
+                            'translationMethod' => Field::TRANSLATION_METHOD_SITE,
+                        ],
+                        'new2' => [
+                            'type' => PlainText::class,
+                            'name' => 'Handle',
+                            'handle' => 'fieldHandle',
+                            'instructions' => '',
+                            'required' => 1,
+                            'settings' => '{"placeholder":"","code":"","multiline":"","initialRows":"4","charLimit":"","columnType":"text"}',
+                            'translationMethod' => Field::TRANSLATION_METHOD_SITE,
+                        ],
+                        'new3' => [
+                            'type' => PlainText::class,
+                            'name' => 'Placeholder',
+                            'handle' => 'placeholder',
+                            'instructions' => '',
+                            'required' => 0,
+                            'settings' => '{"placeholder":"","code":"","multiline":"","initialRows":"4","charLimit":"","columnType":"text"}',
+                            'translationMethod' => Field::TRANSLATION_METHOD_SITE,
+                        ],
+                        'new4' => [
+                            'type' => Number::class,
+                            'name' => 'Initial Rows',
+                            'handle' => 'initialRows',
+                            'instructions' => '',
+                            'required' => 1,
+                            'settings' => '{"min":"2","max":null,"decimals":"0","size":null}',
+                            'translationMethod' => Field::TRANSLATION_METHOD_SITE,
+                        ],
+                        'new5' => [
+                            'type' => Lightswitch::class,
+                            'name' => 'Required',
+                            'handle' => 'required',
+                            'instructions' => 'is this field required?',
+                            'required' => 0,
+                            'settings' => '{"default":""}',
+                            'translationMethod' => Field::TRANSLATION_METHOD_SITE,
+                        ]
+                    ]
+                ],
+                'new3' => [
+                    'name' => 'Dropdown',
+                    'handle' => 'dropdown',
+                    'fields' => [
+                        'new1' => [
+                            'type' => PlainText::class,
+                            'name' => 'Label',
+                            'handle' => 'label',
+                            'instructions' => '',
+                            'required' => 1,
+                            'settings' => '{"placeholder":"","code":"","multiline":"","initialRows":"4","charLimit":"","columnType":"text"}',
+                            'translationMethod' => Field::TRANSLATION_METHOD_SITE,
+                        ],
+                        'new2' => [
+                            'type' => PlainText::class,
+                            'name' => 'Handle',
+                            'handle' => 'fieldHandle',
+                            'instructions' => '',
+                            'required' => 1,
+                            'settings' => '{"placeholder":"","code":"","multiline":"","initialRows":"4","charLimit":"","columnType":"text"}',
+                            'translationMethod' => Field::TRANSLATION_METHOD_SITE,
+                        ],
+                        'new3' => [
+                            'type' => Table::class,
+                            'name' => 'Options',
+                            'handle' => 'options',
+                            'required' => '1',
+                            'instructions' => '',
+                            'settings' => '{"addRowLabel":"Add an option","maxRows":"","minRows":"1","columns":{"col1":{"heading":"Option Label","handle":"optionLabel","width":"","type":"singleline"},"col2":{"heading":"Value","handle":"value","width":"","type":"singleline"}},"defaults":{"row1":{"col1":"","col2":""}},"columnType":"text"}',
+                            'translationMethod' => Field::TRANSLATION_METHOD_SITE,
+                        ],
+                        'new4' => [
+                            'type' => Lightswitch::class,
+                            'name' => 'Required',
+                            'handle' => 'required',
+                            'instructions' => 'is this field required?',
+                            'required' => 0,
+                            'settings' => '{"default":""}',
+                            'translationMethod' => Field::TRANSLATION_METHOD_SITE,
+                        ]
+                    ]
+                ],
+                'new4' => [
+                    'name' => 'Radio Buttons',
+                    'handle' => 'radioButtons',
+                    'fields' => [
+                        'new1' => [
+                            'type' => PlainText::class,
+                            'name' => 'Label',
+                            'handle' => 'label',
+                            'instructions' => '',
+                            'required' => 1,
+                            'settings' => '{"placeholder":"","code":"","multiline":"","initialRows":"4","charLimit":"","columnType":"text"}',
+                            'translationMethod' => Field::TRANSLATION_METHOD_SITE,
+                        ],
+                        'new2' => [
+                            'type' => PlainText::class,
+                            'name' => 'Handle',
+                            'handle' => 'fieldHandle',
+                            'instructions' => '',
+                            'required' => 1,
+                            'settings' => '{"placeholder":"","code":"","multiline":"","initialRows":"4","charLimit":"","columnType":"text"}',
+                            'translationMethod' => Field::TRANSLATION_METHOD_SITE,
+                        ],
+                        'new3' => [
+                            'type' => Table::class,
+                            'name' => 'Options',
+                            'handle' => 'options',
+                            'required' => '1',
+                            'instructions' => '',
+                            'settings' => '{"addRowLabel":"Add an option","maxRows":"","minRows":"1","columns":{"col1":{"heading":"Option Label","handle":"optionLabel","width":"","type":"singleline"},"col2":{"heading":"Value","handle":"value","width":"","type":"singleline"}},"defaults":{"row1":{"col1":"","col2":""}},"columnType":"text"}',
+                            'translationMethod' => Field::TRANSLATION_METHOD_SITE,
+                        ],
+                        'new4' => [
+                            'type' => Lightswitch::class,
+                            'name' => 'Required',
+                            'handle' => 'required',
+                            'instructions' => 'is this field required?',
+                            'required' => 0,
+                            'settings' => '{"default":""}',
+                            'translationMethod' => Field::TRANSLATION_METHOD_SITE,
+                        ]
+                    ]
+                ],
+                'new5' => [
+                    'name' => 'Number',
+                    'handle' => 'number',
+                    'fields' => [
+                        'new1' => [
+                            'type' => PlainText::class,
+                            'name' => 'Label',
+                            'handle' => 'label',
+                            'instructions' => '',
+                            'required' => 1,
+                            'settings' => '{"placeholder":"","code":"","multiline":"","initialRows":"4","charLimit":"","columnType":"text"}',
+                            'translationMethod' => Field::TRANSLATION_METHOD_SITE,
+                        ],
+                        'new2' => [
+                            'type' => PlainText::class,
+                            'name' => 'Handle',
+                            'handle' => 'fieldHandle',
+                            'instructions' => '',
+                            'required' => 1,
+                            'settings' => '{"placeholder":"","code":"","multiline":"","initialRows":"4","charLimit":"","columnType":"text"}',
+                            'translationMethod' => Field::TRANSLATION_METHOD_SITE,
+                        ],
+                        'new3' => [
+                            'type' => Number::class,
+                            'name' => 'Min Value',
+                            'handle' => 'minValue',
+                            'required' => 0,
+                            'instructions' => '',
+                            'settings' => '{"min":null,"max":null,"decimals":"0","size":null}',
+                            'translationMethod' => Field::TRANSLATION_METHOD_SITE,
+                        ],
+                        'new4' => [
+                            'type' => Number::class,
+                            'name' => 'Max Value',
+                            'handle' => 'maxValue',
+                            'required' => 0,
+                            'instructions' => '',
+                            'settings' => '{"min":null,"max":null,"decimals":"0","size":null}',
+                            'translationMethod' => Field::TRANSLATION_METHOD_SITE,
+                        ],
+                        'new5' => [
+                            'type' => Lightswitch::class,
+                            'name' => 'Required',
+                            'handle' => 'required',
+                            'instructions' => 'is this field required?',
+                            'required' => 0,
+                            'settings' => '{"default":""}',
+                            'translationMethod' => Field::TRANSLATION_METHOD_SITE,
+                        ]
+                    ]
+                ],
+                'new6' => [
+                    'name' => 'CheckBoxes',
+                    'handle' => 'checkboxes',
+                    'fields' => [
+                        'new1' => [
+                            'type' => PlainText::class,
+                            'name' => 'Label',
+                            'handle' => 'label',
+                            'instructions' => '',
+                            'required' => 1,
+                            'settings' => '{"placeholder":"","code":"","multiline":"","initialRows":"4","charLimit":"","columnType":"text"}',
+                            'translationMethod' => Field::TRANSLATION_METHOD_SITE,
+                        ],
+                        'new2' => [
+                            'type' => PlainText::class,
+                            'name' => 'Handle',
+                            'handle' => 'fieldHandle',
+                            'instructions' => '',
+                            'required' => 1,
+                            'settings' => '{"placeholder":"","code":"","multiline":"","initialRows":"4","charLimit":"","columnType":"text"}',
+                            'translationMethod' => Field::TRANSLATION_METHOD_SITE,
+                        ],
+                        'new3' => [
+                            'type' => Table::class,
+                            'name' => 'Options',
+                            'handle' => 'options',
+                            'required' => '1',
+                            'instructions' => '',
+                            'settings' => '{"addRowLabel":"Add an option","maxRows":"","minRows":"1","columns":{"col1":{"heading":"Option Label","handle":"optionLabel","width":"","type":"singleline"},"col2":{"heading":"Value","handle":"value","width":"","type":"singleline"}},"defaults":{"row1":{"col1":"","col2":""}},"columnType":"text"}',
+                            'translationMethod' => Field::TRANSLATION_METHOD_SITE,
+                        ],
+                        'new4' => [
+                            'type' => Lightswitch::class,
+                            'name' => 'Required',
+                            'handle' => 'required',
+                            'instructions' => 'is this field required?',
+                            'required' => 0,
+                            'settings' => '{"default":""}',
+                            'translationMethod' => Field::TRANSLATION_METHOD_SITE,
+                        ]
+                    ]
+                ],
+                'new7' => [
+                    'name' => 'Hidden',
+                    'handle' => 'hidden',
+                    'fields' => [
+                        'new1' => [
+                            'type' => PlainText::class,
+                            'name' => 'Handle',
+                            'handle' => 'label',
+                            'instructions' => 'This field will not visible in the form, just in the source code',
+                            'required' => 1,
+                            'settings' => '{"placeholder":"","code":"","multiline":"","initialRows":"4","charLimit":"","columnType":"text"}',
+                            'translationMethod' => Field::TRANSLATION_METHOD_SITE,
+                        ],
+                        'new2' => [
+                            'type' => PlainText::class,
+                            'name' => 'Hidden Value',
+                            'handle' => 'hiddenValue',
+                            'instructions' => 'You can use twig code',
+                            'required' => 1,
+                            'settings' => '{"placeholder":"{{ craft.request.path }}","code":"","multiline":"","initialRows":"4","charLimit":"","columnType":"text"}',
+                            'translationMethod' => Field::TRANSLATION_METHOD_SITE
+                        ]
+                    ]
+                ],
+            ]
+        ];
+    }
+
     public function getStripeMatrixFieldFromDb($handle)
     {
-        $currentFieldContext = Craft::$app->getContent()->fieldContext;
-        Craft::$app->getContent()->fieldContext = StripePlugin::$app->settings->getFieldContext();
+        $currentFieldContext = Craft::$app->getFields()->fieldContext;
+        Craft::$app->getFields()->fieldContext = StripePlugin::$app->settings->getFieldContext();
         $matrixBasicField = Craft::$app->fields->getFieldByHandle($handle);
-        Craft::$app->getContent()->fieldContext = $currentFieldContext;
+        Craft::$app->getFields()->fieldContext = $currentFieldContext;
 
         $projectConfig = Craft::$app->config->getGeneral()->useProjectConfigFile ?? false;
 
@@ -1478,65 +1504,25 @@ class PaymentForms extends Component
      */
     private function createMultiplePlansMatrixField()
     {
-        $fieldsService = Craft::$app->getFields();
-
-        $subscriptionUrl = UrlHelper::cpUrl('enupal-stripe/settings/subscriptions');
-
-        $matrixSettings = [
-            'minBlocks' => "",
-            'maxBlocks' => "",
-            'blockTypes' => [
-                'new1' => [
-                    'name' => 'Subscription Plan',
-                    'handle' => 'subscriptionPlan',
-                    'fields' => [
-                        'new1' => [
-                            'type' => Dropdown::class,
-                            'name' => 'Select Plan',
-                            'handle' => 'selectPlan',
-                            'instructions' => "Can't see your plans? Go to [Subscriptions]($subscriptionUrl) and click on Refresh Plans",
-                            'required' => 1,
-                            'typesettings' => '{"columnType":"string", "options":[{"label":"Select Plan...","value":"","default":""}]}',
-                            'translationMethod' => Field::TRANSLATION_METHOD_SITE,
-                        ],
-                        'new2' => [
-                            'type' => PlainText::class,
-                            'name' => 'Custom Label',
-                            'handle' => 'customLabel',
-                            'instructions' => 'Override the default text displayed for each plan (i.e. “Nickname amount/interval”)',
-                            'required' => 0,
-                            'typesettings' => '{"placeholder":"Awesome Plan $35.00/month","code":"","multiline":"","initialRows":"4","charLimit":"","columnType":"text"}',
-                            'translationMethod' => Field::TRANSLATION_METHOD_SITE,
-                        ],
-                        'new3' => [
-                            'type' => Number::class,
-                            'name' => 'Setup Fee',
-                            'handle' => 'setupFee',
-                            'instructions' => 'Setup Fee for the first payment',
-                            'required' => 0,
-                            'typesettings' => '{"min":null,"max":null,"decimals":"2","size":null}',
-                            'translationMethod' => Field::TRANSLATION_METHOD_SITE,
-                        ],
-                        'new4' => [
-                            'type' => Lightswitch::class,
-                            'name' => 'Default',
-                            'handle' => 'default',
-                            'instructions' => 'Please make sure that just one default is enabled',
-                            'required' => 0,
-                            'typesettings' => '{"default":""}',
-                            'translationMethod' => Field::TRANSLATION_METHOD_SITE,
-                        ]
-                    ]
-                ]
-            ]
-        ];
-
         $matrixMultiplePlansField = $this->getStripeMatrixFieldFromDb(self::MULTIPLE_PLANS_HANDLE);
 
         if (!is_null($matrixMultiplePlansField)) {
             Craft::info('Skipped '.self::MULTIPLE_PLANS_HANDLE. ' as already exists', __METHOD__);
             return true;
         }
+
+        $projectConfig = Craft::$app->getProjectConfig();
+        $fieldsService = Craft::$app->getFields();
+
+        $entryTypesConfig = $this->getMultiplePlansEntryTypesConfig()['entryTypes'];
+        $entryTypeUids = $this->getEntryTypeUids($projectConfig, $entryTypesConfig);
+
+        $matrixSettings = [
+            'maxEntries' => "",
+            'minEntries' => "",
+            'entryTypes' => $entryTypeUids,
+            'viewMode' => Matrix::VIEW_MODE_BLOCKS,
+        ];
 
         // Our multiple plans matrix field
         // Let the customer can sign up for one of several available plans (and optionally set a custom amount).
@@ -1553,6 +1539,84 @@ class PaymentForms extends Component
         $this->saveMatrixFieldOnProjectConfig($matrixMultiplePlansField);
 
         return true;
+    }
+
+    private function uniqueName(string $name, array &$names): string
+    {
+        $i = 1;
+        do {
+            $test = $name . ($i !== 1 ? " $i" : '');
+            if (!isset($names[$test])) {
+                $names[$test] = true;
+                return $test;
+            }
+            $i++;
+        } while (true);
+    }
+
+    private function uniqueHandle(string $handle, array &$handles): string
+    {
+        $i = 1;
+        do {
+            $test = $handle . ($i !== 1 ? $i : '');
+            if (!isset($handles[$test])) {
+                $handles[$test] = true;
+                return $test;
+            }
+            $i++;
+        } while (true);
+    }
+
+    private function getMultiplePlansEntryTypesConfig()
+    {
+        $subscriptionUrl = UrlHelper::cpUrl('enupal-stripe/settings/subscriptions');
+
+        return [
+            'entryTypes' => [
+                'new1' => [
+                    'name' => 'Subscription Plan',
+                    'handle' => 'subscriptionPlan',
+                    'fields' => [
+                        'new1' => [
+                            'type' => Dropdown::class,
+                            'name' => 'Select Plan',
+                            'handle' => 'selectPlan',
+                            'instructions' => "Can't see your plans? Go to [Subscriptions]($subscriptionUrl) and click on Refresh Plans",
+                            'required' => 1,
+                            'settings' => '{"columnType":"string", "options":[{"label":"Select Plan...","value":"","default":""}]}',
+                            'translationMethod' => Field::TRANSLATION_METHOD_SITE,
+                        ],
+                        'new2' => [
+                            'type' => PlainText::class,
+                            'name' => 'Custom Label',
+                            'handle' => 'customLabel',
+                            'instructions' => 'Override the default text displayed for each plan (i.e. “Nickname amount/interval”)',
+                            'required' => 0,
+                            'settings' => '{"placeholder":"Awesome Plan $35.00/month","code":"","multiline":"","initialRows":"4","charLimit":"","columnType":"text"}',
+                            'translationMethod' => Field::TRANSLATION_METHOD_SITE,
+                        ],
+                        'new3' => [
+                            'type' => Number::class,
+                            'name' => 'Setup Fee',
+                            'handle' => 'setupFee',
+                            'instructions' => 'Setup Fee for the first payment',
+                            'required' => 0,
+                            'settings' => '{"min":null,"max":null,"decimals":"2","size":null}',
+                            'translationMethod' => Field::TRANSLATION_METHOD_SITE,
+                        ],
+                        'new4' => [
+                            'type' => Lightswitch::class,
+                            'name' => 'Default',
+                            'handle' => 'default',
+                            'instructions' => 'Please make sure that just one default is enabled',
+                            'required' => 0,
+                            'settings' => '{"default":""}',
+                            'translationMethod' => Field::TRANSLATION_METHOD_SITE,
+                        ]
+                    ]
+                ]
+            ]
+        ];
     }
 
     /**
@@ -1697,5 +1761,82 @@ class PaymentForms extends Component
                 'value' => 'ES'
             ]
         ];
+    }
+
+    /**
+     * @param ProjectConfig $projectConfig
+     * @param array $entryTypesConfig
+     * @return array
+     * @throws \Throwable
+     * @throws \craft\errors\EntryTypeNotFoundException
+     * @throws \yii\base\InvalidConfigException
+     */
+    public function getEntryTypeUids(ProjectConfig $projectConfig, array $entryTypesConfig): array
+    {
+        // index entry type names and handles
+        $entryTypeUids = [];
+        $entryTypeNames = [];
+        $entryTypeHandles = [];
+        foreach ($projectConfig->get(ProjectConfig::PATH_ENTRY_TYPES) ?? [] as $entryTypeConfig) {
+            $entryTypeNames[$entryTypeConfig['name']] = true;
+            $entryTypeHandles[$entryTypeConfig['handle']] = true;
+        }
+
+        $fieldNames = [];
+        $fieldHandles = [];
+        foreach ($projectConfig->get(ProjectConfig::PATH_FIELDS) ?? [] as $fieldConfig) {
+            $fieldNames[$fieldConfig['name']] = true;
+            $fieldHandles[$fieldConfig['handle']] = true;
+        }
+
+        foreach ($entryTypesConfig as $blockTypeConfig) {
+            $entryType = new EntryType([
+                'name' => $this->uniqueName($blockTypeConfig['name'], $entryTypeNames),
+                'handle' => $this->uniqueHandle($blockTypeConfig['handle'], $entryTypeHandles),
+                'hasTitleField' => false,
+                'titleFormat' => null,
+            ]);
+
+            $fieldLayout = new FieldLayout();
+            $fieldLayoutTab = new FieldLayoutTab();
+            $fieldLayoutTab->name = 'Content';
+            $fieldLayoutTab->sortOrder = 1;
+            $fieldLayoutTab->setLayout($fieldLayout);
+            $fieldLayout->type = Entry::class;
+            $layoutElements = [];
+
+            foreach ($blockTypeConfig['fields'] as $fieldConfig) {
+                $field = $fields[] = Craft::$app->getFields()->createField([
+                    'type' => $fieldConfig['type'],
+                    'name' => $fieldConfig['name'],
+                    'handle' => $this->uniqueHandle($fieldConfig['handle'], $fieldHandles),
+                    'context' => StripePlugin::$app->settings->getFieldContext(),
+                    'columnSuffix' => $fieldConfig['columnSuffix'] ?? null,
+                    'instructions' => $fieldConfig['instructions'],
+                    'required' => (bool)$fieldConfig['required'],
+                    'translationMethod' => $fieldConfig['translationMethod'],
+                    'settings' => $fieldConfig['settings'],
+                ]);
+
+                Craft::$app->getFields()->saveField($field, false);
+
+                $layoutElements[] = Craft::createObject([
+                    'class' => CustomField::class,
+                    'uid' => $field->uid,
+                    'required' => (bool)$fieldConfig['required'],
+                    'width' => (int)($fieldConfig['width'] ?? 0) ?: 100,
+                ], [$field]);
+            }
+
+            $fieldLayoutTab->setElements($layoutElements);
+            $fieldLayout->setTabs([$fieldLayoutTab]);
+            Craft::$app->getFields()->saveLayout($fieldLayout);
+            $entryType->setFieldLayout($fieldLayout);
+            Craft::$app->entries->saveEntryType($entryType);
+
+            $entryTypeUids[] = $entryType->uid;
+        }
+
+        return $entryTypeUids;
     }
 }

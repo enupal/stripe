@@ -206,7 +206,7 @@ class Cart extends Element
      * @throws \yii\base\InvalidConfigException
      * @throws \yii\base\InvalidConfigException
      */
-    protected function tableAttributeHtml(string $attribute): string
+    protected function attributeHtml(string $attribute): string
     {
         switch ($attribute) {
             case 'totalPrice':
@@ -215,7 +215,7 @@ class Cart extends Element
             }
         }
 
-        return parent::tableAttributeHtml($attribute);
+        return parent::attributeHtml($attribute);
     }
 
     /**

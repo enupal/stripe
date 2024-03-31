@@ -159,6 +159,14 @@ class Order extends Element
     /**
      * @inheritdoc
      */
+    public function canDelete(User $user): bool
+    {
+        return true;
+    }
+
+    /**
+     * @inheritdoc
+     */
     public function getCpEditUrl(): ?string
     {
         return UrlHelper::cpUrl(
@@ -360,7 +368,7 @@ class Order extends Element
      * @throws \yii\base\InvalidConfigException
      * @throws \yii\base\InvalidConfigException
      */
-    protected function tableAttributeHtml(string $attribute): string
+    protected function attributeHtml(string $attribute): string
     {
         switch ($attribute) {
             case 'totalPrice':
@@ -410,7 +418,7 @@ class Order extends Element
 
         }
 
-        return parent::tableAttributeHtml($attribute);
+        return parent::attributeHtml($attribute);
     }
 
     /**

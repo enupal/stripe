@@ -202,6 +202,14 @@ class PaymentForm extends Element
     /**
      * @inheritdoc
      */
+    public function canSave(User $user): bool
+    {
+        return true;
+    }
+
+    /**
+     * @inheritdoc
+     */
     public function behaviors(): array
     {
         return array_merge(parent::behaviors(), [
@@ -439,7 +447,7 @@ class PaymentForm extends Element
      * @throws \yii\base\InvalidConfigException
      * @throws \yii\base\InvalidConfigException
      */
-    protected function tableAttributeHtml(string $attribute): string
+    protected function attributeHtml(string $attribute): string
     {
         switch ($attribute) {
             case 'amount':
@@ -456,7 +464,7 @@ class PaymentForm extends Element
                 }
         }
 
-        return parent::tableAttributeHtml($attribute);
+        return parent::attributeHtml($attribute);
     }
 
     /**
