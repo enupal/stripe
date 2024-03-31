@@ -1791,7 +1791,7 @@ class PaymentForms extends Component
 
         foreach ($entryTypesConfig as $blockTypeConfig) {
             $entryType = new EntryType([
-                'name' => $blockTypeConfig['name'],
+                'name' => $this->uniqueName($blockTypeConfig['name'], $entryTypeNames),
                 'handle' => $this->uniqueHandle($blockTypeConfig['handle'], $entryTypeHandles),
                 'hasTitleField' => false,
                 'titleFormat' => null,
