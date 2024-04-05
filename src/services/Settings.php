@@ -65,6 +65,7 @@ class Settings extends Component
         $settings->testClientId = $configSettings['testClientId'] ?? $settings->testClientId;
         $settings->testWebhookSigningSecret = $configSettings['testWebhookSigningSecret'] ?? $settings->testWebhookSigningSecret;
         $settings->testMode = $configSettings['testMode'] ?? $settings->testMode;
+		$settings->useSca = $configSettings['useSca'] ?? $settings->useSca;
 
         return $settings;
     }
