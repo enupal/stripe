@@ -290,7 +290,7 @@ class Checkout extends Component
                     $trialPeriodDays = $finalTrialPeriodDays;
                 }
 
-                $plan = StripePlugin::$app->plans->createCustomPlan($customPlan);
+                $plan = StripePlugin::$app->plans->createCustomPlan($customPlan, $paymentForm);
             }
         }
 
@@ -321,7 +321,7 @@ class Checkout extends Component
                 "currency" => $paymentForm->currency
             ]);
 
-            $plan = StripePlugin::$app->plans->createCustomPlan($customPlan);
+            $plan = StripePlugin::$app->plans->createCustomPlan($customPlan, $paymentForm);
         }
 
         $planItem =  [
