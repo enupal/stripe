@@ -36,6 +36,8 @@ class Settings extends Component
             $settings->setScenario($scenario);
         }
 
+        $settings->cleanGeneralSettings();
+
         // Validate them, now that it's a model
         if ($settings->validate() === false) {
             return false;
@@ -65,6 +67,8 @@ class Settings extends Component
         $settings->testClientId = $configSettings['testClientId'] ?? $settings->testClientId;
         $settings->testWebhookSigningSecret = $configSettings['testWebhookSigningSecret'] ?? $settings->testWebhookSigningSecret;
         $settings->testMode = $configSettings['testMode'] ?? $settings->testMode;
+        $settings->useSca = $configSettings['useSca'] ?? $settings->useSca;
+        $settings->capture = $configSettings['capture'] ?? $settings->capture;
 
         return $settings;
     }

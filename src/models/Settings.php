@@ -117,30 +117,6 @@ class Settings extends Model
     {
         return [
             [
-                ['livePublishableKey', 'liveSecretKey'],
-                'required', 'on' => 'general', 'when' => function($model) {
-                    $configSettings = Stripe::$app->settings->getConfigSettings();
-                    $isRequired = isset($configSettings['livePublishableKey']) ? false : true;
-                    return !$model->testMode &&  $isRequired;
-                }
-            ],
-            [
-                ['liveSecretKey'],
-                'required', 'on' => 'general', 'when' => function($model) {
-                $configSettings = Stripe::$app->settings->getConfigSettings();
-                $isRequired = isset($configSettings['liveSecretKey']) ? false : true;
-                return !$model->testMode && $isRequired;
-            }
-            ],
-            [
-                ['testPublishableKey'],
-                'required', 'on' => 'general', 'when' => function($model) {
-                    $configSettings = Stripe::$app->settings->getConfigSettings();
-                    $isRequired = isset($configSettings['testPublishableKey']) ? false : true;
-                    return $model->testMode && $isRequired;
-                }
-            ],
-            [
                 ['liveClientId'],
                 'required', 'on' => 'general', 'when' => function($model) {
                     $configSettings = Stripe::$app->settings->getConfigSettings();
@@ -229,6 +205,54 @@ class Settings extends Model
                 'number', 'min'=> '1', 'max'=>'100' , 'on' => 'connect', 'numberPattern' => '/^\d+(.\d{1,2})?$/',
             ]
         ];
+    }
+
+    public function cleanGeneralSettings()
+    {
+        $configSettings = Stripe::$app->settings->getConfigSettings();
+        if (isset($configSettings['testPublishableKey'])) {
+            $this->testPublishableKey = '';
+        }
+
+        if (isset($configSettings['testSecretKey'])) {
+            $this->testSecretKey = '';
+        }
+
+        if (isset($configSettings['livePublishableKey'])) {
+            $this->livePublishableKey = '';
+        }
+
+        if (isset($configSettings['liveSecretKey'])) {
+            $this->liveSecretKey = '';
+        }
+
+        if (isset($configSettings['testMode'])) {
+            $this->testMode = '';
+        }
+
+        if (isset($configSettings['liveClientId'])) {
+            $this->liveClientId = '';
+        }
+
+        if (isset($configSettings['testClientId'])) {
+            $this->testClientId = '';
+        }
+
+        if (isset($configSettings['testWebhookSigningSecret'])) {
+            $this->testWebhookSigningSecret = '';
+        }
+
+        if (isset($configSettings['liveWebhookSigningSecret'])) {
+            $this->liveWebhookSigningSecret = '';
+        }
+
+        if (isset($configSettings['capture'])) {
+            $this->capture = '';
+        }
+
+        if (isset($configSettings['useSca'])) {
+            $this->useSca = '';
+        }
     }
 
     public function getCartPaymentMethods()
