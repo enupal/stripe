@@ -36,6 +36,8 @@ class Settings extends Component
             $settings->setScenario($scenario);
         }
 
+        $settings->cleanGeneralSettings();
+
         // Validate them, now that it's a model
         if ($settings->validate() === false) {
             return false;
