@@ -1242,7 +1242,7 @@ class Orders extends Component
         }
 
         //Create new plan for this customer:
-        $plan = StripePlugin::$app->plans->createCustomPlan($customPlan);
+        $plan = StripePlugin::$app->plans->createCustomPlan($customPlan, $paymentForm);
 
         // Add the plan to the customer
         $subscriptionSettings = [
@@ -1303,7 +1303,7 @@ class Orders extends Component
             $customPlan->trialPeriodDays = $trialPeriodDays;
         }
 
-        $plan = StripePlugin::$app->plans->createCustomPlan($customPlan);
+        $plan = StripePlugin::$app->plans->createCustomPlan($customPlan, $paymentForm);
 
         // Add the plan to the customer
         $subscriptionSettings = [
