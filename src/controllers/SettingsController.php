@@ -38,7 +38,6 @@ class SettingsController extends BaseController
         /** @var Settings $settingsModel */
         $settingsModel = $plugin->getSettings();
         $settingsModel->setAttributes($settings, false);
-        $settingsModel->cleanGeneralSettings();
 
         if (!Stripe::$app->settings->saveSettings($settingsModel, $scenario)) {
 
