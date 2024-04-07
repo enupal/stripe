@@ -9,6 +9,7 @@
 namespace enupal\stripe\services;
 
 use Craft;
+use enupal\stripe\elements\PaymentForm;
 use enupal\stripe\models\CustomPlan;
 use Stripe\Price;
 use yii\base\Component;
@@ -245,14 +246,17 @@ class Plans extends Component
      * @param CustomPlan $customPlan
      * @return Plan
      */
-    public function createCustomPlan(CustomPlan $customPlan)
+    public function createCustomPlan(CustomPlan $customPlan, PaymentForm $paymentForm)
     {
         $currentTime = time();
         $planName = strval($currentTime);
         //Create new plan for this customer:
 
         $settings = StripePlugin::$app->settings->getSettings();
-        $productName = Craft::$app->getView()->renderObjectTemplate($settings->customPlanName, ['planId' => $planName]);
+        $productName = Craft::$app->getView()->renderObjectTemplate($settings->customPlanName, [
+            'planId' => $planName,
+            'paymentForm' => $paymentForm
+        ]);
 
         $params = [
             "amount" => $customPlan->amountInCents,
