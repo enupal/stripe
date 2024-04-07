@@ -1,5 +1,13 @@
 # Stripe Payments Changelog
 
+## 6.0.2 - 2024.04.07
+### Added
+- Added support for `useSca` and `capture` override via [config settings](https://docs.enupal.com/stripe-payments/getting-started/saving-your-stripe-api-keys.html#saving-the-stripe-api-keys-via-config-file)
+- Added support for the `paymentForm` object to be used on the `Custom Plan Name` setting, e.g: `Custom Plan - {planId} - {paymentForm.handle}`
+
+### Fixed
+- Fixed issue when saving general settings and [having config settings](https://docs.enupal.com/stripe-payments/getting-started/saving-your-stripe-api-keys.html#saving-the-stripe-api-keys-via-config-file)
+
 ## 6.0.1 - 2024.03.31
 ### Updated
 - Updated sidebar logo
