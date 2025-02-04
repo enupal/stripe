@@ -1,5 +1,11 @@
 # Stripe Payments Changelog
 
+## 6.0.3 - 2025.02.04
+### Fixed
+- Fixed issue when calling `getBlockTypeFields` ([#406])
+
+[#406]: https://github.com/enupal/stripe/issues/406
+
 ## 6.0.2 - 2024.04.07
 ### Added
 - Added support for `useSca` and `capture` override via [config settings](https://docs.enupal.com/stripe-payments/getting-started/saving-your-stripe-api-keys.html#saving-the-stripe-api-keys-via-config-file)
