@@ -9,6 +9,8 @@
 namespace enupal\stripe\services;
 
 use Craft;
+use craft\fields\Dropdown;
+use craft\fields\Matrix;
 use enupal\stripe\elements\PaymentForm;
 use enupal\stripe\models\CustomPlan;
 use Stripe\Price;
@@ -35,11 +37,16 @@ class Plans extends Component
 
         $currentFieldContext = Craft::$app->getFields()->fieldContext;
         Craft::$app->getFields()->fieldContext = StripePlugin::$app->settings->getFieldContext();
+        /** @var Matrix $matrixMultiplePlansField */
         $matrixMultiplePlansField = Craft::$app->fields->getFieldByHandle(StripePlugin::$app->paymentForms::MULTIPLE_PLANS_HANDLE);
 
-        $matrixFields = $matrixMultiplePlansField->getBlockTypeFields();
+
+        $matrixFields = $matrixMultiplePlansField->getEntryTypes()[0]->getFieldLayout()->getCustomFields();
+
+
         foreach ($matrixFields as $matrixField) {
-            if ($matrixField->handle == 'selectPlan'){
+            /** @var Dropdown $matrixField */
+            if (str_starts_with($matrixField->handle, 'selectPlan')){
                 $matrixField->options = $options;
                 // Update the select plan field with the plans from stripe
                 Craft::$app->fields->saveField($matrixField);
@@ -72,8 +79,10 @@ class Plans extends Component
         Craft::$app->getFields()->fieldContext = StripePlugin::$app->settings->getFieldContext();
         $matrixMultiplePlansField = Craft::$app->fields->getFieldByHandle(StripePlugin::$app->paymentForms::MULTIPLE_PLANS_HANDLE);
 
-        $matrixFields = $matrixMultiplePlansField->getBlockTypeFields();
+        /** @var Matrix $matrixMultiplePlansField */
+        $matrixFields = $matrixMultiplePlansField->getEntryTypes();
         foreach ($matrixFields as $matrixField) {
+            /** @var Dropdown $matrixField */
             if ($matrixField->handle == 'selectPlan'){
                 foreach ($matrixField->options as $option) {
                     if ($option['value']){
