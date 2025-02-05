@@ -1045,7 +1045,7 @@ class Orders extends Component
 
         $countryId = $addressData['country'] ?? null;
 
-        if (!is_int($countryId)){
+        if ($countryId !== null && !is_int($countryId)){
             $country = Stripe::$app->countries->getCountryByIso($countryId);
             if ($country){
                 $countryId = $country->id;
