@@ -1,5 +1,11 @@
 # Stripe Payments Changelog
 
+## 6.1.0 - 2026.02.02
+### Fixed
+- Added support for Craft 5.9.x ([#420])
+
+[#420]: https://github.com/enupal/stripe/issues/420
+
 ## 6.0.3 - 2025.02.04
 ### Fixed
 - Fixed issue when calling `getBlockTypeFields` ([#406])
